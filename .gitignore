@@ -1,5 +1,5 @@
-# postgres database
-database
+# migration prisma
+migrations
 
 # Logs
 logs

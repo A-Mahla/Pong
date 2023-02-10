@@ -1,10 +1,9 @@
-export class CreateUserDto {
+export class CreateUserParams {
 	login: string;
 	password: string;
 }
 
-export class UpdateUserDto {
+export class UpdateUserParams {
 	login: string;
 	password: string;
 }
-

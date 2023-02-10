@@ -7,3 +7,4 @@ export class UpdateUserParams {
 	login: string;
 	password: string;
 }
+

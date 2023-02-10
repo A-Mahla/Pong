@@ -38,6 +38,7 @@ services:
       - "5500:3000"
     volumes:
       - ./app/server/src:/app/src
+      - ./app/server/prisma:/app/prisma
     restart: always
     networks:
       - webapp

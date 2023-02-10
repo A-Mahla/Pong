@@ -58,4 +58,3 @@ export class UsersController {
 		await this.userService.deleteUser(login);
 	}
 }
-
