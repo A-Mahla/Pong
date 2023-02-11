@@ -1,11 +1,10 @@
-import React from 'react';
 import './App.css';
-import { Transcendence } from './transcendence/transcendence'
+import { Pong } from './pong/pong'
 
 function App() {
   return (
 	<>
-		<Transcendence />
+		<Pong />
 	</>
   );
 }

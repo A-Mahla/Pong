@@ -1,4 +1,4 @@
-# ================ Dockerfiloe for development =============
+# =========== Dockerfile for devlopment ===========
 
 FROM		node:19-alpine
 
@@ -8,6 +8,6 @@ COPY		. /app/
 
 RUN			npm --silent install 
 
-EXPOSE		3000
+EXPOSE		5173
 
-ENTRYPOINT ["npm", "start"]
+ENTRYPOINT ["npm", "run", "dev"]
