@@ -1,4 +1,4 @@
-import { Button } from '@mui/material'
+import { Button, Box } from '@mui/material'
 import { useLocation } from "react-router-dom"
 import { useCallback } from 'react'
 
@@ -10,9 +10,11 @@ export const Oauth2 = () => {
 	}, [])
 
 	return (
-		<>
-			<Button onClick={handleClick}>pong</Button>
-		</>
+		<Button sx={{
+			m: 'auto',
+			boxShadow: 1,
+			color: 'primary.main'
+		}} onClick={handleClick}>pong</Button>
 	)
 }
 

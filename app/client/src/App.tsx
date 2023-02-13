@@ -1,5 +1,5 @@
 import './App.css';
-import { Pong } from './pong/pong'
+import { Pong } from './pong/Pong'
 
 function App() {
   return (
