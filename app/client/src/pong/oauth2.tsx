@@ -5,7 +5,7 @@ import { useCallback } from 'react'
 export const Oauth2 = () => {
 
 	const handleClick = useCallback( async () => {
-		let response = await fetch("https://api.intra.42.fr/v2/oauth/authorize?client_id=u-s4t2ud-cf027037aecd3425a69a0c9e8ad026fc94bad3dca05f54d2ee812489852576ce&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fredirect&response_type=code", {redirect: "manual"})
+		let response = await fetch(`https://api.intra.42.fr/v2/oauth/authorize?client_id=u-s4t2ud-2963e5d6c6ab1d8f9e2dcba0e3f2d6909a14a6933dee099c55d7699f8c01f9e7&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fredirect&response_type=code`, {redirect: "manual"})
 		location.replace(response.url)
 	}, [])
 
@@ -16,11 +16,27 @@ export const Oauth2 = () => {
 	)
 }
 
+async function fetchApi(query: string) {
+
+	const requestOptions = {
+		method: "POST",
+	}
+
+	const response = await fetch(`http://localhost:5500/api/auth/intra42/login${query}`, requestOptions)
+	.then(response => console.log(response.json()))
+	.then(data => console.log(data))
+	
+}
+
 export const Redirect = () => {
 	const url = useLocation()
-	console.log(url)
+
+	fetchApi(url.search)
+
+	location.replace("http://localhost:3000")
 	return (
 		<>
+		{url.search}
 		</>
 	)
 }
