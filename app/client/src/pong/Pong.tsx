@@ -11,6 +11,11 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 const theme = createTheme({
 	typography: {
 		fontFamily: ['pong-policy']
+	},
+	palette: {
+		primary: {
+			main: 'rgba(0, 0, 0, 0.87)'
+		}
 	}
 })
 
