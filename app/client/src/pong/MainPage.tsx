@@ -28,8 +28,7 @@ export const MainPage = () => {
 			</Grid>
 			<Grid item xs={4}>
 				<Grid container display='flex'>
-					<Grid item xs={4}></Grid>
-					<Grid item xs={4} sx={{px: '1rem'}}>
+					<Grid item xs={4} sx={{px: '0.5vw;'}}>
 						<Button
 							color='primary'
 							sx={buttonStyle}
@@ -40,7 +39,7 @@ export const MainPage = () => {
 							About us
 						</Button>
 					</Grid>
-					<Grid item xs={4} sx={{px: '1rem'}}>
+					<Grid item xs={4} sx={{px: '1vw;'}}>
 						<Button
 							color='primary'
 							sx={buttonStyle}
@@ -51,6 +50,7 @@ export const MainPage = () => {
 							Contact
 						</Button>
 					</Grid>
+					<Grid item xs={4}></Grid>
 				</Grid> 
 			</Grid>
 		</Grid>
