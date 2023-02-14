@@ -9,7 +9,8 @@ import { Controller,
 	UseInterceptors,
 	NestInterceptor,
 	UploadedFile,
-	Query
+	Query,
+	HttpException
 } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './User.dto'
 import { UsersService } from './users.service'
@@ -28,7 +29,7 @@ export class UsersController {
 
 
 	@Get('login')
-	async checkLogin(@Query() query: {login: string, password: string}) {
+	async handleLogin(@Query() query: {login: string, password: string}) {
 		const user = await this.userService.findOneUser(query.login)
 		console.log("user", user)
 		console.log("query", query)
@@ -46,6 +47,21 @@ export class UsersController {
 			'statusCode': 200,
 			'message': 'valid infos'
 		} 
+	}
+
+	@Post('signup')
+	async handleSignup(@Query() query: {login: string, password: string}) {
+		const user = await this.userService.findOneUser(query.login)
+		if (user)
+			return {
+				'statusCode' : 403,
+				'message': 'login already use' 
+			}
+		this.createUser({login: query.login, password: query.password})
+		return {
+			'statusCode': 200,
+			'message' : 'user successfully signed in'
+		}
 	}
 
 	@Get(':login')

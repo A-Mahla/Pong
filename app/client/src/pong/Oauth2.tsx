@@ -15,11 +15,7 @@ export const Oauth2 = (props: Props) => {
 	}, [])
 
 	return (
-		<Button sx={{
-			m: 'auto',
-			boxShadow: 1,
-			color: 'primary.main'
-		}} onClick={handleClick}>{props.children}</Button>
+		<Button sx={{color: 'primary.main'}} onClick={handleClick}>{props.children}</Button>
 	)
 }
 
