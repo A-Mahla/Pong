@@ -8,9 +8,9 @@ import { Controller,
 	Param,
 	UseInterceptors,
 	NestInterceptor,
-	UploadedFile
+	UploadedFile,
+	Query
 } from '@nestjs/common';
-//import { diskStorage } from  'multer';
 import { CreateUserDto, UpdateUserDto } from './User.dto'
 import { UsersService } from './users.service'
 
@@ -23,8 +23,29 @@ export class UsersController {
 
 	@Get()
 	async getUsers() {
-		console.log("yeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee ");
 		return await this.userService.findUsers();
+	}
+
+
+	@Get('login')
+	async checkLogin(@Query() query: {login: string, password: string}) {
+		const user = await this.userService.findOneUser(query.login)
+		console.log("user", user)
+		console.log("query", query)
+		if (!user)
+			return {
+				'statusCode': 403,
+				'message': 'invalid login'
+			} 
+		if (user.password != query.password)
+			return {
+				'statusCode': 403,
+				'message': 'invalid password'
+			} 
+		return {
+			'statusCode': 200,
+			'message': 'valid infos'
+		} 
 	}
 
 	@Get(':login')
@@ -33,6 +54,7 @@ export class UsersController {
 	) {
 		return await this.userService.findOneUser(login);
 	}
+
 
 	@Post()
 	createUser(@Body() createUserDto: CreateUserDto) {

@@ -12,7 +12,7 @@ export const MainPage = () => {
 	return (
 		<Box>
 			<Typography variant='h1' sx={boxStyle}>Pong</Typography>
-			<Oauth2/>
+			<Oauth2>PONG</Oauth2>
 		</Box>
 	)
 }

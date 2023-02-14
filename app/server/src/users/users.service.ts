@@ -48,6 +48,7 @@ export class UsersService {
 			createdAt: new Date(),
 			...userDetails,
 		};
+		console.log("create prisma user: ", newUser)
 		return this.prisma.user.create({
 			data: { ...newUser }
 		});

@@ -3,6 +3,7 @@ import { useCallback } from "react"
 import { Redirect } from "./Oauth2"
 import { MainPage } from "./MainPage"
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Login } from './Login'
 
 /**
  * ============ Entrypoint of the project =============
@@ -23,6 +24,7 @@ export const Pong = () => {
 				<Routes>
 					<Route path='/' element={<MainPage/>} />
 					<Route path="/redirect" element={<Redirect/>} />
+					<Route path='/login' element={<Login/>}/>
 				</Routes>
 			</BrowserRouter>
 		</ThemeProvider>
