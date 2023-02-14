@@ -44,14 +44,15 @@ export class UsersController {
 	@UseInterceptors(FileInterceptor('file', {
 		storage: diskStorage({
 			destination: './avatar',
-			filename: () => {
-				return "monfichiertest.jpeg";
+			filename: (req, file, cb) => {
+				console.log("je passe par lalalalalaallaallalalalala  " + req.params.login + ".jpeg");
+				return cb(null, req.params.login + ".jpeg");
 			}
 		})
-	}))	async setAvatar(@UploadedFile() file: Express.Multer.File, @Param('login') login: string) {
-
-		let newAvatar = login + ".jpeg";
-		return await this.userService.updateAvatar(login, newAvatar)
+	}))
+	setAvatar(@UploadedFile() file: Express.Multer.File, @Param('login') login: string) {
+		console.log(file.destination);
+		return this.userService.updateAvatar(login, file.filename);
 	}
 
 	@Put(':login')
