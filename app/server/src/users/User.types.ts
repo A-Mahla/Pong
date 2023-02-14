@@ -6,5 +6,6 @@ export class CreateUserParams {
 export class UpdateUserParams {
 	login: string;
 	password: string;
+	avatar: string;
 }
 

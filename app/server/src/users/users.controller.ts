@@ -6,8 +6,11 @@ import { Controller,
 	Delete,
 	Patch,
 	Param,
-	ParseIntPipe
+	UseInterceptors,
+	NestInterceptor,
+	UploadedFile
 } from '@nestjs/common';
+//import { diskStorage } from  'multer';
 import { CreateUserDto, UpdateUserDto } from './User.dto'
 import { UsersService } from './users.service'
 
@@ -20,6 +23,7 @@ export class UsersController {
 
 	@Get()
 	async getUsers() {
+		console.log("yeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee ");
 		return await this.userService.findUsers();
 	}
 
@@ -35,7 +39,14 @@ export class UsersController {
 		this.userService.createUser(createUserDto);
 	}
 
-	@Put(':login') 
+	@Post(':login/avatar')
+	async setAvatar(
+		@Param('login') login: string) {
+			let newAvatar = (login + ".jpeg");
+		return await this.userService.updateAvatar(login, newAvatar)
+	}
+
+	@Put(':login')
 	async updateUserById(
 		@Param('login') login: string,
 		@Body() updateUserDto: UpdateUserDto
@@ -43,7 +54,7 @@ export class UsersController {
 		await this.userService.updateUser(login, updateUserDto);
 	}
 
-	@Patch(':login') 
+	@Patch(':login')
 	async updatePatchUserById(
 		@Param('login') login: string,
 		@Body() updateUserDto: UpdateUserDto
@@ -58,4 +69,3 @@ export class UsersController {
 		await this.userService.deleteUser(login);
 	}
 }
-

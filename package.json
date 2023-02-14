@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@nestjs/common": "^9.3.8",
+    "@prisma/client": "^4.10.1"
+  },
+  "devDependencies": {
+    "@types/multer": "^1.4.7"
+  }
+}
