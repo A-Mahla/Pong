@@ -2,6 +2,7 @@ import { Oauth2 } from "./Oauth2"
 import { Route } from 'react-router-dom'
 import { Typography, Button, Box } from '@mui/material'
 import Grid from '@mui/material/Grid'
+import { Link } from "react-router-dom"
 
 const titleStyle = {
 	fontSize: '17vw;',
@@ -53,8 +54,7 @@ export const MainPage = () => {
 				</Grid> 
 			</Grid>
 		</Grid>
-		<Oauth2/>
+		<Button component={Link} to="/login">LOGIN / SIGNUP</Button>
 	</>
 }
 
-//<Oauth2/>

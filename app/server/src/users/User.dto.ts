@@ -6,5 +6,6 @@ export class CreateUserDto {
 export class UpdateUserDto {
 	login: string;
 	password: string;
+	avatar: string;
 }
 

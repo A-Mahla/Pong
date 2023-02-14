@@ -29,7 +29,7 @@ export class AuthController {
 
 			const user : CreateUserParams = {
 				login: login,
-				password: "1234"
+				password: "1234",
 			}
 			
 			this.usersService.createUser(user)

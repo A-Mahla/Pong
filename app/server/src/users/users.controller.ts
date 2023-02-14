@@ -6,7 +6,11 @@ import { Controller,
 	Delete,
 	Patch,
 	Param,
-	ParseIntPipe
+	UseInterceptors,
+	NestInterceptor,
+	UploadedFile,
+	Query,
+	HttpException
 } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './User.dto'
 import { UsersService } from './users.service'
@@ -23,6 +27,43 @@ export class UsersController {
 		return await this.userService.findUsers();
 	}
 
+
+	@Get('login')
+	async handleLogin(@Query() query: {login: string, password: string}) {
+		const user = await this.userService.findOneUser(query.login)
+		console.log("user", user)
+		console.log("query", query)
+		if (!user)
+			return {
+				'statusCode': 403,
+				'message': 'invalid login'
+			} 
+		if (user.password != query.password)
+			return {
+				'statusCode': 403,
+				'message': 'invalid password'
+			} 
+		return {
+			'statusCode': 200,
+			'message': 'valid infos'
+		} 
+	}
+
+	@Post('signup')
+	async handleSignup(@Query() query: {login: string, password: string}) {
+		const user = await this.userService.findOneUser(query.login)
+		if (user)
+			return {
+				'statusCode' : 403,
+				'message': 'login already use' 
+			}
+		this.createUser({login: query.login, password: query.password})
+		return {
+			'statusCode': 200,
+			'message' : 'user successfully signed in'
+		}
+	}
+
 	@Get(':login')
 	async getUsersbyId(
 		@Param('login') login: string,
@@ -30,12 +71,20 @@ export class UsersController {
 		return await this.userService.findOneUser(login);
 	}
 
+
 	@Post()
 	createUser(@Body() createUserDto: CreateUserDto) {
 		this.userService.createUser(createUserDto);
 	}
 
-	@Put(':login') 
+	@Post(':login/avatar')
+	async setAvatar(
+		@Param('login') login: string) {
+			let newAvatar = (login + ".jpeg");
+		return await this.userService.updateAvatar(login, newAvatar)
+	}
+
+	@Put(':login')
 	async updateUserById(
 		@Param('login') login: string,
 		@Body() updateUserDto: UpdateUserDto
@@ -43,7 +92,7 @@ export class UsersController {
 		await this.userService.updateUser(login, updateUserDto);
 	}
 
-	@Patch(':login') 
+	@Patch(':login')
 	async updatePatchUserById(
 		@Param('login') login: string,
 		@Body() updateUserDto: UpdateUserDto
@@ -58,4 +107,3 @@ export class UsersController {
 		await this.userService.deleteUser(login);
 	}
 }
-
