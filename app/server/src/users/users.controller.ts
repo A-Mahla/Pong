@@ -10,7 +10,9 @@ import { Controller,
 	NestInterceptor,
 	UploadedFile
 } from '@nestjs/common';
-//import { diskStorage } from  'multer';
+import { diskStorage } from  'multer';
+import { extname } from  'path';
+import { FileInterceptor } from '@nestjs/platform-express'
 import { CreateUserDto, UpdateUserDto } from './User.dto'
 import { UsersService } from './users.service'
 
@@ -23,7 +25,6 @@ export class UsersController {
 
 	@Get()
 	async getUsers() {
-		console.log("yeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee ");
 		return await this.userService.findUsers();
 	}
 
@@ -40,9 +41,16 @@ export class UsersController {
 	}
 
 	@Post(':login/avatar')
-	async setAvatar(
-		@Param('login') login: string) {
-			let newAvatar = (login + ".jpeg");
+	@UseInterceptors(FileInterceptor('file', {
+		storage: diskStorage({
+			destination: './avatar',
+			filename: () => {
+				return "monfichiertest.jpeg";
+			}
+		})
+	}))	async setAvatar(@UploadedFile() file: Express.Multer.File, @Param('login') login: string) {
+
+		let newAvatar = login + ".jpeg";
 		return await this.userService.updateAvatar(login, newAvatar)
 	}
 
