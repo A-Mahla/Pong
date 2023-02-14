@@ -17,6 +17,13 @@ export class UsersService {
 			where: { login: login }
 		});
 	}
+
+	async findOneIntraUser(intraLogin: string) : Promise<User | null> {
+		return this.prisma.user.findUnique({
+			where: { intraLogin: intraLogin }
+		});
+	}
+
 	//async findAvatar(avatar_path: string) : Promise<User | null> {
 	//	return this.prisma.user.findUnique({
 	//		where: { login: login }

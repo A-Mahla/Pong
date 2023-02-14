@@ -27,7 +27,6 @@ export class UsersController {
 		return await this.userService.findUsers();
 	}
 
-
 	@Get('login')
 	async handleLogin(@Query() query: {login: string, password: string}) {
 		const user = await this.userService.findOneUser(query.login)
@@ -50,17 +49,47 @@ export class UsersController {
 	}
 
 	@Post('signup')
-	async handleSignup(@Query() query: {login: string, password: string}) {
+	async handleSignup(@Query() query: {login: string, password: string, intraLogin?: string}) {
 		const user = await this.userService.findOneUser(query.login)
 		if (user)
 			return {
 				'statusCode' : 403,
 				'message': 'login already use' 
 			}
-		this.createUser({login: query.login, password: query.password})
+		this.createUser({login: query.login, password: query.password, intraLogin: query.intraLogin})
 		return {
 			'statusCode': 200,
 			'message' : 'user successfully signed in'
+		}
+	}
+
+	@Post('intra')
+	async handleSignupIntra(@Query() query: {login: string, intraLogin?: string}) {
+		const user = await this.userService.findOneUser(query.login)
+		if (user)
+			return {
+				'statusCode' : 403,
+				'message': 'login already use' 
+			}
+		this.createUser({login: query.login, password: "", intraLogin: query.intraLogin})
+		return {
+			'statusCode': 200,
+			'message' : 'user successfully signed in'
+		}
+	}
+
+	@Get('intra')
+	async getIntraUser(@Query() query: {intraLogin : string}) {
+		const intraUser = this.userService.findOneIntraUser(query.intraLogin)
+		if (!intraUser)
+			return {
+				'statusCode' : 403,
+				'message': 'no such intra user' 
+			}
+		return {
+			'statusCode': 200,
+			'message' : 'user successfully signed in',
+			'body' : JSON.stringify(intraUser)
 		}
 	}
 

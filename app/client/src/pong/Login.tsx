@@ -15,13 +15,11 @@ export function Login() {
 
 	const handleLogin = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
-		
+
 		const requestOptions = {
 			method: "GET",
-/* 			headers: { 'Content-type': 'application/json'},
-			body: JSON.stringify({login: username.current.value,
-				password: password.current.value}) */
 		}
+
 		fetch(`http://localhost:5500/api/users/login?login=${username.current.value}&password=${password.current.value}`,
 			requestOptions)
 		.then(response => response.json())
@@ -37,6 +35,18 @@ export function Login() {
 	const handleSignup = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
 
+		if (username.current.value === '')
+		{
+			setError("invalid login");
+			return
+		}
+		else if (password.current.value === '')
+		{
+			setError('password invalid')
+			return
+		}
+
+		console.log(error)
 		
 		const requestOptions = {
 			method: "POST"
@@ -54,8 +64,7 @@ export function Login() {
 
 	}, [])
 
-	return (
-	<Grid container justifyContent="center">
+	return <Grid container justifyContent="center">
 		<FormControl>
 			<TextField type='text' inputRef={username} label="Login" sx={{p: 1}}></TextField>
 			<TextField type='text' inputRef={password} variant="outlined" label="Password"sx={{p: 1}}></TextField>
@@ -63,9 +72,8 @@ export function Login() {
 			<Button sx={{color: 'primary.main'}} onClick={handleSignup}>signup</Button>
 			<Button sx={{color: 'primary.main'}} onClick={handleLogin}>signin</Button>
 			<Oauth2>Login via intra</Oauth2>
-			{error.lenght === 0 ? <></> : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
+			{error.lenght === 0 ? null : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
 		</FormControl>
 	</Grid>
-	)
 
 }

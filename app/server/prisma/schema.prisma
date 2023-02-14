@@ -17,5 +17,6 @@ model User {
   login				String		@unique
   password		String
   avatar			String		@default("default_avatar.jpg")
+  intraLogin  String?   @unique
 }
 
