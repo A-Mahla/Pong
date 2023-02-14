@@ -1,3 +1,4 @@
+import { React } from 'react'
 import { Oauth2 } from "./Oauth2"
 import { Route } from 'react-router-dom'
 import { Typography, Button, Box } from '@mui/material'
@@ -17,6 +18,24 @@ const buttonStyle = {
 	fontSize: '1vw;',
 	borderRadius: 28,
 	flexWrap: 'wrap',
+}
+
+const Swipeable = () => {
+	return <>
+		{(['left', 'right', 'top', 'bottom'] as const).map((anchor) => (
+			<React.Fragment key={anchor}>
+				<Button onClick={toggleDrawer(anchor, true)}>{anchor}</Button>
+				<SwipeableDrawer
+					anchor={anchor}
+					open={state[anchor]}
+					onClose={toggleDrawer(anchor, false)}
+					onOpen={toggleDrawer(anchor, true)}
+				>
+					{list(anchor)}
+				</SwipeableDrawer>
+			</React.Fragment>
+		))}
+	</>
 }
 
 export const MainPage = () => {
@@ -55,6 +74,7 @@ export const MainPage = () => {
 			</Grid>
 		</Grid>
 		<Button component={Link} to="/login">LOGIN / SIGNUP</Button>
+		<Swipeable/>
 	</>
 }
 
