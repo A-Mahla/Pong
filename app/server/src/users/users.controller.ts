@@ -6,12 +6,17 @@ import { Controller,
 	Delete,
 	Patch,
 	Param,
+	Res,
 	UseInterceptors,
 	NestInterceptor,
-	UploadedFile
+	UploadedFile,
+	StreamableFile,
+	BadGatewayException,
+	BadRequestException
 } from '@nestjs/common';
 import { diskStorage } from  'multer';
-import { extname } from  'path';
+import { join } from  'path';
+import { createReadStream } from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express'
 import { CreateUserDto, UpdateUserDto } from './User.dto'
 import { UsersService } from './users.service'
@@ -43,17 +48,31 @@ export class UsersController {
 	@Post(':login/avatar')
 	@UseInterceptors(FileInterceptor('file', {
 		storage: diskStorage({
-			destination: './avatar',
+			destination: './app/server/src/avatar',
 			filename: (req, file, cb) => {
-				console.log("je passe par lalalalalaallaallalalalala  " + req.params.login + ".jpeg");
 				return cb(null, req.params.login + ".jpeg");
 			}
 		})
 	}))
 	setAvatar(@UploadedFile() file: Express.Multer.File, @Param('login') login: string) {
-		console.log(file.destination);
 		return this.userService.updateAvatar(login, file.filename);
 	}
+
+	@Get('avatar/:login')
+	async getFile(@Param('login') login : string, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
+		/* find the good file considering the login then put it into a var to give it to createReadStream */
+		try {
+			const user = await this.userService.findOneUser(login);
+			if (!user) {
+				throw new BadRequestException;
+			}
+			const file = createReadStream(join('./app/server/src/avatar/', user.avatar));
+			return new StreamableFile(file);
+		} catch (error){
+			throw new BadRequestException;
+		}
+	}
+
 
 	@Put(':login')
 	async updateUserById(
