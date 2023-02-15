@@ -87,7 +87,12 @@ export default function Swipeable() {
 	
 		return (
 			<Box
-				sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : '30vw;' }}
+				sx={{
+					width: anchor === 'top' || anchor === 'bottom' ? 'auto' : '30vw;',
+					'@media (max-width:300px)': {
+						width: '33vw;',
+					},
+				}}
 				role="presentation"
 				onClick={toggleDrawer(anchor, false)}
 				onKeyDown={toggleDrawer(anchor, false)}
@@ -96,7 +101,9 @@ export default function Swipeable() {
 						<ListSubheader
 							component="div"
 							id="nested-list-subheader"
-							sx={{pr: 0}}
+							sx={{
+								pr: 0,
+							}}
 						>
 							Pong
 							<Divider variant="middle" />
