@@ -9,7 +9,8 @@ import { List, ListSubheader }  from '@mui/material'
 import EmailIcon from '@mui/icons-material/Email'
 import InfoIcon from '@mui/icons-material/Info'
 import LoginIcon from '@mui/icons-material/Login'
-
+import IconButton from '@mui/material/IconButton'
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -29,6 +30,7 @@ const buttonContactStyle = {
 	fontSize: '1.2vw;',
 	borderRadius: 28,
 	flexWrap: 'wrap',
+	pl: 0
 }
 
 const listTextMenu = {
@@ -163,7 +165,7 @@ export default function Swipeable() {
 							<LoginIcon />
 						</ListItemIcon>
 						<ListItemText
-						primary="Login / Signup"
+							primary="Login / Signup"
 							disableTypography='false'
 							sx={listTextMenu} />
 					</ListItemButton>
@@ -192,9 +194,14 @@ export default function Swipeable() {
 	}
 
 	return (
-		<div>
+		<Box sx={{justifyContent: 'center', px: 2}}>
 			<React.Fragment key={anchor}>
-				<Button onClick={toggleDrawer(anchor, true)}>{anchor}</Button>
+				<IconButton
+					onClick={toggleDrawer(anchor, true)}
+					variant="contained"
+				>
+					<MenuRoundedIcon />
+				</IconButton>
 				<SwipeableDrawer
 					anchor={anchor}
 					open={state[anchor]}
@@ -204,7 +211,7 @@ export default function Swipeable() {
 					<Swip/>
 				</SwipeableDrawer>
 			</React.Fragment>
-		</div>
+		</Box>
 	);
 }
 
@@ -217,7 +224,7 @@ export const MainPage = () => {
 			</Grid>
 			<Grid item xs={4}>
 				<Grid container display='flex'>
-					<Grid item xs={4} sx={{px: '0.8vw;'}}>
+					<Grid item xs={4}>
 						<Button
 							color='primary'
 							sx={buttonContactStyle}
@@ -225,10 +232,15 @@ export const MainPage = () => {
 							variant="text"
 							fullWidth
 						>
+							<Typography
+								variant='button'
+								sx={{fontSize: '1.5vw;', ml: 0}}
+							>
 							About us
+							</Typography>
 						</Button>
 					</Grid>
-					<Grid item xs={4} sx={{px: '0.8vw;'}}>
+					<Grid item xs={4}>
 						<Button
 							color='primary'
 							sx={buttonContactStyle}
@@ -236,7 +248,12 @@ export const MainPage = () => {
 							variant="text"
 							fullWidth
 						>
+							<Typography
+								variant='button'
+								sx={{fontSize: '1.5vw;', ml: 0}}
+							>
 							Contact
+							</Typography>
 						</Button>
 					</Grid>
 					<Grid item xs={4}>
