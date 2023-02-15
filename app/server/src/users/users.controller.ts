@@ -35,7 +35,6 @@ export class UsersController {
 		return await this.userService.findUsers();
 	}
 
-
 	@Get('login')
 	async handleLogin(@Query() query: {login: string, password: string}) {
 		const user = await this.userService.findOneUser(query.login)
@@ -58,17 +57,48 @@ export class UsersController {
 	}
 
 	@Post('signup')
-	async handleSignup(@Query() query: {login: string, password: string}) {
+	async handleSignup(@Query() query: {login: string, password: string, intraLogin?: string}) {
 		const user = await this.userService.findOneUser(query.login)
 		if (user)
 			return {
 				'statusCode' : 403,
 				'message': 'login already use'
 			}
-		this.createUser({login: query.login, password: query.password})
+		this.createUser({login: query.login, password: query.password, intraLogin: query.intraLogin})
 		return {
 			'statusCode': 200,
 			'message' : 'user successfully signed in'
+		}
+	}
+
+	@Post('intra')
+	async handleSignupIntra(@Query() query: {login: string, intraLogin: string}) {
+		console.log('query: ', query)
+		const user = await this.userService.findOneUser(query.login)
+		if (user)
+			return {
+				'statusCode' : 403,
+				'message': 'login already use' 
+			}
+		this.createUser({login: query.login, password: "", intraLogin: query.intraLogin})
+ 		return {
+			'statusCode': 200,
+			'message' : 'user successfully signed in'
+		} 
+	}
+
+	@Get('intra')
+	async getIntraUser(@Query() query: {intraLogin : string}) {
+		const intraUser = this.userService.findOneIntraUser(query.intraLogin)
+		if (!intraUser)
+			return {
+				'statusCode' : 403,
+				'message': 'no such intra user' 
+			}
+		return {
+			'statusCode': 200,
+			'message' : 'user successfully signed in',
+			'body' : JSON.stringify(intraUser)
 		}
 	}
 
@@ -88,7 +118,7 @@ export class UsersController {
 	@Post(':login/avatar')
 	@UseInterceptors(FileInterceptor('file', {
 		storage: diskStorage({
-			destination: './app/server/src/avatar',
+			destination: './src/avatar',
 			filename: (req, file, cb) => {
 				return cb(null, req.params.login + ".jpeg");
 			}
@@ -105,7 +135,7 @@ export class UsersController {
 			if (!user) {
 				throw new BadRequestException;
 			}
-			const file = createReadStream(join('./app/server/src/avatar/', user.avatar));
+			const file = createReadStream(join('./src/avatar/', user.avatar));
 			return new StreamableFile(file);
 		} catch (error){
 			throw new BadRequestException;
