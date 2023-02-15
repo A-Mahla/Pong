@@ -88,7 +88,7 @@ export class UsersController {
 	@Post(':login/avatar')
 	@UseInterceptors(FileInterceptor('file', {
 		storage: diskStorage({
-			destination: './app/server/src/avatar',
+			destination: './src/avatar',
 			filename: (req, file, cb) => {
 				return cb(null, req.params.login + ".jpeg");
 			}
@@ -105,7 +105,7 @@ export class UsersController {
 			if (!user) {
 				throw new BadRequestException;
 			}
-			const file = createReadStream(join('./app/server/src/avatar/', user.avatar));
+			const file = createReadStream(join('./src/avatar/', user.avatar));
 			return new StreamableFile(file);
 		} catch (error){
 			throw new BadRequestException;
