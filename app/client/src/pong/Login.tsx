@@ -66,8 +66,20 @@ export function Login() {
 
 	return (<Grid container justifyContent="center">
 		<FormControl>
-			<TextField type='text' inputRef={username} label="Login" sx={{p: 1}}></TextField>
-			<TextField type='text' inputRef={password} variant="outlined" label="Password"sx={{p: 1}}></TextField>
+			<TextField
+				type='text'
+				inputRef={username}
+				label="Login"
+				sx={{p: 1, mb: 1}}
+			></TextField>
+			<TextField
+				type="password"
+				id="outlined-password-input"
+				inputRef={password}
+				variant="outlined"
+				label="Password"
+				sx={{p: 1 }}
+			></TextField>
 
 			<Button sx={{color: 'primary.main'}} onClick={handleSignup}>signup</Button>
 			<Button sx={{color: 'primary.main'}} onClick={handleLogin}>signin</Button>

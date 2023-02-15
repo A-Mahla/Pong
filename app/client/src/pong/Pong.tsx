@@ -13,6 +13,11 @@ import { Test } from './Test'
 const theme = createTheme({
 	typography: {
 		fontFamily: ['pong-policy']
+	},
+	palette: {
+		primary: {
+			main: 'rgba(0, 0, 0, 0.87)'
+		}
 	}
 })
 

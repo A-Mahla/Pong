@@ -1,6 +1,12 @@
 # migration prisma
 migrations
 
+# photo
+*.jpeg
+*.jpg
+*.png
+!default_avatar.jpg
+
 # Logs
 logs
 *.log

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, User } from '@prisma/client';
 import { CreateUserParams, UpdateUserParams } from './User.types'
@@ -13,9 +13,9 @@ export class UsersService {
 	}
 
 	async findOneUser(login: string) : Promise<User | null> {
-		return this.prisma.user.findUnique({
+		return await this.prisma.user.findUnique({
 			where: { login: login }
-		});
+		})
 	}
 
 	async findOneIntraUser(intraLogin: string) : Promise<User | null> {
