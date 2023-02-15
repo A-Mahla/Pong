@@ -2,5 +2,4 @@ curl -i -X POST http://localhost:5500/api/users -H "Content-Type: application/js
 
 curl -i -X POST http://localhost:5500/api/users -H "Content-Type: application/json" -d '{"login":"augustin", "password":"gus"}'
 
-
-curl -i -X POST http://localhost:5500/api/users -H "Content-Type: application/json" -d '{"login":"amir", "password":"mahla"}'
+curl -i -X POST http://localhost:5500/users -H "Content-Type: application/json" -d '{"login":"amir", "password":"mahla"}'
