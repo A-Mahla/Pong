@@ -6,12 +6,20 @@ import { Controller,
 	Delete,
 	Patch,
 	Param,
+	Res,
 	UseInterceptors,
 	NestInterceptor,
 	UploadedFile,
 	Query,
-	HttpException
+	HttpException,
+	StreamableFile,
+	BadGatewayException,
+	BadRequestException
 } from '@nestjs/common';
+import { diskStorage } from  'multer';
+import { join } from  'path';
+import { createReadStream } from 'fs';
+import { FileInterceptor } from '@nestjs/platform-express'
 import { CreateUserDto, UpdateUserDto } from './User.dto'
 import { UsersService } from './users.service'
 
@@ -37,16 +45,16 @@ export class UsersController {
 			return {
 				'statusCode': 403,
 				'message': 'invalid login'
-			} 
+			}
 		if (user.password != query.password)
 			return {
 				'statusCode': 403,
 				'message': 'invalid password'
-			} 
+			}
 		return {
 			'statusCode': 200,
 			'message': 'valid infos'
-		} 
+		}
 	}
 
 	@Post('signup')
@@ -55,7 +63,7 @@ export class UsersController {
 		if (user)
 			return {
 				'statusCode' : 403,
-				'message': 'login already use' 
+				'message': 'login already use'
 			}
 		this.createUser({login: query.login, password: query.password})
 		return {
@@ -78,11 +86,33 @@ export class UsersController {
 	}
 
 	@Post(':login/avatar')
-	async setAvatar(
-		@Param('login') login: string) {
-			let newAvatar = (login + ".jpeg");
-		return await this.userService.updateAvatar(login, newAvatar)
+	@UseInterceptors(FileInterceptor('file', {
+		storage: diskStorage({
+			destination: './app/server/src/avatar',
+			filename: (req, file, cb) => {
+				return cb(null, req.params.login + ".jpeg");
+			}
+		})
+	}))
+	setAvatar(@UploadedFile() file: Express.Multer.File, @Param('login') login: string) {
+		return this.userService.updateAvatar(login, file.filename);
 	}
+
+	@Get('avatar/:login')
+	async getFile(@Param('login') login : string, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
+		/* find the good file considering the login then put it into a var to give it to createReadStream */
+		try {
+			const user = await this.userService.findOneUser(login);
+			if (!user) {
+				throw new BadRequestException;
+			}
+			const file = createReadStream(join('./app/server/src/avatar/', user.avatar));
+			return new StreamableFile(file);
+		} catch (error){
+			throw new BadRequestException;
+		}
+	}
+
 
 	@Put(':login')
 	async updateUserById(
