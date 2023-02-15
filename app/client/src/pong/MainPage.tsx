@@ -18,6 +18,9 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 
 const titleStyle = {
+	'@media (max-width:600px)': {
+		fontSize: '19vw;',
+	},
 	fontSize: '18vw;',
 	fontWeight: '700',
 	textAlign: 'left',
@@ -40,7 +43,16 @@ const gridButton = {
 }
 
 const listTextMenu = {
+	'@media (max-width:600px)': {
+		fontSize: '2vw;'
+	},
 	fontSize: '1.5vw;'
+}
+
+const listIconButton = {
+	'@media (max-width:600px)': {
+		display: 'none'
+	},
 }
 
 type Anchor = 'top' | 'left' | 'bottom' | 'right';
@@ -90,8 +102,8 @@ export default function Swipeable() {
 						</ListSubheader>
 					}
 				>
-					<ListItemButton component={Link} to="/login">
-						<ListItemIcon>
+						<ListItemButton component={Link} to="/login">
+						<ListItemIcon sx={listIconButton}>
 							<LoginIcon />
 						</ListItemIcon>
 						<ListItemText
@@ -101,7 +113,7 @@ export default function Swipeable() {
 					</ListItemButton>
 					<Divider variant="middle" />
 					<ListItemButton>
-						<ListItemIcon>
+						<ListItemIcon sx={listIconButton}>
 							<EmailIcon />
 						</ListItemIcon>
 						<ListItemText
@@ -110,7 +122,7 @@ export default function Swipeable() {
 							sx={listTextMenu} />
 					</ListItemButton>
 					<ListItemButton>
-						<ListItemIcon>
+						<ListItemIcon sx={listIconButton}>
 							<InfoIcon />
 						</ListItemIcon>
 						<ListItemText
