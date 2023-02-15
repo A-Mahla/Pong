@@ -16,6 +16,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Container from '@mui/material/Container';
 
 const titleStyle = {
 	'@media (max-width:600px)': {
@@ -71,14 +72,14 @@ export default function Swipeable() {
 	const toggleDrawer =
 		(anchor: Anchor, open: boolean) =>
 		(e: React.KeyboardEvent | React.MouseEvent )=> {
-/*
-		if ( event &&
-			event.type == 'keydown' &&
-			event as React.KeyboardEvent).key == 'Tab'
+
+		if ( e &&
+			e.type == 'keydown' &&
+			(e as React.KeyboardEvent).key == 'Tab'
 		) {
 			return;
 		}
-		*/
+
 		setState({ ...state, [anchor]: open})
 	}
 
@@ -141,6 +142,7 @@ export default function Swipeable() {
 				<IconButton
 					onClick={toggleDrawer(anchor, true)}
 					variant="contained"
+					sx={{background: 'primary'}}
 				>
 					<MenuRoundedIcon />
 				</IconButton>
@@ -204,7 +206,26 @@ export const MainPage = () => {
 				</Grid> 
 			</Grid>
 		</Grid>
-		<Button component={Link} to="/login">LOGIN / SIGNUP</Button>
+		<Box sx={{position: 'absolute', bottom: 30, right: 80}}>
+			<Button
+				component={Link}
+				to="/login"
+				variant='contained'
+				color='primary'
+				sx={{
+					'@media (max-height:215px)': {
+						display: 'none',
+					},
+					fontSize: '2vw;',
+					borderRadius: 14,
+					pt: 0.4,
+					pb: 0.2,
+					px: 'center'
+				}}
+			>
+				LOGIN / SIGNUP
+			</Button>
+		</Box>
 	</>
 }
 
