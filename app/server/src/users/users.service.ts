@@ -58,7 +58,7 @@ export class UsersService {
 		console.log("create prisma user: ", newUser)
 		return this.prisma.user.create({
 			data: { ...newUser }
-		});
+		}).catch((e) => {throw e});
 	}
 }
 

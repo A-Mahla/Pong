@@ -64,7 +64,7 @@ export function Login() {
 
 	}, [])
 
-	return <Grid container justifyContent="center">
+	return (<Grid container justifyContent="center">
 		<FormControl>
 			<TextField type='text' inputRef={username} label="Login" sx={{p: 1}}></TextField>
 			<TextField type='text' inputRef={password} variant="outlined" label="Password"sx={{p: 1}}></TextField>
@@ -74,6 +74,6 @@ export function Login() {
 			<Oauth2>Login via intra</Oauth2>
 			{error.lenght === 0 ? null : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
 		</FormControl>
-	</Grid>
+	</Grid>)
 
 }

@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
-import { response } from 'express';
-import { cp } from 'fs';
 import { CreateUserDto } from 'src/users/User.dto';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
-	constructor() {}
+	constructor(private readonly usersService : UsersService) {}
 
 	async exchangeToken (code : string) {
 
@@ -41,22 +39,30 @@ export class AuthService {
 		return {"access_token" :undefined}
 	}
 
-	async addUser(user : CreateUserDto) {
+	async createUser(user : CreateUserDto) {
+		return this.usersService.createUser(user)
+	}
+
+	async findOneIntraUser(intraLogin : string) {
+		return this.usersService.findOneIntraUser(intraLogin)
+	}
+
+	async getIntraLogin(access_token : string) {
+
+		let intraLogin: string
+
 		const requestOptions = {
-			method: "POST",
+			method: "GET",
 			headers: {
-				"Accept" : "application/json",
-				"Content-Type" : "application/json"
-			},
-			body: JSON.stringify(user)
-		}	
+				'Accept': 'application/json',
+				"Authorization" : `Bearer ${access_token}`
+			}
+		}
 
-		console.log(requestOptions)
+		const response = await fetch('https://api.intra.42.fr/v2/me', requestOptions)
+		.then(response => response.json())
 
-		await fetch("http://server_db:5500/api/users", requestOptions)
-		.then(response => response.json)
-		.then(data => console.log(data))
-		.catch(err => console.log(err))
+		return await response['login'];
 
 	}
 }

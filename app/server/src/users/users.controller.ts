@@ -64,7 +64,8 @@ export class UsersController {
 	}
 
 	@Post('intra')
-	async handleSignupIntra(@Query() query: {login: string, intraLogin?: string}) {
+	async handleSignupIntra(@Query() query: {login: string, intraLogin: string}) {
+		console.log('query: ', query)
 		const user = await this.userService.findOneUser(query.login)
 		if (user)
 			return {
@@ -72,10 +73,10 @@ export class UsersController {
 				'message': 'login already use' 
 			}
 		this.createUser({login: query.login, password: "", intraLogin: query.intraLogin})
-		return {
+ 		return {
 			'statusCode': 200,
 			'message' : 'user successfully signed in'
-		}
+		} 
 	}
 
 	@Get('intra')

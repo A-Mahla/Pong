@@ -4,6 +4,7 @@ import { Redirect } from "./Oauth2"
 import { MainPage } from "./MainPage"
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Login } from './Login'
+import { Test } from './Test'
 
 /**
  * ============ Entrypoint of the project =============
@@ -23,6 +24,7 @@ export const Pong = () => {
 			<BrowserRouter>
 				<Routes>
 					<Route path='/' element={<MainPage/>} />
+					<Route path='/test' element={<Test/>} />
 					<Route path="/redirect" element={<Redirect/>} />
 					<Route path='/login' element={<Login/>}/>
 				</Routes>
