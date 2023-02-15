@@ -2,11 +2,14 @@ import * as React from 'react'
 import { Oauth2 } from "./Oauth2"
 import { Route } from 'react-router-dom'
 import { Typography, Button, Box } from '@mui/material'
-import SwipeableDrawer from '@mui/material/SwipeableDrawer';
+import SwipeableDrawer from '@mui/material/SwipeableDrawer'
 import Grid from '@mui/material/Grid'
 import { Link } from "react-router-dom"
+import { List, ListSubheader }  from '@mui/material'
+import EmailIcon from '@mui/icons-material/Email'
+import InfoIcon from '@mui/icons-material/Info'
+import LoginIcon from '@mui/icons-material/Login'
 
-import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -22,15 +25,19 @@ const titleStyle = {
 	textAlign: 'left',
 }
 
-const buttonStyle = {
-	fontSize: '1vw;',
+const buttonContactStyle = {
+	fontSize: '1.2vw;',
 	borderRadius: 28,
 	flexWrap: 'wrap',
 }
 
+const listTextMenu = {
+	fontSize: '1.5vw;'
+}
+
 type Anchor = 'top' | 'left' | 'bottom' | 'right';
 
-export default function Swipeable() {
+/*export default function Swipeable() {
   const [state, setState] = React.useState({
     top: false,
     left: false,
@@ -104,7 +111,102 @@ export default function Swipeable() {
     </div>
   );
 }
+*/
 
+export default function Swipeable() {
+
+	const [state, setState] = React.useState({
+		top: false,
+		bottom: false,
+		right: false,
+		left: false
+	})
+
+	const anchor: Anchor = 'right'
+
+	const toggleDrawer =
+		(anchor: Anchor, open: boolean) =>
+		(e: React.KeyboardEvent | React.MouseEvent )=> {
+/*
+		if ( event &&
+			event.type == 'keydown' &&
+			event as React.KeyboardEvent).key == 'Tab'
+		) {
+			return;
+		}
+		*/
+		setState({ ...state, [anchor]: open})
+	}
+
+	const Swip = (anchor: Anchor) => {
+	
+		return (
+			<Box
+				sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : '30vw;' }}
+				role="presentation"
+				onClick={toggleDrawer(anchor, false)}
+				onKeyDown={toggleDrawer(anchor, false)}
+			>
+				<List subheader={
+						<ListSubheader
+							component="div"
+							id="nested-list-subheader"
+							sx={{pr: 0}}
+						>
+							Pong
+							<Divider variant="middle" />
+						</ListSubheader>
+					}
+				>
+					<ListItemButton component={Link} to="/login">
+						<ListItemIcon>
+							<LoginIcon />
+						</ListItemIcon>
+						<ListItemText
+						primary="Login / Signup"
+							disableTypography='false'
+							sx={listTextMenu} />
+					</ListItemButton>
+					<Divider variant="middle" />
+					<ListItemButton>
+						<ListItemIcon>
+							<EmailIcon />
+						</ListItemIcon>
+						<ListItemText
+							primary="Contact"
+							disableTypography='false'
+							sx={listTextMenu} />
+					</ListItemButton>
+					<ListItemButton>
+						<ListItemIcon>
+							<InfoIcon />
+						</ListItemIcon>
+						<ListItemText
+							primary="About Us"
+							disableTypography='false'
+							sx={listTextMenu} />
+					</ListItemButton>
+				</List>
+			</Box>
+		)
+	}
+
+	return (
+		<div>
+			<React.Fragment key={anchor}>
+				<Button onClick={toggleDrawer(anchor, true)}>{anchor}</Button>
+				<SwipeableDrawer
+					anchor={anchor}
+					open={state[anchor]}
+					onClose={toggleDrawer(anchor, false)}
+					onOpen={toggleDrawer(anchor, true)}
+				>
+					<Swip/>
+				</SwipeableDrawer>
+			</React.Fragment>
+		</div>
+	);
+}
 
 export const MainPage = () => {
 
@@ -115,34 +217,35 @@ export const MainPage = () => {
 			</Grid>
 			<Grid item xs={4}>
 				<Grid container display='flex'>
-					<Grid item xs={4} sx={{px: '0.5vw;'}}>
+					<Grid item xs={4} sx={{px: '0.8vw;'}}>
 						<Button
 							color='primary'
-							sx={buttonStyle}
+							sx={buttonContactStyle}
 							size='small'
-							variant="contained"
+							variant="text"
 							fullWidth
 						>
 							About us
 						</Button>
 					</Grid>
-					<Grid item xs={4} sx={{px: '1vw;'}}>
+					<Grid item xs={4} sx={{px: '0.8vw;'}}>
 						<Button
 							color='primary'
-							sx={buttonStyle}
+							sx={buttonContactStyle}
 							size='small'
-							variant="contained"
+							variant="text"
 							fullWidth
 						>
 							Contact
 						</Button>
 					</Grid>
-					<Grid item xs={4}></Grid>
+					<Grid item xs={4}>
+						<Swipeable/>
+					</Grid>
 				</Grid> 
 			</Grid>
 		</Grid>
 		<Button component={Link} to="/login">LOGIN / SIGNUP</Button>
-		<Swipeable/>
 	</>
 }
 

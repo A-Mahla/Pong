@@ -10,7 +10,7 @@ export class AuthController {
 	@Post('intra42/login')
 	async handleToken(@Query() query : {code : string}) {
 		const access_token = await this.authService.exchangeToken(query.code) 
-		let login = ""
+		let login = ''
 
 		if (access_token.access_token != undefined)
 		{
