@@ -100,7 +100,6 @@ export class UsersController {
 
 	@Get('avatar/:login')
 	async getFile(@Param('login') login : string, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
-		/* find the good file considering the login then put it into a var to give it to createReadStream */
 		try {
 			const user = await this.userService.findOneUser(login);
 			if (!user) {
