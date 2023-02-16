@@ -5,6 +5,7 @@ import { MainPage } from "./MainPage"
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Login } from './Login'
 import { Test } from './Test'
+import { Chat } from './Chat'
 
 /**
  * ============ Entrypoint of the project =============
@@ -30,6 +31,7 @@ export const Pong = () => {
 				<Routes>
 					<Route path='/' element={<MainPage/>} />
 					<Route path='/test' element={<Test/>} />
+					<Route path='/chat' element={<Chat/>} />
 					<Route path="/redirect" element={<Redirect/>} />
 					<Route path='/login' element={<Login/>}/>
 				</Routes>
