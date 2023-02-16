@@ -19,6 +19,9 @@ const pongTitle = {
 	fontSize: '3vw;',
 }
 
+const tabStyle = {
+}
+
 function LinkTab(props: LinkTabProps) {
   return (
     <Tab
@@ -45,9 +48,9 @@ export const TabMenu = () => {
 			aria-label="nav tabs example"
 			variant='fullWidth'
 		>
-			<LinkTab label="Profile" href="/drafts" />
-			<LinkTab label="Play" href="/trash" />
-			<LinkTab label="Chat" href="/spam" />
+			<LinkTab label="Profile" href="/drafts" sx={tabStyle} />
+			<LinkTab label="Play" href="/trash" sx={tabStyle} />
+			<LinkTab label="Chat" href="/spam" sx={tabStyle} />
 		</Tabs>
 	)
 }
