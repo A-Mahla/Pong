@@ -98,26 +98,25 @@ export default function Swipeable() {
 				onKeyDown={toggleDrawer(anchor, false)}
 			>
 				<List subheader={
-						<ListSubheader
-							component="div"
-							id="nested-list-subheader"
-							sx={{
-								pr: 0,
-							}}
-						>
-							Pong
-							<Divider variant="middle" />
-						</ListSubheader>
-					}
+					<ListSubheader
+						component="div"
+						id="nested-list-subheader"
+						sx={{
+							pr: 0,
+						}}
+					>
+						Pong
+						<Divider variant="middle" />
+					</ListSubheader>}
 				>
-						<ListItemButton component={Link} to="/login">
-						<ListItemIcon sx={listIconButton}>
-							<LoginIcon />
-						</ListItemIcon>
-						<ListItemText
-							primary="Login / Signup"
-							disableTypography='false'
-							sx={listTextMenu} />
+					<ListItemButton component={Link} to="/login">
+					<ListItemIcon sx={listIconButton}>
+						<LoginIcon />
+					</ListItemIcon>
+					<ListItemText
+						primary="Login / Signup"
+						disableTypography={true}
+						sx={listTextMenu} />
 					</ListItemButton>
 					<Divider variant="middle" />
 					<ListItemButton>
@@ -126,7 +125,7 @@ export default function Swipeable() {
 						</ListItemIcon>
 						<ListItemText
 							primary="Contact"
-							disableTypography='false'
+							disableTypography={true}
 							sx={listTextMenu} />
 					</ListItemButton>
 					<ListItemButton>
@@ -135,7 +134,7 @@ export default function Swipeable() {
 						</ListItemIcon>
 						<ListItemText
 							primary="About Us"
-							disableTypography='false'
+							disableTypography={true}
 							sx={listTextMenu} />
 					</ListItemButton>
 				</List>
