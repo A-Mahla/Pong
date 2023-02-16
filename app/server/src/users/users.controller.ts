@@ -52,7 +52,8 @@ export class UsersController {
 			}
 		return {
 			'statusCode': 200,
-			'message': 'valid infos'
+			'message': 'valid infos',
+			'body': JSON.stringify(user)
 		}
 	}
 
@@ -64,10 +65,12 @@ export class UsersController {
 				'statusCode' : 403,
 				'message': 'login already use'
 			}
-		this.createUser({login: query.login, password: query.password, intraLogin: query.intraLogin})
+		const newUser = {login: query.login, password: query.password, intraLogin: query.intraLogin}
+		this.createUser(newUser)
 		return {
 			'statusCode': 200,
-			'message' : 'user successfully signed in'
+			'message' : 'user successfully signed in',
+			'body': JSON.stringify(newUser)
 		}
 	}
 
@@ -80,10 +83,12 @@ export class UsersController {
 				'statusCode' : 403,
 				'message': 'login already use' 
 			}
-		this.createUser({login: query.login, password: "", intraLogin: query.intraLogin})
+		const newUser = {login: query.login, password: "", intraLogin: query.intraLogin}
+		this.createUser(newUser)
  		return {
 			'statusCode': 200,
-			'message' : 'user successfully signed in'
+			'message' : 'user successfully signed in',
+			'body' : JSON.stringify(newUser)
 		} 
 	}
 

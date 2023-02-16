@@ -27,6 +27,7 @@ export class AuthController {
 		return {
 			'statusCode' : 200,
 			'body': {
+				'user' : JSON.stringify(user),
 				'intraLogin': intraLogin,
 				'signedin': signedin
 			}

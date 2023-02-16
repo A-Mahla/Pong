@@ -2,6 +2,7 @@ import { Button, Box, Grid, Typography } from '@mui/material'
 import { useLocation } from "react-router-dom"
 import React, { useCallback, useRef, useState, useEffect } from 'react'
 import { TextField, FormControl, CircularProgress } from "@mui/material"
+import Cookies from 'js-cookie'
 
 
 type Props = {
@@ -39,7 +40,10 @@ export const Redirect = () => {
 		if (data["statusCode"] == 200)
 		{
 			if (data['body']['signedin'] == true)
+			{
+				Cookies.set('login', data['login'], {expires: 7})
 				location.replace("http://localhost:3000")
+			}
 			else
 			{
 				setIntraLogin(data['body']['intraLogin'])
@@ -64,11 +68,14 @@ export const Redirect = () => {
 		.then(data => {
 				console.log('data', data)
 				if (data["statusCode"] == 200)
+				{
+					Cookies.set('login', data['login'], {expires: 7})
 					location.replace("http://localhost:3000")
+				}
 				else
 					setError(data["message"])
 			})
-	})
+	}, [])
 
 
 	return (

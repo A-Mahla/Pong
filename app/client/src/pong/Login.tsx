@@ -1,13 +1,14 @@
 import { Button, FormControl, Grid, TextField, Typography } from '@mui/material';
 import React, { useCallback, useRef, useState} from 'react'
+import { LogoutButton } from './LogoutButton';
 import { Oauth2 } from './Oauth2';
+import Cookies from 'js-cookie'
+import { _2fa } from "./2fa"
 import '../App'
 
 export function Login() {
 
 	const [error, setError] = useState('');
-
-	const [signup, setSignup] = useState(false)
 
 	const username = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 
@@ -27,7 +28,10 @@ export function Login() {
 			if (data['statusCode'] != 200)
 				setError(data['message'])
 			else
+			{
+				Cookies.set('login', data['body']['login'], {expires: 7})
 				location.replace('http://localhost:3000')
+			}
 			
 			console.log(data)})
 	}, [])
@@ -46,8 +50,6 @@ export function Login() {
 			return
 		}
 
-		console.log(error)
-		
 		const requestOptions = {
 			method: "POST"
 		}
@@ -59,12 +61,18 @@ export function Login() {
 			if (data["statusCode"] != 200)
 				setError(data['message'])
 			else
+			{
+				Cookies.set('login', data['body']['login'], {expires: 7})
 				location.replace('http://localhost:3000')
+			}
 		})
 
 	}, [])
 
-	return (<Grid container justifyContent="center">
+	return (
+	<Grid container justifyContent="center">
+		{(Cookies.get('login')) === undefined ? 
+
 		<FormControl>
 			<TextField
 				type='text'
@@ -84,8 +92,11 @@ export function Login() {
 			<Button sx={{color: 'primary.main'}} onClick={handleSignup}>signup</Button>
 			<Button sx={{color: 'primary.main'}} onClick={handleLogin}>signin</Button>
 			<Oauth2>Login via intra</Oauth2>
-			{error.lenght === 0 ? null : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
+			{error.length === 0 ? null : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
 		</FormControl>
-	</Grid>)
+		: <LogoutButton>log out</LogoutButton>
+		}
+	</Grid> 
+	)
 
 }
