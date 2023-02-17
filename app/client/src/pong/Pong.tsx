@@ -1,7 +1,8 @@
 import { Typography, Button, ThemeProvider, createTheme } from '@mui/material'
-import { useCallback } from "react"  
-import { Redirect } from "./Oauth2"
-import { MainPage } from "./MainPage"
+import { useCallback } from 'react'  
+import { Redirect } from './Oauth2'
+import  MainPage  from './MainPage'
+import LeadPage from './LeadPage'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Login } from './Login'
 import { Test } from './Test'
@@ -30,6 +31,7 @@ export const Pong = () => {
 			<BrowserRouter>
 				<Routes>
 					<Route path='/' element={<MainPage/>} />
+					<Route path='/pong' element={<LeadPage/>} />
 					<Route path='/test' element={<Test/>} />
 					<Route path='/chat' element={<Chat/>} />
 					<Route path="/redirect" element={<Redirect/>} />
