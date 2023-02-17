@@ -2,6 +2,7 @@ import { Controller,
 	Get,
 	Post,
 	Body,
+	Request,
 	Put,
 	Delete,
 	Patch,
@@ -14,7 +15,10 @@ import { Controller,
 	HttpException,
 	StreamableFile,
 	BadGatewayException,
-	BadRequestException
+	BadRequestException,
+	Inject,
+	Injectable,
+	UseGuards,
 } from '@nestjs/common';
 import { diskStorage } from  'multer';
 import { join } from  'path';
@@ -22,12 +26,15 @@ import { createReadStream } from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express'
 import { CreateUserDto, UpdateUserDto } from './User.dto'
 import { UsersService } from './users.service'
+import { AuthGuard } from '@nestjs/passport';
+import { AuthService } from '../auth/auth.service'
 
 
 @Controller('users')
 export class UsersController {
 
-	constructor(private userService: UsersService) {
+	constructor(private userService: UsersService,
+		private authService: AuthService) {
 	}
 
 	@Get()
@@ -79,23 +86,40 @@ export class UsersController {
 		return await this.userService.findOneUser(login);
 	}
 
+	@UseGuards(AuthGuard('local'))
+	@Post('auth/login')
+  	async login(@Request() req: any) {
+		return this.authService.login(req.user);
+
+	}
 
 	@Post()
 	createUser(@Body() createUserDto: CreateUserDto) {
-		this.userService.createUser(createUserDto);
+		return this.userService.createUser(createUserDto);
 	}
+
 
 	@Post(':login/avatar')
 	@UseInterceptors(FileInterceptor('file', {
-		storage: diskStorage({
-			destination: './src/avatar',
-			filename: (req, file, cb) => {
-				return cb(null, req.params.login + ".jpeg");
-			}
-		})
+	storage: diskStorage({
+		destination: './src/avatar',
+		filename: (req, file, cb) => {
+			return cb(null, req.params.login + ".jpeg");
+			},
+		}),
 	}))
-	setAvatar(@UploadedFile() file: Express.Multer.File, @Param('login') login: string) {
-		return this.userService.updateAvatar(login, file.filename);
+	async checkAvatar(@Param('login') login: string, @UploadedFile() file: Express.Multer.File){
+		const user = await this.userService.findOneUser(login);
+		console.log("--------------------------->   " + file.filename);
+		if (user) {
+			return this.userService.setAvatar(login, file);
+		}
+		else {
+			return {
+				'statusCode': 403,
+				'message': 'invalid login'
+			}
+		}
 	}
 
 	@Get('avatar/:login')

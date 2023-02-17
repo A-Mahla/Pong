@@ -1,7 +1,9 @@
-import { BadGatewayException, BadRequestException, Injectable } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, Injectable, UseInterceptors, UploadedFile, Param } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, User } from '@prisma/client';
+import { diskStorage } from  'multer';
 import { CreateUserParams, UpdateUserParams } from './User.types'
+import { FileInterceptor } from '@nestjs/platform-express'
 
 @Injectable()
 export class UsersService {
@@ -47,6 +49,10 @@ export class UsersService {
 		return this.prisma.user.create({
 			data: { ...newUser }
 		});
+	}
+
+	setAvatar(@Param('login') login: string, @UploadedFile() file: Express.Multer.File) {
+			return this.updateAvatar(login, file.filename);
 	}
 }
 
