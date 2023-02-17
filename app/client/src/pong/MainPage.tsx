@@ -1,7 +1,5 @@
 import * as React from 'react'
-import { Oauth2 } from './Oauth2'
 import Swipeable from './utils/Swipeable'
-import { Route } from 'react-router-dom'
 import { Typography, Button, Box } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import { Link } from "react-router-dom"
