@@ -1,5 +1,4 @@
-import { Typography, Button, ThemeProvider, createTheme } from '@mui/material'
-import { useCallback } from 'react'  
+import { ThemeProvider, createTheme } from '@mui/material'
 import { Redirect } from './Oauth2'
 import  MainPage  from './MainPage'
 import LeadPage from './LeadPage'

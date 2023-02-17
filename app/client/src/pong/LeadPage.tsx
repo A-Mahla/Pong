@@ -1,7 +1,6 @@
 import * as React from 'react'
-import { Typography, Button, Box } from '@mui/material'
+import { Typography } from '@mui/material'
 import Grid from '@mui/material/Grid'
-import Divider from '@mui/material/Divider';
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 import Swipeable from './utils/Swipeable'

@@ -5,7 +5,7 @@ export function Test () {
 
 	const [fetched, setFetched] = useState(false)
 
-	const [users, setUsers] = useState([])
+	//	const [users, setUsers] = useState([])
 
 	const fetchData = () => {
 		fetch("http://localhost:5500/api/users")

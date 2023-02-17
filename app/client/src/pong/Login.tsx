@@ -3,7 +3,7 @@ import React, { useCallback, useRef, useState} from 'react'
 import { LogoutButton } from './LogoutButton';
 import { Oauth2 } from './Oauth2';
 import Cookies from 'js-cookie'
-import { _2fa } from "./2fa"
+//import { _2fa } from "./2fa"
 import '../App'
 
 export function Login() {
