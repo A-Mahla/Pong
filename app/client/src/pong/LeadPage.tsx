@@ -1,7 +1,8 @@
 import * as React from 'react'
-import { Typography } from '@mui/material'
+import { Typography, Box } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Tabs from '@mui/material/Tabs'
+import TabList from '@mui/lab/TabList'
 import Tab from '@mui/material/Tab'
 import Swipeable from './utils/Swipeable'
 
@@ -11,7 +12,7 @@ interface LinkTabProps {
 }
 
 const header = {
-	height: '4.5vw;',
+	height: '4vw;',
 }
 
 const pongTitle = {
@@ -21,56 +22,69 @@ const pongTitle = {
 const tabStyle = {
 }
 
-function LinkTab(props: LinkTabProps) {
-  return (
-    <Tab
-      component="a"
-      onClick={(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-        event.preventDefault();
-      }}
-      {...props}
-    />
-  );
+const centralBoxStyle = {
+	height: '45rem',
+	border: 1,
+	boxShadow: 10,
+	borderRadius: '32px',
 }
 
-export const TabMenu = () => {
+
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return <>
+		{value === index && 
+			(<Box sx={centralBoxStyle}>
+				<Typography sx={{textAlign: 'center', pt: '21rem'}}>
+					{children}
+				</Typography>
+			</Box>)
+		}
+	</>;	
+}
+
+const LeadPage = () => {
+
 	const [value, setValue] = React.useState(1);
 
 	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
 		setValue(newValue);
 	};
 
-	return (
-		<Tabs
-			value={value}
-			onChange={handleChange}
-			aria-label="nav tabs example"
-			variant='fullWidth'
-		>
-			<LinkTab label="Profile" href="/drafts" sx={tabStyle} />
-			<LinkTab label="Play" href="/trash" sx={tabStyle} />
-			<LinkTab label="Chat" href="/spam" sx={tabStyle} />
-		</Tabs>
-	)
-}
-
-const LeadPage = () => {
 	return <>
-		<Grid container display='flex' spacing={0} sx={header}>
-			<Grid item xs={2} sx={{my: 'auto'}}>
-				<Typography variant='h1' sx={pongTitle}>Pong</Typography>
+	<Box sx={{height: '7rem'}}>
+			<Grid container display='flex' sx={header}>
+				<Grid item xs={2} sx={{my: 'auto'}}>
+					<Typography variant='h1' sx={pongTitle}>Pong</Typography>
+				</Grid>
+				<Grid item xs={8} sx={{my: 'auto'}}>
+				<Tabs
+					value={value}
+					onChange={handleChange}
+					aria-label="nav tabs example"
+					variant='fullWidth'
+				>
+					<Tab label="Profile" sx={tabStyle} />
+					<Tab label="Play" sx={tabStyle} />
+					<Tab label="Chat" sx={tabStyle} />
+				</Tabs>
+				</Grid>
+				<Grid item xs={2}>
+					<Swipeable
+						login={true}
+						sx={{justifyContent: 'center', pl: '6vw;', mt: '0.6vw;'}}
+					/>
+				</Grid>
 			</Grid>
-			<Grid item xs={8} sx={{my: 'auto'}}>
-				<TabMenu />
-			</Grid>
-			<Grid item xs={2}>
-				<Swipeable
-					login={true}
-					sx={{justifyContent: 'center', pl: '6vw;', mt: '0.6vw;'}}
-				/>
-			</Grid>
-		</Grid>
+		</Box>
+			<Box>
+				<TabPanel value={value} index={0}>Profile</TabPanel>
+				<TabPanel value={value} index={1}>Play</TabPanel>
+				<TabPanel value={value} index={2}>Chat</TabPanel>
+			</Box>
 	</>
 }
 export default LeadPage;
-//		<Divider variant="middle" />
+//	<Divider variant="middle" />
