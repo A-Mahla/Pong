@@ -28,6 +28,7 @@ import { CreateUserDto, UpdateUserDto } from './User.dto'
 import { UsersService } from './users.service'
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from '../auth/auth.service'
+import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 
 
 @Controller('users')
@@ -86,7 +87,7 @@ export class UsersController {
 		return await this.userService.findOneUser(login);
 	}
 
-	@UseGuards(AuthGuard('local'))
+	@UseGuards(LocalAuthGuard)
 	@Post('auth/login')
   	async login(@Request() req: any) {
 		return this.authService.login(req.user);
