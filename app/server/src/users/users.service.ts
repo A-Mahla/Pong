@@ -50,9 +50,5 @@ export class UsersService {
 			data: { ...newUser }
 		});
 	}
-
-	setAvatar(@Param('login') login: string, @UploadedFile() file: Express.Multer.File) {
-			return this.updateAvatar(login, file.filename);
-	}
 }
 

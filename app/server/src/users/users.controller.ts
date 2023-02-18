@@ -19,6 +19,7 @@ import { Controller,
 	Inject,
 	Injectable,
 	UseGuards,
+	ConsoleLogger,
 } from '@nestjs/common';
 import { diskStorage } from  'multer';
 import { join } from  'path';
@@ -29,6 +30,7 @@ import { UsersService } from './users.service'
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from '../auth/auth.service'
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 
 @Controller('users')
@@ -100,6 +102,7 @@ export class UsersController {
 	}
 
 
+	@UseGuards(JwtAuthGuard)
 	@Post(':login/avatar')
 	@UseInterceptors(FileInterceptor('file', {
 	storage: diskStorage({
@@ -109,20 +112,11 @@ export class UsersController {
 			},
 		}),
 	}))
-	async checkAvatar(@Param('login') login: string, @UploadedFile() file: Express.Multer.File){
-		const user = await this.userService.findOneUser(login);
-		console.log("--------------------------->   " + file.filename);
-		if (user) {
-			return this.userService.setAvatar(login, file);
-		}
-		else {
-			return {
-				'statusCode': 403,
-				'message': 'invalid login'
-			}
-		}
+	async checkAvatar(@Request() req: any, @UploadedFile() file: Express.Multer.File){
+		return this.userService.updateAvatar(req.user.login , file.filename);
 	}
 
+	@UseGuards(JwtAuthGuard)
 	@Get('avatar/:login')
 	async getFile(@Param('login') login : string, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
 		try {

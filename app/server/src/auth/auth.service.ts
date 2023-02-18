@@ -22,7 +22,7 @@ export class AuthService {
 	}
 	async login(user: any){ // I put any to fit the tutorial but User seem to work fine
 		console.log('----------------> LOGIN AuthService function');
-		const payload = { username: user.login, sub: user.id }
+		const payload = { login: user.login, sub: user.id }
 		return {
 			access_token: this.jwtService.sign(payload),
 		};
