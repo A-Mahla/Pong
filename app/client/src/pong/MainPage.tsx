@@ -97,7 +97,6 @@ const MainPage = () => {
 					pt: 0.4,
 					pb: 0.2,
 					px: 'center',
-					
 				}}
 			>
 				LOGIN / SIGNUP

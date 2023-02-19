@@ -19,7 +19,8 @@ type propsSwip = {
 	login: boolean
 	sx: {
 		justifyContent: string,
-		px: number
+		px?: number
+		pl?: number
 	}
 }
 
@@ -142,7 +143,7 @@ const Swipeable = (props: propsSwip) => {
 					variant="contained"
 					sx={{background: 'primary'}}
 				>
-					<MenuRoundedIcon />
+					<MenuRoundedIcon sx={{fontSize: '2rem' }} />
 				</IconButton>
 				<SwipeableDrawer
 					anchor={anchor}

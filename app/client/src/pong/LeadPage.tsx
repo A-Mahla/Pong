@@ -74,7 +74,7 @@ const LeadPage = () => {
 				<Grid item xs={2}>
 					<Swipeable
 						login={true}
-						sx={{justifyContent: 'center', pl: '6vw;', mt: '0.6vw;'}}
+						sx={{justifyContent: 'center', pl: '6vw;'}}
 					/>
 				</Grid>
 			</Grid>
