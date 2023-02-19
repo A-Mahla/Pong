@@ -1,6 +1,6 @@
 .loginButton {
-	transition-property: transform;
-	transition-duration: 500ms;
+	transition-property: transform !important;
+	transition-duration: 500ms !important;
 }
 
 .loginButton:hover {
@@ -8,5 +8,5 @@
 }
 
 .contactButton:hover {
-	text-decoration: underline;
+	text-decoration: underline !important;
 }

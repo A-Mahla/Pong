@@ -87,7 +87,7 @@ const MainPage = () => {
 				to="/login"
 				variant='contained'
 				color='primary'
-				className="loginButton"
+				className='loginButton'
 				sx={{
 					'@media (max-height:215px)': {
 						display: 'none',
@@ -96,7 +96,8 @@ const MainPage = () => {
 					borderRadius: 14,
 					pt: 0.4,
 					pb: 0.2,
-					px: 'center'
+					px: 'center',
+					
 				}}
 			>
 				LOGIN / SIGNUP
