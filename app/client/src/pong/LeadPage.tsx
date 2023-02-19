@@ -55,11 +55,11 @@ const LeadPage = () => {
 
 	return <>
 	<Box sx={{height: '7rem'}}>
-			<Grid container display='flex' sx={header}>
-				<Grid item xs={2} sx={{my: 'auto'}}>
+			<Grid container display='flex' sx={header} columns={17}>
+				<Grid item xs={4} sx={{my: 'auto'}}>
 					<Typography variant='h1' sx={pongTitle}>Pong</Typography>
 				</Grid>
-				<Grid item xs={8} sx={{my: 'auto'}}>
+				<Grid item xs={9} sx={{my: 'auto'}}>
 				<Tabs
 					value={value}
 					onChange={handleChange}
@@ -71,10 +71,13 @@ const LeadPage = () => {
 					<Tab label="Chat" sx={tabStyle} />
 				</Tabs>
 				</Grid>
-				<Grid item xs={2}>
+				<Grid item xs={3}>
 					<Swipeable
 						login={true}
-						sx={{justifyContent: 'center', pl: '6vw;'}}
+						sx={{
+							position: 'absolute',
+							right: '3rem',
+						}}
 					/>
 				</Grid>
 			</Grid>

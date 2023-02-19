@@ -18,9 +18,10 @@ type Anchor = 'top' | 'left' | 'bottom' | 'right';
 type propsSwip = {
 	login: boolean
 	sx: {
-		justifyContent: string,
-		px?: number
-		pl?: number
+		justifyContent?: string,
+		pl?: string,
+		position?: string,
+		right?: string
 	}
 }
 

@@ -76,7 +76,7 @@ const MainPage = () => {
 					<Grid item xs={4}>
 						<Swipeable
 							login={false}
-							sx={{justifyContent: 'center', px: 2}}/>
+							sx={{justifyContent: 'center', pl: '4vw;'}}/>
 					</Grid>
 				</Grid> 
 			</Grid>
