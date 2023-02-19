@@ -143,7 +143,12 @@ const Swipeable = (props: propsSwip) => {
 					variant="contained"
 					sx={{background: 'primary'}}
 				>
-					<MenuRoundedIcon sx={{fontSize: '2rem' }} />
+					<MenuRoundedIcon sx={{
+						fontSize: '2rem',
+						'@media (min-width:800px)': {
+							fontSize: '4vw;'
+						}
+					}} />
 				</IconButton>
 				<SwipeableDrawer
 					anchor={anchor}
