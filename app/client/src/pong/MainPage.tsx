@@ -3,6 +3,7 @@ import Swipeable from './utils/Swipeable'
 import { Typography, Button, Box } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import { Link } from "react-router-dom"
+import './MainPage.css'
 
 const titleStyle = {
 	'@media (max-width:600px)': {
@@ -42,6 +43,7 @@ const MainPage = () => {
 						<Button
 							color='primary'
 							sx={buttonContactStyle}
+							className="contactButton"
 							size='small'
 							variant="text"
 							fullWidth
@@ -59,6 +61,7 @@ const MainPage = () => {
 							color='primary'
 							sx={buttonContactStyle}
 							size='small'
+							className="contactButton"
 							variant="text"
 							fullWidth
 						>
@@ -84,6 +87,7 @@ const MainPage = () => {
 				to="/login"
 				variant='contained'
 				color='primary'
+				className="loginButton"
 				sx={{
 					'@media (max-height:215px)': {
 						display: 'none',
