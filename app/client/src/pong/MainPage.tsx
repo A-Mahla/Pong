@@ -1,112 +1,36 @@
 import * as React from 'react'
-import { Oauth2 } from "./Oauth2"
-import { Route } from 'react-router-dom'
+import Swipeable from './utils/Swipeable'
 import { Typography, Button, Box } from '@mui/material'
-import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import Grid from '@mui/material/Grid'
 import { Link } from "react-router-dom"
-
-import List from '@mui/material/List';
-import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
+import './MainPage.css'
 
 const titleStyle = {
-	fontSize: '17vw;',
-	'@media (min-width:600px)': {
-		fontSize: '18vw;',
+	'@media (max-width:600px)': {
+		fontSize: '19vw;',
 	},
+	fontSize: '18vw;',
 	fontWeight: '700',
 	textAlign: 'left',
 }
 
-const buttonStyle = {
-	fontSize: '1vw;',
-	borderRadius: 28,
+const buttonContactStyle = {
+	'@media (max-width:600px)': {
+		display: 'none',
+	},
+	fontSize: '1.2vw;',
+	borderRadius: 14,
 	flexWrap: 'wrap',
+	px: 0,
+
 }
 
-type Anchor = 'top' | 'left' | 'bottom' | 'right';
-
-export default function Swipeable() {
-  const [state, setState] = React.useState({
-    top: false,
-    left: false,
-    bottom: false,
-    right: false,
-  });
-
-  const toggleDrawer =
-    (anchor: Anchor, open: boolean) =>
-    (event: React.KeyboardEvent | React.MouseEvent) => {
-      if (
-        event &&
-        event.type === 'keydown' &&
-        ((event as React.KeyboardEvent).key === 'Tab' ||
-          (event as React.KeyboardEvent).key === 'Shift')
-      ) {
-        return;
-      }
-
-      setState({ ...state, [anchor]: open });
-    };
-
-  const list = (anchor: Anchor) => (
-    <Box
-      sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 250 }}
-      role="presentation"
-      onClick={toggleDrawer(anchor, false)}
-      onKeyDown={toggleDrawer(anchor, false)}
-    >
-      <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    </Box>
-  );
-
-  return (
-    <div>
-      {(['left', 'right', 'top', 'bottom'] as const).map((anchor) => (
-        <React.Fragment key={anchor}>
-          <Button onClick={toggleDrawer(anchor, true)}>{anchor}</Button>
-          <SwipeableDrawer
-            anchor={anchor}
-            open={state[anchor]}
-            onClose={toggleDrawer(anchor, false)}
-            onOpen={toggleDrawer(anchor, true)}
-          >
-            {list(anchor)}
-          </SwipeableDrawer>
-        </React.Fragment>
-      ))}
-    </div>
-  );
+const gridButton = {
+	justifyContent: 'center',
+	pt: 1
 }
 
-
-export const MainPage = () => {
+const MainPage = () => {
 
 	return <>
 		<Grid container display='flex' spacing={0}>
@@ -115,34 +39,70 @@ export const MainPage = () => {
 			</Grid>
 			<Grid item xs={4}>
 				<Grid container display='flex'>
-					<Grid item xs={4} sx={{px: '0.5vw;'}}>
+					<Grid item xs={4} sx={gridButton}>
 						<Button
 							color='primary'
-							sx={buttonStyle}
+							sx={buttonContactStyle}
+							className="contactButton"
 							size='small'
-							variant="contained"
+							variant="text"
 							fullWidth
 						>
+							<Typography
+								variant='button'
+								sx={{fontSize: '1.5vw;', ml: 0}}
+							>
 							About us
+							</Typography>
 						</Button>
 					</Grid>
-					<Grid item xs={4} sx={{px: '1vw;'}}>
+					<Grid item xs={4} sx={gridButton}>
 						<Button
 							color='primary'
-							sx={buttonStyle}
+							sx={buttonContactStyle}
 							size='small'
-							variant="contained"
+							className="contactButton"
+							variant="text"
 							fullWidth
 						>
+							<Typography
+								variant='button'
+								sx={{fontSize: '1.5vw;', ml: 0}}
+							>
 							Contact
+							</Typography>
 						</Button>
 					</Grid>
-					<Grid item xs={4}></Grid>
+					<Grid item xs={4}>
+						<Swipeable
+							login={false}
+							sx={{justifyContent: 'center', pl: '4vw;'}}/>
+					</Grid>
 				</Grid> 
 			</Grid>
 		</Grid>
-		<Button component={Link} to="/login">LOGIN / SIGNUP</Button>
-		<Swipeable/>
+		<Box sx={{position: 'absolute', bottom: '4rem', right: '5rem'}}>
+			<Button
+				component={Link}
+				to="/login"
+				variant='contained'
+				color='primary'
+				className='loginButton'
+				sx={{
+					'@media (max-height:215px)': {
+						display: 'none',
+					},
+					fontSize: '2vw;',
+					borderRadius: 14,
+					pt: 0.4,
+					pb: 0.2,
+					px: 'center',
+				}}
+			>
+				LOGIN / SIGNUP
+			</Button>
+		</Box>
 	</>
 }
+export default MainPage;
 

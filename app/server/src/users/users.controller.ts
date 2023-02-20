@@ -45,7 +45,6 @@ export class UsersController {
 		return await this.userService.findUsers();
 	}
 
-
 	@Get('login')
 	async handleLogin(@Query() query: {login: string, password: string}) {
 		const user = await this.userService.findOneUser(query.login)
@@ -63,22 +62,58 @@ export class UsersController {
 			}
 		return {
 			'statusCode': 200,
-			'message': 'valid infos'
+			'message': 'valid infos',
+			'body': JSON.stringify(user)
 		}
 	}
 
 	@Post('signup')
-	async handleSignup(@Query() query: {login: string, password: string}) {
+	async handleSignup(@Query() query: {login: string, password: string, intraLogin?: string}) {
 		const user = await this.userService.findOneUser(query.login)
 		if (user)
 			return {
 				'statusCode' : 403,
 				'message': 'login already use'
 			}
-		this.createUser({login: query.login, password: query.password})
+		const newUser = {login: query.login, password: query.password, intraLogin: query.intraLogin}
+		this.createUser(newUser)
 		return {
 			'statusCode': 200,
-			'message' : 'user successfully signed in'
+			'message' : 'user successfully signed in',
+			'body': JSON.stringify(newUser)
+		}
+	}
+
+	@Post('intra')
+	async handleSignupIntra(@Query() query: {login: string, intraLogin: string}) {
+		console.log('query: ', query)
+		const user = await this.userService.findOneUser(query.login)
+		if (user)
+			return {
+				'statusCode' : 403,
+				'message': 'login already use' 
+			}
+		const newUser = {login: query.login, password: "", intraLogin: query.intraLogin}
+		this.createUser(newUser)
+ 		return {
+			'statusCode': 200,
+			'message' : 'user successfully signed in',
+			'body' : JSON.stringify(newUser)
+		} 
+	}
+
+	@Get('intra')
+	async getIntraUser(@Query() query: {intraLogin : string}) {
+		const intraUser = this.userService.findOneIntraUser(query.intraLogin)
+		if (!intraUser)
+			return {
+				'statusCode' : 403,
+				'message': 'no such intra user' 
+			}
+		return {
+			'statusCode': 200,
+			'message' : 'user successfully signed in',
+			'body' : JSON.stringify(intraUser)
 		}
 	}
 

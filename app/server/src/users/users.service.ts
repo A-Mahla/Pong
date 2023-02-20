@@ -20,6 +20,18 @@ export class UsersService {
 		})
 	}
 
+	async findOneIntraUser(intraLogin: string) : Promise<User | null> {
+		return this.prisma.user.findUnique({
+			where: { intraLogin: intraLogin }
+		});
+	}
+
+	//async findAvatar(avatar_path: string) : Promise<User | null> {
+	//	return this.prisma.user.findUnique({
+	//		where: { login: login }
+	//	});
+	//}
+
 	async updateUser(login: string, updateUserDetails: UpdateUserParams) : Promise<User> {
 		return this.prisma.user.update({
 			where: { login: login },
@@ -48,7 +60,7 @@ export class UsersService {
 		console.log("create prisma user: ", newUser)
 		return this.prisma.user.create({
 			data: { ...newUser }
-		});
+		}).catch((e) => {throw e});
 	}
 }
 

@@ -1,0 +1,16 @@
+.loginButton {
+	transition-property: transform !important;
+	transition-duration: 500ms !important;
+}
+
+.loginButton:hover {
+	transform: scale(1.15);
+}
+
+.contactButton:hover {
+	text-decoration: underline !important;
+}
+
+.iconButton {
+
+}
