@@ -5,6 +5,8 @@ import Tabs from '@mui/material/Tabs'
 import TabList from '@mui/lab/TabList'
 import Tab from '@mui/material/Tab'
 import Swipeable from './utils/Swipeable'
+import Profile from './Profile'
+import './LeadPage.css'
 
 const header = {
 	height: '4vw;',
@@ -19,22 +21,40 @@ const tabStyle = {
 
 const centralBoxStyle = {
 	height: '45rem',
+	p: 1,
 	border: 1,
 	boxShadow: 10,
 	borderRadius: '32px',
 }
 
-
+type TabPanelProps = {
+	value: number,
+	index: number,
+	children: React.ComponentNode
+}
 
 function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
+
 
   return <>
-		{value === index && 
+		{props.value === props.index && 
 			(<Box sx={centralBoxStyle}>
-				<Typography sx={{textAlign: 'center', pt: '21rem'}}>
-					{children}
-				</Typography>
+				<Grid container
+					className='test'
+					sx={{
+						all: 'initial',
+						ml: '3rem',
+						mt: '3rem',
+						mb: '3rem',
+						mr: '3rem',
+						height: '39rem',
+						widht:  '30rem',
+						display: 'flex',
+						flexDirection: 'row',
+						flexWrap: 'wrap'
+				}}>
+					{props.children}
+				</Grid>
 			</Box>)
 		}
 	</>;	
@@ -77,11 +97,17 @@ const LeadPage = () => {
 				</Grid>
 			</Grid>
 		</Box>
-			<Box>
-				<TabPanel value={value} index={0}>Profile</TabPanel>
-				<TabPanel value={value} index={1}>Play</TabPanel>
-				<TabPanel value={value} index={2}>Chat</TabPanel>
-			</Box>
+		<Box>
+			<TabPanel value={value} index={0}>
+				<Profile/>
+			</TabPanel>
+			<TabPanel value={value} index={1}>
+				<Profile/>
+			</TabPanel>
+			<TabPanel value={value} index={2}>
+				<Profile/>
+			</TabPanel>
+		</Box>
 	</>
 }
 export default LeadPage;
