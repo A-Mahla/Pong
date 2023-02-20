@@ -3,6 +3,7 @@ import Swipeable from './utils/Swipeable'
 import { Typography, Button, Box } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import { Link } from "react-router-dom"
+import './MainPage.css'
 
 const titleStyle = {
 	'@media (max-width:600px)': {
@@ -42,6 +43,7 @@ const MainPage = () => {
 						<Button
 							color='primary'
 							sx={buttonContactStyle}
+							className="contactButton"
 							size='small'
 							variant="text"
 							fullWidth
@@ -59,6 +61,7 @@ const MainPage = () => {
 							color='primary'
 							sx={buttonContactStyle}
 							size='small'
+							className="contactButton"
 							variant="text"
 							fullWidth
 						>
@@ -73,17 +76,18 @@ const MainPage = () => {
 					<Grid item xs={4}>
 						<Swipeable
 							login={false}
-							sx={{justifyContent: 'center', px: 2}}/>
+							sx={{justifyContent: 'center', pl: '4vw;'}}/>
 					</Grid>
 				</Grid> 
 			</Grid>
 		</Grid>
-		<Box sx={{position: 'absolute', bottom: 30, right: 80}}>
+		<Box sx={{position: 'absolute', bottom: '4rem', right: '5rem'}}>
 			<Button
 				component={Link}
 				to="/login"
 				variant='contained'
 				color='primary'
+				className='loginButton'
 				sx={{
 					'@media (max-height:215px)': {
 						display: 'none',
@@ -92,7 +96,7 @@ const MainPage = () => {
 					borderRadius: 14,
 					pt: 0.4,
 					pb: 0.2,
-					px: 'center'
+					px: 'center',
 				}}
 			>
 				LOGIN / SIGNUP

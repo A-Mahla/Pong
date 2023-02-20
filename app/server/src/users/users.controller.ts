@@ -2,6 +2,7 @@ import { Controller,
 	Get,
 	Post,
 	Body,
+	Request,
 	Put,
 	Delete,
 	Patch,
@@ -14,7 +15,11 @@ import { Controller,
 	HttpException,
 	StreamableFile,
 	BadGatewayException,
-	BadRequestException
+	BadRequestException,
+	Inject,
+	Injectable,
+	UseGuards,
+	ConsoleLogger,
 } from '@nestjs/common';
 import { diskStorage } from  'multer';
 import { join } from  'path';
@@ -22,12 +27,17 @@ import { createReadStream } from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express'
 import { CreateUserDto, UpdateUserDto } from './User.dto'
 import { UsersService } from './users.service'
+import { AuthGuard } from '@nestjs/passport';
+import { AuthService } from '../auth/auth.service'
+import { LocalAuthGuard } from 'src/auth/local-auth.guard';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 
 @Controller('users')
 export class UsersController {
 
-	constructor(private userService: UsersService) {
+	constructor(private userService: UsersService,
+		private authService: AuthService) {
 	}
 
 	@Get()
@@ -114,25 +124,33 @@ export class UsersController {
 		return await this.userService.findOneUser(login);
 	}
 
+	@UseGuards(LocalAuthGuard)
+	@Post('auth/login')
+  	async login(@Request() req: any) {
+		return this.authService.login(req.user);
+	}
 
 	@Post()
 	createUser(@Body() createUserDto: CreateUserDto) {
-		this.userService.createUser(createUserDto);
+		return this.userService.createUser(createUserDto);
 	}
 
+
+	@UseGuards(JwtAuthGuard)
 	@Post(':login/avatar')
 	@UseInterceptors(FileInterceptor('file', {
-		storage: diskStorage({
-			destination: './src/avatar',
-			filename: (req, file, cb) => {
-				return cb(null, req.params.login + ".jpeg");
-			}
-		})
+	storage: diskStorage({
+		destination: './src/avatar',
+		filename: (req, file, cb) => {
+			return cb(null, req.params.login + ".jpeg");
+			},
+		}),
 	}))
-	setAvatar(@UploadedFile() file: Express.Multer.File, @Param('login') login: string) {
-		return this.userService.updateAvatar(login, file.filename);
+	async checkAvatar(@Request() req: any, @UploadedFile() file: Express.Multer.File){
+		return this.userService.updateAvatar(req.user.login , file.filename);
 	}
 
+	@UseGuards(JwtAuthGuard)
 	@Get('avatar/:login')
 	async getFile(@Param('login') login : string, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
 		try {

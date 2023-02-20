@@ -1,4 +1,12 @@
-import { Button, FormControl, Grid, TextField, Typography } from '@mui/material';
+import {
+	Divider,
+	Box,
+	Button,
+	FormControl,
+	Grid,
+	TextField,
+	Typography
+} from '@mui/material';
 import React, { useCallback, useRef, useState} from 'react'
 import { LogoutButton } from './LogoutButton';
 import { Oauth2 } from './Oauth2';
@@ -69,8 +77,12 @@ export function Login() {
 
 	}, [])
 
-	return (
-	<Grid container justifyContent="center">
+	return <>
+	<Box container sx={{my: 'auto'}}>
+		<Typography variant='h4'>Pong</Typography>
+	</Box>
+	<Divider variant='middle'/>
+	<Grid container justifyContent="center" sx={{height: 600, pt: 15}}>
 		{(Cookies.get('login')) === undefined ? 
 
 		<FormControl>
@@ -97,6 +109,6 @@ export function Login() {
 		: <LogoutButton>log out</LogoutButton>
 		}
 	</Grid> 
-	)
+	</>
 
 }
