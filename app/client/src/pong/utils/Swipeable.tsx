@@ -6,6 +6,7 @@ import { List, ListSubheader }  from '@mui/material'
 import EmailIcon from '@mui/icons-material/Email'
 import InfoIcon from '@mui/icons-material/Info'
 import LoginIcon from '@mui/icons-material/Login'
+import LogoutIcon from '@mui/icons-material/Logout';
 import IconButton from '@mui/material/IconButton'
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import Divider from '@mui/material/Divider';
@@ -20,6 +21,7 @@ type propsSwip = {
 	sx: {
 		justifyContent?: string,
 		pl?: string,
+		pt?: number,
 		position?: string,
 		right?: string
 	}
@@ -102,7 +104,7 @@ const Swipeable = (props: propsSwip) => {
 					:
 						<ListItemButton component={Link} to="/">
 						<ListItemIcon sx={listIconButton}>
-							<LoginIcon />
+							<LogoutIcon />
 						</ListItemIcon>
 							<ListItemText
 								primary="Logout"
@@ -142,7 +144,7 @@ const Swipeable = (props: propsSwip) => {
 				<IconButton
 					onClick={toggleDrawer(anchor, true)}
 					variant="contained"
-					sx={{background: 'primary'}}
+					sx={{ pt: 0 }}
 				>
 					<MenuRoundedIcon sx={{
 						fontSize: '2rem',

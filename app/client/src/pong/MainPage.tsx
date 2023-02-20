@@ -81,7 +81,7 @@ const MainPage = () => {
 				</Grid> 
 			</Grid>
 		</Grid>
-		<Box sx={{position: 'absolute', bottom: 30, right: 80}}>
+		<Box sx={{position: 'absolute', bottom: '4rem', right: '5rem'}}>
 			<Button
 				component={Link}
 				to="/login"

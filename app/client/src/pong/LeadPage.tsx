@@ -6,11 +6,6 @@ import TabList from '@mui/lab/TabList'
 import Tab from '@mui/material/Tab'
 import Swipeable from './utils/Swipeable'
 
-interface LinkTabProps {
-  label?: string;
-  href?: string;
-}
-
 const header = {
 	height: '4vw;',
 }
