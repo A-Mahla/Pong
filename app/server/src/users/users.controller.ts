@@ -93,7 +93,6 @@ export class UsersController {
 	@Post('auth/login')
   	async login(@Request() req: any) {
 		return this.authService.login(req.user);
-
 	}
 
 	@Post()
