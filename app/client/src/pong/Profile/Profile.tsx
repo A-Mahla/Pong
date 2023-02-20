@@ -1,6 +1,7 @@
 import { Box, Grid } from '@mui/material'
-import './LeadPage.css'
+import '/src/pong/LeadPage.css'
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import ProfileAvatar from './Avatar'
 
 const theme = createTheme({
   palette: {
@@ -13,8 +14,8 @@ const theme = createTheme({
   },
 });
 
-
 const Profile = () => {
+
 	return <>
 		<ThemeProvider theme={theme}>
 			<Grid item xs={5}
@@ -23,9 +24,16 @@ const Profile = () => {
 					top: '3rem',
 					height: '12rem',
 					p: '1vw;',
-					border: 1
+					border: 1,
+					display: 'grid',
+					'@media (max-width: 1000px)': {
+						height: '14rem',
+						alignItems: 'center',
+						justifyContent: 'center'
+					},
 				}
 			}>
+				<ProfileAvatar />
 			</Grid>
 			<Grid item xs={7}
 				sx={{
@@ -34,7 +42,10 @@ const Profile = () => {
 					height: '12rem',
 					py: '1vw;',
 					px: '2vw;',
-					border: 1
+					border: 1,
+					'@media (max-width: 1000px)': {
+						height: '14rem',
+					},
 				}
 			}>
 			</Grid>

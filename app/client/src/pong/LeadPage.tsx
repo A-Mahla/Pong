@@ -5,7 +5,7 @@ import Tabs from '@mui/material/Tabs'
 import TabList from '@mui/lab/TabList'
 import Tab from '@mui/material/Tab'
 import Swipeable from './utils/Swipeable'
-import Profile from './Profile'
+import Profile from './Profile/Profile'
 import './LeadPage.css'
 
 const header = {
@@ -52,7 +52,7 @@ function TabPanel(props: TabPanelProps) {
 						display: 'flex',
 						flexDirection: 'row',
 						flexWrap: 'wrap'
-				}}>
+					}}>
 					{props.children}
 				</Grid>
 			</Box>)
@@ -102,7 +102,7 @@ const LeadPage = () => {
 				<Profile/>
 			</TabPanel>
 			<TabPanel value={value} index={1}>
-				<Profile/>
+				<Typography variant='h1'>PLAY</Typography>
 			</TabPanel>
 			<TabPanel value={value} index={2}>
 				<Profile/>
