@@ -91,7 +91,7 @@ export class UsersController {
 		if (user)
 			return {
 				'statusCode' : 403,
-				'message': 'login already use' 
+				'message': 'login already use'
 			}
 		const newUser = {login: query.login, password: "", intraLogin: query.intraLogin}
 		this.createUser(newUser)
@@ -99,7 +99,7 @@ export class UsersController {
 			'statusCode': 200,
 			'message' : 'user successfully signed in',
 			'body' : JSON.stringify(newUser)
-		} 
+		}
 	}
 
 	@Get('intra')
@@ -108,7 +108,7 @@ export class UsersController {
 		if (!intraUser)
 			return {
 				'statusCode' : 403,
-				'message': 'no such intra user' 
+				'message': 'no such intra user'
 			}
 		return {
 			'statusCode': 200,
@@ -165,6 +165,11 @@ export class UsersController {
 		}
 	}
 
+	//@UseGuards(JwtAuthGuard)
+	@Get('stats/:login')
+	getStats(@Param('login') login : string) {
+		return this.userService.getProfile(login);
+	}
 
 	@Put(':login')
 	async updateUserById(
