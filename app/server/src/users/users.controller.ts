@@ -155,7 +155,6 @@ export class UsersController {
 	async getDefaultFile(@Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
 		try {
 			const file = createReadStream('./src/avatar/default_avatar.jpg');
-			console.log(file);
 			return new StreamableFile(file);
 		} catch (error){
 			throw new BadRequestException;
