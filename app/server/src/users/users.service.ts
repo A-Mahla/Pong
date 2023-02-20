@@ -2,7 +2,7 @@ import { BadGatewayException, BadRequestException, Injectable, UseInterceptors, 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, User } from '@prisma/client';
 import { diskStorage } from  'multer';
-import { CreateUserParams, UpdateUserParams } from './User.types'
+import { statsFormat, CreateUserParams, UpdateUserParams, profile } from './User.types'
 import { FileInterceptor } from '@nestjs/platform-express'
 
 @Injectable()
@@ -26,11 +26,14 @@ export class UsersService {
 		});
 	}
 
-	//async findAvatar(avatar_path: string) : Promise<User | null> {
-	//	return this.prisma.user.findUnique({
-	//		where: { login: login }
-	//	});
-	//}
+	async getProfile(login: string) : Promise < profile | null | undefined> {
+		const user = await this.findOneUser(login);
+		if (user) {
+			const {win, loose, nbGames, status, login, avatar, ...other} = user;
+			// const {win, loose, nbGames, status, ...other} = user;
+			return {win, loose, nbGames, status, login, avatar};
+		}
+	}
 
 	async updateUser(login: string, updateUserDetails: UpdateUserParams) : Promise<User> {
 		return this.prisma.user.update({
