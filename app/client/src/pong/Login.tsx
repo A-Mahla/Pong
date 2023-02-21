@@ -22,27 +22,43 @@ export function Login() {
 
 	const password = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 
-	const handleLogin = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+	const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
 
 		const requestOptions = {
-			method: "GET",
+			method: "POST",
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				login: `${username.current.value}`,
+				password: `${password.current.value}`
+			})
 		}
 
-		fetch(`http://localhost:5500/api/users/login?login=${username.current.value}&password=${password.current.value}`,
-			requestOptions)
-		.then(response => response.json())
-		.then(data => {
-			if (data['statusCode'] != 200)
-				setError(data['message'])
-			else
-			{
-				Cookies.set('login', data['body']['login'], {expires: 7})
-				location.replace('http://localhost:3000')
-			}
-			
-			console.log(data)})
-	}, [])
+		const response = await fetch('http://localhost:5500/api/users/auth/login', requestOptions)
+		if (response.status != 201)
+			setError('Error fetch')
+		else
+		{
+			const data = await response.json()
+			Cookies.set('accessToken', data['access_token'], {expires: 7})
+			location.replace('http://localhost:3000/pong')
+		}
+	//	.then(response => JSON.stringify(response))
+// 		.then(data => {
+// 			console.log(data)
+// 			if (response.status != 201)
+// 			{
+// 				console.log('YOOOOOOo')
+// 				setError(data['message'])
+// 			}
+// 			else
+// 			{
+// //				Cookies.set('login', data['body']['login'], {expires: 7})
+// 				Cookies.set('accesToken', data['acces_token'], {expires: 7})
+// 				location.replace('http://localhost:3000/pong')
+// 			}
+
+	}
 
 	const handleSignup = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
@@ -83,7 +99,7 @@ export function Login() {
 	</Box>
 	<Divider variant='middle'/>
 	<Grid container justifyContent="center" sx={{height: 600, pt: 15}}>
-		{(Cookies.get('login')) === undefined ? 
+		{(Cookies.get('login')) === undefined ?
 
 		<FormControl>
 			<TextField
@@ -108,7 +124,7 @@ export function Login() {
 		</FormControl>
 		: <LogoutButton>log out</LogoutButton>
 		}
-	</Grid> 
+	</Grid>
 	</>
 
 }

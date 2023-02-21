@@ -45,6 +45,7 @@ export class UsersController {
 		return await this.userService.findUsers();
 	}
 
+	@UseGuards(LocalAuthGuard)
 	@Get('login')
 	async handleLogin(@Query() query: {login: string, password: string}) {
 		const user = await this.userService.findOneUser(query.login)
@@ -166,11 +167,12 @@ export class UsersController {
 	}
 
 	//@UseGuards(JwtAuthGuard)
+	/*
 	@Get('stats/:login')
 	getStats(@Param('login') login : string) {
 		return this.userService.getProfile(login);
 	}
-
+	*/
 	@Put(':login')
 	async updateUserById(
 		@Param('login') login: string,

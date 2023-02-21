@@ -25,7 +25,7 @@ export class UsersService {
 			where: { intraLogin: intraLogin }
 		});
 	}
-
+/*
 	async getProfile(login: string) : Promise < profile | null | undefined> {
 		const user = await this.findOneUser(login);
 		if (user) {
@@ -34,6 +34,7 @@ export class UsersService {
 			return {win, loose, nbGames, status, login, avatar};
 		}
 	}
+*/
 
 	async updateUser(login: string, updateUserDetails: UpdateUserParams) : Promise<User> {
 		return this.prisma.user.update({
