@@ -63,6 +63,8 @@ export class UsersController {
 	@Get('auth/refresh')
 	refreshTokens(@Request() req: any){
 		return this.authService.refreshTokens(req.user);
+		/* NOT SURE ALL THE refreshToken METHOD IS MANDATORY BECAUSE WE HAVE THE GUARD PREVENTING FROM FALSE REFRESH TOKEN
+		IT SEEMS THAT THIS IS NOT EVEN NECESSARY TO KEEP THE REFRESH TOKEN IN THE DB */
 	}
 
 
