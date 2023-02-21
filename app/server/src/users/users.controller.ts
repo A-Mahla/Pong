@@ -151,6 +151,18 @@ export class UsersController {
 		return this.userService.updateAvatar(req.user.login , file.filename);
 	}
 
+//	======================= Test Profile with default avatar =============
+	@Get('default/default_avatar')
+	async getDefaultFile(@Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
+		try {
+			const file = createReadStream('./src/avatar/default_avatar.jpg');
+			return new StreamableFile(file);
+		} catch (error){
+			throw new BadRequestException;
+		}
+	}
+// =======================================================================
+
 	@UseGuards(JwtAuthGuard)
 	@Get('avatar/:login')
 	async getFile(@Param('login') login : string, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {

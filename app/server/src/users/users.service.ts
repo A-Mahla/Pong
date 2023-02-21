@@ -30,7 +30,6 @@ export class UsersService {
 		const user = await this.findOneUser(login);
 		if (user) {
 			const {win, loose, nbGames, status, login, avatar, ...other} = user;
-			// const {win, loose, nbGames, status, ...other} = user;
 			return {win, loose, nbGames, status, login, avatar};
 		}
 	}
