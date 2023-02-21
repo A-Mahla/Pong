@@ -26,9 +26,23 @@ export class AuthService {
 	async login(user: any) { // I put any to fit the tutorial but User seem to work fine
 		console.log('----------------> LOGIN AuthService function');
 		const payload = { sub: user.id, login: user.login }
-		const tokens = this.getTokens(payload)
+		const tokens = await this.getTokens(payload)
+		await this.usersService.updateRefreshToken(payload.login, tokens.refreshToken)
 		return tokens;
 	}
+
+	async logout(user: any) {
+		await this.usersService.updateRefreshToken(user.login, "");
+	}
+
+	async refreshTokens(user: any) {
+		const userTry = await this.validateUser(user.login, user.password);
+		if (!userTry || !userTry.refreshToken)
+		  return null;
+		const tokens = await this.getTokens(user);
+		await this.usersService.updateRefreshToken(user.login, tokens.refreshToken)
+		return tokens;
+	  }
 
 	async getTokens(user: JwtPayload) {
 		const [accessToken, refreshToken] = await Promise.all([

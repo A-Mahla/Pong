@@ -9,5 +9,6 @@ export class UpdateUserDto {
 	password: string;
 	avatar: string;
 	intraLogin: string;
+	refreshToken: string
 }
 

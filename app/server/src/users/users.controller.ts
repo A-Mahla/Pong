@@ -31,6 +31,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from '../auth/auth.service'
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RefreshJwtAuthGuard } from 'src/auth/refresh-jwt-auth.guard'
+//import { Request } from 'express';
 
 
 @Controller('users')
@@ -39,6 +41,32 @@ export class UsersController {
 	constructor(private userService: UsersService,
 		private authService: AuthService) {
 	}
+	/* -------------- basic authentification routes ---------------- */
+
+	@Post('auth/signup')
+	createUser(@Body() createUserDto: CreateUserDto) {
+		return this.authService.login(this.userService.createUser(createUserDto));
+	}
+
+	@UseGuards(LocalAuthGuard)
+	@Post('auth/signin')
+  	async login(@Request() req: any) {
+		return this.authService.login(req.user);
+	}
+
+	@Post('auth/logout')
+  	async logout(@Request() req: any) {
+		return this.authService.logout(req.user);
+	}
+
+	@UseGuards(RefreshJwtAuthGuard)
+	@Get('auth/refresh')
+	refreshTokens(@Request() req: any){
+		return this.authService.refreshTokens(req.user);
+	}
+
+
+	/* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
 
 	@Get()
 	async getUsers() {
@@ -123,17 +151,6 @@ export class UsersController {
 		@Param('login') login: string,
 	) {
 		return await this.userService.findOneUser(login);
-	}
-
-	@UseGuards(LocalAuthGuard)
-	@Post('auth/login')
-  	async login(@Request() req: any) {
-		return this.authService.login(req.user);
-	}
-
-	@Post()
-	createUser(@Body() createUserDto: CreateUserDto) {
-		return this.userService.createUser(createUserDto);
 	}
 
 
