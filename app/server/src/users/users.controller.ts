@@ -31,6 +31,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from '../auth/auth.service'
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RefreshJwtAuthGuard } from 'src/auth/refresh-jwt-auth.guard'
+//import { Request } from 'express';
 
 
 @Controller('users')
@@ -39,12 +41,41 @@ export class UsersController {
 	constructor(private userService: UsersService,
 		private authService: AuthService) {
 	}
+	/* -------------- basic authentification routes ---------------- */
+
+	@Post('auth/signup')
+	createUser(@Body() createUserDto: CreateUserDto) {
+		return this.authService.login(this.userService.createUser(createUserDto));
+	}
+
+	@UseGuards(LocalAuthGuard)
+	@Post('auth/signin')
+  	async login(@Request() req: any) {
+		return this.authService.login(req.user);
+	}
+
+	@Post('auth/logout')
+  	async logout(@Request() req: any) {
+		return this.authService.logout(req.user);
+	}
+
+	@UseGuards(RefreshJwtAuthGuard)
+	@Get('auth/refresh')
+	refreshTokens(@Request() req: any){
+		return this.authService.refreshTokens(req.user);
+		/* NOT SURE ALL THE refreshToken METHOD IS MANDATORY BECAUSE WE HAVE THE GUARD PREVENTING FROM FALSE REFRESH TOKEN
+		IT SEEMS THAT THIS IS NOT EVEN NECESSARY TO KEEP THE REFRESH TOKEN IN THE DB */
+	}
+
+
+	/* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
 
 	@Get()
 	async getUsers() {
 		return await this.userService.findUsers();
 	}
 
+	@UseGuards(LocalAuthGuard)
 	@Get('login')
 	async handleLogin(@Query() query: {login: string, password: string}) {
 		const user = await this.userService.findOneUser(query.login)
@@ -91,7 +122,7 @@ export class UsersController {
 		if (user)
 			return {
 				'statusCode' : 403,
-				'message': 'login already use' 
+				'message': 'login already use'
 			}
 		const newUser = {login: query.login, password: "", intraLogin: query.intraLogin}
 		this.createUser(newUser)
@@ -99,7 +130,7 @@ export class UsersController {
 			'statusCode': 200,
 			'message' : 'user successfully signed in',
 			'body' : JSON.stringify(newUser)
-		} 
+		}
 	}
 
 	@Get('intra')
@@ -108,7 +139,7 @@ export class UsersController {
 		if (!intraUser)
 			return {
 				'statusCode' : 403,
-				'message': 'no such intra user' 
+				'message': 'no such intra user'
 			}
 		return {
 			'statusCode': 200,
@@ -122,17 +153,6 @@ export class UsersController {
 		@Param('login') login: string,
 	) {
 		return await this.userService.findOneUser(login);
-	}
-
-	@UseGuards(LocalAuthGuard)
-	@Post('auth/login')
-  	async login(@Request() req: any) {
-		return this.authService.login(req.user);
-	}
-
-	@Post()
-	createUser(@Body() createUserDto: CreateUserDto) {
-		return this.userService.createUser(createUserDto);
 	}
 
 
@@ -150,6 +170,18 @@ export class UsersController {
 		return this.userService.updateAvatar(req.user.login , file.filename);
 	}
 
+//	======================= Test Profile with default avatar =============
+	@Get('default/default_avatar')
+	async getDefaultFile(@Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
+		try {
+			const file = createReadStream('./src/avatar/default_avatar.jpg');
+			return new StreamableFile(file);
+		} catch (error){
+			throw new BadRequestException;
+		}
+	}
+// =======================================================================
+
 	@UseGuards(JwtAuthGuard)
 	@Get('avatar/:login')
 	async getFile(@Param('login') login : string, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
@@ -165,7 +197,13 @@ export class UsersController {
 		}
 	}
 
-
+	//@UseGuards(JwtAuthGuard)
+	/*
+	@Get('stats/:login')
+	getStats(@Param('login') login : string) {
+		return this.userService.getProfile(login);
+	}
+	*/
 	@Put(':login')
 	async updateUserById(
 		@Param('login') login: string,
