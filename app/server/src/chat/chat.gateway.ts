@@ -3,6 +3,12 @@ import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessa
 import { Server, Socket } from 'socket.io';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 
+type MessageData = {
+	content: string,
+	sender: string,
+  time?: string
+}
+
 @WebSocketGateway({cors : {
   origin: "http://localhost:3000",
   methods: ["GET", "POST"],
@@ -14,7 +20,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   server: Server;
 
   @SubscribeMessage('message')
-  handleMessage(client: any, payload: any): string {
+  handleMessage(client: any, payload: MessageData): MessageData {
     console.log('client: ',client)
     console.log('payload: ',payload)
     this.server.emit('message', payload)
