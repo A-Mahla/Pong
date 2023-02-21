@@ -14,8 +14,6 @@ type MessageData = {
 
 export function Chat() {
 
-	Cookies.set('login', 'alorain')
-
 	const message = useRef('')
 
 	const [messages, setMessages] = useState<MessageData[]>([])

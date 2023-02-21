@@ -197,6 +197,56 @@ export class UsersController {
 		}
 	}
 
+	//=========================================OAuth2=======================
+
+
+	@Get('intra42/login')
+	async get42ApiToken(@Query('code') client_code : string) {
+
+		const requestOptions = {
+			method: 'POST',
+			header: {
+				'Accept-Encoding' : 'application/json'
+			}
+		}
+		const grant_type = 'authorization_code';
+		const client_id = process.env.API_UID;
+		const client_secret = process.env.API_SECRET;
+		const code = client_code;
+		const redirect_uri = "http://localhost:3000/redirect";
+
+
+		console.log('lolilo')
+
+		await fetch('https://api.intra.42.fr/v2/oauth/token?' + 
+		`grant_type=${grant_type}&` +
+		`client_id=${client_id}&` +
+		`client_secret=${client_secret}&` +
+		`code=${code}&` + 
+		`redirect_uri=${redirect_uri}`
+		, requestOptions)
+		.then(response => response.json())
+		.then(data => console.log(data))
+
+		return {
+			statusCode: 400,
+			message: 'va la bas'
+
+		}
+	}
+
+	@Post('intra42')
+	createIntraUser(@Query('login') login: string, @Query('intraLogin') intraLogin: string) {
+		console.log(intraLogin);
+
+		return {
+			statusCode: 400,
+			message: 'invalid user'
+		}
+	}
+
+
+
 	//@UseGuards(JwtAuthGuard)
 	/*
 	@Get('stats/:login')

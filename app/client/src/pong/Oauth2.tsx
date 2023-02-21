@@ -33,7 +33,7 @@ export const Redirect = () => {
  
 	const login = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>
 
-	const fetchApi = () => {fetch(`http://localhost:5500/api/auth/intra42/login${url.search}`)
+	const fetchApi = () => {fetch(`http://localhost:5500/api/users/intra42/login${url.search}`)
 	.then(response => response.json())
 	.then(data => {
 		console.log(data)
@@ -63,7 +63,8 @@ export const Redirect = () => {
 		const requestOptions = {
 			method: "POST",
 		}
-		fetch(`http://localhost:5500/api/users/intra?login=${login.current.value}&intraLogin=${intraLogin}`, requestOptions)
+
+		fetch(`http://localhost:5500/api/users/intra42?login=${login.current.value}&intraLogin=${intraLogin}`, requestOptions)
 		.then(response => response.json())
 		.then(data => {
 				console.log('data', data)
