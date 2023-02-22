@@ -36,21 +36,20 @@ export const Redirect = () => {
 	const fetchApi = () => {
 		fetch(`http://localhost:5500/api/users/intra42/login${url.search}`)
 		.then(response => {
-			console.log(response)
 			response.json().then(
 				data => {
-					console.log('data: ', data)
-					if (response.status == 200 && data['signedIn'])
+					if (response.status == 200)
 					{
-						Cookies.set('login', data['login'], {expires: 7})
-						location.replace("http://localhost:3000")
-
-					}
-					else
-					{
-						setIntraLogin(data['intraLogin'])
-						setFetched(true)
-						console.log("intraLogin and fetched", intraLogin, fetched)
+						if (data['signedIn'])
+						{
+							Cookies.set('login', data['login'], {expires: 7})
+							location.replace("http://localhost:3000")
+						}
+						else
+						{
+							setIntraLogin(data['intraLogin'])
+							setFetched(true)
+						}
 					}
 				}
 			)
@@ -70,21 +69,15 @@ export const Redirect = () => {
 
 		fetch(`http://localhost:5500/api/users/intra42?login=${login.current.value}&intraLogin=${intraLogin}`, requestOptions)
 		.then(response => {
-			console.log('reponse onClick: ', response)
 			response.json().then(
 				data => {
-					console.log('data onClick: ', data)
 					if (response.status == 201)
 					{
-						console.log('===============LOL===============')
 						Cookies.set('login', data['login'], {expires: 7})
 						location.replace("http://localhost:3000")
 					}
 					else
-					{
 						setError(data["message"])
-						console.log("data if error: ", data)	
-					}
 				} 
 			)
 		})
