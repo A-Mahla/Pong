@@ -6,7 +6,11 @@ import { Link } from "react-router-dom"
 import './MainPage.css'
 
 const titleStyle = {
-	'@media (max-width:600px)': {
+	'@media (max-width:200px)': {
+		mt: '6px',
+		fontSize: '16vw;',
+	},
+	'@media (min-width:200px) and (max-width:600px)': {
 		fontSize: '19vw;',
 	},
 	fontSize: '18vw;',
