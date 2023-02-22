@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { jwtConstants } from "./constants";
 import { JwtPayload } from './auth.types'
+import { UserDto } from 'src/users/User.dto';
+import { Response } from 'express'
 
 
 @Injectable()
@@ -23,28 +25,32 @@ export class AuthService {
 		return (null);
 	}
 
-	async login(user: any) { // I put any to fit the tutorial but User seem to work fine
+	async login(user: any, response: Response) { // I put any to fit the tutorial but User seem to work fine
 		console.log('----------------> LOGIN AuthService function   ' + user.login + " AND " + user.id);
 		const payload = { sub: user.id, login: user.login }
-		const tokens = await this.getTokens(payload)
-		await this.usersService.updateRefreshToken(payload.login, tokens.refreshToken)
-		return tokens;
+		const tokens = await this.getTokens(payload, response)
+		await this.usersService.updateRefreshToken(payload.login, tokens.refreshToken);
+		return {
+			aT: tokens.accessToken
+		}
 	}
 
 	async logout(user: any) {
 		await this.usersService.updateRefreshToken(user.login, "");
 	}
 
-	async refreshTokens(user: any) {
-		const userTry = await this.validateUser(user.login, user.password);
-		if (!userTry || !userTry.refreshToken)
-		  return null;
-		const tokens = await this.getTokens(user);
-		await this.usersService.updateRefreshToken(user.login, tokens.refreshToken)
-		return tokens;
-	  }
+	async refreshTokens(user: any, response: Response) {
+		const userTry = await this.usersService.findOneUser(user.login);
+		if (!userTry || userTry.refreshToken !== user.refreshToken )
+			return null;
+		const tokens = await this.getTokens(user, response);
+		await this.usersService.updateRefreshToken(user.login, tokens.refreshToken);
+		return {
+			aT: tokens.accessToken
+		}
+	}
 
-	async getTokens(user: JwtPayload) {
+	async getTokens(user: JwtPayload, response: Response) {
 		const [accessToken, refreshToken] = await Promise.all([
 		  this.jwtService.signAsync(
 			{
@@ -53,7 +59,7 @@ export class AuthService {
 			},
 			{
 			  secret: jwtConstants.secret,
-			  expiresIn: '15m',
+			  expiresIn: '60s',
 			},
 		  ),
 		  this.jwtService.signAsync(
@@ -63,15 +69,18 @@ export class AuthService {
 			},
 			{
 			  secret: jwtConstants.refresh_secret,
-			  expiresIn: '7d',
+			  expiresIn: '180s',
 			},
 		  ),
 		]);
-
+		response.cookie('rT', refreshToken);
+		response.setHeader('Access-Control-Allow-Credentials', 'true');
+		response.setHeader('Access-Control-Allow-Origin', 'https://localhost:5500')
 		return {
-		  accessToken,
-		  refreshToken,
-		};
+			accessToken,
+			refreshToken
+		}
+
 	  }
 
 

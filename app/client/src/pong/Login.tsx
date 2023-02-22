@@ -27,21 +27,24 @@ export function Login() {
 
 		const requestOptions = {
 			method: "POST",
-			headers: { 'Content-Type': 'application/json' },
+			headers: {
+				'Content-Type': 'application/json',
+				'credentials': 'include',
+			 },
 			body: JSON.stringify({
 				login: `${username.current.value}`,
 				password: `${password.current.value}`
 			})
 		}
 
-		const response = await fetch('http://localhost:5500/api/users/auth/login', requestOptions)
+		const response = await fetch('http://localhost:5500/api/users/auth/signin', requestOptions)
 		if (response.status != 201)
 			setError('Error fetch')
 		else
 		{
 			const data = await response.json()
-			Cookies.set('accessToken', data['access_token'], {expires: 7})
-			location.replace('http://localhost:3000/pong')
+			console.log(data.aT)
+		//	location.replace('http://localhost:3000/pong')
 		}
 	//	.then(response => JSON.stringify(response))
 // 		.then(data => {
