@@ -106,7 +106,7 @@ const LeadPage = () => {
 				<Typography variant='h1'>PLAY</Typography>
 			</TabPanel>
 			<TabPanel value={value} index={2}>
-				<Profile/>
+				<Typography variant='h1'>Chat</Typography>
 			</TabPanel>
 		</Box>
 	</>
