@@ -73,5 +73,6 @@ export class UsersService {
 			data: { ...newUser }
 		}).catch((e) => {throw e});
 	}
+
 }
 

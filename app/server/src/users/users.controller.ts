@@ -32,6 +32,7 @@ import { AuthService } from '../auth/auth.service'
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RefreshJwtAuthGuard } from 'src/auth/refresh-jwt-auth.guard'
+import { Intra42AuthGuard } from 'src/auth/intra42.guard';
 //import { Request } from 'express';
 
 
@@ -200,49 +201,31 @@ export class UsersController {
 	//=========================================OAuth2=======================
 
 
+	@UseGuards(Intra42AuthGuard)
 	@Get('intra42/login')
-	async get42ApiToken(@Query('code') client_code : string) {
+	async handleIntraLogin(@Request() req: any) {
 
-		const requestOptions = {
-			method: 'POST',
-			header: {
-				'Accept-Encoding' : 'application/json'
-			}
-		}
-		const grant_type = 'authorization_code';
-		const client_id = process.env.API_UID;
-		const client_secret = process.env.API_SECRET;
-		const code = client_code;
-		const redirect_uri = "http://localhost:3000/redirect";
+		console.log('handle intra login user info: ', req.intraUserInfo);
+		
 
-
-		console.log('lolilo')
-
-		await fetch('https://api.intra.42.fr/v2/oauth/token?' + 
-		`grant_type=${grant_type}&` +
-		`client_id=${client_id}&` +
-		`client_secret=${client_secret}&` +
-		`code=${code}&` + 
-		`redirect_uri=${redirect_uri}`
-		, requestOptions)
-		.then(response => response.json())
-		.then(data => console.log(data))
-
-		return {
-			statusCode: 400,
-			message: 'va la bas'
-
-		}
+		return req.intraUserInfo
 	}
 
 	@Post('intra42')
-	createIntraUser(@Query('login') login: string, @Query('intraLogin') intraLogin: string) {
-		console.log(intraLogin);
+	async createIntraUser(@Query('login') login: string, @Query('intraLogin') intraLogin: string) {
+		const user = await this.userService.findOneUser(login)
 
-		return {
-			statusCode: 400,
-			message: 'invalid user'
-		}
+		if (user)
+			return {
+				statusCode: 400,	
+				message: 'login already use'
+			}
+
+		return this.userService.createUser({
+			login: login,
+			password: '',
+			intraLogin: intraLogin
+		})
 	}
 
 
