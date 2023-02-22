@@ -2,6 +2,8 @@
 
 FROM		node:19-alpine
 
+RUN			npm install -g npm@9.5.0
+
 WORKDIR		/app
 
 COPY		. /app/
