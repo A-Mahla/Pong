@@ -13,7 +13,14 @@ const ProfileAvatar = () => {
 				height: '10rem',
 				border: 1,
 				boxShadow: 24,
-				'@media (min-width: 200px) and (max-width: 470px)': {
+				'@media (max-width: 350px)': {
+					position: 'absolute',
+					mt: 0,
+					mr: '10vw;',
+					width: '4rem',
+					height: '4rem',
+				},
+				'@media (min-width: 350px) and (max-width: 470px)': {
 					width: '4rem',
 					height: '4rem',
 					mt: -10
