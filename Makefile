@@ -30,4 +30,4 @@ re			: fclean
 			make all
 
 re-comp		: fclean-comp
-			make all
+			make compose
