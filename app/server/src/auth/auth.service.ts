@@ -24,7 +24,7 @@ export class AuthService {
 	}
 
 	async login(user: any) { // I put any to fit the tutorial but User seem to work fine
-		console.log('----------------> LOGIN AuthService function');
+		console.log('----------------> LOGIN AuthService function   ' + user.login + " AND " + user.id);
 		const payload = { sub: user.id, login: user.login }
 		const tokens = await this.getTokens(payload)
 		await this.usersService.updateRefreshToken(payload.login, tokens.refreshToken)

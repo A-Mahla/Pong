@@ -43,6 +43,7 @@ export class UsersService {
 	}
 
 	async updateRefreshToken(login: string, refreshToken: string) {
+		console.log("icciiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii --> " + login);
 		return await this.prisma.user.update({
 			where: { login: login },
 			data : { refreshToken: refreshToken }

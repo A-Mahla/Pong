@@ -41,11 +41,11 @@ export class UsersController {
 	constructor(private userService: UsersService,
 		private authService: AuthService) {
 	}
-	/* -------------- basic authentification routes ---------------- */
+	/* -------------- basic authentication routes ---------------- */
 
 	@Post('auth/signup')
-	createUser(@Body() createUserDto: CreateUserDto) {
-		return this.authService.login(this.userService.createUser(createUserDto));
+	async createUser(@Body() createUserDto: CreateUserDto) {
+		return this.authService.login((await this.userService.createUser(createUserDto)));
 	}
 
 	@UseGuards(LocalAuthGuard)
@@ -63,9 +63,10 @@ export class UsersController {
 	@Get('auth/refresh')
 	refreshTokens(@Request() req: any){
 		return this.authService.refreshTokens(req.user);
-		/* NOT SURE ALL THE refreshToken METHOD IS MANDATORY BECAUSE WE HAVE THE GUARD PREVENTING FROM FALSE REFRESH TOKEN
-		IT SEEMS THAT THIS IS NOT EVEN NECESSARY TO KEEP THE REFRESH TOKEN IN THE DB */
 	}
+	/* NOT SURE ALL THE refreshToken METHOD IS MANDATORY BECAUSE WE HAVE THE GUARD PREVENTING FROM FALSE REFRESH TOKEN
+	IT SEEMS THAT THIS IS NOT EVEN NECESSARY TO KEEP THE REFRESH TOKEN IN THE DB */
+
 
 
 	/* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
