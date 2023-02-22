@@ -74,8 +74,9 @@ export class AuthService {
 		  ),
 		]);
 		response.cookie('rT', refreshToken);
-		response.setHeader('Access-Control-Allow-Credentials', 'true');
-		response.setHeader('Access-Control-Allow-Origin', 'https://localhost:5500')
+		//response.setHeader('Access-Control-Allow-Credentials', 'true');
+		//response.setHeader('Access-Control-Allow-Origin', '*')
+		//response.setHeader('access-control-expose-headers', 'Set-Cookie')
 		return {
 			accessToken,
 			refreshToken

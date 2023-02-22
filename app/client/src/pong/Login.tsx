@@ -29,7 +29,6 @@ export function Login() {
 			method: "POST",
 			headers: {
 				'Content-Type': 'application/json',
-				'credentials': 'include',
 			 },
 			body: JSON.stringify({
 				login: `${username.current.value}`,
