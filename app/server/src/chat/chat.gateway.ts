@@ -6,7 +6,7 @@ import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 type MessageData = {
 	content: string,
 	sender: string,
-  time?: string
+  time?: string,
 }
 
 @WebSocketGateway({cors : {
@@ -25,6 +25,18 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     console.log('payload: ',payload)
     this.server.emit('message', payload)
     return payload;
+  }
+
+  @SubscribeMessage('createRoom')
+  handleCreateRoom(client: any, roomName: string) {
+    client.join(roomName)
+    client.emit('roomCreated', roomName)
+
+  }
+
+  @SubscribeMessage('messageToRoom')
+  handleMessageToRoom(client: any, message: {content: string, sender: string, room: string}) {
+    this.server.to(message.room).emit(message.content)
   }
 
   afterInit(server : Server): any {
