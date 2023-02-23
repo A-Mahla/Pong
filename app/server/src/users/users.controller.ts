@@ -20,6 +20,7 @@ import { Controller,
 	Injectable,
 	UseGuards,
 	ConsoleLogger,
+	Req,
 } from '@nestjs/common';
 import { diskStorage } from  'multer';
 import { join } from  'path';
@@ -28,6 +29,7 @@ import { FileInterceptor } from '@nestjs/platform-express'
 import { CreateUserDto, UpdateUserDto } from './User.dto'
 import { UsersService } from './users.service'
 import { Response } from "express";
+import { Request as ExpressRequest } from 'express'
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from '../auth/auth.service'
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
@@ -85,7 +87,8 @@ export class UsersController {
 	/* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
 
 	@Get()
-	async getUsers() {
+	async getUsers(@Req() req: ExpressRequest) {
+		console.log(req.headers);
 		return await this.userService.findUsers();
 	}
 
