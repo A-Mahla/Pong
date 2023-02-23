@@ -13,10 +13,10 @@ services:
       - .env
     build: ./app/client/.
     image: react
-#    expose:
-#      - "3000"
-    ports:
-      - "3000:5173"
+    expose:
+      - "5173"
+#    ports:
+#      - "3000:5173"
     volumes:
       - ./app/client/src:/app/src
       - ./app/client/public:/app/public
@@ -36,10 +36,10 @@ services:
       - .env
     build: ./app/server/.
     image: nestjs
-#    expose:
-#      - "3500"
-    ports:
-      - "5500:3500"
+    expose:
+      - "3500"
+#    ports:
+#      - "5500:3500"
     volumes:
       - ./app/server/src:/app/src
       - ./app/server/prisma:/app/prisma

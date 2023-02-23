@@ -178,9 +178,10 @@ export class UsersController {
 		}
 	}
 
+	@UseGuards(JwtAuthGuard)
 	@Get(':login')
 	async getUsersbyId(
-		@Param('login') login: string,
+		@Param('login') login: string
 	) {
 		return await this.userService.findOneUser(login);
 	}

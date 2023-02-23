@@ -41,9 +41,9 @@ export function Login() {
 			setError('Error fetch')
 		else
 		{
-			console.log('YOOOOOOOOOOOOOOOOOOo')
 			const data = await response.json()
-			const res = await fetch('http://localhost:8080/api/users', {method: "GET"})
+			const res = await fetch('http://localhost:8080/api/users/auth/refresh')
+			//		const test = await res.json();
 		//	location.replace('http://localhost:3000/pong')
 		}
 

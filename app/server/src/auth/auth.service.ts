@@ -59,7 +59,7 @@ export class AuthService {
 			},
 			{
 			  secret: jwtConstants.secret,
-			  expiresIn: '120s',
+			  expiresIn: '10s',
 			},
 		  ),
 		  this.jwtService.signAsync(
@@ -73,8 +73,9 @@ export class AuthService {
 			},
 		  ),
 		]);
-		response.cookie('rT', refreshToken, { maxAge: 900000, httpOnly: true});
-		response.cookie('aT', accessToken, { maxAge: 900000000, httpOnly: true});
+		console.log(refreshToken)
+		response.cookie('rT', refreshToken, { maxAge: 900000, httpOnly: true, sameSite: 'strict' });
+		response.cookie('aT', accessToken, { maxAge: 900000000, httpOnly: true, sameSite: 'strict' });
 		response.setHeader('access-control-allow-credentials', 'true');
 		response.setHeader('access-control-allow-methodes', 'GET, POST, PUT, OPTIONS')
 		response.setHeader('access-control-allow-origin', 'http://localhost:5500')
