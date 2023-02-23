@@ -85,19 +85,27 @@ export function Chat() {
 		dispatch({type: "SET_ROOM", payload: e.target.value})	
 	})
 
+	const handleCreateRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+
+		socket.emit('createRoom', 'lol', function(response) {
+			console.log("RESPONSE CREATE", response)
+		})
+	})
+
 	return (
 		<FormControl>
 			<Paper>
 				<Paper>
 					{state.messages.map((message, index) => (state.room === message.room ? <Box key={index} className='messageSent'>{message.content} + {message.time}</Box> : null))}
-
 				</Paper>
+
 				<TextField type='text' placeholder={`${state.room}`}  inputRef={message}/>
+				
 				<Button onClick={handleSubmit}>send message</Button>
 				<Button value='general' onClick={handleChangeRoom}>general</Button>
 				<Button value='dev' onClick={handleChangeRoom}>dev</Button>
 				<Button value='random' onClick={handleChangeRoom}>random</Button>
-
+				<Button onClick={handleCreateRoom}>create room</Button>
 			</Paper>
 		</FormControl>
 		)

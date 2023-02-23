@@ -2,37 +2,52 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-	provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-	provider = "postgresql"
-	url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-	id				Int	@id @default(autoincrement())
-	createdAt		DateTime	@default(now())
-	updatedAt		DateTime	@updatedAt
-	login			String		@unique
-	password		String
-	avatar			String		@default("default_avatar.jpg")
-	intraLogin  	String?   @unique
-	refreshToken	String?
-	games			User_Game[]
+  id           Int         @id @default(autoincrement())
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  login        String      @unique
+  password     String
+  avatar       String      @default("default_avatar.jpg")
+  intraLogin   String?     @unique
+  refreshToken String?
+  rooms        Room[]      @relation("RoomMembers")
+  games        User_Game[]
+  ownedRooms   Room[]
+}
+
+model Room {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isPublic  Boolean  @default(false)
+  password  String?
+  name      String
+  owner     User?     @relation(fields: [ownerId], references: [id])
+  ownerId   Int?
+  members   User[]   @relation("RoomMembers")
 }
 
 model Games {
-	game_id			Int	@id @default(autoincrement())
-	played_at		DateTime	@default(now())
-	players			User_Game[]
+  game_id   Int         @id @default(autoincrement())
+  played_at DateTime    @default(now())
+  players   User_Game[]
 }
 
 model User_Game {
-	player		User @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-	user_id		Int
-	game		Games @relation(fields: [game_id], references: [game_id], onDelete: Cascade, onUpdate: Cascade)
-	game_id		Int
-	score		Int
-	@@id([user_id , game_id])
+  player  User  @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user_id Int
+  game    Games @relation(fields: [game_id], references: [game_id], onDelete: Cascade, onUpdate: Cascade)
+  game_id Int
+  score   Int
+
+  @@id([user_id, game_id])
 }

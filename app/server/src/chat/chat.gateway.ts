@@ -2,6 +2,7 @@ import { UseGuards } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
+import { RoomsService } from './rooms/rooms.service';
 
 type MessageData = {
 	content: string,
@@ -15,6 +16,8 @@ type MessageData = {
   transports: ['websocket', 'polling'],
   }})
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
+
+  constructor (private readonly roomService: RoomsService) {}
 
   @WebSocketServer()
   server: Server;
@@ -31,7 +34,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   handleCreateRoom(client: any, roomName: string) {
     client.join(roomName)
     client.emit('roomCreated', roomName)
-
+    return this.roomService.createRoom({name: roomName}) 
   }
 
   @SubscribeMessage('messageToRoom')
