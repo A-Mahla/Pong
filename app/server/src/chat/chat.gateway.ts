@@ -10,7 +10,20 @@ type MessageData = {
   time?: string,
 }
 
+<<<<<<< Updated upstream
 @WebSocketGateway()
+=======
+type CreateRoomData = {
+  roomName: string;
+  ownerName: string,
+}
+
+@WebSocketGateway({cors : {
+  origin: "http://localhost:3000",
+  methods: ["GET", "POST"],
+  transports: ['websocket', 'polling'],
+  }})
+>>>>>>> Stashed changes
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
 
   constructor (private readonly roomService: RoomsService) {}
@@ -27,10 +40,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   @SubscribeMessage('createRoom')
-  handleCreateRoom(client: any, roomName: string) {
-    client.join(roomName)
-    client.emit('roomCreated', roomName)
-    return this.roomService.createRoom({name: roomName}) 
+  handleCreateRoom(client: any, payload: CreateRoomData) {
+    client.join(payload.roomName)
+    client.emit('roomCreated', payload.roomName)
+
+    return this.roomService.createRoom(payload) 
   }
 
   @SubscribeMessage('messageToRoom')

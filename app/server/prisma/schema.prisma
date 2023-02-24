@@ -31,7 +31,7 @@ model Room {
   isPublic  Boolean  @default(false)
   password  String?
   name      String
-  owner     User?     @relation(fields: [ownerId], references: [id])
+  owner     User?    @relation(fields: [ownerId], references: [id])
   ownerId   Int?
   members   User[]   @relation("RoomMembers")
 }

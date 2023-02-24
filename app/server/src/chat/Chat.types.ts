@@ -3,5 +3,6 @@ import { CreateUserParams } from "src/users/User.types";
 
 export class CreateRoomParam {
 	password?: string;
-	name: string;
+	roomName: string;
+	ownerName: string
 } 
