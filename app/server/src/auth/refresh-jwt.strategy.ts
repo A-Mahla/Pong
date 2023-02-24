@@ -18,7 +18,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
 	constructor() {
 		super({
 			usernameField: 'login',
-			jwtFromRequest: ExtractJwt.fromExtractors([(request:Request) => {
+			jwtFromRequest: ExtractJwt.fromExtractors([(request: Request) => {
                 const data = request?.cookies["rT"];
                 if(!data){
                     return null;
@@ -31,9 +31,8 @@ export class RefreshTokenStrategy extends PassportStrategy(
 		  });
 	}
 
-	validate(req: Request, payload: any) {
-		console.log('Test' + payload)
-		const refreshToken = req.get('Authorization')!.replace('Bearer', '').trim();
+	validate(request: Request, payload: any) {
+		const refreshToken = request?.cookies["rT"];
 		return { ...payload, refreshToken };
 	}
 }

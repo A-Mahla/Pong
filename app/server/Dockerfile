@@ -2,7 +2,7 @@
 
 FROM		node:19-alpine AS builder
 
-RUN			npm install -g npm@9.5.0
+RUN			npm install -g npm@9.5.1
 
 WORKDIR		/app
 
