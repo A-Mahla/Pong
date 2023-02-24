@@ -27,3 +27,4 @@ export class profile {
 	nbGames: number;
 	status: string;
 }
+

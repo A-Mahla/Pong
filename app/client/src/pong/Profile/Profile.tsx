@@ -1,23 +1,12 @@
 import { Box, Grid } from '@mui/material'
 import '/src/pong/LeadPage.css'
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+//import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ProfileAvatar from './Avatar'
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#FFFF00',
-    },
-    secondary: {
-      main: '#FF00FF',
-    },
-  },
-});
 
 const Profile = () => {
 
 	return <>
-		<ThemeProvider theme={theme}>
 			<Grid item xs={5}
 				sx={{
 					position: 'relative',
@@ -82,7 +71,6 @@ const Profile = () => {
 				}
 			}>
 			</Grid>
-		</ ThemeProvider>
 	</>
 }
 export default Profile;

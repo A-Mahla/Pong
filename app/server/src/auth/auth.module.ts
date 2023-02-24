@@ -8,15 +8,22 @@ import { jwtConstants } from './constants';
 import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy'
 import { RefreshTokenStrategy } from './refresh-jwt.strategy'
+import { AuthController } from './auth.controller'
 
 @Module({
-  imports: [
-    forwardRef(() => UsersModule),
-    PassportModule,
-    JwtModule.register({})
-  ],
-  providers: [AuthService, LocalStrategy, JwtStrategy, RefreshTokenStrategy],
-  exports: [AuthService],
+	imports: [
+		forwardRef(() => UsersModule),
+		PassportModule,
+		JwtModule.register({})
+	],
+	controllers: [AuthController],
+	providers: [
+		AuthService,
+		LocalStrategy,
+		JwtStrategy,
+		RefreshTokenStrategy
+	],
+	exports: [AuthService],
 })
 export class AuthModule {
 }

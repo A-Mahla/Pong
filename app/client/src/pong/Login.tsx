@@ -27,22 +27,27 @@ export function Login() {
 
 		const requestOptions = {
 			method: "POST",
-			headers: { 'Content-Type': 'application/json' },
+			headers: {
+				'Content-Type': 'application/json',
+			 },
 			body: JSON.stringify({
 				login: `${username.current.value}`,
 				password: `${password.current.value}`
 			})
 		}
-
-		const response = await fetch('http://localhost:5500/api/users/auth/login', requestOptions)
+		
+		const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/signin`, requestOptions)
 		if (response.status != 201)
 			setError('Error fetch')
 		else
 		{
+			console.log(import.meta.env.VITE_SITE)
 			const data = await response.json()
-			Cookies.set('accessToken', data['access_token'], {expires: 7})
-			location.replace('http://localhost:3000/pong')
+			const res = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/refresh`)
+			//		const test = await res.json();
+		//	location.replace('http://localhost:3000/pong')
 		}
+
 	//	.then(response => JSON.stringify(response))
 // 		.then(data => {
 // 			console.log(data)
@@ -78,7 +83,7 @@ export function Login() {
 			method: "POST"
 		}
 
-		fetch(`http://localhost:5500/api/users/signup?login=${username.current.value}&password=${password.current.value}`,
+		fetch(`http://localhost:8080/api/users/signup?login=${username.current.value}&password=${password.current.value}`,
 			requestOptions)
 		.then(response => response.json())
 		.then(data => {
@@ -87,7 +92,7 @@ export function Login() {
 			else
 			{
 				Cookies.set('login', data['body']['login'], {expires: 7})
-				location.replace('http://localhost:3000')
+				location.replace('http://localhost:8080')
 			}
 		})
 

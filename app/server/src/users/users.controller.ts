@@ -20,6 +20,7 @@ import { Controller,
 	Injectable,
 	UseGuards,
 	ConsoleLogger,
+	Req,
 } from '@nestjs/common';
 import { diskStorage } from  'multer';
 import { join } from  'path';
@@ -27,6 +28,8 @@ import { createReadStream } from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express'
 import { CreateUserDto, UpdateUserDto } from './User.dto'
 import { UsersService } from './users.service'
+import { Response } from "express";
+import { Request as ExpressRequest } from 'express'
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from '../auth/auth.service'
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
@@ -42,37 +45,9 @@ export class UsersController {
 	constructor(private userService: UsersService,
 		private authService: AuthService) {
 	}
-	/* -------------- basic authentification routes ---------------- */
-
-	@Post('auth/signup')
-	createUser(@Body() createUserDto: CreateUserDto) {
-		return this.authService.login(this.userService.createUser(createUserDto));
-	}
-
-	@UseGuards(LocalAuthGuard)
-	@Post('auth/signin')
-  	async login(@Request() req: any) {
-		return this.authService.login(req.user);
-	}
-
-	@Post('auth/logout')
-  	async logout(@Request() req: any) {
-		return this.authService.logout(req.user);
-	}
-
-	@UseGuards(RefreshJwtAuthGuard)
-	@Get('auth/refresh')
-	refreshTokens(@Request() req: any){
-		return this.authService.refreshTokens(req.user);
-		/* NOT SURE ALL THE refreshToken METHOD IS MANDATORY BECAUSE WE HAVE THE GUARD PREVENTING FROM FALSE REFRESH TOKEN
-		IT SEEMS THAT THIS IS NOT EVEN NECESSARY TO KEEP THE REFRESH TOKEN IN THE DB */
-	}
-
-
-	/* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
 
 	@Get()
-	async getUsers() {
+	async getUsers(@Req() req: ExpressRequest) {
 		return await this.userService.findUsers();
 	}
 
@@ -98,9 +73,16 @@ export class UsersController {
 			'body': JSON.stringify(user)
 		}
 	}
-
+/*
 	@Post('signup')
-	async handleSignup(@Query() query: {login: string, password: string, intraLogin?: string}) {
+	async handleSignup(
+		@Query() query: {
+			login: string,
+			password: string,
+			intraLogin?: string
+		},
+		@Res({ passthrough: true }) response: Response
+	) {
 		const user = await this.userService.findOneUser(query.login)
 		if (user)
 			return {
@@ -108,7 +90,7 @@ export class UsersController {
 				'message': 'login already use'
 			}
 		const newUser = {login: query.login, password: query.password, intraLogin: query.intraLogin}
-		this.createUser(newUser)
+		this.authService.createUser(newUser, response)
 		return {
 			'statusCode': 200,
 			'message' : 'user successfully signed in',
@@ -117,7 +99,13 @@ export class UsersController {
 	}
 
 	@Post('intra')
-	async handleSignupIntra(@Query() query: {login: string, intraLogin: string}) {
+	async handleSignupIntra(
+		@Query() query: {
+			login: string,
+			intraLogin: string
+		},
+		@Res({ passthrough: true }) response: Response
+	) {
 		console.log('query: ', query)
 		const user = await this.userService.findOneUser(query.login)
 		if (user)
@@ -126,14 +114,14 @@ export class UsersController {
 				'message': 'login already use'
 			}
 		const newUser = {login: query.login, password: "", intraLogin: query.intraLogin}
-		this.createUser(newUser)
+		this.authService.createUser(newUser, response)
  		return {
 			'statusCode': 200,
 			'message' : 'user successfully signed in',
 			'body' : JSON.stringify(newUser)
 		}
 	}
-
+*/
 	@Get('intra')
 	async getIntraUser(@Query() query: {intraLogin : string}) {
 		const intraUser = this.userService.findOneIntraUser(query.intraLogin)
@@ -149,9 +137,10 @@ export class UsersController {
 		}
 	}
 
+	@UseGuards(JwtAuthGuard)
 	@Get(':login')
 	async getUsersbyId(
-		@Param('login') login: string,
+		@Param('login') login: string
 	) {
 		return await this.userService.findOneUser(login);
 	}

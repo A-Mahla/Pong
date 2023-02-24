@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Typography, Box } from '@mui/material'
+import { Typography, Box, Paper } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Tabs from '@mui/material/Tabs'
 import TabList from '@mui/lab/TabList'
@@ -22,9 +22,10 @@ const tabStyle = {
 const centralBoxStyle = {
 	height: '45rem',
 	p: 1,
-	border: 1,
-	boxShadow: 10,
 	borderRadius: '32px',
+	'&.MuiPaper-root': {
+		backgroundColor: 'primary'
+	}
 }
 
 type TabPanelProps = {
@@ -38,7 +39,7 @@ function TabPanel(props: TabPanelProps) {
 
   return <>
 		{props.value === props.index && 
-			(<Box sx={centralBoxStyle}>
+			(<Paper elevation={24} sx={centralBoxStyle}>
 				<Grid container
 					className='test'
 					sx={{
@@ -55,7 +56,7 @@ function TabPanel(props: TabPanelProps) {
 					}}>
 					{props.children}
 				</Grid>
-			</Box>)
+			</Paper>)
 		}
 	</>;	
 }
@@ -105,7 +106,7 @@ const LeadPage = () => {
 				<Typography variant='h1'>PLAY</Typography>
 			</TabPanel>
 			<TabPanel value={value} index={2}>
-				<Profile/>
+				<Typography variant='h1'>Chat</Typography>
 			</TabPanel>
 		</Box>
 	</>
