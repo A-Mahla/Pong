@@ -169,7 +169,24 @@ export class UsersController {
 			throw new BadRequestException;
 		}
 	}
+
+	@Get('stats/:id')
+	async getStatsTest(@Param('id') user_id: string){
+		console.log("-----------------------------------------------> " + user_id);
+		return this.userService.getNbGames(user_id);
+	}
+
 // =======================================================================
+
+	@Post('newGame')
+	async registerNewGame() {
+		return (this.userService.registerNewGame());
+	}
+
+	@Post('userInGame/:gameId')
+	async registerNewPlayer(@Param('gameId') game_id: string, @Body() user: any) {
+		return (this.userService.registerNewPlayer(parseInt(game_id), parseInt(user.id), parseInt(user.score)));
+	}
 
 	@UseGuards(JwtAuthGuard)
 	@Get('avatar/:login')

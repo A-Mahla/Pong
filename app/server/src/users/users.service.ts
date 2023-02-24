@@ -1,6 +1,6 @@
 import { BadGatewayException, BadRequestException, Injectable, UseInterceptors, UploadedFile, Param } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma, User } from '@prisma/client';
+import { Prisma, User, User_Game, Games } from '@prisma/client';
 import { diskStorage } from  'multer';
 import { statsFormat, CreateUserParams, UpdateUserParams, profile } from './User.types'
 import { FileInterceptor } from '@nestjs/platform-express'
@@ -25,15 +25,6 @@ export class UsersService {
 			where: { intraLogin: intraLogin }
 		});
 	}
-/*
-	async getProfile(login: string) : Promise < profile | null | undefined> {
-		const user = await this.findOneUser(login);
-		if (user) {
-			const {win, loose, nbGames, status, login, avatar, ...other} = user;
-			return {win, loose, nbGames, status, login, avatar};
-		}
-	}
-*/
 
 	async updateUser(login: string, updateUserDetails: UpdateUserParams) : Promise<User> {
 		return this.prisma.user.update({
@@ -73,5 +64,62 @@ export class UsersService {
 			data: { ...newUser }
 		}).catch((e) => {throw e});
 	}
+
+
+/*	async getProfile(login: string) : Promise < profile | null | undefined> {
+		const user = await this.findOneUser(login);
+		if (user) {
+			const {win, loose, nbGames, status, login, avatar, ...other} = user;
+			return {win, loose, nbGames, status, login, avatar};
+		}
+	}
+/* ============================ POST game related information ========================*/
+	async registerNewGame() {
+		return this.prisma.games.create({
+			data: {}
+		})
+	}
+	async registerNewPlayer(game_id: number, user_id: number, score: number) {
+		const newUserGame = {
+			game_id: game_id,
+			user_id: user_id,
+			score: score,
+		};
+		const newPlayer = this.prisma.user_Game.create({
+			data: newUserGame
+		})
+		let testVar = await this.checkPlayerInGame(game_id);
+		console.log("------------------------------->  " + testVar);
+		if (testVar === 2)
+		{
+			console.log("i should pass here");
+			this.prisma.games.update({ where: { game_id: game_id }, data : { status: "fullfilled" } })
+		}
+		return newPlayer;
+	}
+
+	async checkPlayerInGame(game_id: number) {
+		return await this.prisma.user_Game.count({
+			where: {
+				game_id: {
+				  equals: game_id,
+				},
+			  },
+		})
+	}
+/* ============================ get profile and stats service ========================*/
+
+	async getNbGames(user_id: string) {
+		const nbGames = await this.prisma.user_Game.count({
+			where: {
+				user_id: {
+					equals: parseInt(user_id)
+				}
+			}
+		})
+		console.log(nbGames);
+		return nbGames;
+	}
 }
+/* ============================ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ========================*/
 
