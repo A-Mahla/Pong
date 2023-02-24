@@ -67,17 +67,15 @@ services:
       retries: 100
 
 # ======== Nginx =========
-  nginx:
+  nginx_proxy:
     depends_on:
-      server:
-        condition: service_started
       postgres_db:
         condition: service_healthy
-    container_name: nginx
+    container_name: nginx_proxy
     env_file:
       - .env
     build: ./app/nginx/.
-    image: nginx
+    image: nginx_proxy
     ports:
       - "8080:8080"
     restart: always

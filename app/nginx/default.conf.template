@@ -1,0 +1,15 @@
+server {
+
+	listen			${NGINX_PORT};
+	server_name		${NGINX_HOST};
+
+	location /api/ {
+		proxy_pass http://server:3500;
+		proxy_redirect off;
+	}
+
+	location / {
+		proxy_pass http://client:5173;
+		proxy_redirect off;
+	}
+}

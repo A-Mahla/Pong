@@ -1,9 +1,8 @@
-FROM	nginx:latest
+FROM	nginx:alpine
 
-COPY	./nginx.conf /etc/nginx/conf.d/.
-COPY	./nginx.conf.template /etc/nginx/templates/.
+COPY	./default.conf /etc/nginx/conf.d/.
+#COPY	./default.conf.template /etc/nginx/templates/default.conf.template
 
 EXPOSE 8080
 
 ENTRYPOINT [ "nginx", "-g", "daemon off;" ]
-#ENTRYPOINT [ "bash" ]

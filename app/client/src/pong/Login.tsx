@@ -35,14 +35,15 @@ export function Login() {
 				password: `${password.current.value}`
 			})
 		}
-
-		const response = await fetch('http://localhost:8080/api/users/auth/signin', requestOptions)
+		
+		const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/signin`, requestOptions)
 		if (response.status != 201)
 			setError('Error fetch')
 		else
 		{
+			console.log(import.meta.env.VITE_SITE)
 			const data = await response.json()
-			const res = await fetch('http://localhost:8080/api/users/auth/refresh')
+			const res = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/refresh`)
 			//		const test = await res.json();
 		//	location.replace('http://localhost:3000/pong')
 		}
