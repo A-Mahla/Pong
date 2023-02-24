@@ -44,51 +44,9 @@ export class UsersController {
 	constructor(private userService: UsersService,
 		private authService: AuthService) {
 	}
-	/* -------------- basic authentication routes ---------------- */
-
-	@Post('auth/signup')
-	async createUser(
-		@Body() createUserDto: CreateUserDto,
-		@Res({ passthrough: true }) response: Response
-	) {
-		return this.authService.login(
-			await this.userService.createUser(createUserDto),
-			response
-		);
-	}
-
-	@UseGuards(LocalAuthGuard)
-	@Post('auth/signin')
-	async login(
-		@Request() req: any,
-		@Res({ passthrough: true }) response: Response
-	) {
-		return await this.authService.login(req.user, response);
-	}
-
-	@Post('auth/logout')
-  	async logout(@Request() req: any) {
-		return this.authService.logout(req.user);
-	}
-
-	@UseGuards(RefreshJwtAuthGuard)
-	@Get('auth/refresh')
-	async refreshTokens(
-		@Request() req: any,
-		@Res({ passthrough: true }) response: Response
-	) {
-		return await this.authService.refreshTokens(req.user, response);
-	}
-	/* NOT SURE ALL THE refreshToken METHOD IS MANDATORY BECAUSE WE HAVE THE GUARD PREVENTING FROM FALSE REFRESH TOKEN
-	IT SEEMS THAT THIS IS NOT EVEN NECESSARY TO KEEP THE REFRESH TOKEN IN THE DB */
-
-
-
-	/* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
 
 	@Get()
 	async getUsers(@Req() req: ExpressRequest) {
-		console.log(req.headers);
 		return await this.userService.findUsers();
 	}
 
@@ -114,7 +72,7 @@ export class UsersController {
 			'body': JSON.stringify(user)
 		}
 	}
-
+/*
 	@Post('signup')
 	async handleSignup(
 		@Query() query: {
@@ -131,7 +89,7 @@ export class UsersController {
 				'message': 'login already use'
 			}
 		const newUser = {login: query.login, password: query.password, intraLogin: query.intraLogin}
-		this.createUser(newUser, response)
+		this.authService.createUser(newUser, response)
 		return {
 			'statusCode': 200,
 			'message' : 'user successfully signed in',
@@ -155,14 +113,14 @@ export class UsersController {
 				'message': 'login already use'
 			}
 		const newUser = {login: query.login, password: "", intraLogin: query.intraLogin}
-		this.createUser(newUser, response)
+		this.authService.createUser(newUser, response)
  		return {
 			'statusCode': 200,
 			'message' : 'user successfully signed in',
 			'body' : JSON.stringify(newUser)
 		}
 	}
-
+*/
 	@Get('intra')
 	async getIntraUser(@Query() query: {intraLogin : string}) {
 		const intraUser = this.userService.findOneIntraUser(query.intraLogin)
