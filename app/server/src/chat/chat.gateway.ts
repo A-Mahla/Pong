@@ -10,11 +10,7 @@ type MessageData = {
   time?: string,
 }
 
-@WebSocketGateway({cors : {
-  origin: "http://localhost:3000",
-  methods: ["GET", "POST"],
-  transports: ['websocket', 'polling'],
-  }})
+@WebSocketGateway()
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
 
   constructor (private readonly roomService: RoomsService) {}

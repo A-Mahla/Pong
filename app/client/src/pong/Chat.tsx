@@ -4,7 +4,8 @@ import io from "socket.io-client"
 import Cookies from 'js-cookie'
 import './Chat.css'
 
-const socket = io.connect("http://localhost:5500")
+const socket = io.connect("http://localhost:8080/socket.io")
+console.log("socket: ", socket)
 
 type MessageData = {
 	content: string,
@@ -61,6 +62,8 @@ export function Chat() {
 	}
 
 	useEffect(() => {
+		console.log('socker in useEffect', socket);
+		
 		socket.on('message', messageListener)
 		return () => {
 			socket.off("message", messageListener)

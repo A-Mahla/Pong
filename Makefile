@@ -17,7 +17,7 @@ clean-comp	:
 
 fclean		: clean
 			docker system prune -af
-			docker rmi postgres:latest nestjs:latest react:latest nginx:latest -f
+			docker rmi postgres:latest nestjs:latest react:latest nginx_proxy:latest -f
 			docker volume rm postgres -f
 			rm -rf ./app/server/prisma/migrations
 
