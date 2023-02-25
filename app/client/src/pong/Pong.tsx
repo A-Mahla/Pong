@@ -1,10 +1,10 @@
 import { ThemeProvider, createTheme } from '@mui/material'
-import { Redirect } from './Oauth2'
-import  MainPage  from './MainPage'
-import LeadPage from './LeadPage'
+import { Redirect } from '/src/pong/component/Oauth2'
+import  MainPage  from '/src/pong/page/MainPage'
+import LeadPage from '/src/pong/page/LeadPage'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { Login } from './Login'
-import { Test } from './Test'
+import { Login } from '/src/pong/component/Login'
+import { Test } from '/src/pong/component/Test'
 
 /**
  * ============ Entrypoint of the project =============

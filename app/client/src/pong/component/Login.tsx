@@ -8,12 +8,12 @@ import {
 	Typography
 } from '@mui/material';
 import React, { useCallback, useRef, useState} from 'react'
-import { LogoutButton } from './LogoutButton';
-import { Oauth2 } from './Oauth2';
+import { LogoutButton } from '/src/pong/component/LogoutButton';
+import { Oauth2 } from '/src/pong/component/Oauth2';
 import Cookies from 'js-cookie'
-import { FetchApi } from './utils/FetchApi';
+import { FetchApi } from '/src/pong/component/utils/FetchApi';
 //import { _2fa } from "./2fa"
-import '../App'
+import '/src/App'
 
 export function Login() {
 
@@ -38,10 +38,7 @@ export function Login() {
 			})
 		}
 
-		/*		const response = await FetchApi(
-			`http://${import.meta.env.VITE_SITE}/api/auth/signin`,
-			requestOptions
-			);*/
+	
 		
 		const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/signin`, requestOptions)
 		if (response.status != 201)
@@ -54,14 +51,17 @@ export function Login() {
 			//		const test = await res.json();
 		//	location.replace('http://localhost:3000/pong')
 		}
-		useEffect(() => {
+/*		useEffect(() => {
 			const dataResponse = FetchApi(
 				`http://${import.meta.env.VITE_SITE}/api/auth/signin`,
 				requestOptions
 			);
 			setData(dataResponse);
-		})
-		 
+		})*/
+		/*	const response = await FetchApi(
+			`http://${import.meta.env.VITE_SITE}/api/auth/signin`,
+			requestOptions
+		)*/;	 
 	}
 
 
