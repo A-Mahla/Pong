@@ -4,6 +4,7 @@ import { Prisma, User, User_Game, Games } from '@prisma/client';
 import { diskStorage } from  'multer';
 import { statsFormat, CreateUserParams, UpdateUserParams, profile } from './User.types'
 import { FileInterceptor } from '@nestjs/platform-express'
+import { ok } from 'assert';
 
 @Injectable()
 export class UsersService {
@@ -85,15 +86,19 @@ export class UsersService {
 			user_id: user_id,
 			score: score,
 		};
-		const newPlayer = this.prisma.user_Game.create({
+		const newPlayer = await this.prisma.user_Game.create({
 			data: newUserGame
 		})
 		let testVar = await this.checkPlayerInGame(game_id);
-		console.log("------------------------------->  " + testVar);
 		if (testVar === 2)
 		{
-			console.log("i should pass here");
-			this.prisma.games.update({ where: { game_id: game_id }, data : { status: "fullfilled" } })
+			let testVar2 = await this.prisma.games.update({
+				where: {
+					game_id: game_id
+				},
+				data : {
+					status: 'OK'
+				} })
 		}
 		return newPlayer;
 	}
@@ -109,6 +114,49 @@ export class UsersService {
 	}
 /* ============================ get profile and stats service ========================*/
 
+	// async getNbWin(user_id: string){
+	// 	const getnbWin = await this.prisma.user_Game.findMany({
+	// 		where: {
+	// 			user_id: {
+	// 				equals: parseInt(user_id),
+	// 			}
+	// 		},
+	// 		select: {
+	// 			score: true,
+	// 			game_id: true
+	// 		}
+	// 	})
+	// 	return getnbWin;
+	// }
+
+	async getVictoryCountForUser(userId: number) {
+		const games = await this.prisma.user_Game.findMany({
+		  where: {
+			user_id: userId,
+		  },
+		  include: {
+			game: {
+			  include: {
+				players: true,
+			  },
+			},
+		  },
+		});
+
+		let victories = 0;
+		games.forEach((game) => {
+		  const otherPlayers = game.game.players.filter(
+			(player) => player.user_id !== userId
+		  );
+		  const otherPlayerScore = otherPlayers[0]?.score || 0;
+		  if (game.score > otherPlayerScore) {
+			victories++;
+		  }
+		});
+
+		return {nbVictoire: victories};
+	  }
+
 	async getNbGames(user_id: string) {
 		const nbGames = await this.prisma.user_Game.count({
 			where: {
@@ -118,8 +166,9 @@ export class UsersService {
 			}
 		})
 		console.log(nbGames);
-		return nbGames;
+		return { nbGame: nbGames };
 	}
+
 }
 /* ============================ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ========================*/
 

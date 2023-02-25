@@ -176,6 +176,10 @@ export class UsersController {
 		return this.userService.getNbGames(user_id);
 	}
 
+	@Get('stat2/:id')
+	async getnbWin(@Param('id') user_id: string){
+		return this.userService.getVictoryCountForUser(parseInt(user_id));
+	}
 // =======================================================================
 
 	@Post('newGame')
