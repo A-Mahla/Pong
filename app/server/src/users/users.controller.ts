@@ -159,6 +159,12 @@ export class UsersController {
 		return this.userService.updateAvatar(req.user.login , file.filename);
 	}
 
+	@Get('profile/:id')
+	async getProfileInfo(@Param('id') user_id: string) {
+		console.log("----------------------------------> ");
+		return this.userService.getProfileInfo(parseInt(user_id))
+	}
+
 //	======================= Test Profile with default avatar =============
 	@Get('default/default_avatar')
 	async getDefaultFile(@Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
@@ -171,14 +177,13 @@ export class UsersController {
 	}
 
 	@Get('stats/:id')
-	async getStatsTest(@Param('id') user_id: string){
-		console.log("-----------------------------------------------> " + user_id);
-		return this.userService.getNbGames(user_id);
+	async getNbGames(@Param('id') user_id: string){
+		return this.userService.getNbGames(parseInt(user_id));
 	}
 
 	@Get('stat2/:id')
 	async getnbWin(@Param('id') user_id: string){
-		return this.userService.getVictoryCountForUser(parseInt(user_id));
+		return this.userService.getVictoryLossCountForUser(parseInt(user_id), true);
 	}
 // =======================================================================
 
@@ -207,13 +212,6 @@ export class UsersController {
 		}
 	}
 
-	//@UseGuards(JwtAuthGuard)
-	/*
-	@Get('stats/:login')
-	getStats(@Param('login') login : string) {
-		return this.userService.getProfile(login);
-	}
-	*/
 	@Put(':login')
 	async updateUserById(
 		@Param('login') login: string,

@@ -66,14 +66,6 @@ export class UsersService {
 		}).catch((e) => {throw e});
 	}
 
-
-/*	async getProfile(login: string) : Promise < profile | null | undefined> {
-		const user = await this.findOneUser(login);
-		if (user) {
-			const {win, loose, nbGames, status, login, avatar, ...other} = user;
-			return {win, loose, nbGames, status, login, avatar};
-		}
-	}
 /* ============================ POST game related information ========================*/
 	async registerNewGame() {
 		return this.prisma.games.create({
@@ -114,22 +106,27 @@ export class UsersService {
 	}
 /* ============================ get profile and stats service ========================*/
 
-	// async getNbWin(user_id: string){
-	// 	const getnbWin = await this.prisma.user_Game.findMany({
-	// 		where: {
-	// 			user_id: {
-	// 				equals: parseInt(user_id),
-	// 			}
-	// 		},
-	// 		select: {
-	// 			score: true,
-	// 			game_id: true
-	// 		}
-	// 	})
-	// 	return getnbWin;
-	// }
+	async getProfileInfo(user_id: number) {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id: user_id
+			},
+			select: {
+				login: true,
+				avatar: true
+			}
+		})
+		return {
+			login: user?.login,
+			avatar: user?.avatar,
+			nbGames: (await this.getNbGames(user_id)),
+			nbWin: (await this.getVictoryLossCountForUser(user_id, true)),
+			nbLoss: (await this.getVictoryLossCountForUser(user_id, false)),
+		};
+	}
 
-	async getVictoryCountForUser(userId: number) {
+
+	async getVictoryLossCountForUser(userId: number, InfSup: boolean) {
 		const games = await this.prisma.user_Game.findMany({
 		  where: {
 			user_id: userId,
@@ -149,24 +146,25 @@ export class UsersService {
 			(player) => player.user_id !== userId
 		  );
 		  const otherPlayerScore = otherPlayers[0]?.score || 0;
-		  if (game.score > otherPlayerScore) {
+		  if (InfSup && game.score > otherPlayerScore)
 			victories++;
-		  }
+		  else if (!InfSup && game.score < otherPlayerScore)
+			victories++;
 		});
 
-		return {nbVictoire: victories};
+		return victories;
 	  }
 
-	async getNbGames(user_id: string) {
+	async getNbGames(user_id: number) {
 		const nbGames = await this.prisma.user_Game.count({
 			where: {
 				user_id: {
-					equals: parseInt(user_id)
+					equals: user_id
 				}
 			}
 		})
 		console.log(nbGames);
-		return { nbGame: nbGames };
+		return nbGames;
 	}
 
 }
