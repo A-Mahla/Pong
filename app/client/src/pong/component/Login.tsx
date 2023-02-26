@@ -58,12 +58,12 @@ export function Login() {
 			);
 			setData(dataResponse);
 		})*/
-		/*	const response = await FetchApi(
-			`http://${import.meta.env.VITE_SITE}/api/auth/signin`,
-			requestOptions
-		)*/;	 
+		/*let fetching = async () => {
+			const {r, d} = await FetchApi(
+				`http://${import.meta.env.VITE_SITE}/api/users/sacha`
+			);	 
+		}*/
 	}
-
 
 
 
