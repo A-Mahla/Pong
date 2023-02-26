@@ -6,10 +6,10 @@ import eslintPlugin from 'vite-plugin-eslint';
 export default defineConfig({
   plugins: [react(), eslintPlugin()],
   server: {
-    host: true,
+    /*host: "localhost",
     port: 5173,
     strictPort: true,
-    /*proxy: {
+    proxy: {
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
@@ -18,9 +18,8 @@ export default defineConfig({
       }
     },*/
     hmr: {
-      host: "localhost",
-      port: 8080,
-      clientPort: 5173,
+      //host: "localhost",
+      clientPort: 8080,
     },
   }
 });
