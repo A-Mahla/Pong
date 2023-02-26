@@ -5,6 +5,7 @@ import LeadPage from '/src/pong/page/LeadPage'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Login } from '/src/pong/component/Login'
 import { Test } from '/src/pong/component/Test'
+import { Chat } from './Chat'
 
 /**
  * ============ Entrypoint of the project =============

@@ -10,20 +10,19 @@ type MessageData = {
   time?: string,
 }
 
-<<<<<<< Updated upstream
-@WebSocketGateway()
-=======
 type CreateRoomData = {
   roomName: string;
   ownerName: string,
 }
 
-@WebSocketGateway({cors : {
-  origin: "http://localhost:3000",
-  methods: ["GET", "POST"],
-  transports: ['websocket', 'polling'],
-  }})
->>>>>>> Stashed changes
+@WebSocketGateway(
+ // {cors : {
+ //   origin: "http://localhost:3000",
+ //   methods: ["GET", "POST"],
+ //   transports: ['websocket', 'polling'],
+ //   }
+ // }
+  )
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
 
   constructor (private readonly roomService: RoomsService) {}

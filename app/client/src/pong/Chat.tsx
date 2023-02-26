@@ -4,7 +4,7 @@ import io from "socket.io-client"
 import Cookies from 'js-cookie'
 import './Chat.css'
 
-const socket = io.connect("http://localhost:8080/socket.io")
+const socket = io.connect("http://localhost:8080")
 console.log("socket: ", socket)
 
 type MessageData = {

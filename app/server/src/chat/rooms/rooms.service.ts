@@ -15,13 +15,11 @@ export class RoomsService {
     	const roomOwner = await this.userService.findOneUser(roomDetails.ownerName)
 		console.log("roomOwner: ", roomOwner)
 
-		if (!roomOwner)
-			return 
 
 		const newRoom = {
 			createdAt: new Date(),
 			name: roomDetails.roomName,
-			owner: roomOwner	
+			//owner: roomOwner	
 		}
 
 		//const newRoom = {
