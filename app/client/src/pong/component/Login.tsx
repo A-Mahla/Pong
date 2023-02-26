@@ -7,11 +7,15 @@ import {
 	TextField,
 	Typography
 } from '@mui/material';
-import React, { useCallback, useRef, useState} from 'react'
-import { LogoutButton } from '/src/pong/component/LogoutButton';
+import React, {
+//	useCallback,
+	useRef,
+	useState
+} from 'react'
+//import { LogoutButton } from '/src/pong/component/LogoutButton';
 import { Oauth2 } from '/src/pong/component/Oauth2';
-import Cookies from 'js-cookie'
-import { FetchApi } from '/src/pong/component/utils/FetchApi';
+//import Cookies from 'js-cookie'
+import { FetchApi } from '/src/pong/component/FetchApi';
 //import { _2fa } from "./2fa"
 import '/src/App'
 
@@ -24,7 +28,7 @@ export function Login() {
 	const password = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 
 	const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
-		const [data, setData] = useState<any>(null);
+	//	const [data, setData] = useState<any>(null);
 		e.preventDefault()
 
 		const requestOptions = {
@@ -45,9 +49,9 @@ export function Login() {
 			setError('Error fetch')
 		else
 		{
-			console.log(import.meta.env.VITE_SITE)
-			const data = await response.json()
-			const res = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/refresh`)
+//			console.log(import.meta.env.VITE_SITE)
+		//	const data = await response.json()
+			await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/refresh`)
 			//		const test = await res.json();
 		//	location.replace('http://localhost:3000/pong')
 		}
@@ -58,11 +62,13 @@ export function Login() {
 			);
 			setData(dataResponse);
 		})*/
-		/*let fetching = async () => {
-			const {r, d} = await FetchApi(
-				`http://${import.meta.env.VITE_SITE}/api/users/sacha`
-			);	 
-		}*/
+
+	//	const {responseOriginal, data} = 
+		await FetchApi({
+			input: `http://${import.meta.env.VITE_SITE}/api/users/sacha`
+	}); 
+
+//		console.log(data)
 	}
 
 
@@ -101,7 +107,7 @@ export function Login() {
 	}, [])
 	 */
 	return <>
-	<Box container sx={{my: 'auto'}}>
+	<Box sx={{my: 'auto'}}>
 		<Typography variant='h4'>Pong</Typography>
 	</Box>
 	<Divider variant='middle'/>

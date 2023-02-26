@@ -1,37 +1,38 @@
-import * from 'react'
+import * as React from 'react'
 
-type Api = {
+export type Api = {
 	input: RequestInfo | URL,
 	option?: RequestInit
 }
 
-let originalRequest = async (api: Api) => {
+const originalRequest = async (api: Api) => {
 
-	let response = await fetch(api.input, api.option);
-	let data = await response.json();
+	const response = await fetch(api.input, api.option);
+	const data = await response.json();
 	return {response, data};
 
 }
 
-let refreshRequest = async () => {
+const refreshRequest = async () => {
 
-	let response = await fetch(`http://localhost:8080/api/auth/refresh`);
-	let data = await response.json();
+	const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/refresh`);
+	const data = await response.json();
 	return data;
 
 }
 
 export const FetchApi = async ({input, option={}}: Api) => {
 		
-	let {response, data} = await originalRequest(api);
-	if (response.statusText === "Unauthorszed" ) {
-		//		response = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/refresh`);
+	const {response, data} = await originalRequest({input, option});
+
+	if (response.statusText === "Unauthorized" ) {
 		const refresh = await refreshRequest();
+
 		if (refresh.statusText === "Unauthorized") {
-			location.replace(`http://localhost:8080`);
-			//location.replace(`http://${import.meta.env.VITE_SITE}`);
+			location.replace(`http://${import.meta.env.VITE_SITE}`);
 		}
-		return await originalRequest(api);
+		return await originalRequest({input, option});
 	}
+
 	return {response, data};
 }
