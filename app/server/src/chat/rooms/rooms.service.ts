@@ -10,11 +10,13 @@ export class RoomsService {
 	constructor(private prisma: PrismaService, 
 		private userService: UsersService) {}
 
-	async createRoom (roomDetails: CreateRoomParam) : Promise<Room> {
+	async createRoom (roomDetails: CreateRoomParam) : Promise<Room | null> {
 
     	const roomOwner = await this.userService.findOneUser(roomDetails.ownerName)
 		console.log("roomOwner: ", roomOwner)
 
+		if (!roomOwner)
+			return null 
 
 		const newRoom = {
 			createdAt: new Date(),
@@ -29,7 +31,7 @@ export class RoomsService {
 		
 		return this.prisma.room.create({
 			data: {...newRoom}
-		}).catch((e) => {throw e});
+		}).catch((e: any) => {throw e});
 	}
 
 	async findAll () {
