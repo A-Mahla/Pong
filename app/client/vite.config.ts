@@ -6,12 +6,8 @@ import eslintPlugin from 'vite-plugin-eslint';
 export default defineConfig({
   plugins: [react(), eslintPlugin()],
   server: {
-    proxy: {
-      '/socket.io' : {
-        target: 'ws://localhost:8080',
-        ws: true
-      }
-    }
+    hmr: {
+      clientPort: 8080,
+    },
   }
-
 });

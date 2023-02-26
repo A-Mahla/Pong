@@ -8,11 +8,12 @@ import {
 	Typography
 } from '@mui/material';
 import React, { useCallback, useRef, useState} from 'react'
-import { LogoutButton } from './LogoutButton';
-import { Oauth2 } from './Oauth2';
+import { LogoutButton } from '/src/pong/component/LogoutButton';
+import { Oauth2 } from '/src/pong/component/Oauth2';
 import Cookies from 'js-cookie'
+import { FetchApi } from '/src/pong/component/utils/FetchApi';
 //import { _2fa } from "./2fa"
-import '../App'
+import '/src/App'
 
 export function Login() {
 
@@ -23,6 +24,7 @@ export function Login() {
 	const password = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 
 	const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
+		const [data, setData] = useState<any>(null);
 		e.preventDefault()
 
 		const requestOptions = {
@@ -35,6 +37,8 @@ export function Login() {
 				password: `${password.current.value}`
 			})
 		}
+
+	
 		
 		const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/signin`, requestOptions)
 		if (response.status != 201)
@@ -47,25 +51,23 @@ export function Login() {
 			//		const test = await res.json();
 		//	location.replace('http://localhost:3000/pong')
 		}
-
-	//	.then(response => JSON.stringify(response))
-// 		.then(data => {
-// 			console.log(data)
-// 			if (response.status != 201)
-// 			{
-// 				console.log('YOOOOOOo')
-// 				setError(data['message'])
-// 			}
-// 			else
-// 			{
-// //				Cookies.set('login', data['body']['login'], {expires: 7})
-// 				Cookies.set('accesToken', data['acces_token'], {expires: 7})
-// 				location.replace('http://localhost:3000/pong')
-// 			}
-
+/*		useEffect(() => {
+			const dataResponse = FetchApi(
+				`http://${import.meta.env.VITE_SITE}/api/auth/signin`,
+				requestOptions
+			);
+			setData(dataResponse);
+		})*/
+		/*let fetching = async () => {
+			const {r, d} = await FetchApi(
+				`http://${import.meta.env.VITE_SITE}/api/users/sacha`
+			);	 
+		}*/
 	}
 
-	const handleSignup = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+
+
+	/*	const handleSignup = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
 
 		if (username.current.value === '')
@@ -97,14 +99,13 @@ export function Login() {
 		})
 
 	}, [])
-
+	 */
 	return <>
 	<Box container sx={{my: 'auto'}}>
 		<Typography variant='h4'>Pong</Typography>
 	</Box>
 	<Divider variant='middle'/>
 	<Grid container justifyContent="center" sx={{height: 600, pt: 15}}>
-		{(Cookies.get('login')) === undefined ?
 
 		<FormControl>
 			<TextField
@@ -122,14 +123,15 @@ export function Login() {
 				sx={{p: 1 }}
 			></TextField>
 
-			<Button sx={{color: 'primary.main'}} onClick={handleSignup}>signup</Button>
+			<Button sx={{color: 'primary.main'}} onClick={handleLogin}>signup</Button>
 			<Button sx={{color: 'primary.main'}} onClick={handleLogin}>signin</Button>
 			<Oauth2>Login via intra</Oauth2>
 			{error.length === 0 ? null : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
 		</FormControl>
-		: <LogoutButton>log out</LogoutButton>
-		}
 	</Grid>
 	</>
 
 }
+
+//: <LogoutButton>log out</LogoutButton>
+//		}

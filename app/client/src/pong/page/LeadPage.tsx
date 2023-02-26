@@ -4,8 +4,8 @@ import Grid from '@mui/material/Grid'
 import Tabs from '@mui/material/Tabs'
 import TabList from '@mui/lab/TabList'
 import Tab from '@mui/material/Tab'
-import Swipeable from './utils/Swipeable'
-import Profile from './Profile/Profile'
+import Swipeable from '/src/pong/component/Swipeable'
+import Profile from '/src/pong/Profile/Profile'
 import './LeadPage.css'
 
 const header = {

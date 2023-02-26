@@ -31,6 +31,7 @@
     "@types/cookie-parser": "^1.4.3",
     "cli": "^1.0.1",
     "cookie-parser": "^1.4.6",
+    "fetch-intercept": "^2.4.0",
     "http-exception": "^0.0.2",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
