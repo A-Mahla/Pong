@@ -22,17 +22,21 @@ const refreshRequest = async () => {
 }
 
 export const FetchApi = async ({input, option={}}: Api) => {
-		
-	const {response, data} = await originalRequest({input, option});
 
-	if (response.statusText === "Unauthorized" ) {
-		const refresh = await refreshRequest();
+	try {
+		const { response, data } = await originalRequest({ input, option });
 
-		if (refresh.statusText === "Unauthorized") {
-			location.replace(`http://${import.meta.env.VITE_SITE}`);
+		if (response.statusText !== "Unauthorized") {
+			const refresh = await refreshRequest();
+
+			if (refresh.status !== 200 || refresh.status !== 304) {
+				location.replace(`http://${import.meta.env.VITE_SITE}/login`);
+			}
+			return await originalRequest({ input, option });
 		}
-		return await originalRequest({input, option});
-	}
+		return { response, data };
 
-	return {response, data};
+	} catch (err) {
+		console.log(err);
+	}
 }
