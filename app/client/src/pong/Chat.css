@@ -1,0 +1,9 @@
+.messageSent {
+	text-align: right;
+	background-color: tomato;
+}
+
+.messageReceived {
+	text-align: right;
+	background-color: aqua;
+}

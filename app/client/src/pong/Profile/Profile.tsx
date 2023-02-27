@@ -1,7 +1,7 @@
 import { Box, Grid } from '@mui/material'
-import '/src/pong/LeadPage.css'
+import '/src/pong/page/LeadPage.css'
 //import { ThemeProvider, createTheme } from '@mui/material/styles';
-import ProfileAvatar from './Avatar'
+import ProfileAvatar from '/src/pong/Profile/Avatar'
 
 
 const Profile = () => {

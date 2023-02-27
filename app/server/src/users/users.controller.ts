@@ -35,6 +35,7 @@ import { AuthService } from '../auth/auth.service'
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RefreshJwtAuthGuard } from 'src/auth/refresh-jwt-auth.guard'
+import { Intra42AuthGuard } from 'src/auth/intra42.guard';
 //import { Request } from 'express';
 
 
@@ -212,6 +213,45 @@ export class UsersController {
 		}
 	}
 
+	//=========================================OAuth2=======================
+
+
+	@UseGuards(Intra42AuthGuard)
+	@Get('intra42/login')
+	async handleIntraLogin(@Request() req: any) {
+
+		console.log('handle intra login user info: ', req.intraUserInfo);
+
+
+		return req.intraUserInfo
+	}
+
+	@Post('intra42')
+	async createIntraUser(@Query('login') login: string, @Query('intraLogin') intraLogin: string) {
+		const user = await this.userService.findOneUser(login)
+
+		if (user)
+			return {
+				statusCode: 400,
+				message: 'login already use'
+			}
+
+		return this.userService.createUser({
+			login: login,
+			password: '',
+			intraLogin: intraLogin
+		})
+	}
+
+
+
+	//@UseGuards(JwtAuthGuard)
+	/*
+	@Get('stats/:login')
+	getStats(@Param('login') login : string) {
+		return this.userService.getProfile(login);
+	}
+	*/
 	@Put(':login')
 	async updateUserById(
 		@Param('login') login: string,

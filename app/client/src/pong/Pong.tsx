@@ -1,10 +1,11 @@
 import { ThemeProvider, createTheme } from '@mui/material'
-import { Redirect } from './Oauth2'
-import  MainPage  from './MainPage'
-import LeadPage from './LeadPage'
+import { Redirect } from '/src/pong/component/Oauth2'
+import  MainPage  from '/src/pong/page/MainPage'
+import LeadPage from '/src/pong/page/LeadPage'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { Login } from './Login'
-import { Test } from './Test'
+import { Login } from '/src/pong/component/Login'
+import { Test } from '/src/pong/component/Test'
+import { Chat } from './Chat'
 
 /**
  * ============ Entrypoint of the project =============
@@ -31,6 +32,7 @@ export const Pong = () => {
 					<Route path='/' element={<MainPage/>} />
 					<Route path='/pong' element={<LeadPage/>} />
 					<Route path='/test' element={<Test/>} />
+					<Route path='/chat' element={<Chat/>} />
 					<Route path="/redirect" element={<Redirect/>} />
 					<Route path='/login' element={<Login/>}/>
 				</Routes>
@@ -39,3 +41,4 @@ export const Pong = () => {
 		</>
 	)
 }
+

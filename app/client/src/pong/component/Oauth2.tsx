@@ -33,25 +33,27 @@ export const Redirect = () => {
  
 	const login = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>
 
-	const fetchApi = () => {fetch(`http://localhost:5500/api/auth/intra42/login${url.search}`)
-	.then(response => response.json())
-	.then(data => {
-		console.log(data)
-		if (data["statusCode"] == 200)
-		{
-			if (data['body']['signedin'] == true)
-			{
-				Cookies.set('login', data['login'], {expires: 7})
-				location.replace("http://localhost:3000")
-			}
-			else
-			{
-				setIntraLogin(data['body']['intraLogin'])
-				setFetched(true)
-				console.log("intraLogin and fetched", intraLogin, fetched)
-			}
-		}
-	})
+	const fetchApi = () => {
+		fetch(`http://localhost:5500/api/users/intra42/login${url.search}`)
+		.then(response => {
+			response.json().then(
+				data => {
+					if (response.status == 200)
+					{
+						if (data['signedIn'])
+						{
+							Cookies.set('login', data['login'], {expires: 7})
+							location.replace("http://localhost:3000")
+						}
+						else
+						{
+							setIntraLogin(data['intraLogin'])
+							setFetched(true)
+						}
+					}
+				}
+			)
+		})
 	}
 
 	useEffect(() => fetchApi())
@@ -63,20 +65,24 @@ export const Redirect = () => {
 		const requestOptions = {
 			method: "POST",
 		}
-		fetch(`http://localhost:5500/api/users/intra?login=${login.current.value}&intraLogin=${intraLogin}`, requestOptions)
-		.then(response => response.json())
-		.then(data => {
-				console.log('data', data)
-				if (data["statusCode"] == 200)
-				{
-					Cookies.set('login', data['login'], {expires: 7})
-					location.replace("http://localhost:3000")
-				}
-				else
-					setError(data["message"])
-			})
-	}, [])
+		console.log('login.current.value: ', login.current.value)
 
+		fetch(`http://localhost:5500/api/users/intra42?login=${login.current.value}&intraLogin=${intraLogin}`, requestOptions)
+		.then(response => {
+			response.json().then(
+				data => {
+					if (response.status == 201)
+					{
+						Cookies.set('login', data['login'], {expires: 7})
+						location.replace("http://localhost:3000")
+					}
+					else
+						setError(data["message"])
+				} 
+			)
+		})
+
+	}, [intraLogin])
 
 	return (
 		<Grid container justifyContent="center">
@@ -84,7 +90,7 @@ export const Redirect = () => {
 					<FormControl>
 					<TextField type="text" inputRef={login} label="Login" sx={{p : 1}}/>	
 					<Button sx={{color: 'primary.main'}} onClick={handleIntraLogin}>signin</Button>
-					{error.lenght === 0 ? null : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
+					{error === '' ? null : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
 					</FormControl>
  				: <CircularProgress/>  }
 		</Grid>
