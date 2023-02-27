@@ -160,10 +160,11 @@ export class UsersController {
 		return this.userService.updateAvatar(req.user.login , file.filename);
 	}
 
-	@Get('profile/:id')
-	async getProfileInfo(@Param('id') user_id: string) {
+	@UseGuards(JwtAuthGuard)
+	@Get('profile')
+	async getProfileInfo(@Request() req: any) {
 		console.log("----------------------------------> ");
-		return this.userService.getProfileInfo(parseInt(user_id))
+		return this.userService.getProfileInfo(parseInt(req.user.sub))
 	}
 
 //	======================= Test Profile with default avatar =============
