@@ -1,9 +1,10 @@
 import { BadGatewayException, BadRequestException, Injectable, UseInterceptors, UploadedFile, Param } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma, User } from '@prisma/client';
+import { Prisma, User, User_Game, Games } from '@prisma/client';
 import { diskStorage } from  'multer';
 import { statsFormat, CreateUserParams, UpdateUserParams, profile } from './User.types'
 import { FileInterceptor } from '@nestjs/platform-express'
+import { ok } from 'assert';
 
 @Injectable()
 export class UsersService {
@@ -25,15 +26,6 @@ export class UsersService {
 			where: { intraLogin: intraLogin }
 		});
 	}
-/*
-	async getProfile(login: string) : Promise < profile | null | undefined> {
-		const user = await this.findOneUser(login);
-		if (user) {
-			const {win, loose, nbGames, status, login, avatar, ...other} = user;
-			return {win, loose, nbGames, status, login, avatar};
-		}
-	}
-*/
 
 	async updateUser(login: string, updateUserDetails: UpdateUserParams) : Promise<User> {
 		return this.prisma.user.update({
@@ -74,5 +66,107 @@ export class UsersService {
 		}).catch((e) => {throw e});
 	}
 
+/* ============================ POST game related information ========================*/
+	async registerNewGame() {
+		return this.prisma.games.create({
+			data: {}
+		})
+	}
+	async registerNewPlayer(game_id: number, user_id: number, score: number) {
+		const newUserGame = {
+			game_id: game_id,
+			user_id: user_id,
+			score: score,
+		};
+		const newPlayer = await this.prisma.user_Game.create({
+			data: newUserGame
+		})
+		let testVar = await this.checkPlayerInGame(game_id);
+		if (testVar === 2)
+		{
+			let testVar2 = await this.prisma.games.update({
+				where: {
+					game_id: game_id
+				},
+				data : {
+					status: 'OK'
+				} })
+		}
+		return newPlayer;
+	}
+
+	async checkPlayerInGame(game_id: number) {
+		return await this.prisma.user_Game.count({
+			where: {
+				game_id: {
+				  equals: game_id,
+				},
+			  },
+		})
+	}
+/* ============================ get profile and stats service ========================*/
+
+	async getProfileInfo(user_id: number) {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id: user_id
+			},
+			select: {
+				login: true,
+				avatar: true
+			}
+		})
+		return {
+			login: user?.login,
+			avatar: user?.avatar,
+			nbGames: (await this.getNbGames(user_id)),
+			nbWin: (await this.getVictoryLossCountForUser(user_id, true)),
+			nbLoss: (await this.getVictoryLossCountForUser(user_id, false)),
+		};
+	}
+
+
+	async getVictoryLossCountForUser(userId: number, InfSup: boolean) {
+		const games = await this.prisma.user_Game.findMany({
+		  where: {
+			user_id: userId,
+		  },
+		  include: {
+			game: {
+			  include: {
+				players: true,
+			  },
+			},
+		  },
+		});
+
+		let victories = 0;
+		games.forEach((game) => {
+		  const otherPlayers = game.game.players.filter(
+			(player) => player.user_id !== userId
+		  );
+		  const otherPlayerScore = otherPlayers[0]?.score || 0;
+		  if (InfSup && game.score > otherPlayerScore)
+			victories++;
+		  else if (!InfSup && game.score < otherPlayerScore)
+			victories++;
+		});
+
+		return victories;
+	  }
+
+	async getNbGames(user_id: number) {
+		const nbGames = await this.prisma.user_Game.count({
+			where: {
+				user_id: {
+					equals: user_id
+				}
+			}
+		})
+		console.log(nbGames);
+		return nbGames;
+	}
+
 }
+/* ============================ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ========================*/
 

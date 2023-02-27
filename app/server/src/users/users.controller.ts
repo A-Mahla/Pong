@@ -160,6 +160,12 @@ export class UsersController {
 		return this.userService.updateAvatar(req.user.login , file.filename);
 	}
 
+	@Get('profile/:id')
+	async getProfileInfo(@Param('id') user_id: string) {
+		console.log("----------------------------------> ");
+		return this.userService.getProfileInfo(parseInt(user_id))
+	}
+
 //	======================= Test Profile with default avatar =============
 	@Get('default/default_avatar')
 	async getDefaultFile(@Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
@@ -170,7 +176,27 @@ export class UsersController {
 			throw new BadRequestException;
 		}
 	}
+
+	@Get('stats/:id')
+	async getNbGames(@Param('id') user_id: string){
+		return this.userService.getNbGames(parseInt(user_id));
+	}
+
+	@Get('stat2/:id')
+	async getnbWin(@Param('id') user_id: string){
+		return this.userService.getVictoryLossCountForUser(parseInt(user_id), true);
+	}
 // =======================================================================
+
+	@Post('newGame')
+	async registerNewGame() {
+		return (this.userService.registerNewGame());
+	}
+
+	@Post('userInGame/:gameId')
+	async registerNewPlayer(@Param('gameId') game_id: string, @Body() user: any) {
+		return (this.userService.registerNewPlayer(parseInt(game_id), parseInt(user.id), parseInt(user.score)));
+	}
 
 	@UseGuards(JwtAuthGuard)
 	@Get('avatar/:login')
@@ -195,7 +221,7 @@ export class UsersController {
 	async handleIntraLogin(@Request() req: any) {
 
 		console.log('handle intra login user info: ', req.intraUserInfo);
-		
+
 
 		return req.intraUserInfo
 	}
@@ -206,7 +232,7 @@ export class UsersController {
 
 		if (user)
 			return {
-				statusCode: 400,	
+				statusCode: 400,
 				message: 'login already use'
 			}
 
