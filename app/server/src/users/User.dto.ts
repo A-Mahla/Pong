@@ -1,6 +1,20 @@
+import { IsNumberString, IsOptional, IsDefined, IsNotEmpty, IsString } from 'class-validator';
+
 export class CreateUserDto {
+	@IsDefined()
+	@IsNotEmpty()
+	@IsString()
 	login: string;
+
+	@IsDefined()
+	@IsNotEmpty()
+	@IsString()
 	password: string;
+
+	@IsDefined()
+	@IsNotEmpty()
+	@IsString()
+	@IsOptional()
 	intraLogin?:string;
 }
 
@@ -21,4 +35,9 @@ export class UserDto {
 	avatar: string;
 	intraLogin?: string;
 	refreshToken?:string
+}
+
+export class numberFormat {
+	@IsNumberString()
+	id: number;
 }
