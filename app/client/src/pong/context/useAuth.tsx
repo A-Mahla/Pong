@@ -6,14 +6,14 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useHistory, useLocation } from "react-router-dom";
-import { originalRequest, refreshRequest } from "/src/pong/component/FetchApi"
+import { useNavigate, useLocation } from "react-router-dom";
+import { originalRequest, refreshRequest, responseApi } from "/src/pong/component/FetchApi"
 
 interface AuthConstextType {
 	user?: string;
 	token?: string;
 	loading: boolean;
-	error?: any;
+	error?: Error;
 	login: (login: string, password: string) => void;
 	logout: () => void;
 	signup: (login: string, password: string) => void;
@@ -27,11 +27,11 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 	const [user, setUser] = useState<string>('');
 	const [token, setToken] = useState<string>('');
-	const [error, setError] = useState<any>();
+	const [error, setError] = useState<Error>();
 	const [loading, setLoading] = useState<boolean>(false);
 	const [loadingInitial, setLoadingInitial] = useState<boolean>(true);
 
-	const history = useHistory();
+	const navigate = useNavigate();
 	const location = useLocation();
 
 	useEffect(() => {
@@ -40,46 +40,55 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 	}, [location.pathname]);
 
 
-	useEffect(() => {
+	useEffect( () => {
+		async function auth()  {
 
-		const url = `http://${import.meta.env.VITE_SITE}/api/users/profile`;
-		const requestOption = {
-			method: "GET",
-			headers: { 'Authorization': `Bearer ${token}` },
-		}
 
-		try {
-			let { response, data } = await originalRequest({
-				input: url,
-				option: requestOption,
-			});
+			const url = `http://${import.meta.env.VITE_SITE}/api/users/profile/auth`;
+			const requestOption = {
+				method: "GET",
+				headers: { 'Authorization': `Bearer ${token}` },
+			}
 
-			if (response.statusText !== "Unauthorized") {
-				const refresh = await refreshRequest();
-
-				if (refresh.status !== 200 || refresh.status !== 304) {
-					history.push(`http://${import.meta.env.VITE_SITE}/api/auth/login`);
-				}
-
-				setUser(user => refresh['login']);
-				setUser(token => refresh['aT']);
-
-				let { response, data } = await originalRequest({
+			try {
+				const response1: responseApi = await originalRequest({
 					input: url,
 					option: requestOption,
 				});
-			}
-			setUser(user => refresh['login']);
 
-		} catch (err) {
-			console.log(err);
-		} finally {
-			setLoadingInitial(false)
+				if (response1.response.statusText === "Unauthorized") {
+					const refresh: responseApi = await refreshRequest();
+
+					if (refresh.response.status !== 200 && refresh.response.status !== 304) {
+						navigate('/login');
+					}
+
+						setUser(refresh.data['login']);
+						setToken(refresh.data['aT']);
+
+						const response2: responseApi = await originalRequest({
+							input: url,
+							option: {
+								method: "GET",
+								headers: { 'Authorization': `Bearer ${refresh.data['aT']}` },
+							},
+						});
+						setUser(response2.data['login']);
+				}
+				else
+					setUser(response1.data['login']);
+
+			} catch (err) {
+				console.log(err);
+			} finally {
+				setLoadingInitial(false)
+			}
 		}
+		auth();
 
 	}, [])
 
-	function authLogin(login: string, password: string) = async () => {
+	async function authLogin(login: string, password: string) {
 
 		const requestOptions = {
 			method: "POST",
@@ -89,19 +98,19 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			body: JSON.stringify({
 				login: login,
 				password: password,
-			});
+			}),
 		}
 
+
 		try {
-			const response = await originalRequest({
+			const {response, data} = await originalRequest({
 				input: `http://${import.meta.env.VITE_SITE}/api/auth/signin`,
 				option: requestOptions,
 			});
-			
 			if ( response.status === 201) {
-				setUser(user => login);
-				setToken(token => response['aT']);
-				history.push(`http://${import.meta.env.VITE_SITE}/pong`)
+				setUser(login);
+				setToken(data['aT']);
+				navigate('/pong')
 			}
 		} catch (err) {
 			console.log(err);
@@ -110,21 +119,24 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 		}
 	}
 
-	function logout() {
+	async function authLogout() {
 
 		try {
-			const response = await originalRequest({
-				input: `http://${import.meta.env.VITE_SITE}/api/auth/logout`,
-				option: {
+			const response = await fetch(
+				`http://${import.meta.env.VITE_SITE}/api/auth/logout`,
+				{
 					method: "POST",
-					headers: { 'Authorization': `Bearer ${token}` },
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						login: user,
+					}),
 				}
-			});
+			);
 
 			if ( response.status === 201) {
-				setUser(user => '');
-				setToken(token => '');
-				history.push(`http://${import.meta.env.VITE_SITE}`)
+				setUser('');
+				setToken('');
+				navigate('/')
 			}
 
 		} catch (err) {
@@ -135,21 +147,22 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 	const memoValue = useMemo(
 		() => ({
 			user,
+			setUser,
 			token,
 			setToken,
 			loading,
 			error,
-			login,
+			authLogin,
 //			signUp,
-			logout,
+			authLogout,
 		}),
 		[user, loading, error]
 	);
 
 	return (
-    <AuthContext.Provider value={memoValue}>
-      {!loadingInitial && children}
-    </AuthContext.Provider>
+		<AuthContext.Provider value={memoValue}>
+		  {!loadingInitial && children}
+		</AuthContext.Provider>
   );
 }
 

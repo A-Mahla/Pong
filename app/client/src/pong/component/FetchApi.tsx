@@ -1,9 +1,15 @@
-import { useContext, useHistory } as React from 'react'
-import { useAuth } from "/src/pong/context/useAuth"
+import { useContext, useNavigate } from 'react'
+import useAuth from '/src/pong/context/useAuth'
 
 export type Api = {
 	input: RequestInfo | URL,
-	option?: RequestInit
+	func: React.Dispatch<React.SetStateAction<string>>,
+	option?: RequestInit,
+}
+
+export type responseApi = {
+	reponse: Response,
+	data: JSON.Element
 }
 
 export const originalRequest = async (api: Api) => {
@@ -16,49 +22,41 @@ export const originalRequest = async (api: Api) => {
 
 export const refreshRequest = async () => {
 
+
 	const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/refresh`);
 	const data = await response.json();
-	return data;
+	return { response, data };
 
 }
 
-export const FetchApi = async ({input, option={}}: Api) => {
-
-	const {token, setToken} = useAuth();
+export const FetchApi = async ({input, func, option={}}: Api) => {
 
 	try {
-		const { response, data } = await originalRequest({
-			input,
-			{
-				...option,
-				header: {
-					...header,
-					'Authorization': `Bearer ${token}`,
-				}
-			}
-		});
 
-		if (response.statusText !== "Unauthorized") {
-			const refresh = await refreshRequest();
+		const response: responseApi = await originalRequest({input, option});
 
-			if (refresh.status !== 200 || refresh.status !== 304) {
-				useHistory().push(`http://${import.meta.env.VITE_SITE}/login`);
+		if (response.response.statusText === "Unauthorized") {
+
+			const request: responseApi = await refreshRequest();
+
+			if (refresh.response.status !== 200 && refresh.response.status !== 304) {
+				useNavigate()('/login');
 			}
 
-			setToken(token => refresh['aT']);
+			func(refresh.data['aT']);
 
 			return await originalRequest({
 				input,
-				{
+				option: {
 					...option,
-					header: {
-						...header,
-						'Authorization': `Bearer ${token}`,
+					headers: {
+						...headers,
+						'Authorization': `Bearer ${refresh.data['aT']}`,
 					}
 				}
 			});
 		}
-		return { response, data };
+		return response;
 
 	} catch (err) {
 		console.log(err);

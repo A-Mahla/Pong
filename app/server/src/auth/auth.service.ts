@@ -33,8 +33,17 @@ export class AuthService {
 		}
 	}
 
-	async logout(user: any) {
+	async logout(user: any, response: Response) {
 		await this.usersService.updateRefreshToken(user.login, "");
+		response.cookie(
+			'rT',
+			null,
+			{
+				maxAge: 900000,
+				httpOnly: true,
+				sameSite: 'strict',
+			}
+		);
 	}
 
 	async refreshTokens(user: any, response: Response) {
@@ -47,6 +56,8 @@ export class AuthService {
 	}
 
 	async getTokens(user: JwtPayload, response: Response) {
+
+
 		const [accessToken, refreshToken] = await Promise.all([
 		  this.jwtService.signAsync(
 			{
@@ -69,8 +80,17 @@ export class AuthService {
 			},
 		  ),
 		]);
-		response.cookie('rT', refreshToken, { maxAge: 900000, httpOnly: true, sameSite: 'strict' });
-		response.cookie('aT', accessToken, { maxAge: 900000000, httpOnly: true, sameSite: 'strict' });
+		response.cookie(
+			'rT',
+			refreshToken,
+			{
+				expires: new Date(new Date().getTime()+5*60*1000),
+				maxAge: 900000000,
+				httpOnly: true,
+				sameSite: 'strict'
+			}
+		);
+//		response.cookie('aT', accessToken, { maxAge: 900000, httpOnly: true, sameSite: 'strict' });
 		return {
 			accessToken,
 			refreshToken

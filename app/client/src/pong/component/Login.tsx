@@ -16,10 +16,14 @@ import React, {
 import { Oauth2 } from '/src/pong/component/Oauth2';
 //import Cookies from 'js-cookie'
 import { FetchApi } from '/src/pong/component/FetchApi';
+import useAuth from '/src/pong/context/useAuth';
 //import { _2fa } from "./2fa"
 import '/src/App'
 
-export function Login() {
+
+export const Login = () => {
+
+	const {authLogin, user} = useAuth();
 
 	const [error, setError] = useState('');
 
@@ -27,48 +31,9 @@ export function Login() {
 
 	const password = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 
-	const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
-	//	const [data, setData] = useState<any>(null);
+	const handleLogin = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
-
-		const requestOptions = {
-			method: "POST",
-			headers: {
-				'Content-Type': 'application/json',
-			 },
-			body: JSON.stringify({
-				login: `${username.current.value}`,
-				password: `${password.current.value}`
-			})
-		}
-
-	
-		
-		const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/signin`, requestOptions)
-		if (response.status != 201)
-			setError('Error fetch')
-		else
-		{
-//			console.log(import.meta.env.VITE_SITE)
-		//	const data = await response.json()
-			await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/refresh`)
-			//		const test = await res.json();
-		//	location.replace('http://localhost:3000/pong')
-		}
-/*		useEffect(() => {
-			const dataResponse = FetchApi(
-				`http://${import.meta.env.VITE_SITE}/api/auth/signin`,
-				requestOptions
-			);
-			setData(dataResponse);
-		})*/
-
-	//	const {responseOriginal, data} = 
-		await FetchApi({
-			input: `http://${import.meta.env.VITE_SITE}/api/users/sacha`
-	}); 
-
-//		console.log(data)
+		authLogin(`${username.current.value}`,`${password.current.value}`);
 	}
 
 

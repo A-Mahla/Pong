@@ -1,11 +1,11 @@
 import { Outlet, Navigate } from 'react-router-dom';
 import useAuth from '/src/pong/context/useAuth';
 
-const PrivateRoute = () => {
+const LoggedRoute = () => {
 
 	const {token} = useAuth();
 
-	return token !== '' ? <Outlet /> : <Navigate to='/login' exact />
+	return token === '' ? <Outlet /> : <Navigate to='/pong' exact />
 }
 
-export default PrivateRoute;
+export default LoggedRoute;

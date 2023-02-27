@@ -1,4 +1,5 @@
 import * as React from 'react'
+import useAuth from '/src/pong/context/useAuth';
 import { Box } from '@mui/material'
 import SwipeableDrawer from '@mui/material/SwipeableDrawer'
 import { Link } from "react-router-dom"
@@ -49,6 +50,8 @@ const Swipeable = (props: propsSwip) => {
 		left: false
 	})
 
+	const {authLogout} = useAuth();
+
 	const anchor: Anchor = 'right'
 
 	const toggleDrawer =
@@ -63,6 +66,11 @@ const Swipeable = (props: propsSwip) => {
 		}
 
 		setState({ ...state, [anchor]: open})
+	}
+
+	const handleLogout = (e: React.MouseEvent<HTMLButtonElement>) => {
+		e.preventDefault()
+		authLogout();
 	}
 
 	const Swip = (props: propsSwip) => {
@@ -102,7 +110,7 @@ const Swipeable = (props: propsSwip) => {
 								sx={listTextMenu} />
 						</ListItemButton>
 					:
-						<ListItemButton component={Link} to="/">
+						<ListItemButton onClick={handleLogout} >
 						<ListItemIcon sx={listIconButton}>
 							<LogoutIcon />
 						</ListItemIcon>
