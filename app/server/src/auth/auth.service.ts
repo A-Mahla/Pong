@@ -86,11 +86,20 @@ export class AuthService {
 				'Accept-Encoding' : 'application/json'
 			}
 		}
+
 		const grant_type = 'authorization_code';
 		const client_id = process.env.API_UID;
 		const client_secret = process.env.API_SECRET;
 		const code = client_code;
-		const redirect_uri = "http://localhost:3000/redirect";
+		const redirect_uri = `http://localhost:8080/redirect`;
+
+		console.log('code: ', code)
+		console.log('https://api.intra.42.fr/v2/oauth/token?' + 
+		`grant_type=${grant_type}&` +
+		`client_id=${client_id}&` +
+		`client_secret=${client_secret}&` +
+		`code=${code}&` + 
+		`redirect_uri=${redirect_uri}`);
 
 
 		const response = await fetch('https://api.intra.42.fr/v2/oauth/token?' + 

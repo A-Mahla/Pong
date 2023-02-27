@@ -42,7 +42,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   handleCreateRoom(client: any, payload: CreateRoomData) {
     client.join(payload.roomName)
     client.emit('roomCreated', payload.roomName)
-
+    console.log('payload: ', payload);
+    
     return this.roomService.createRoom(payload) 
   }
 

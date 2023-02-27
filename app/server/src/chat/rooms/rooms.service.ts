@@ -21,13 +21,15 @@ export class RoomsService {
 		const newRoom = {
 			createdAt: new Date(),
 			name: roomDetails.roomName,
-			//owner: roomOwner	
+			ownerId: roomOwner.id
 		}
 
 		//const newRoom = {
 		//	createdAt: new Date(),
 		//	...roomDetails,
 		//}
+
+		console.log('newRoom: ', newRoom)
 		
 		return this.prisma.room.create({
 			data: {...newRoom}
@@ -36,5 +38,23 @@ export class RoomsService {
 
 	async findAll () {
 		return this.prisma.room.findMany()
+	}
+
+	async getRoomById (roomId: number) {
+		//const id = parseInt(roomId)
+		const id = +roomId;
+		return this.prisma.room.findUnique(
+			{
+				where: {
+					id : id
+				}
+			}
+		)
+	}
+
+	async getRoomOwner (roomId: number) {
+		const room = await this.getRoomById(roomId)
+		console.log(room)
+		return room
 	}
 }

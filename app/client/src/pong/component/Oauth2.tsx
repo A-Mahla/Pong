@@ -12,7 +12,7 @@ type Props = {
 export const Oauth2 = (props: Props) => {
 
 	const handleClick = useCallback( async () => {
-		fetch(`https://api.intra.42.fr/v2/oauth/authorize?client_id=u-s4t2ud-2963e5d6c6ab1d8f9e2dcba0e3f2d6909a14a6933dee099c55d7699f8c01f9e7&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fredirect&response_type=code`, {redirect: "manual"})
+		fetch(`https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-768bd173e0c1bd768ee57e424593ffdcae61db0fd1cdd53e363cfdbdfdd3ef67&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fredirect&response_type=code`, {redirect: "manual"})
 		.then(response => location.replace(response.url))
 	}, [])
 
@@ -34,7 +34,7 @@ export const Redirect = () => {
 	const login = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>
 
 	const fetchApi = () => {
-		fetch(`http://localhost:5500/api/users/intra42/login${url.search}`)
+		fetch(`http://${import.meta.env.VITE_SITE}/api/users/intra42/login${url.search}`)
 		.then(response => {
 			response.json().then(
 				data => {
@@ -43,7 +43,7 @@ export const Redirect = () => {
 						if (data['signedIn'])
 						{
 							Cookies.set('login', data['login'], {expires: 7})
-							location.replace("http://localhost:3000")
+							location.replace("http://localhost:8080")
 						}
 						else
 						{
@@ -67,14 +67,14 @@ export const Redirect = () => {
 		}
 		console.log('login.current.value: ', login.current.value)
 
-		fetch(`http://localhost:5500/api/users/intra42?login=${login.current.value}&intraLogin=${intraLogin}`, requestOptions)
+		fetch(`http://${import.meta.env.VITE_SITE}/api/users/intra42?login=${login.current.value}&intraLogin=${intraLogin}`, requestOptions)
 		.then(response => {
 			response.json().then(
 				data => {
 					if (response.status == 201)
 					{
 						Cookies.set('login', data['login'], {expires: 7})
-						location.replace("http://localhost:3000")
+						location.replace("http://localhost:8080")
 					}
 					else
 						setError(data["message"])

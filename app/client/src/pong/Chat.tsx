@@ -90,7 +90,14 @@ export function Chat() {
 
 	const handleCreateRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
-		socket.emit('createRoom', 'lol', function(response) {
+		const payload = {
+			roomName: message.current.value,
+			ownerName: 'gus'
+		}
+
+		console.log("data payload: ", payload)
+
+		socket.emit('createRoom', payload, function(response) {
 			console.log("RESPONSE CREATE", response)
 		})
 	}, [])

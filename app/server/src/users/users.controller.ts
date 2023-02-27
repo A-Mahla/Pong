@@ -195,7 +195,6 @@ export class UsersController {
 	async handleIntraLogin(@Request() req: any) {
 
 		console.log('handle intra login user info: ', req.intraUserInfo);
-		
 
 		return req.intraUserInfo
 	}
