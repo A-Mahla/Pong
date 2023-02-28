@@ -1,6 +1,9 @@
 # migration prisma
 migrations
 
+# exec
+.nfs*
+
 # photo
 *.jpeg
 *.jpg
