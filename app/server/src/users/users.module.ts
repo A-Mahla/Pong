@@ -4,12 +4,12 @@ import { PrismaModule } from '../prisma/prisma.module'
 import { UsersController } from './users.controller';
 import { JwtService } from '@nestjs/jwt';
 import { AuthModule } from 'src/auth/auth.module';
-import { AuthService } from 'src/auth/auth.service';
+import { GameService } from "src/game/game.service";
 
 @Module({
 	imports: [PrismaModule, forwardRef(() => AuthModule)],
 	controllers: [UsersController],
-	providers: [UsersService, JwtService],
+	providers: [UsersService, JwtService, GameService],
 	exports: [UsersService]
 })
 export class UsersModule {}

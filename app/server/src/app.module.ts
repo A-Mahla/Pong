@@ -8,10 +8,12 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ChatModule } from './chat/chat.module';
 import { RoomsService } from './chat/rooms/rooms.service';
 import { PrismaService } from './prisma/prisma.service';
+import { GameModule } from './game/game.module';
+import { GameService } from './game/game.service';
 
 @Module({
-  imports: [UsersModule, AuthModule, JwtModule, ChatModule],
+  imports: [UsersModule, AuthModule, JwtModule, ChatModule, GameModule],
   controllers: [AppController],
-  providers: [AppService, PrismaService, RoomsService, ChatGateway],
+  providers: [AppService, PrismaService, RoomsService, ChatGateway, GameService],
 })
 export class AppModule {}

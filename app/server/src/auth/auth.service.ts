@@ -65,7 +65,7 @@ export class AuthService {
 			},
 			{
 			  secret: jwtConstants.secret,
-			  expiresIn: '10s',
+			  expiresIn: '500s',
 			},
 		  ),
 		  this.jwtService.signAsync(
@@ -112,11 +112,11 @@ export class AuthService {
 		const redirect_uri = "http://localhost:3000/redirect";
 
 
-		const response = await fetch('https://api.intra.42.fr/v2/oauth/token?' + 
+		const response = await fetch('https://api.intra.42.fr/v2/oauth/token?' +
 		`grant_type=${grant_type}&` +
 		`client_id=${client_id}&` +
 		`client_secret=${client_secret}&` +
-		`code=${code}&` + 
+		`code=${code}&` +
 		`redirect_uri=${redirect_uri}`
 		, requestOptions)
 		.then(response => response.json())
