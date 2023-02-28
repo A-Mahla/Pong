@@ -5,7 +5,7 @@ const LoggedRoute = () => {
 
 	const {token} = useAuth();
 
-	return token === '' ? <Outlet /> : <Navigate to='/pong' exact />
+	return !token ? <Outlet /> : <Navigate to='/pong' exact />
 }
 
 export default LoggedRoute;

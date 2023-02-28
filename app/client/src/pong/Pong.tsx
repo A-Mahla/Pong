@@ -34,7 +34,9 @@ export const Pong = () => {
 				<AuthProvider >
 					<Routes>
 						<Route path='/' element={<MainPage/>} />
-						<Route path='/login' element={<Login/>}/>
+						<Route element= { <LoggedRoute /> }>
+							<Route path='/login' element={<Login/>}/>
+						</Route>
 						<Route element= { <PrivateRoute /> }>
 							<Route path='/pong' element={<LeadPage/>} />
 						</Route>

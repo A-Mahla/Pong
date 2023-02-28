@@ -8,6 +8,7 @@ export type Api = {
 }
 
 export type responseApi = {
+	response: any
 	reponse: Response,
 	data: JSON.Element
 }
@@ -33,7 +34,10 @@ export const FetchApi = async ({input, func, option={}}: Api) => {
 
 	try {
 
-		const response: responseApi = await originalRequest({input, option});
+		const response: responseApi = await originalRequest({
+			input, option,
+			func: undefined
+		});
 
 		if (response.response.statusText === "Unauthorized") {
 
@@ -53,7 +57,8 @@ export const FetchApi = async ({input, func, option={}}: Api) => {
 						...headers,
 						'Authorization': `Bearer ${refresh.data['aT']}`,
 					}
-				}
+				},
+				func: undefined
 			});
 		}
 		return response;

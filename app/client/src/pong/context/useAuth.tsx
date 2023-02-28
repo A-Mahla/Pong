@@ -60,7 +60,11 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 					const refresh: responseApi = await refreshRequest();
 
 					if (refresh.response.status !== 200 && refresh.response.status !== 304) {
-						navigate('/login');
+						if ( location.pathname === '/login'
+							|| location.pathname === '/pong' )
+							navigate('/login')
+						else
+							navigate('/');
 					}
 
 						setUser(refresh.data['login']);
@@ -146,9 +150,9 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 	const memoValue = useMemo(
 		() => ({
+			token,
 			user,
 			setUser,
-			token,
 			setToken,
 			loading,
 			error,
@@ -156,7 +160,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 //			signUp,
 			authLogout,
 		}),
-		[user, loading, error]
+		[user, token, loading, error]
 	);
 
 	return (
