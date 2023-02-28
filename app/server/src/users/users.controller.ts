@@ -99,7 +99,7 @@ export class UsersController {
 	}
 
 //	====================== POST AND GET AVATAR ===================
-@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard)
 	@Post(':login/avatar')
 	@UseInterceptors(FileInterceptor('file', {
 	storage: diskStorage({
@@ -132,26 +132,12 @@ export class UsersController {
 //	======================= Test Profile  ================================
 
 	@UseGuards(JwtAuthGuard)
-	@Get('profile')
+	@Get('auth/profile')
 	async getProfileInfo(@Request() req: any) {
 		return this.userService.getProfileInfo(parseInt(req.user.sub))
 	}
 
 //	=========================^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^===============
-
-//	======================== Registering new Game routes ==================
-	@Post('newGame')
-	async registerNewGame() {
-		return (this.userService.registerNewGame());
-	}
-
-	@Post('userInGame/:gameId')
-	async registerNewPlayer(@Param('gameId') game_id: number, @Body() user: any) {
-		return (this.userService.registerNewPlayer(game_id, parseInt(user.id), parseInt(user.score)));
-	}
-
-
-//	======================== ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ================
 
 //	=========================================OAuth2=======================
 

@@ -1,6 +1,7 @@
 import { BadGatewayException, BadRequestException, Injectable, UseInterceptors, UploadedFile, Param } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, User, User_Game, Games } from '@prisma/client';
+import { GameService } from 'src/game/game.service';
 import { CreateUserParams, UpdateUserParams, profile } from './User.types'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { ok } from 'assert';
@@ -8,7 +9,8 @@ import { ok } from 'assert';
 @Injectable()
 export class UsersService {
 
-	constructor( private prisma: PrismaService,) {}
+	constructor( private prisma: PrismaService,
+				 private readonly gameService: GameService ) {}
 
 	async findUsers(): Promise<User[]> {
 		return this.prisma.user.findMany()
@@ -84,46 +86,7 @@ export class UsersService {
 		});
 	}
 
-/* ============================ POST game related information ========================*/
-	async registerNewGame() {
-		return this.prisma.games.create({
-			data: {}
-		}).catch((e) => {throw e})
-	}
-	async registerNewPlayer(game_id: number, user_id: number, score: number) {
-		const newUserGame = {
-			game_id: game_id,
-			user_id: user_id,
-			score: score,
-		};
-		const newPlayer = await this.prisma.user_Game.create({
-			data: newUserGame
-		}).catch((e) => {throw new BadRequestException(e)})
-		if (await this.checkPlayerInGame(game_id) === 2)
-		{
-			await this.prisma.games.update({
-				where: {
-					game_id: game_id
-				},
-				data : {
-					status: 'OK'
-				}}).catch((e) => {
-					throw new BadRequestException(e)
-				})
-		}
-		return newPlayer;
-	}
-
-	async checkPlayerInGame(game_id: number) {
-		return await this.prisma.user_Game.count({
-			where: {
-				game_id: {
-				  equals: game_id,
-				},
-			  },
-		}).catch((e) => {throw e})
-	}
-/* ============================ get profile and stats service ========================*/
+/* ============================ get profile ========================*/
 
 	async getProfileInfo(user_id: number) {
 		const user = await this.prisma.user.findUnique({
@@ -138,53 +101,13 @@ export class UsersService {
 		return {
 			login: user?.login,
 			avatar: user?.avatar,
-			nbGames: (await this.getNbGames(user_id)),
-			nbWin: (await this.getVictoryLossCountForUser(user_id, true)),
-			nbLoss: (await this.getVictoryLossCountForUser(user_id, false)),
+			nbGames: (await this.gameService.getNbGames(user_id)),
+			nbWin: (await this.gameService.getVictoryLossCountForUser(user_id, true)),
+			nbLoss: (await this.gameService.getVictoryLossCountForUser(user_id, false)),
 		};
 	}
 
 
-	async getVictoryLossCountForUser(userId: number, InfSup: boolean) {
-		const games = await this.prisma.user_Game.findMany({
-		  where: {
-			user_id: userId,
-		  },
-		  include: {
-			game: {
-			  include: {
-				players: true,
-			  },
-			},
-		  },
-		});
-
-		let victories = 0;
-		games.forEach((game) => {
-		  const otherPlayers = game.game.players.filter(
-			(player) => player.user_id !== userId
-		  );
-		  const otherPlayerScore = otherPlayers[0]?.score || 0;
-		  if (InfSup && game.score > otherPlayerScore)
-			victories++;
-		  else if (!InfSup && game.score < otherPlayerScore)
-			victories++;
-		});
-
-		return victories;
-	  }
-
-	async getNbGames(user_id: number) {
-		const nbGames = await this.prisma.user_Game.count({
-			where: {
-				user_id: {
-					equals: user_id
-				}
-			}
-		}).catch((e) => {throw e})
-		console.log(nbGames);
-		return nbGames;
-	}
 
 }
 /* ============================ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ========================*/
