@@ -9,17 +9,19 @@ import React, {
 import { useNavigate, useLocation } from "react-router-dom";
 import { originalRequest, refreshRequest, responseApi } from "/src/pong/component/FetchApi"
 
-interface AuthConstextType {
-	user?: string;
-	token?: string;
+interface AuthContextType {
+	user: string;
+	token: string;
+	setUser: React.Dispatch<React.SetStateAction<string>>,
+	setToken: React.Dispatch<React.SetStateAction<string>>,
 	loading: boolean;
-	error?: Error;
-	login: (login: string, password: string) => void;
-	logout: () => void;
-	signup: (login: string, password: string) => void;
+	error: Error | null;
+	authLogin: (login: string, password: string) => void;
+	authLogout: () => void;
+	authSignup: (login: string, password: string) => void;
 }
 
-const AuthContext = createContext<AuthConstextType>(
+const AuthContext = createContext<AuthContextType>(
 	{} as AuthConstextType
 );
 
@@ -57,6 +59,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				});
 
 				if (response1.response.statusText === "Unauthorized") {
+					console.log('test')
 					const refresh: responseApi = await refreshRequest();
 
 					if (refresh.response.status !== 200 && refresh.response.status !== 304) {
@@ -150,8 +153,8 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 	const memoValue = useMemo(
 		() => ({
-			token,
 			user,
+			token,
 			setUser,
 			setToken,
 			loading,
