@@ -12,13 +12,6 @@ export class UpdateUserParams {
 	intraLogin: string;
 }
 
-export class statsFormat {
-	win: number;
-	loose: number;
-	nbGames: number;
-	status: string;
-}
-
 export class profile {
 	login: string;
 	avatar: string;

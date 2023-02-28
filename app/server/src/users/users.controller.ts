@@ -21,7 +21,10 @@ import { Controller,
 	UseGuards,
 	ConsoleLogger,
 	Req,
+	UsePipes,
+	ValidationPipe
 } from '@nestjs/common';
+import { IsNumberString } from 'class-validator';
 import { diskStorage } from  'multer';
 import { join } from  'path';
 import { createReadStream } from 'fs';
@@ -36,7 +39,7 @@ import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RefreshJwtAuthGuard } from 'src/auth/refresh-jwt-auth.guard'
 import { Intra42AuthGuard } from 'src/auth/intra42.guard';
-//import { Request } from 'express';
+import { numberFormat } from './User.dto'
 
 
 @Controller('users')
@@ -163,7 +166,11 @@ export class UsersController {
 	@UseGuards(JwtAuthGuard)
 	@Get('profile/auth')
 	async getProfileInfo(@Request() req: any) {
+<<<<<<< HEAD
 		return await this.userService.getProfileInfo(parseInt(req.user.sub))
+=======
+		return this.userService.getProfileInfo(parseInt(req.user.sub))
+>>>>>>> origin/work
 	}
 
 //	======================= Test Profile with default avatar =============
@@ -177,15 +184,6 @@ export class UsersController {
 		}
 	}
 
-	@Get('stats/:id')
-	async getNbGames(@Param('id') user_id: string){
-		return this.userService.getNbGames(parseInt(user_id));
-	}
-
-	@Get('stat2/:id')
-	async getnbWin(@Param('id') user_id: string){
-		return this.userService.getVictoryLossCountForUser(parseInt(user_id), true);
-	}
 // =======================================================================
 
 	@Post('newGame')
@@ -194,8 +192,8 @@ export class UsersController {
 	}
 
 	@Post('userInGame/:gameId')
-	async registerNewPlayer(@Param('gameId') game_id: string, @Body() user: any) {
-		return (this.userService.registerNewPlayer(parseInt(game_id), parseInt(user.id), parseInt(user.score)));
+	async registerNewPlayer(@Param('gameId') game_id: number, @Body() user: any) {
+		return (this.userService.registerNewPlayer(game_id, parseInt(user.id), parseInt(user.score)));
 	}
 
 	@UseGuards(JwtAuthGuard)
@@ -219,10 +217,7 @@ export class UsersController {
 	@UseGuards(Intra42AuthGuard)
 	@Get('intra42/login')
 	async handleIntraLogin(@Request() req: any) {
-
 		console.log('handle intra login user info: ', req.intraUserInfo);
-
-
 		return req.intraUserInfo
 	}
 
@@ -243,15 +238,6 @@ export class UsersController {
 		})
 	}
 
-
-
-	//@UseGuards(JwtAuthGuard)
-	/*
-	@Get('stats/:login')
-	getStats(@Param('login') login : string) {
-		return this.userService.getProfile(login);
-	}
-	*/
 	@Put(':login')
 	async updateUserById(
 		@Param('login') login: string,

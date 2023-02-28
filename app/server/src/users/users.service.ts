@@ -1,8 +1,7 @@
 import { BadGatewayException, BadRequestException, Injectable, UseInterceptors, UploadedFile, Param } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, User, User_Game, Games } from '@prisma/client';
-import { diskStorage } from  'multer';
-import { statsFormat, CreateUserParams, UpdateUserParams, profile } from './User.types'
+import { CreateUserParams, UpdateUserParams, profile } from './User.types'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { ok } from 'assert';
 
@@ -18,12 +17,16 @@ export class UsersService {
 	async findOneUser(login: string) : Promise<User | null> {
 		return await this.prisma.user.findUnique({
 			where: { login: login }
+		}).catch((e) => {
+			throw new BadRequestException(); // maybe we will have to specifie the error later
 		})
 	}
 
 	async findOneIntraUser(intraLogin: string) : Promise<User | null> {
 		return this.prisma.user.findUnique({
 			where: { intraLogin: intraLogin }
+		}).catch((e) => {
+			throw new BadRequestException(); // maybe we will have to specifie the error later
 		});
 	}
 
@@ -31,6 +34,8 @@ export class UsersService {
 		return await this.prisma.user.update({
 			where: { login: login },
 			data: { ...updateUserDetails }
+		}).catch((e) => {
+			throw new BadRequestException(); // maybe we will have to specifie the error later
 		})
 	}
 
@@ -38,6 +43,8 @@ export class UsersService {
 		return await this.prisma.user.update({
 			where: { login: login },
 			data : { refreshToken: refreshToken }
+		}).catch((e) => {
+			throw new BadRequestException(); // maybe we will have to specifie the error later
 		});
 	}
 
@@ -46,12 +53,16 @@ export class UsersService {
 		return await this.prisma.user.update({
 			where: { login: login },
 			data : { avatar: avatar }
+		}).catch((e) => {
+			throw new BadRequestException(); // maybe we will have to specifie the error later
 		});
 	}
 
 	async deleteUser(login: string) : Promise<User> {
 		return this.prisma.user.delete({
 			where: { login: login }
+		}).catch((e) => {
+			throw new BadRequestException(); // maybe we will have to specifie the error later
 		})
 	}
 
@@ -63,14 +74,21 @@ export class UsersService {
 		console.log("create prisma user: ", newUser)
 		return this.prisma.user.create({
 			data: { ...newUser }
-		}).catch((e) => {throw e});
+		}).catch((e) => {
+			if (e instanceof Prisma.PrismaClientKnownRequestError) {
+				if (e.code === 'P2002') {
+				  console.log('unique constraint violation')
+				}
+			  }
+			  throw e
+		});
 	}
 
 /* ============================ POST game related information ========================*/
 	async registerNewGame() {
 		return this.prisma.games.create({
 			data: {}
-		})
+		}).catch((e) => {throw e})
 	}
 	async registerNewPlayer(game_id: number, user_id: number, score: number) {
 		const newUserGame = {
@@ -80,17 +98,18 @@ export class UsersService {
 		};
 		const newPlayer = await this.prisma.user_Game.create({
 			data: newUserGame
-		})
-		let testVar = await this.checkPlayerInGame(game_id);
-		if (testVar === 2)
+		}).catch((e) => {throw new BadRequestException(e)})
+		if (await this.checkPlayerInGame(game_id) === 2)
 		{
-			let testVar2 = await this.prisma.games.update({
+			await this.prisma.games.update({
 				where: {
 					game_id: game_id
 				},
 				data : {
 					status: 'OK'
-				} })
+				}}).catch((e) => {
+					throw new BadRequestException(e)
+				})
 		}
 		return newPlayer;
 	}
@@ -102,7 +121,7 @@ export class UsersService {
 				  equals: game_id,
 				},
 			  },
-		})
+		}).catch((e) => {throw e})
 	}
 /* ============================ get profile and stats service ========================*/
 
@@ -162,7 +181,7 @@ export class UsersService {
 					equals: user_id
 				}
 			}
-		})
+		}).catch((e) => {throw e})
 		console.log(nbGames);
 		return nbGames;
 	}

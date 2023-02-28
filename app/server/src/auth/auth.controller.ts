@@ -21,6 +21,8 @@ import { Controller,
 	UseGuards,
 	ConsoleLogger,
 	Req,
+	UsePipes,
+	ValidationPipe
 } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from 'src/users/User.dto'
 import { UsersService } from 'src/users/users.service'
@@ -42,6 +44,7 @@ export class AuthController {
 	/* -------------- basic authentication routes ---------------- */
 
 	@Post('signup')
+	@UsePipes(new ValidationPipe({ transform: true }))
 	async createUser(
 		@Body() createUserDto: CreateUserDto,
 		@Res({ passthrough: true }) response: Response
