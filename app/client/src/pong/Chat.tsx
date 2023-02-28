@@ -29,6 +29,16 @@ type Action = {
 	payload: string | MessageData
 }
 
+type User = {
+	login: string,
+}
+
+type Room = {
+	name: string,
+	members: User[],
+
+}
+
 function reducer(state : State , action : Action) {
 	switch (action.type) {
 		case "SET_ROOM": 
@@ -46,6 +56,8 @@ export function Chat() {
 
 	const [state, dispatch] = useReducer(reducer, initialState)
 
+	const [rooms, setRooms] = useState<Room[]>([])
+
 	const messageListener = (...args) => {
 
 			const newMessage = {
@@ -61,9 +73,14 @@ export function Chat() {
 			console.log("args: ", args);
 	}
 
+	useEffect(async () => {
+		const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/users/rooms`)
+		console.log('response: ', response)
+	})
+
 	useEffect(() => {
 		console.log('socker in useEffect', socket);
-		
+
 		socket.on('message', messageListener)
 		return () => {
 			socket.off("message", messageListener)

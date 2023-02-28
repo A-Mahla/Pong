@@ -11,6 +11,6 @@ COPY		. /app/
 
 RUN			npm --silent install
 
-EXPOSE		3000
+EXPOSE		5555
 
 ENTRYPOINT ["sh", "/app/entrypoint-server.sh"]

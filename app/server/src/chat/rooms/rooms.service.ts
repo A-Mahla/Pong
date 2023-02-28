@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException} from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { Room } from "@prisma/client"
+import { Room, User } from "@prisma/client"
 import { CreateRoomParam } from "../Chat.types";
 import { UsersService } from "src/users/users.service";
 
@@ -21,7 +21,10 @@ export class RoomsService {
 		const newRoom = {
 			createdAt: new Date(),
 			name: roomDetails.roomName,
-			ownerId: roomOwner.id
+			ownerId: roomOwner.id,
+			members: {
+				connect: [{ id : roomOwner.id}]
+			}
 		}
 
 		console.log('newRoom: ', newRoom)
@@ -32,7 +35,11 @@ export class RoomsService {
 	}
 
 	async findAll () {
-		return this.prisma.room.findMany()
+		return this.prisma.room.findMany({
+			include: {
+				members: true
+			}
+		})
 	}
 
 	async getRoomById (roomId: number) {
@@ -54,6 +61,9 @@ export class RoomsService {
 		if (room.ownerId === null)
 			throw new BadRequestException('Invalid content', { cause: new Error(), description: 'room dont have owner' })  
 
-		return this.userService.findUserById((room as Room).ownerId as number)
+		const user = await this.userService.findUserById((room as Room).ownerId as number)
+		console.log(user)
+		//return (user as User).ownedRooms
+		return user
 	}
 }
