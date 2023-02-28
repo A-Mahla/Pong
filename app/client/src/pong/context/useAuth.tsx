@@ -21,6 +21,12 @@ interface AuthContextType {
 	authSignup: (login: string, password: string) => void;
 }
 
+export type fetchContext = {
+	token: string,
+	setUser: React.Dispatch<React.SetStateAction<string>>,
+	setToken: React.Dispatch<React.SetStateAction<string>>,
+}
+
 const AuthContext = createContext<AuthContextType>(
 	{} as AuthConstextType
 );
@@ -171,6 +177,11 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 		  {!loadingInitial && children}
 		</AuthContext.Provider>
   );
+}
+
+export function useFetchAuth() {
+	const {token, setToken, setUser } = useContext(AuthContext);
+	return {token, setToken, setUser};
 }
 
 export default function useAuth() {
