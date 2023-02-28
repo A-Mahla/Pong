@@ -45,12 +45,10 @@ import { numberFormat } from './User.dto'
 @Controller('users')
 export class UsersController {
 
-	constructor(private userService: UsersService,
-		private authService: AuthService) {
-	}
+	constructor(private userService: UsersService,) {}
 
 	@Get()
-	async getUsers(@Req() req: ExpressRequest) {
+	async getUsers() { // return all users
 		return await this.userService.findUsers();
 	}
 
@@ -76,55 +74,7 @@ export class UsersController {
 			'body': JSON.stringify(user)
 		}
 	}
-/*
-	@Post('signup')
-	async handleSignup(
-		@Query() query: {
-			login: string,
-			password: string,
-			intraLogin?: string
-		},
-		@Res({ passthrough: true }) response: Response
-	) {
-		const user = await this.userService.findOneUser(query.login)
-		if (user)
-			return {
-				'statusCode' : 403,
-				'message': 'login already use'
-			}
-		const newUser = {login: query.login, password: query.password, intraLogin: query.intraLogin}
-		this.authService.createUser(newUser, response)
-		return {
-			'statusCode': 200,
-			'message' : 'user successfully signed in',
-			'body': JSON.stringify(newUser)
-		}
-	}
 
-	@Post('intra')
-	async handleSignupIntra(
-		@Query() query: {
-			login: string,
-			intraLogin: string
-		},
-		@Res({ passthrough: true }) response: Response
-	) {
-		console.log('query: ', query)
-		const user = await this.userService.findOneUser(query.login)
-		if (user)
-			return {
-				'statusCode' : 403,
-				'message': 'login already use'
-			}
-		const newUser = {login: query.login, password: "", intraLogin: query.intraLogin}
-		this.authService.createUser(newUser, response)
- 		return {
-			'statusCode': 200,
-			'message' : 'user successfully signed in',
-			'body' : JSON.stringify(newUser)
-		}
-	}
-*/
 	@Get('intra')
 	async getIntraUser(@Query() query: {intraLogin : string}) {
 		const intraUser = this.userService.findOneIntraUser(query.intraLogin)
@@ -148,8 +98,8 @@ export class UsersController {
 		return await this.userService.findOneUser(login);
 	}
 
-
-	@UseGuards(JwtAuthGuard)
+//	====================== POST AND GET AVATAR ===================
+@UseGuards(JwtAuthGuard)
 	@Post(':login/avatar')
 	@UseInterceptors(FileInterceptor('file', {
 	storage: diskStorage({
@@ -161,35 +111,6 @@ export class UsersController {
 	}))
 	async checkAvatar(@Request() req: any, @UploadedFile() file: Express.Multer.File){
 		return this.userService.updateAvatar(req.user.login , file.filename);
-	}
-
-	@UseGuards(JwtAuthGuard)
-	@Get('profile')
-	async getProfileInfo(@Request() req: any) {
-		return this.userService.getProfileInfo(parseInt(req.user.sub))
-	}
-
-//	======================= Test Profile with default avatar =============
-	@Get('default/default_avatar')
-	async getDefaultFile(@Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
-		try {
-			const file = createReadStream('./src/avatar/default_avatar.jpg');
-			return new StreamableFile(file);
-		} catch (error){
-			throw new BadRequestException;
-		}
-	}
-
-// =======================================================================
-
-	@Post('newGame')
-	async registerNewGame() {
-		return (this.userService.registerNewGame());
-	}
-
-	@Post('userInGame/:gameId')
-	async registerNewPlayer(@Param('gameId') game_id: number, @Body() user: any) {
-		return (this.userService.registerNewPlayer(game_id, parseInt(user.id), parseInt(user.score)));
 	}
 
 	@UseGuards(JwtAuthGuard)
@@ -206,8 +127,33 @@ export class UsersController {
 			throw new BadRequestException;
 		}
 	}
+//	====================== ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ===================
 
-	//=========================================OAuth2=======================
+//	======================= Test Profile  ================================
+
+	@UseGuards(JwtAuthGuard)
+	@Get('profile')
+	async getProfileInfo(@Request() req: any) {
+		return this.userService.getProfileInfo(parseInt(req.user.sub))
+	}
+
+//	=========================^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^===============
+
+//	======================== Registering new Game routes ==================
+	@Post('newGame')
+	async registerNewGame() {
+		return (this.userService.registerNewGame());
+	}
+
+	@Post('userInGame/:gameId')
+	async registerNewPlayer(@Param('gameId') game_id: number, @Body() user: any) {
+		return (this.userService.registerNewPlayer(game_id, parseInt(user.id), parseInt(user.score)));
+	}
+
+
+//	======================== ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ================
+
+//	=========================================OAuth2=======================
 
 
 	@UseGuards(Intra42AuthGuard)
@@ -257,3 +203,58 @@ export class UsersController {
 		await this.userService.deleteUser(login);
 	}
 }
+
+
+
+
+/* DONT KNOW WHAT TO DO WITH THAT */
+
+/*
+	@Post('signup')
+	async handleSignup(
+		@Query() query: {
+			login: string,
+			password: string,
+			intraLogin?: string
+		},
+		@Res({ passthrough: true }) response: Response
+	) {
+		const user = await this.userService.findOneUser(query.login)
+		if (user)
+			return {
+				'statusCode' : 403,
+				'message': 'login already use'
+			}
+		const newUser = {login: query.login, password: query.password, intraLogin: query.intraLogin}
+		this.authService.createUser(newUser, response)
+		return {
+			'statusCode': 200,
+			'message' : 'user successfully signed in',
+			'body': JSON.stringify(newUser)
+		}
+	}
+
+	@Post('intra')
+	async handleSignupIntra(
+		@Query() query: {
+			login: string,
+			intraLogin: string
+		},
+		@Res({ passthrough: true }) response: Response
+	) {
+		console.log('query: ', query)
+		const user = await this.userService.findOneUser(query.login)
+		if (user)
+			return {
+				'statusCode' : 403,
+				'message': 'login already use'
+			}
+		const newUser = {login: query.login, password: "", intraLogin: query.intraLogin}
+		this.authService.createUser(newUser, response)
+ 		return {
+			'statusCode': 200,
+			'message' : 'user successfully signed in',
+			'body' : JSON.stringify(newUser)
+		}
+	}
+*/
