@@ -132,7 +132,7 @@ export class UsersController {
 //	======================= Test Profile  ================================
 
 	@UseGuards(JwtAuthGuard)
-	@Get('auth/profile')
+	@Get('profile/auth')
 	async getProfileInfo(@Request() req: any) {
 		return this.userService.getProfileInfo(parseInt(req.user.sub))
 	}
