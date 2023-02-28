@@ -166,11 +166,7 @@ export class UsersController {
 	@UseGuards(JwtAuthGuard)
 	@Get('profile/auth')
 	async getProfileInfo(@Request() req: any) {
-<<<<<<< HEAD
-		return await this.userService.getProfileInfo(parseInt(req.user.sub))
-=======
 		return this.userService.getProfileInfo(parseInt(req.user.sub))
->>>>>>> origin/work
 	}
 
 //	======================= Test Profile with default avatar =============
