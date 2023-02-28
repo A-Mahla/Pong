@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+	provider = "prisma-client-js"
+	 previewFeatures = ["filteredRelationCount"]
 }
 
 datasource db {
@@ -37,9 +38,10 @@ model Room {
 }
 
 model Games {
-  game_id   Int         @id @default(autoincrement())
-  played_at DateTime    @default(now())
-  players   User_Game[]
+	game_id			Int	@id @default(autoincrement())
+	played_at		DateTime	@default(now())
+	status			String		@default("--")
+	players			User_Game[]
 }
 
 model User_Game {

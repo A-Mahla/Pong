@@ -7,7 +7,6 @@ import { JwtPayload } from './auth.types'
 import { UserDto } from 'src/users/User.dto';
 import { Response } from 'express'
 
-
 @Injectable()
 export class AuthService {
 	constructor(
@@ -33,8 +32,17 @@ export class AuthService {
 		}
 	}
 
-	async logout(user: any) {
+	async logout(user: any, response: Response) {
 		await this.usersService.updateRefreshToken(user.login, "");
+		response.cookie(
+			'rT',
+			null,
+			{
+				maxAge: 900000,
+				httpOnly: true,
+				sameSite: 'strict',
+			}
+		);
 	}
 
 	async refreshTokens(user: any, response: Response) {
@@ -47,6 +55,8 @@ export class AuthService {
 	}
 
 	async getTokens(user: JwtPayload, response: Response) {
+
+
 		const [accessToken, refreshToken] = await Promise.all([
 		  this.jwtService.signAsync(
 			{
@@ -55,7 +65,7 @@ export class AuthService {
 			},
 			{
 			  secret: jwtConstants.secret,
-			  expiresIn: '10s',
+			  expiresIn: '500s',
 			},
 		  ),
 		  this.jwtService.signAsync(
@@ -69,8 +79,17 @@ export class AuthService {
 			},
 		  ),
 		]);
-		response.cookie('rT', refreshToken, { maxAge: 900000, httpOnly: true, sameSite: 'strict' });
-		response.cookie('aT', accessToken, { maxAge: 900000000, httpOnly: true, sameSite: 'strict' });
+		response.cookie(
+			'rT',
+			refreshToken,
+			{
+				expires: new Date(new Date().getTime()+5*60*1000),
+				maxAge: 900000000,
+				httpOnly: true,
+				sameSite: 'strict'
+			}
+		);
+//		response.cookie('aT', accessToken, { maxAge: 900000, httpOnly: true, sameSite: 'strict' });
 		return {
 			accessToken,
 			refreshToken
@@ -102,11 +121,11 @@ export class AuthService {
 		`redirect_uri=${redirect_uri}`);
 
 
-		const response = await fetch('https://api.intra.42.fr/v2/oauth/token?' + 
+		const response = await fetch('https://api.intra.42.fr/v2/oauth/token?' +
 		`grant_type=${grant_type}&` +
 		`client_id=${client_id}&` +
 		`client_secret=${client_secret}&` +
-		`code=${code}&` + 
+		`code=${code}&` +
 		`redirect_uri=${redirect_uri}`
 		, requestOptions)
 		.then(response => response.json())

@@ -12,13 +12,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 	constructor() {
 		super ({
 			usernameField: 'login',
-			jwtFromRequest: ExtractJwt.fromExtractors([(request:Request) => {
-                const data = request?.cookies["aT"];
-                if(!data){
-                    return null;
-                }
-                return data
-            }]),
+			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 			ignoreExpiration: false,
 			secretOrKey: jwtConstants.secret,
 		});
@@ -26,5 +20,5 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
 	async validate(payload: JwtPayload) {
 		return payload;
-	  }
+	}
 }

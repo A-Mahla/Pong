@@ -21,7 +21,10 @@ import { Controller,
 	UseGuards,
 	ConsoleLogger,
 	Req,
+	UsePipes,
+	ValidationPipe
 } from '@nestjs/common';
+import { IsNumberString } from 'class-validator';
 import { diskStorage } from  'multer';
 import { join } from  'path';
 import { createReadStream } from 'fs';
@@ -36,18 +39,16 @@ import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RefreshJwtAuthGuard } from 'src/auth/refresh-jwt-auth.guard'
 import { Intra42AuthGuard } from 'src/auth/intra42.guard';
-//import { Request } from 'express';
+import { numberFormat } from './User.dto'
 
 
 @Controller('users')
 export class UsersController {
 
-	constructor(private userService: UsersService,
-		private authService: AuthService) {
-	}
+	constructor(private userService: UsersService,) {}
 
 	@Get()
-	async getUsers(@Req() req: ExpressRequest) {
+	async getUsers() { // return all users
 		return await this.userService.findUsers();
 	}
 
@@ -73,6 +74,126 @@ export class UsersController {
 			'body': JSON.stringify(user)
 		}
 	}
+
+	@Get('intra')
+	async getIntraUser(@Query() query: {intraLogin : string}) {
+		const intraUser = this.userService.findOneIntraUser(query.intraLogin)
+		if (!intraUser)
+			return {
+				'statusCode' : 403,
+				'message': 'no such intra user'
+			}
+		return {
+			'statusCode': 200,
+			'message' : 'user successfully signed in',
+			'body' : JSON.stringify(intraUser)
+		}
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Get(':login')
+	async getUsersbyId(
+		@Param('login') login: string
+	) {
+		return await this.userService.findOneUser(login);
+	}
+
+//	====================== POST AND GET AVATAR ===================
+	@UseGuards(JwtAuthGuard)
+	@Post(':login/avatar')
+	@UseInterceptors(FileInterceptor('file', {
+	storage: diskStorage({
+		destination: './src/avatar',
+		filename: (req, file, cb) => {
+			return cb(null, req.params.login + ".jpeg");
+			},
+		}),
+	}))
+	async checkAvatar(@Request() req: any, @UploadedFile() file: Express.Multer.File){
+		return this.userService.updateAvatar(req.user.login , file.filename);
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Get('avatar/:login')
+	async getFile(@Param('login') login : string, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
+		try {
+			const user = await this.userService.findOneUser(login);
+			if (!user) {
+				throw new BadRequestException;
+			}
+			const file = createReadStream(join('./src/avatar/', user.avatar));
+			return new StreamableFile(file);
+		} catch (error){
+			throw new BadRequestException;
+		}
+	}
+//	====================== ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ===================
+
+//	======================= Test Profile  ================================
+
+	@UseGuards(JwtAuthGuard)
+	@Get('profile/auth')
+	async getProfileInfo(@Request() req: any) {
+		return this.userService.getProfileInfo(parseInt(req.user.sub))
+	}
+
+//	=========================^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^===============
+
+//	=========================================OAuth2=======================
+
+	@UseGuards(Intra42AuthGuard)
+	@Get('intra42/login')
+	async handleIntraLogin(@Request() req: any) {
+		console.log('handle intra login user info: ', req.intraUserInfo);
+		return req.intraUserInfo
+	}
+
+	@Post('intra42')
+	async createIntraUser(@Query('login') login: string, @Query('intraLogin') intraLogin: string) {
+		const user = await this.userService.findOneUser(login)
+
+		if (user)
+			return {
+				statusCode: 400,
+				message: 'login already use'
+			}
+
+		return this.userService.createUser({
+			login: login,
+			password: '',
+			intraLogin: intraLogin
+		})
+	}
+
+	@Put(':login')
+	async updateUserById(
+		@Param('login') login: string,
+		@Body() updateUserDto: UpdateUserDto
+	) {
+		await this.userService.updateUser(login, updateUserDto);
+	}
+
+	@Patch(':login')
+	async updatePatchUserById(
+		@Param('login') login: string,
+		@Body() updateUserDto: UpdateUserDto
+	) {
+		await this.userService.updateUser(login, updateUserDto);
+	}
+
+	@Delete(':login')
+	async deleteByID(
+		@Param('login') login: string
+	) {
+		await this.userService.deleteUser(login);
+	}
+}
+
+
+
+
+/* DONT KNOW WHAT TO DO WITH THAT */
+
 /*
 	@Post('signup')
 	async handleSignup(
@@ -122,129 +243,3 @@ export class UsersController {
 		}
 	}
 */
-	@Get('intra')
-	async getIntraUser(@Query() query: {intraLogin : string}) {
-		const intraUser = this.userService.findOneIntraUser(query.intraLogin)
-		if (!intraUser)
-			return {
-				'statusCode' : 403,
-				'message': 'no such intra user'
-			}
-		return {
-			'statusCode': 200,
-			'message' : 'user successfully signed in',
-			'body' : JSON.stringify(intraUser)
-		}
-	}
-
-	@UseGuards(JwtAuthGuard)
-	@Get(':login')
-	async getUsersbyId(
-		@Param('login') login: string
-	) {
-		return await this.userService.findOneUser(login);
-	}
-
-
-	@UseGuards(JwtAuthGuard)
-	@Post(':login/avatar')
-	@UseInterceptors(FileInterceptor('file', {
-	storage: diskStorage({
-		destination: './src/avatar',
-		filename: (req, file, cb) => {
-			return cb(null, req.params.login + ".jpeg");
-			},
-		}),
-	}))
-	async checkAvatar(@Request() req: any, @UploadedFile() file: Express.Multer.File){
-		return this.userService.updateAvatar(req.user.login , file.filename);
-	}
-
-//	======================= Test Profile with default avatar =============
-	@Get('default/default_avatar')
-	async getDefaultFile(@Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
-		try {
-			const file = createReadStream('./src/avatar/default_avatar.jpg');
-			return new StreamableFile(file);
-		} catch (error){
-			throw new BadRequestException;
-		}
-	}
-// =======================================================================
-
-	@UseGuards(JwtAuthGuard)
-	@Get('avatar/:login')
-	async getFile(@Param('login') login : string, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
-		try {
-			const user = await this.userService.findOneUser(login);
-			if (!user) {
-				throw new BadRequestException;
-			}
-			const file = createReadStream(join('./src/avatar/', user.avatar));
-			return new StreamableFile(file);
-		} catch (error){
-			throw new BadRequestException;
-		}
-	}
-
-	//=========================================OAuth2=======================
-
-
-	@UseGuards(Intra42AuthGuard)
-	@Get('intra42/login')
-	async handleIntraLogin(@Request() req: any) {
-
-		console.log('handle intra login user info: ', req.intraUserInfo);
-
-		return req.intraUserInfo
-	}
-
-	@Post('intra42')
-	async createIntraUser(@Query('login') login: string, @Query('intraLogin') intraLogin: string) {
-		const user = await this.userService.findOneUser(login)
-
-		if (user)
-			return {
-				statusCode: 400,	
-				message: 'login already use'
-			}
-
-		return this.userService.createUser({
-			login: login,
-			password: '',
-			intraLogin: intraLogin
-		})
-	}
-
-
-
-	//@UseGuards(JwtAuthGuard)
-	/*
-	@Get('stats/:login')
-	getStats(@Param('login') login : string) {
-		return this.userService.getProfile(login);
-	}
-	*/
-	@Put(':login')
-	async updateUserById(
-		@Param('login') login: string,
-		@Body() updateUserDto: UpdateUserDto
-	) {
-		await this.userService.updateUser(login, updateUserDto);
-	}
-
-	@Patch(':login')
-	async updatePatchUserById(
-		@Param('login') login: string,
-		@Body() updateUserDto: UpdateUserDto
-	) {
-		await this.userService.updateUser(login, updateUserDto);
-	}
-
-	@Delete(':login')
-	async deleteByID(
-		@Param('login') login: string
-	) {
-		await this.userService.deleteUser(login);
-	}
-}

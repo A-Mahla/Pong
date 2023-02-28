@@ -7,15 +7,23 @@ import {
 	TextField,
 	Typography
 } from '@mui/material';
-import React, { useCallback, useRef, useState} from 'react'
-import { LogoutButton } from '/src/pong/component/LogoutButton';
+import React, {
+	useCallback,
+	useRef,
+	useState
+} from 'react'
+//import { LogoutButton } from '/src/pong/component/LogoutButton';
 import { Oauth2 } from '/src/pong/component/Oauth2';
-import Cookies from 'js-cookie'
-import { FetchApi } from '/src/pong/component/utils/FetchApi';
+//import Cookies from 'js-cookie'
+import { FetchApi } from '/src/pong/component/FetchApi';
+import useAuth from '/src/pong/context/useAuth';
 //import { _2fa } from "./2fa"
 import '/src/App'
 
-export function Login() {
+
+export const Login = () => {
+
+	const {authLogin, user} = useAuth();
 
 	const [error, setError] = useState('');
 
@@ -23,51 +31,14 @@ export function Login() {
 
 	const password = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 
-	const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
-		const [data, setData] = useState<any>(null);
+	const handleLogin = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
-
-		const requestOptions = {
-			method: "POST",
-			headers: {
-				'Content-Type': 'application/json',
-			 },
-			body: JSON.stringify({
-				login: `${username.current.value}`,
-				password: `${password.current.value}`
-			})
-		}
-
-	
-		
-		const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/signin`, requestOptions)
-		if (response.status != 201)
-			setError('Error fetch')
-		else
-		{
-			console.log(import.meta.env.VITE_SITE)
-			const data = await response.json()
-			const res = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/refresh`)
-			//		const test = await res.json();
-		//	location.replace('http://localhost:3000/pong')
-		}
-/*		useEffect(() => {
-			const dataResponse = FetchApi(
-				`http://${import.meta.env.VITE_SITE}/api/auth/signin`,
-				requestOptions
-			);
-			setData(dataResponse);
-		})*/
-		/*let fetching = async () => {
-			const {r, d} = await FetchApi(
-				`http://${import.meta.env.VITE_SITE}/api/users/sacha`
-			);	 
-		}*/
+		authLogin(`${username.current.value}`,`${password.current.value}`);
 	}
 
 
 
-	/*	const handleSignup = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+		const handleSignup = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
 
 		if (username.current.value === '')
@@ -82,26 +53,31 @@ export function Login() {
 		}
 
 		const requestOptions = {
-			method: "POST"
+			method: "POST",
+			headers : {'Content-Type' : 'application/json'} ,
+			body: JSON.stringify({
+				login : username.current.value,
+				password: password.current.value
+			})
 		}
 
-		fetch(`http://localhost:8080/api/users/signup?login=${username.current.value}&password=${password.current.value}`,
-			requestOptions)
-		.then(response => response.json())
-		.then(data => {
-			if (data["statusCode"] != 200)
-				setError(data['message'])
-			else
-			{
-				Cookies.set('login', data['body']['login'], {expires: 7})
-				location.replace('http://localhost:8080')
-			}
-		})
+		console.log('requestOptions: ', requestOptions)
 
-	}, [])
-	 */
+		fetch(`http://localhost:8080/api/auth/signup`,
+			requestOptions)
+		.then(response => 
+			response.json().then(data => {
+				if (response.status != 201)
+					setError(data['message'])
+				else
+					location.replace('http://localhost:8080')
+			})
+		)
+
+	},)
+	
 	return <>
-	<Box container sx={{my: 'auto'}}>
+	<Box sx={{my: 'auto'}}>
 		<Typography variant='h4'>Pong</Typography>
 	</Box>
 	<Divider variant='middle'/>
@@ -123,10 +99,10 @@ export function Login() {
 				sx={{p: 1 }}
 			></TextField>
 
-			<Button sx={{color: 'primary.main'}} onClick={handleLogin}>signup</Button>
+			<Button sx={{color: 'primary.main'}} onClick={handleSignup}>signup</Button>
 			<Button sx={{color: 'primary.main'}} onClick={handleLogin}>signin</Button>
 			<Oauth2>Login via intra</Oauth2>
-			{error.length === 0 ? null : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
+			{error === '' ? null : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
 		</FormControl>
 	</Grid>
 	</>

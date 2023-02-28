@@ -1,37 +1,69 @@
-import * from 'react'
+import { useContext, useNavigate } from 'react'
+import useAuth from '/src/pong/context/useAuth'
 
-type Api = {
+export type Api = {
 	input: RequestInfo | URL,
-	option?: RequestInit
+	func: React.Dispatch<React.SetStateAction<string>>,
+	option?: RequestInit,
 }
 
-let originalRequest = async (api: Api) => {
+export type responseApi = {
+	response: any
+	reponse: Response,
+	data: JSON.Element
+}
 
-	let response = await fetch(api.input, api.option);
-	let data = await response.json();
+export const originalRequest = async (api: Api) => {
+
+	const response = await fetch(api.input, api.option);
+	const data = await response.json();
 	return {response, data};
 
 }
 
-let refreshRequest = async () => {
+export const refreshRequest = async () => {
 
-	let response = await fetch(`http://localhost:8080/api/auth/refresh`);
-	let data = await response.json();
-	return data;
+
+	const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/refresh`);
+	const data = await response.json();
+	return { response, data };
 
 }
 
-export const FetchApi = async ({input, option={}}: Api) => {
-		
-	let {response, data} = await originalRequest(api);
-	if (response.statusText === "Unauthorszed" ) {
-		//		response = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/refresh`);
-		const refresh = await refreshRequest();
-		if (refresh.statusText === "Unauthorized") {
-			location.replace(`http://localhost:8080`);
-			//location.replace(`http://${import.meta.env.VITE_SITE}`);
+export const FetchApi = async ({input, func, option={}}: Api) => {
+
+	try {
+
+		const response: responseApi = await originalRequest({
+			input, option,
+			func: undefined
+		});
+
+		if (response.response.statusText === "Unauthorized") {
+
+			const request: responseApi = await refreshRequest();
+
+			if (refresh.response.status !== 200 && refresh.response.status !== 304) {
+				useNavigate()('/login');
+			}
+
+			func(refresh.data['aT']);
+
+			return await originalRequest({
+				input,
+				option: {
+					...option,
+					headers: {
+						...headers,
+						'Authorization': `Bearer ${refresh.data['aT']}`,
+					}
+				},
+				func: undefined
+			});
 		}
-		return await originalRequest(api);
+		return response;
+
+	} catch (err) {
+		console.log(err);
 	}
-	return {response, data};
 }

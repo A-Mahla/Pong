@@ -1,14 +1,16 @@
 import { BadGatewayException, BadRequestException, Injectable, UseInterceptors, UploadedFile, Param } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma, User } from '@prisma/client';
-import { diskStorage } from  'multer';
-import { statsFormat, CreateUserParams, UpdateUserParams, profile } from './User.types'
+import { Prisma, User, User_Game, Games } from '@prisma/client';
+import { GameService } from 'src/game/game.service';
+import { CreateUserParams, UpdateUserParams, profile } from './User.types'
 import { FileInterceptor } from '@nestjs/platform-express'
+import { ok } from 'assert';
 
 @Injectable()
 export class UsersService {
 
-	constructor( private prisma: PrismaService,) {}
+	constructor( private prisma: PrismaService,
+				 private readonly gameService: GameService ) {}
 
 	async findUsers(): Promise<User[]> {
 		return this.prisma.user.findMany()
@@ -17,28 +19,33 @@ export class UsersService {
 	async findOneUser(login: string) : Promise<User | null> {
 		return await this.prisma.user.findUnique({
 			where: { login: login }
+		}).catch((e) => {
+			throw new BadRequestException(); // maybe we will have to specifie the error later
+		})
+	}
+
+	async findUserById(id : number) : Promise<User | null> {
+		return await this.prisma.user.findUnique({
+			where: { id: id}
+		}).catch((e) => {
+			throw new BadRequestException(); // maybe we will have to specifie the error later
 		})
 	}
 
 	async findOneIntraUser(intraLogin: string) : Promise<User | null> {
 		return this.prisma.user.findUnique({
 			where: { intraLogin: intraLogin }
+		}).catch((e) => {
+			throw new BadRequestException(); // maybe we will have to specifie the error later
 		});
 	}
-/*
-	async getProfile(login: string) : Promise < profile | null | undefined> {
-		const user = await this.findOneUser(login);
-		if (user) {
-			const {win, loose, nbGames, status, login, avatar, ...other} = user;
-			return {win, loose, nbGames, status, login, avatar};
-		}
-	}
-*/
 
 	async updateUser(login: string, updateUserDetails: UpdateUserParams) : Promise<User> {
-		return this.prisma.user.update({
+		return await this.prisma.user.update({
 			where: { login: login },
 			data: { ...updateUserDetails }
+		}).catch((e) => {
+			throw new BadRequestException(); // maybe we will have to specifie the error later
 		})
 	}
 
@@ -46,6 +53,8 @@ export class UsersService {
 		return await this.prisma.user.update({
 			where: { login: login },
 			data : { refreshToken: refreshToken }
+		}).catch((e) => {
+			throw new BadRequestException(); // maybe we will have to specifie the error later
 		});
 	}
 
@@ -54,12 +63,16 @@ export class UsersService {
 		return await this.prisma.user.update({
 			where: { login: login },
 			data : { avatar: avatar }
+		}).catch((e) => {
+			throw new BadRequestException(); // maybe we will have to specifie the error later
 		});
 	}
 
 	async deleteUser(login: string) : Promise<User> {
 		return this.prisma.user.delete({
 			where: { login: login }
+		}).catch((e) => {
+			throw new BadRequestException(); // maybe we will have to specifie the error later
 		})
 	}
 
@@ -71,8 +84,39 @@ export class UsersService {
 		console.log("create prisma user: ", newUser)
 		return this.prisma.user.create({
 			data: { ...newUser }
-		}).catch((e) => {throw e});
+		}).catch((e) => {
+			if (e instanceof Prisma.PrismaClientKnownRequestError) {
+				if (e.code === 'P2002') {
+				  console.log('unique constraint violation')
+				}
+			  }
+			  throw e
+		});
 	}
 
+/* ============================ get profile ========================*/
+
+	async getProfileInfo(user_id: number) {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id: user_id
+			},
+			select: {
+				login: true,
+				avatar: true
+			}
+		})
+		return {
+			login: user?.login,
+			avatar: user?.avatar,
+			nbGames: (await this.gameService.getNbGames(user_id)),
+			nbWin: (await this.gameService.getVictoryLossCountForUser(user_id, true)),
+			nbLoss: (await this.gameService.getVictoryLossCountForUser(user_id, false)),
+		};
+	}
+
+
+
 }
+/* ============================ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ========================*/
 
