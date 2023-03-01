@@ -8,7 +8,7 @@ import {
 	Typography
 } from '@mui/material';
 import React, {
-//	useCallback,
+	useCallback,
 	useRef,
 	useState
 } from 'react'
@@ -38,7 +38,7 @@ export const Login = () => {
 
 
 
-	/*	const handleSignup = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+		const handleSignup = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
 
 		if (username.current.value === '')
@@ -53,24 +53,29 @@ export const Login = () => {
 		}
 
 		const requestOptions = {
-			method: "POST"
+			method: "POST",
+			headers : {'Content-Type' : 'application/json'} ,
+			body: JSON.stringify({
+				login : username.current.value,
+				password: password.current.value
+			})
 		}
 
-		fetch(`http://localhost:8080/api/users/signup?login=${username.current.value}&password=${password.current.value}`,
-			requestOptions)
-		.then(response => response.json())
-		.then(data => {
-			if (data["statusCode"] != 200)
-				setError(data['message'])
-			else
-			{
-				Cookies.set('login', data['body']['login'], {expires: 7})
-				location.replace('http://localhost:8080')
-			}
-		})
+		console.log('requestOptions: ', requestOptions)
 
-	}, [])
-	 */
+		fetch(`http://localhost:8080/api/auth/signup`,
+			requestOptions)
+		.then(response => 
+			response.json().then(data => {
+				if (response.status != 201)
+					setError(data['message'])
+				else
+					location.replace('http://localhost:8080')
+			})
+		)
+
+	},)
+	
 	return <>
 	<Box sx={{my: 'auto'}}>
 		<Typography variant='h4'>Pong</Typography>
@@ -94,10 +99,10 @@ export const Login = () => {
 				sx={{p: 1 }}
 			></TextField>
 
-			<Button sx={{color: 'primary.main'}} onClick={handleLogin}>signup</Button>
+			<Button sx={{color: 'primary.main'}} onClick={handleSignup}>signup</Button>
 			<Button sx={{color: 'primary.main'}} onClick={handleLogin}>signin</Button>
 			<Oauth2>Login via intra</Oauth2>
-			{error.length === 0 ? null : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
+			{error === '' ? null : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
 		</FormControl>
 	</Grid>
 	</>
