@@ -86,14 +86,21 @@ export function Chat() {
 	const handleChangeRoom = useCallback((e : React.MouseEvent<HTMLButtonElement>) => {
 
 		dispatch({type: "SET_ROOM", payload: e.target.value})	
-	})
+	}, [])
 
 	const handleCreateRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
-		socket.emit('createRoom', 'lol', function(response) {
+		const payload = {
+			roomName: message.current.value,
+			ownerName: 'gus'
+		}
+
+		console.log("data payload: ", payload)
+
+		socket.emit('createRoom', payload, function(response) {
 			console.log("RESPONSE CREATE", response)
 		})
-	})
+	}, [])
 
 	return (
 		<FormControl>

@@ -24,6 +24,14 @@ export class UsersService {
 		})
 	}
 
+	async findUserById(id : number) : Promise<User | null> {
+		return await this.prisma.user.findUnique({
+			where: { id: id}
+		}).catch((e) => {
+			throw new BadRequestException(); // maybe we will have to specifie the error later
+		})
+	}
+
 	async findOneIntraUser(intraLogin: string) : Promise<User | null> {
 		return this.prisma.user.findUnique({
 			where: { intraLogin: intraLogin }

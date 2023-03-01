@@ -44,7 +44,7 @@ export class AuthController {
 	/* -------------- basic authentication routes ---------------- */
 
 	@Post('signup')
-	@UsePipes(new ValidationPipe({ transform: true }))
+	//@UsePipes(new ValidationPipe({ transform: true }))
 	async createUser(
 		@Body() createUserDto: CreateUserDto,
 		@Res({ passthrough: true }) response: Response

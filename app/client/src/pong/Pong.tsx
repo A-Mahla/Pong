@@ -35,6 +35,7 @@ export const Pong = () => {
 				<AuthProvider >
 					<Routes>
 						<Route path='/' element={<MainPage/>} />
+						<Route path='/chat' element={<Chat/>} />
 						<Route element= { <LoggedRoute /> }>
 							<Route path='/login' element={<Login/>}/>
 						</Route>

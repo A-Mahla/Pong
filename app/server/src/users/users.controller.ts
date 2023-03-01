@@ -141,7 +141,6 @@ export class UsersController {
 
 //	=========================================OAuth2=======================
 
-
 	@UseGuards(Intra42AuthGuard)
 	@Get('intra42/login')
 	async handleIntraLogin(@Request() req: any) {
