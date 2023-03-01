@@ -12,7 +12,13 @@ type Props = {
 export const Oauth2 = (props: Props) => {
 
 	const handleClick = useCallback( async () => {
-		fetch(`https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-768bd173e0c1bd768ee57e424593ffdcae61db0fd1cdd53e363cfdbdfdd3ef67&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fredirect&response_type=code`, {redirect: "manual"})
+
+		let intraUrl = 'https://api.intra.42.fr/oauth/authorize?client_id=';
+		intraUrl += `${import.meta.env.VITE_API_UID}`;
+		intraUrl += '&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2F';
+		intraUrl += 'redirect&response_type=code'
+
+		fetch(intraUrl, {redirect: "manual"})
 		.then(response => location.replace(response.url))
 	}, [])
 
@@ -33,8 +39,9 @@ export const Redirect = () => {
  
 	const login = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>
 
+
 	const fetchApi = () => {
-		fetch(`http://${import.meta.env.VITE_SITE}/api/users/intra42/login${url.search}`)
+		fetch(`http://${import.meta.env.VITE_SITE}/api/auth/intra42/login${url.search}`)
 		.then(response => {
 			response.json().then(
 				data => {

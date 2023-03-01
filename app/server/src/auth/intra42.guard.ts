@@ -46,6 +46,7 @@ export class Intra42AuthGuard implements CanActivate {
 	}
 
 	async canActivate (context: ExecutionContext) : Promise<boolean>{
+
 		const code = context.getArgByIndex(0).query.code
 
 		const request = context.switchToHttp().getRequest()

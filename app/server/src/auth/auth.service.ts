@@ -107,7 +107,7 @@ export class AuthService {
 		}
 
 		const grant_type = 'authorization_code';
-		const client_id = process.env.API_UID;
+		const client_id = process.env.VITE_API_UID;
 		const client_secret = process.env.API_SECRET;
 		const code = client_code;
 		const redirect_uri = `http://localhost:8080/redirect`;

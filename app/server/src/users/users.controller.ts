@@ -141,12 +141,6 @@ export class UsersController {
 
 //	=========================================OAuth2=======================
 
-	@UseGuards(Intra42AuthGuard)
-	@Get('intra42/login')
-	async handleIntraLogin(@Request() req: any) {
-		console.log('handle intra login user info: ', req.intraUserInfo);
-		return req.intraUserInfo
-	}
 
 	@Post('intra42')
 	async createIntraUser(@Query('login') login: string, @Query('intraLogin') intraLogin: string) {

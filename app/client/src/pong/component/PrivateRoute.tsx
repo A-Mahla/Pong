@@ -5,7 +5,7 @@ const PrivateRoute = () => {
 
 	const {token} = useAuth();
 
-	return token !== '' ? <Outlet /> : <Navigate to='/login' exact />
+	return token ? <Outlet /> : <Navigate to='/login' exact />
 }
 
 export default PrivateRoute;
