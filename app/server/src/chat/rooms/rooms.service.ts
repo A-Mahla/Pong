@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException} from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { Room, User } from "@prisma/client"
+import { Room, User, User_Room } from "@prisma/client"
 import { CreateRoomParam } from "../Chat.types";
 import { UsersService } from "src/users/users.service";
 
@@ -18,20 +18,28 @@ export class RoomsService {
 		if (!roomOwner)
 			return null 
 
-		const newRoom = {
+		const newRoomData = {
 			createdAt: new Date(),
 			name: roomDetails.roomName,
 			ownerId: roomOwner.id,
-			members: {
-				connect: [{ id : roomOwner.id}]
-			}
+			//members: {
+			//	connect: [{ member_id : roomOwner.id}]
+			//}
 		}
 
-		console.log('newRoom: ', newRoom)
-		
-		return this.prisma.room.create({
-			data: {...newRoom}
+		console.log('newRoomData: ', newRoomData)
+		const newRoom = await this.prisma.room.create({
+			data: {...newRoomData}
 		}).catch((e: any) => {throw e});
+
+		const memberRoom = await this.prisma.user_Room.create({
+			data: {
+				member_id : roomOwner.id,
+				room_id : newRoom.room_id
+			}
+		}).catch((e) => {throw new BadRequestException(e)})
+
+		return newRoom 
 	}
 
 	async findAll () {
@@ -47,7 +55,7 @@ export class RoomsService {
 		return this.prisma.room.findUnique(
 			{
 				where: {
-					id : id
+					room_id : id
 				}
 			}
 		)

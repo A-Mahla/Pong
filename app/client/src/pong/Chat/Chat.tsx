@@ -1,5 +1,7 @@
 import { Button, TextField, FormControl, Paper, Box} from "@mui/material"
 import React, { useRef, useCallback, useState, useEffect, useReducer} from "react"
+import { State} from "./Chat.types"
+import { reducer, getUserRooms } from "./Chat.utils"
 import io from "socket.io-client"
 import Cookies from 'js-cookie'
 import './Chat.css'
@@ -7,47 +9,10 @@ import './Chat.css'
 const socket = io.connect("http://localhost:8080")
 console.log("socket: ", socket)
 
-type MessageData = {
-	content: string,
-	sender: string,
-	time?: string,
-	room: string
-}
 
 const initialState: State = {
 	room: 'general',
 	messages: []
-}
-
-type State = {
-	room: string,
-	messages: MessageData[]
-}
-
-type Action = {
-	type: string,
-	payload: string | MessageData
-}
-
-type User = {
-	login: string,
-}
-
-type Room = {
-	name: string,
-	members: User[],
-
-}
-
-function reducer(state : State , action : Action) {
-	switch (action.type) {
-		case "SET_ROOM": 
-			return {...state, room: action.payload}
-		case "ADD_MESSAGE":
-			return {...state, messages: [...state.messages, action.payload]}
-		default:
-			throw new Error('Unexpected action!')
-	}
 }
 
 export function Chat() {
@@ -56,7 +21,7 @@ export function Chat() {
 
 	const [state, dispatch] = useReducer(reducer, initialState)
 
-	const [rooms, setRooms] = useState<Room[]>([])
+	const [rooms, setRooms] = useState<any[]>([])
 
 	const messageListener = (...args) => {
 
@@ -73,10 +38,13 @@ export function Chat() {
 			console.log("args: ", args);
 	}
 
-	useEffect(async () => {
-		const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/users/rooms`)
-		console.log('response: ', response)
-	})
+	useEffect(() => {
+		const getRooms = async () => {
+
+			return getUserRooms()
+		}
+		getRooms().then(data => (setRooms(data)))
+	}, [])
 
 	useEffect(() => {
 		console.log('socker in useEffect', socket);
@@ -105,7 +73,7 @@ export function Chat() {
 		dispatch({type: "SET_ROOM", payload: e.target.value})	
 	}, [])
 
-	const handleCreateRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+	const handleCreateRoom = useCallback(async (e: React.MouseEvent<HTMLButtonElement>) => {
 
 		const payload = {
 			roomName: message.current.value,
@@ -116,6 +84,8 @@ export function Chat() {
 
 		socket.emit('createRoom', payload, function(response) {
 			console.log("RESPONSE CREATE", response)
+
+		getUserRooms().then(data => (setRooms(data)))
 		})
 	}, [])
 
@@ -129,6 +99,7 @@ export function Chat() {
 				<TextField type='text' placeholder={`${state.room}`}  inputRef={message}/>
 				
 				<Button onClick={handleSubmit}>send message</Button>
+				{rooms.map((value, key) => (<Button value={value.name} key={key} onClick={handleChangeRoom}>{value.name}</Button>))}
 				<Button value='general' onClick={handleChangeRoom}>general</Button>
 				<Button value='dev' onClick={handleChangeRoom}>dev</Button>
 				<Button value='random' onClick={handleChangeRoom}>random</Button>

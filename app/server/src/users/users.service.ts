@@ -10,7 +10,7 @@ import { ok } from 'assert';
 export class UsersService {
 
 	constructor( private prisma: PrismaService,
-				 private readonly gameService: GameService ) {}
+				 private readonly gameService: GameService) {}
 
 	async findUsers(): Promise<User[]> {
 		return this.prisma.user.findMany()
@@ -129,8 +129,21 @@ export class UsersService {
 		const user = await this.findUserById(id)
 		if (!user)
 			throw new BadRequestException('Invalid content', { cause: new Error(), description: 'invalid room id' })  
-		
-		//return (user as User).member
+		const userRooms = await this.prisma.user_Room.findMany({
+			where : {
+				member_id : user.id
+			}
+		})
+		const userRoomsId = userRooms.map((value) => (value.room_id))
+
+
+		const rooms = await this.prisma.room.findMany({
+			where: {
+				room_id : { in : (userRoomsId as number[])}
+			}
+		})
+
+		return rooms
 	}
 
 
