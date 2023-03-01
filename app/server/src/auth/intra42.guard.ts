@@ -5,7 +5,7 @@ import { AuthService } from "./auth.service";
 type IntraUserInfo = {
 	signedIn: boolean,
 	intraLogin: string,
-	login?: string
+	login?: string,
 }
 
 @Injectable()

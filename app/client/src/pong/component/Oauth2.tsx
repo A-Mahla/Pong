@@ -40,30 +40,32 @@ export const Redirect = () => {
 	const login = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>
 
 
-	const fetchApi = () => {
-		fetch(`http://${import.meta.env.VITE_SITE}/api/auth/intra42/login${url.search}`)
-		.then(response => {
-			response.json().then(
-				data => {
-					if (response.status == 200)
-					{
-						if (data['signedIn'])
-						{
-							Cookies.set('login', data['login'], {expires: 7})
-							location.replace("http://localhost:8080")
-						}
-						else
-						{
-							setIntraLogin(data['intraLogin'])
-							setFetched(true)
-						}
-					}
+	const fetchApi = async () => {
+
+		try {
+			const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/intra42/login${url.search}`)
+			const data = await response.json()
+			console.log(data);
+			if (response.status == 200) {
+				if (data['signedIn']) {
+
+					Cookies.set('login', data['login'], {expires: 7})
+					location.replace("http://localhost:8080")
+				} else {
+
+					setIntraLogin(data['intraLogin'])
 				}
-			)
-		})
+			}
+		} catch(err) {
+			console.log(err);
+		} finally {
+			setFetched(true)
+		}
 	}
 
-	useEffect(() => fetchApi())
+	useEffect(() => {
+		fetchApi()
+	}, [])
 
 	const handleIntraLogin = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 

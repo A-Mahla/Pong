@@ -50,25 +50,20 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 	useEffect( () => {
 		async function auth()  {
 
-			console.log(location.pathname)
-			console.log(location.search)
-
-			if ( location.pathname === '/redirect' && location.search ) {
-
-				navigate({
-					pathname: `${location.pathname}`,
-					search: `${location.search}`
-				})
-				return ;
-			}
-
-			const url = `http://${import.meta.env.VITE_SITE}/api/users/profile/auth`;
-			const requestOption = {
-				method: "GET",
-				headers: { 'Authorization': `Bearer ${token}` },
-			}
-
 			try {
+
+
+				if ( location.pathname === '/redirect' && location.search ) {
+					navigate(location)
+					return ;
+				}
+
+				const url = `http://${import.meta.env.VITE_SITE}/api/users/profile/auth`;
+					const requestOption = {
+					method: "GET",
+					headers: { 'Authorization': `Bearer ${token}` },
+				}
+
 				const response1: responseApi = await originalRequest({
 					input: url,
 					option: requestOption,
