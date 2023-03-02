@@ -134,7 +134,7 @@ export class AuthService {
 			return {
 				statusCode: 403,
 				body: response
-			}
+		}
 		return {
 			statusCode: 200,
 			body: response

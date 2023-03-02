@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import React, { useCallback, useRef, useState, useEffect } from 'react'
 import { TextField, FormControl, CircularProgress } from "@mui/material"
 import Cookies from 'js-cookie'
+import useAuth from '/src/pong/context/useAuth'
 
 
 type Props = {
@@ -31,6 +32,8 @@ export const Redirect = () => {
 
 	const url = useLocation()
 
+	const {authLogIntra} = useAuth()
+
 	const [fetched, setFetched] = useState(false)
 
 	const [intraLogin, setIntraLogin] = useState('')
@@ -46,6 +49,7 @@ export const Redirect = () => {
 			const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/intra42/login${url.search}`)
 			const data = await response.json()
 			console.log(data);
+			console.log(response);
 			if (response.status == 200) {
 				if (data['signedIn']) {
 
@@ -64,7 +68,10 @@ export const Redirect = () => {
 	}
 
 	useEffect(() => {
-		fetchApi()
+	//	fetchApi()
+		setIntraLogin(authLogIntra(`http://${import.meta.env.VITE_SITE}/api/auth/intra42/login${url.search}`))
+		setFetched(true)
+		return undefined
 	}, [])
 
 	const handleIntraLogin = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {

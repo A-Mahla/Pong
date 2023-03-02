@@ -6,6 +6,7 @@ type IntraUserInfo = {
 	signedIn: boolean,
 	intraLogin: string,
 	login?: string,
+	token?: string,
 }
 
 @Injectable()
@@ -38,10 +39,13 @@ export class Intra42AuthGuard implements CanActivate {
 
 		const login = (user === null ? undefined : user.login)	
 
+		const token = (user === null ? undefined : (await this.authService.refreshTokens(user.login, response)))
+
 		return {
 			signedIn: signedIn,
 			intraLogin: intraLogin,
-			login: login 
+			login: login,
+			token: token?.aT
 		}
 	}
 
@@ -57,6 +61,7 @@ export class Intra42AuthGuard implements CanActivate {
 
 		if (intraResponse.statusCode != 200)
 			return false
+
 
 		const intraUserInfo = await this.getIntraUserInfo(intraResponse['body']['access_token'])
 

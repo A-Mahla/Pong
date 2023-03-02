@@ -89,9 +89,7 @@ export class AuthController {
 		@Res({ passthrough: true }) response: Response
 	) {
 		console.log('handle intra login user info: ', req.intraUserInfo);
-		if (req.intraUserInfo.signedIn)
-			return await this.authService.login(req.IntraUserInfo.login, response);
-		return null;
+		return req.intraUserInfo
 	}
 	
 
