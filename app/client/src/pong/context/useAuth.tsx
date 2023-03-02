@@ -19,6 +19,7 @@ interface AuthContextType {
 	authLogin: (login: string, password: string) => void;
 	authLogout: () => void;
 	authSignup: (login: string, password: string) => void;
+	authLogIntra: (url: URL) => void;
 }
 
 export type fetchContext = {
@@ -114,39 +115,26 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 	}, [])
 
-	/*	async function authSignIntra(url: URL, login: string, password: string) {
-
-
-
-		const requestOptions = {
-			method: "POST",
-			headers: {
-				'Content-Type': 'application/json',
-			 },
-			body: JSON.stringify({
-				login: login,
-				password: password,
-			}),
-		}
+	async function authLogIntra(url: URL) {
 
 		try {
-
-			const response = await fetch(url);
-			const data = await response.json();
+			const response = await fetch(url)
+			const data = await response.json()
+			console.log(data);
+			console.log(response);
 			if (response.status == 200) {
 				if (data['signedIn']) {
-					
+					setUser(data['login'])
+					setToken(data['token'])
+					navigate('/pong')
 				}
+			} else {
+				navigate('/login')
 			}
-
-
-		} catch (err) {
+		} catch(err) {
 			console.log(err);
-		} finally {
-			setLoading(true);
 		}
-
-		}*/
+	}
 
 	async function authSignup(login: string, password: string) {
 
@@ -248,6 +236,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			authLogin,
 			authLogout,
 			authSignup,
+			authLogIntra,
 		}),
 		[user, token, loading, error]
 	);
