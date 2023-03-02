@@ -57,6 +57,10 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 					navigate(location)
 					return ;
 				}
+				if ( location.pathname === 'gameTest' ) {
+					navigate(location)
+					return ;
+				}
 
 				const url = `http://${import.meta.env.VITE_SITE}/api/users/profile/auth`;
 					const requestOption = {
