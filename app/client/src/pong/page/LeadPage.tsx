@@ -38,7 +38,7 @@ function TabPanel(props: TabPanelProps) {
 
 
   return <>
-		{props.value === props.index && 
+		{props.value === props.index &&
 			(<Paper elevation={24} sx={centralBoxStyle}>
 				<Grid container
 					className='test'
@@ -58,7 +58,7 @@ function TabPanel(props: TabPanelProps) {
 				</Grid>
 			</Paper>)
 		}
-	</>;	
+	</>;
 }
 
 const LeadPage = () => {

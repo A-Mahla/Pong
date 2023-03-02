@@ -9,6 +9,7 @@ import { AuthProvider } from '/src/pong/context/useAuth';
 import PrivateRoute from '/src/pong/component/PrivateRoute';
 import LoggedRoute from '/src/pong/component/LoggedRoute';
 import { Chat } from './Chat';
+import GameTest from '/src/pong/page/GameTest';
 
 /**
  * ============ Entrypoint of the project =============
@@ -43,6 +44,7 @@ export const Pong = () => {
 						</Route>
 						<Route path='/test' element={<Test/>} />
 						<Route path="/redirect" element={<Redirect/>} />
+						<Route path="/gameTest" element={<GameTest/>} />
 					</Routes>
 				</AuthProvider>
 			</BrowserRouter>
