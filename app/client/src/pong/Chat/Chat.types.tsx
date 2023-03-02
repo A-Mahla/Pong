@@ -3,7 +3,7 @@ export type MessageData = {
 	content: string,
 	sender: string,
 	time?: string,
-	room: string
+	room?: string
 }
 
 export type State = {

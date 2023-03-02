@@ -1,13 +1,16 @@
 import { UseGuards } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { User } from '@prisma/client';
 import { Server, Socket } from 'socket.io';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
+import { UsersService } from 'src/users/users.service';
 import { RoomsService } from './rooms/rooms.service';
 
 type MessageData = {
 	content: string,
 	sender: string,
   time?: string,
+  room?: string
 }
 
 type CreateRoomData = {
@@ -25,34 +28,60 @@ type CreateRoomData = {
   )
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
 
-  constructor (private readonly roomService: RoomsService) {}
+  constructor (private readonly roomService: RoomsService, private readonly userService : UsersService) {}
 
   @WebSocketServer()
   server: Server;
 
   @SubscribeMessage('message')
   handleMessage(client: any, payload: MessageData): MessageData {
-    console.log('client: ',client)
     console.log('payload: ',payload)
-    this.server.emit('message', payload)
+    if (payload.room)
+    {
+      console.log('client rooms in handle MESSAGE', client.rooms)
+      this.server.to(payload.room).emit('message', payload)
+      console.log('payload in message handler', payload)
+
+    }
+    else
+      this.server.emit('message', payload)
     return payload;
   }
 
   @SubscribeMessage('createRoom')
   handleCreateRoom(client: any, payload: CreateRoomData) {
-    client.join(payload.roomName)
-    client.emit('roomCreated', payload.roomName)
+    
     console.log('payload: ', payload);
+    
+    client.join(payload.roomName)
+    //client.emit('roomCreated', payload.roomName)
     
     return this.roomService.createRoom(payload) 
   }
 
-  @SubscribeMessage('messageToRoom')
-  handleMessageToRoom(client: any, message: {content: string, sender: string, room: string}) {
-    console.log('message: ', message)
-    //console.log('client: ', client)
-    return client.in(`/${message.room}`).emit('messageToRoom', message.content)
+  @SubscribeMessage('join')
+  async handleJoin(client: Socket, login: string) {
+    const user = await this.userService.findOneUser(login)
+
+    const rooms = await this.userService.findAllUserRooms((user as User).login)
+
+    console.log('client rooms in handle JOIN', client.rooms)
+
+    for (let room of rooms)
+    {
+      client.join(room.name)
+      console.log(room.name)
+    }
+    console.log('rooms: ', rooms)
   }
+
+  @SubscribeMessage('joinRoom')
+  handleJoinRoom(client : Socket, payload : {userLogin : string, room : string, password : string})
+  {
+    //this.userService.addRoom(login, room)
+    
+  }
+    
 
   afterInit(server : Server): any {
     console.log('Initialized')

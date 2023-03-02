@@ -190,12 +190,12 @@ export class UsersController {
 
 	//================== ROOMS =================
 
-	@Get('rooms/:id')
+	@Get('rooms/:login')
 	async getRooms(
-		@Param('id') id: number
+		@Param('login') login: string
 	)
 	{
-		return this.userService.findAllUserRooms(id)
+		return this.userService.findAllUserRooms(login)
 	}
 }
 

@@ -1,13 +1,14 @@
 import { Button, TextField, FormControl, Paper, Box} from "@mui/material"
 import React, { useRef, useCallback, useState, useEffect, useReducer} from "react"
 import { State} from "./Chat.types"
+import useAuth from '/src/pong/context/useAuth';
 import { reducer, getUserRooms } from "./Chat.utils"
 import io from "socket.io-client"
 import Cookies from 'js-cookie'
 import './Chat.css'
 
-const socket = io.connect("http://localhost:8080")
-console.log("socket: ", socket)
+//const socket = io.connect("http://localhost:8080")
+//console.log("socket: ", socket)
 
 
 const initialState: State = {
@@ -23,7 +24,14 @@ export function Chat() {
 
 	const [rooms, setRooms] = useState<any[]>([])
 
+	const {user} = useAuth()
+
+	const socket = io.connect("http://localhost:8080")
+
 	const messageListener = (...args) => {
+
+			console.log('message receive: ', args[0]);
+			
 
 			const newMessage = {
 				...args[0],
@@ -40,26 +48,30 @@ export function Chat() {
 
 	useEffect(() => {
 		const getRooms = async () => {
-
-			return getUserRooms()
+			return getUserRooms(user)
 		}
 		getRooms().then(data => (setRooms(data)))
 	}, [])
 
 	useEffect(() => {
-		console.log('socker in useEffect', socket);
+		console.log('socket in useEffect', socket);
 
+		socket.on('connect', () => {
+			socket.emit('join', user)
+			console.log('lol')
+		})
 		socket.on('message', messageListener)
 		return () => {
 			socket.off("message", messageListener)
 		}
-	})
+	}, [socket])
 
 	const handleSubmit = useCallback((e : React.MouseEvent<HTMLButtonElement>) => {
 
+
 		const messageData = {
 			content: message.current.value,
-			sender: Cookies.get('login'),
+			sender: user,
 			room: state.room
 		} 
 
@@ -77,7 +89,7 @@ export function Chat() {
 
 		const payload = {
 			roomName: message.current.value,
-			ownerName: 'gus'
+			ownerName: user
 		}
 
 		console.log("data payload: ", payload)
@@ -85,12 +97,13 @@ export function Chat() {
 		socket.emit('createRoom', payload, function(response) {
 			console.log("RESPONSE CREATE", response)
 
-		getUserRooms().then(data => (setRooms(data)))
+		getUserRooms(user).then(data => (setRooms(data)))
 		})
 	}, [])
 
 	return (
 		<FormControl>
+			<div>{user}</div>
 			<Paper>
 				<Paper>
 					{state.messages.map((message, index) => (state.room === message.room ? <Box key={index} className='messageSent'>{message.content} + {message.time}</Box> : null))}

@@ -125,8 +125,8 @@ export class UsersService {
 
 	//============================ ROOMS =======================
 
-	async findAllUserRooms(id: number) /* : Promise<Room> */ {
-		const user = await this.findUserById(id)
+	async findAllUserRooms(login: string) /* : Promise<Room> */ {
+		const user = await this.findOneUser(login)
 		if (!user)
 			throw new BadRequestException('Invalid content', { cause: new Error(), description: 'invalid room id' })  
 		const userRooms = await this.prisma.user_Room.findMany({
@@ -145,6 +145,29 @@ export class UsersService {
 
 		return rooms
 	}
+
+	//async addRoom(login : string, roomName : string) {
+	//	const user = await this.prisma.user.findUnique({
+	//		where: {
+	//			login: login
+	//		},
+	//	})
+
+	//	const room = await this.prisma.room.find({
+	//		where : {
+	//			name : roomName,
+	//		}
+	//	})
+
+	//	const updateUserRoom = this.prisma.user_Room.update({
+	//		where: {
+	//			member_id : (user as User).id
+	//		}
+	//	})
+
+	//	
+	//}
+
 
 
 

@@ -1,6 +1,6 @@
 import { State, Action } from "./Chat.types"
 
-export async function getUserRooms() {
+export async function getUserRooms(login: string) {
 
 	const requestOptions = {
 		method: 'GET',
@@ -9,7 +9,7 @@ export async function getUserRooms() {
 		}
 	}
 
-	const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/users/rooms/1`)
+	const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/users/rooms/${login}`)
 	return (await response.json()).map((value) => ({
 		id: value.id,
 		name: value.name,
