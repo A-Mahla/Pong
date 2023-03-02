@@ -65,13 +65,13 @@ const Canvas = ({draw, height, width}) => {
 
 	React.useEffect(() => {
 		const canvas_test = canvas.current
-		// setTimeout(() => {setGame({...game, ball: {...game.ball, x: game.ball.x + 2, y: game.ball.y + 2}})}, 20)
-		const playerMove = (event) => {
-			const canvasLocation = canvas.getBoundingClientRect();
-			const mouseLocation = event.clientY - canvasLocation.y;
-			setGame({...game, player1: {y: mouseLocation - PLAYER_HEIGHT / 2}})
-		}
-		canvas_test?.addEventListener('mousemove', playerMove);
+		setTimeout(() => {setGame({...game, ball: {...game.ball, x: game.ball.x + 2, y: game.ball.y + 2}})}, 20)
+		// const playerMove = (event) => {
+			// const canvasLocation = canvas.getBoundingClientRect();
+			// const mouseLocation = event.clientY - canvasLocation.y;
+			// setGame({...game, player1: {y: mouseLocation - PLAYER_HEIGHT / 2}})
+		// }
+		// canvas_test?.addEventListener('mousemove', playerMove);
 		draw(canvas_test, game);
 	}, [game]);
 
