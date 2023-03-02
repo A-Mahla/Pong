@@ -21,6 +21,7 @@ interface AuthContextType {
 	authLogout: () => void;
 	authSignup: (login: string, password: string) => void;
 	authLogIntra: (url: URL) => void;
+	authSignIntra: (url: URL) => void;
 }
 
 export type fetchContext = {
@@ -82,6 +83,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 					if (refresh.response.status !== 200 && refresh.response.status !== 304) {
 						setUser('');
 						setToken('');
+						setIntraLogin('')
 						if ( location.pathname === '/login'
 							|| location.pathname === '/pong' )
 							navigate('/login')
@@ -126,17 +128,43 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			console.log(response);
 			if (response.status == 200) {
 				if (data['signedIn']) {
-					setUser(data['login'])
+					setUser(data.user['login'])
 					setToken(data['token'])
 					navigate('/pong')
 				}
+				setIntraLogin(data['intraLogin'])
 			} else {
 				navigate('/login')
 			}
-			setIntraLogin(data['intraLogin'])
-			return true;
 		} catch(err) {
 			console.log(err);
+		}
+	}
+
+	async function authSignIntra(url: URL) {
+
+
+		const requestOptions = {
+			method: "POST",
+		}
+
+		try {
+			const response = await fetch(url, requestOptions)
+			const data = await response.json()
+			if ( response.status === 201) {
+				setUser(data['login'])
+				setToken(data['aT']);
+				navigate('/pong')
+			} else {
+				setUser('');
+				setToken('');
+				setIntraLogin('')
+				navigate('/login')
+			}
+		} catch(err) {
+			console.log(err);
+		} finally {
+			setLoading(true);
 		}
 	}
 
@@ -172,6 +200,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 		}
 
 	}
+
 
 	async function authLogin(login: string, password: string) {
 
@@ -221,6 +250,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			if ( response.status === 201) {
 				setUser('');
 				setToken('');
+				setIntraLogin('')
 				navigate('/')
 			}
 
@@ -242,8 +272,9 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			authLogout,
 			authSignup,
 			authLogIntra,
+			authSignIntra,
 		}),
-		[user, token, loading, error]
+		[user, intraLogin, token, loading, error]
 	);
 
 	return (

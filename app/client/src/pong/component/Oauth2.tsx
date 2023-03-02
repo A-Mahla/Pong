@@ -28,6 +28,28 @@ export const Oauth2 = (props: Props) => {
 	)
 }
 
+const IntraSignup = () => {
+
+	const {intraLogin, authSignIntra, loading} = useAuth()
+
+	const [error, setError] = useState('')
+
+	const login = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>
+
+	const handleIntraLogin = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+
+		e.preventDefault()
+		authSignIntra(`http://${import.meta.env.VITE_SITE}/api/auth/intra42?login=${login.current.value}&intraLogin=${intraLogin}`)
+	})
+
+
+	return	<FormControl>
+		<TextField type="text" inputRef={login} label="Login" sx={{p : 1}}/>	
+		<Button sx={{color: 'primary.main'}} onClick={handleIntraLogin}>signin</Button>
+		{error === '' ? null : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
+	</FormControl>
+}
+
 export const Redirect = () => {
 
 	const url = useLocation()
@@ -38,76 +60,21 @@ export const Redirect = () => {
 
 	const [intraLogin, setIntraLogin] = useState('')
 
-	const [error, setError] = useState('')
- 
-	const login = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>
-
-
-/*	const fetchApi = async () => {
-
-		try {
-			const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/intra42/login${url.search}`)
-			const data = await response.json()
-			console.log(data);
-			console.log(response);
-			if (response.status == 200) {
-				if (data['signedIn']) {
-
-					Cookies.set('login', data['login'], {expires: 7})
-					location.replace("http://localhost:8080")
-				} else {
-
-					setIntraLogin(data['intraLogin'])
-				}
-			}
-		} catch(err) {
-			console.log(err);
-		} finally {
+	useEffect(() => {
+		async function fetching() {
+			await authLogIntra(`http://${import.meta.env.VITE_SITE}/api/auth/intra42/login${url.search}`)
 			setFetched(true)
 		}
-	}*/
-
-	useEffect(() => {
-		setFetched(authLogIntra(`http://${import.meta.env.VITE_SITE}/api/auth/intra42/login${url.search}`))
+		fetching()
 		return undefined
 	}, [])
 
-	const handleIntraLogin = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-
-		console.log(intraLogin)
-		e.preventDefault()
-
-		const requestOptions = {
-			method: "POST",
-		}
-		console.log('login.current.value: ', login.current.value)
-
-		fetch(`http://${import.meta.env.VITE_SITE}/api/users/intra42?login=${login.current.value}&intraLogin=${intraLogin}`, requestOptions)
-		.then(response => {
-			response.json().then(
-				data => {
-					if (response.status == 201)
-					{
-						Cookies.set('login', data['login'], {expires: 7})
-						location.replace("http://localhost:8080")
-					}
-					else
-						setError(data["message"])
-				} 
-			)
-		})
-
-	}, [intraLogin])
 
 	return (
 		<Grid container justifyContent="center">
 			{fetched ? 
-					<FormControl>
-					<TextField type="text" inputRef={login} label="Login" sx={{p : 1}}/>	
-					<Button sx={{color: 'primary.main'}} onClick={handleIntraLogin}>signin</Button>
-					{error === '' ? null : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
-					</FormControl>
- 				: <CircularProgress/>  }
+				<IntraSignup /> :
+ 				<CircularProgress/>  }
 		</Grid>
 	)
 }
