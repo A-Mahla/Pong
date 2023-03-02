@@ -57,7 +57,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 					navigate(location)
 					return ;
 				}
-				if ( location.pathname === 'gameTest' ) {
+				if ( location.pathname === '/gameTest' ) {
 					navigate(location)
 					return ;
 				}
