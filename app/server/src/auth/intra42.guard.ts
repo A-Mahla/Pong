@@ -41,7 +41,6 @@ export class Intra42AuthGuard implements CanActivate {
 
 		const signedIn = (user === null ? false : true)	
 
-		console.log(user)
 
 		return {
 			signedIn: signedIn,
@@ -58,7 +57,6 @@ export class Intra42AuthGuard implements CanActivate {
 
 		const intraResponse = await this.authService.get42ApiToken(code)
 
-		console.log('intraResponse: ', intraResponse)
 
 		if (intraResponse.statusCode != 200)
 			return false
