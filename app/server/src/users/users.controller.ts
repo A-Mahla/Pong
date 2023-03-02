@@ -56,17 +56,20 @@ export class UsersController {
 	@Get('login')
 	async handleLogin(@Query() query: {login: string, password: string}) {
 		const user = await this.userService.findOneUser(query.login)
-		console.log("user", user)
-		console.log("query", query)
 		if (!user)
 			return {
 				'statusCode': 403,
-				'message': 'invalid login'
+				'message': 'invalid login or password'
 			}
 		if (user.password != query.password)
 			return {
 				'statusCode': 403,
-				'message': 'invalid password'
+				'message': 'invalid login or password'
+			}
+		if (user.intraLogin)
+			return {
+				'statusCode': 403,
+				'message': 'invalid login or password'
 			}
 		return {
 			'statusCode': 200,
@@ -90,13 +93,13 @@ export class UsersController {
 		}
 	}
 
-	@UseGuards(JwtAuthGuard)
+	/*@UseGuards(JwtAuthGuard)
 	@Get(':login')
 	async getUsersbyId(
 		@Param('login') login: string
 	) {
 		return await this.userService.findOneUser(login);
-	}
+	}*/
 
 //	====================== POST AND GET AVATAR ===================
 	@UseGuards(JwtAuthGuard)
@@ -141,29 +144,6 @@ export class UsersController {
 
 //	=========================================OAuth2=======================
 
-	@UseGuards(Intra42AuthGuard)
-	@Get('intra42/login')
-	async handleIntraLogin(@Request() req: any) {
-		console.log('handle intra login user info: ', req.intraUserInfo);
-		return req.intraUserInfo
-	}
-
-	@Post('intra42')
-	async createIntraUser(@Query('login') login: string, @Query('intraLogin') intraLogin: string) {
-		const user = await this.userService.findOneUser(login)
-
-		if (user)
-			return {
-				statusCode: 400,
-				message: 'login already use'
-			}
-
-		return this.userService.createUser({
-			login: login,
-			password: '',
-			intraLogin: intraLogin
-		})
-	}
 
 	@Put(':login')
 	async updateUserById(

@@ -47,11 +47,28 @@ export class AuthService {
 
 	async refreshTokens(user: any, response: Response) {
 		const userTry = await this.usersService.findOneUser(user.login);
+		console.log('test')
 		const tokens = await this.getTokens(user, response);
 		await this.usersService.updateRefreshToken(user.login, tokens.refreshToken);
 		return {
 			aT: tokens.accessToken
 		}
+	}
+
+	async getAccesToken(user: any) {
+		const payload = { sub: user.id, login: user.login }
+		const accessToken = await this.jwtService.signAsync(
+			{
+			  sub: payload.sub,
+			  login: payload.login,
+			},
+			{
+			  secret: jwtConstants.secret,
+			  expiresIn: '7d',
+			},
+		)
+		return { aT: accessToken }
+
 	}
 
 	async getTokens(user: JwtPayload, response: Response) {
@@ -65,7 +82,7 @@ export class AuthService {
 			},
 			{
 			  secret: jwtConstants.secret,
-			  expiresIn: '500s',
+			  expiresIn: '7d',
 			},
 		  ),
 		  this.jwtService.signAsync(
@@ -75,7 +92,7 @@ export class AuthService {
 			},
 			{
 			  secret: jwtConstants.refresh_secret,
-			  expiresIn: '300s',
+			  expiresIn: '7d',
 			},
 		  ),
 		]);
@@ -107,17 +124,17 @@ export class AuthService {
 		}
 
 		const grant_type = 'authorization_code';
-		const client_id = process.env.API_UID;
+		const client_id = process.env.VITE_API_UID;
 		const client_secret = process.env.API_SECRET;
 		const code = client_code;
 		const redirect_uri = `http://localhost:8080/redirect`;
 
 		console.log('code: ', code)
-		console.log('https://api.intra.42.fr/v2/oauth/token?' + 
+		console.log('https://api.intra.42.fr/v2/oauth/token?' +
 		`grant_type=${grant_type}&` +
 		`client_id=${client_id}&` +
 		`client_secret=${client_secret}&` +
-		`code=${code}&` + 
+		`code=${code}&` +
 		`redirect_uri=${redirect_uri}`);
 
 
@@ -134,7 +151,7 @@ export class AuthService {
 			return {
 				statusCode: 403,
 				body: response
-			}
+		}
 		return {
 			statusCode: 200,
 			body: response

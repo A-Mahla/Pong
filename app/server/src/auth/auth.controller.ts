@@ -33,6 +33,7 @@ import { AuthService } from 'src/auth/auth.service'
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RefreshJwtAuthGuard } from 'src/auth/refresh-jwt-auth.guard'
+import { Intra42AuthGuard } from 'src/auth/intra42.guard'
 
 
 @Controller('auth')
@@ -80,7 +81,52 @@ export class AuthController {
 	) {
 		return await this.authService.refreshTokens(req.user, response);
 	}
-	/* NOT SURE ALL THE refreshToken METHOD IS MANDATORY BECAUSE WE HAVE THE GUARD PREVENTING FROM FALSE REFRESH TOKEN
-	IT SEEMS THAT THIS IS NOT EVEN NECESSARY TO KEEP THE REFRESH TOKEN IN THE DB */
+
+	//	=========================================OAuth2=======================
+
+	@UseGuards(Intra42AuthGuard)
+	@Get('intra42/login')
+	async handleIntraLogin(
+		@Request() req: any,
+		@Res({ passthrough: true }) response: Response
+	) {
+		if (req.intraUserInfo.signedIn){
+			return {
+				...req.intraUserInfo,
+				token: await this.authService.login(req.intraUserInfo.user, response)
+			}
+		}
+		return req.intraUserInfo
+	}
+
+	@Post('intra42')
+	async createIntraUser(
+		@Query('login') login: string,
+		@Query('intraLogin') intraLogin: string,
+		@Res({ passthrough: true }) response: Response
+	) {
+		console.log(login)
+		const ifExist = await this.userService.findIfExistUser(login)
+
+		if (ifExist)
+		{
+			return {
+				statusCode: 400,
+				message: 'login already use'
+			}
+		}
+
+		return {
+			login: login,
+			aT: await this.authService.login(
+					await this.userService.createUser({
+						login: login,
+						password: '',
+						intraLogin: intraLogin
+					}),
+				response
+			),
+		}
+	}	
 
 }

@@ -2,18 +2,28 @@ import { useContext, useNavigate } from 'react'
 import useAuth from '/src/pong/context/useAuth'
 
 export type Api = {
+	api: {
+		input: RequestInfo | URL,
+		option?: RequestInit,
+	}
+	auth: {
+		token: string,
+		setUser: React.Dispatch<React.SetStateAction<string>>,
+		setToken: React.Dispatch<React.SetStateAction<string>>,
+	}
+}
+
+export type apiInput = {
 	input: RequestInfo | URL,
-	func: React.Dispatch<React.SetStateAction<string>>,
 	option?: RequestInit,
 }
 
 export type responseApi = {
-	response: any
-	reponse: Response,
+	response: Response,
 	data: JSON.Element
 }
 
-export const originalRequest = async (api: Api) => {
+export const originalRequest = async (api: apiInput) => {
 
 	const response = await fetch(api.input, api.option);
 	const data = await response.json();
@@ -30,36 +40,28 @@ export const refreshRequest = async () => {
 
 }
 
-export const FetchApi = async ({input, func, option={}}: Api) => {
+export const FetchApi = async (fetchType: Api) => {
 
 	try {
 
-		const response: responseApi = await originalRequest({
-			input, option,
-			func: undefined
-		});
+		fetchApi.api['option']['headers']['Authorization'] = `Bearer ${fetchType.auth.token}`
+
+		const response: responseApi = await originalRequest(fetchType.api)
 
 		if (response.response.statusText === "Unauthorized") {
 
 			const request: responseApi = await refreshRequest();
 
 			if (refresh.response.status !== 200 && refresh.response.status !== 304) {
+				fetchType.auth.setToken('');
+				fetchType.auth.setUser('');
 				useNavigate()('/login');
 			}
 
-			func(refresh.data['aT']);
+			fetchType.auth.setToken(refresh.data['aT']);
+			fetchApi.api['option']['headers']['Authorization'] = `Bearer ${refresh.data['aT']}`
 
-			return await originalRequest({
-				input,
-				option: {
-					...option,
-					headers: {
-						...headers,
-						'Authorization': `Bearer ${refresh.data['aT']}`,
-					}
-				},
-				func: undefined
-			});
+			return await originalRequest(fetchApi)
 		}
 		return response;
 

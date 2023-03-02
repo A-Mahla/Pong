@@ -8,5 +8,6 @@ then
 	#(sleep 5 && ./fill_db_user_script.sh && ./fill_db_game_script.sh &&./fill_db_UserInGame_script.sh) &
 	#npm run start:dev
 else
+	(sleep 5 && npx prisma studio) &
 	npm run start:dev
 fi

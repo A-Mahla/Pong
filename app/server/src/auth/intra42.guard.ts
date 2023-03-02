@@ -1,11 +1,16 @@
 import { Injectable, CanActivate, ExecutionContext } from "@nestjs/common"
 import { UsersService } from "src/users/users.service";
+import { Response } from "express";
+import { Res } from '@nestjs/common';
+
 import { AuthService } from "./auth.service";
+import { User } from "@prisma/client";
 
 type IntraUserInfo = {
 	signedIn: boolean,
 	intraLogin: string,
-	login?: string
+	user: User | null,
+	token?: string,
 }
 
 @Injectable()
@@ -36,16 +41,17 @@ export class Intra42AuthGuard implements CanActivate {
 
 		const signedIn = (user === null ? false : true)	
 
-		const login = (user === null ? undefined : user.login)	
+		console.log(user)
 
 		return {
 			signedIn: signedIn,
 			intraLogin: intraLogin,
-			login: login 
+			user: user,
 		}
 	}
 
 	async canActivate (context: ExecutionContext) : Promise<boolean>{
+
 		const code = context.getArgByIndex(0).query.code
 
 		const request = context.switchToHttp().getRequest()
@@ -56,6 +62,7 @@ export class Intra42AuthGuard implements CanActivate {
 
 		if (intraResponse.statusCode != 200)
 			return false
+
 
 		const intraUserInfo = await this.getIntraUserInfo(intraResponse['body']['access_token'])
 

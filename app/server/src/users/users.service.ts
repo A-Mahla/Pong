@@ -16,6 +16,12 @@ export class UsersService {
 		return this.prisma.user.findMany()
 	}
 
+	async findIfExistUser(login: string) : Promise<number> {
+		return await this.prisma.user.count({
+			where: { login: login }
+		})
+	}
+
 	async findOneUser(login: string) : Promise<User | null> {
 		return await this.prisma.user.findUnique({
 			where: { login: login }
