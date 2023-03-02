@@ -11,6 +11,7 @@ import { originalRequest, refreshRequest, responseApi } from "/src/pong/componen
 
 interface AuthContextType {
 	user: string;
+	intraLogin?: string;
 	token: string;
 	setUser: React.Dispatch<React.SetStateAction<string>>,
 	setToken: React.Dispatch<React.SetStateAction<string>>,
@@ -35,6 +36,7 @@ const AuthContext = createContext<AuthContextType>(
 export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 	const [user, setUser] = useState<string>('');
+	const [intraLogin, setIntraLogin] = useState<string>('');
 	const [token, setToken] = useState<string>('');
 	const [error, setError] = useState<Error>();
 	const [loading, setLoading] = useState<boolean>(false);
@@ -75,7 +77,6 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				});
 
 				if (response1.response.statusText === "Unauthorized") {
-					console.log('test')
 					const refresh: responseApi = await refreshRequest();
 
 					if (refresh.response.status !== 200 && refresh.response.status !== 304) {
@@ -112,6 +113,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			}
 		}
 		auth();
+		return undefined
 
 	}, [])
 
@@ -131,6 +133,8 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			} else {
 				navigate('/login')
 			}
+			setIntraLogin(data['intraLogin'])
+			return true;
 		} catch(err) {
 			console.log(err);
 		}
@@ -228,6 +232,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 	const memoValue = useMemo(
 		() => ({
 			user,
+			intraLogin,
 			token,
 			setUser,
 			setToken,

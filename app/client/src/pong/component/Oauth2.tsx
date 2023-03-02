@@ -43,7 +43,7 @@ export const Redirect = () => {
 	const login = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>
 
 
-	const fetchApi = async () => {
+/*	const fetchApi = async () => {
 
 		try {
 			const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/intra42/login${url.search}`)
@@ -65,17 +65,16 @@ export const Redirect = () => {
 		} finally {
 			setFetched(true)
 		}
-	}
+	}*/
 
 	useEffect(() => {
-	//	fetchApi()
-		setIntraLogin(authLogIntra(`http://${import.meta.env.VITE_SITE}/api/auth/intra42/login${url.search}`))
-		setFetched(true)
+		setFetched(authLogIntra(`http://${import.meta.env.VITE_SITE}/api/auth/intra42/login${url.search}`))
 		return undefined
 	}, [])
 
 	const handleIntraLogin = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
+		console.log(intraLogin)
 		e.preventDefault()
 
 		const requestOptions = {
