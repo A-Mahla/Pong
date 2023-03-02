@@ -65,7 +65,7 @@ export class AuthService {
 			},
 			{
 			  secret: jwtConstants.secret,
-			  expiresIn: '500s',
+			  expiresIn: '7d',
 			},
 		  ),
 		  this.jwtService.signAsync(
@@ -75,7 +75,7 @@ export class AuthService {
 			},
 			{
 			  secret: jwtConstants.refresh_secret,
-			  expiresIn: '300s',
+			  expiresIn: '7d',
 			},
 		  ),
 		]);
@@ -113,11 +113,11 @@ export class AuthService {
 		const redirect_uri = `http://localhost:8080/redirect`;
 
 		console.log('code: ', code)
-		console.log('https://api.intra.42.fr/v2/oauth/token?' + 
+		console.log('https://api.intra.42.fr/v2/oauth/token?' +
 		`grant_type=${grant_type}&` +
 		`client_id=${client_id}&` +
 		`client_secret=${client_secret}&` +
-		`code=${code}&` + 
+		`code=${code}&` +
 		`redirect_uri=${redirect_uri}`);
 
 

@@ -40,14 +40,12 @@ const draw = (canvas, game) => {
 
 	// context.fillStyle = "rgba(0, 0, 200, 0.5)";
 	// context.fillRect(30, 30, 50, 50);
-  };
+};
+
 
 const Canvas = ({draw, height, width}) => {
-  const canvas = React.useRef<HTMLCanvasElement>();
-
-  React.useEffect(() => {
-    const canvas_test = canvas.current
-	const game = {
+	const canvas = React.useRef<HTMLCanvasElement>();
+	const [game, setGame] = React.useState({
 		player1: {
 			y: 640 / 2 - PLAYER_HEIGHT / 2
 		},
@@ -63,16 +61,23 @@ const Canvas = ({draw, height, width}) => {
 				y: 2
 			}
 		}
-	}
-    while(true)
-	{
+	})
+
+	React.useEffect(() => {
+		const canvas_test = canvas.current
+		// setTimeout(() => {setGame({...game, ball: {...game.ball, x: game.ball.x + 2, y: game.ball.y + 2}})}, 20)
+		const playerMove = (event) => {
+			const canvasLocation = canvas.getBoundingClientRect();
+			const mouseLocation = event.clientY - canvasLocation.y;
+			setGame({...game, player1: {y: mouseLocation - PLAYER_HEIGHT / 2}})
+		}
+		canvas_test?.addEventListener('mousemove', playerMove);
 		draw(canvas_test, game);
-		game.ball.x += game.ball.speed.x;
-	}
-  });
-return (
-    <canvas ref={canvas} height={height} width={width} />
-  );
+	}, [game]);
+
+	return (
+		<canvas ref={canvas} height={height} width={width} />
+	);
 };
 
 Canvas.propTypes = {
