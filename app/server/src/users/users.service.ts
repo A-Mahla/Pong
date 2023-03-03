@@ -16,6 +16,12 @@ export class UsersService {
 		return this.prisma.user.findMany()
 	}
 
+	async findIfExistUser(login: string) : Promise<number> {
+		return await this.prisma.user.count({
+			where: { login: login }
+		})
+	}
+
 	async findOneUser(login: string) : Promise<User | null> {
 		return await this.prisma.user.findUnique({
 			where: { login: login }
@@ -81,16 +87,16 @@ export class UsersService {
 			createdAt: new Date(),
 			...userDetails,
 		};
-		console.log("create prisma user: ", newUser)
 		return this.prisma.user.create({
 			data: { ...newUser }
 		}).catch((e) => {
 			if (e instanceof Prisma.PrismaClientKnownRequestError) {
 				if (e.code === 'P2002') {
 				  console.log('unique constraint violation')
+				  throw new BadRequestException('login unavailable'); 
 				}
 			  }
-			  throw e
+			  throw new BadRequestException(''); 
 		});
 	}
 

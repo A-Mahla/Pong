@@ -22,7 +22,8 @@ import { Controller,
 	ConsoleLogger,
 	Req,
 	UsePipes,
-	ValidationPipe
+	ValidationPipe,
+	HttpStatus
 } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from 'src/users/User.dto'
 import { UsersService } from 'src/users/users.service'
@@ -82,18 +83,45 @@ export class AuthController {
 		return await this.authService.refreshTokens(req.user, response);
 	}
 
+	//	=========================================OAuth2=======================
+
 	@UseGuards(Intra42AuthGuard)
 	@Get('intra42/login')
 	async handleIntraLogin(
 		@Request() req: any,
 		@Res({ passthrough: true }) response: Response
 	) {
-		console.log('handle intra login user info: ', req.intraUserInfo);
+		if (req.intraUserInfo.signedIn){
+			return {
+				...req.intraUserInfo,
+				token: await this.authService.login(req.intraUserInfo.user, response)
+			}
+		}
 		return req.intraUserInfo
 	}
-	
 
-	/* NOT SURE ALL THE refreshToken METHOD IS MANDATORY BECAUSE WE HAVE THE GUARD PREVENTING FROM FALSE REFRESH TOKEN
-	IT SEEMS THAT THIS IS NOT EVEN NECESSARY TO KEEP THE REFRESH TOKEN IN THE DB */
+	@Post('intra42')
+	async createIntraUser(
+		@Query('login') login: string,
+		@Query('intraLogin') intraLogin: string,
+		@Res({ passthrough: true }) response: Response
+	) {
+		const ifExist = await this.userService.findIfExistUser(login)
+
+		if (ifExist)
+			throw new HttpException('login unavailable', HttpStatus.FORBIDDEN);
+
+		return {
+			login: login,
+			aT: await this.authService.login(
+				await this.userService.createUser({
+					login: login,
+					password: '',
+					intraLogin: intraLogin
+				}),
+				response
+			),
+		}
+	}	
 
 }

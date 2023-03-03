@@ -55,48 +55,21 @@ export class UsersController {
 	@UseGuards(LocalAuthGuard)
 	@Get('login')
 	async handleLogin(@Query() query: {login: string, password: string}) {
-		const user = await this.userService.findOneUser(query.login)
-		console.log("user", user)
-		console.log("query", query)
-		if (!user)
-			return {
-				'statusCode': 403,
-				'message': 'invalid login'
-			}
-		if (user.password != query.password)
-			return {
-				'statusCode': 403,
-				'message': 'invalid password'
-			}
-		return {
-			'statusCode': 200,
-			'message': 'valid infos',
-			'body': JSON.stringify(user)
-		}
+		return await this.userService.findOneUser(query.login)
 	}
 
 	@Get('intra')
 	async getIntraUser(@Query() query: {intraLogin : string}) {
-		const intraUser = this.userService.findOneIntraUser(query.intraLogin)
-		if (!intraUser)
-			return {
-				'statusCode' : 403,
-				'message': 'no such intra user'
-			}
-		return {
-			'statusCode': 200,
-			'message' : 'user successfully signed in',
-			'body' : JSON.stringify(intraUser)
-		}
+		return this.userService.findOneIntraUser(query.intraLogin)
 	}
 
-	@UseGuards(JwtAuthGuard)
+	/*@UseGuards(JwtAuthGuard)
 	@Get(':login')
 	async getUsersbyId(
 		@Param('login') login: string
 	) {
 		return await this.userService.findOneUser(login);
-	}
+	}*/
 
 //	====================== POST AND GET AVATAR ===================
 	@UseGuards(JwtAuthGuard)
@@ -142,23 +115,6 @@ export class UsersController {
 //	=========================================OAuth2=======================
 
 
-	@Post('intra42')
-	async createIntraUser(@Query('login') login: string, @Query('intraLogin') intraLogin: string) {
-		const user = await this.userService.findOneUser(login)
-
-		if (user)
-			return {
-				statusCode: 400,
-				message: 'login already use'
-			}
-
-		return this.userService.createUser({
-			login: login,
-			password: '',
-			intraLogin: intraLogin
-		})
-	}
-
 	@Put(':login')
 	async updateUserById(
 		@Param('login') login: string,
@@ -182,58 +138,3 @@ export class UsersController {
 		await this.userService.deleteUser(login);
 	}
 }
-
-
-
-
-/* DONT KNOW WHAT TO DO WITH THAT */
-
-/*
-	@Post('signup')
-	async handleSignup(
-		@Query() query: {
-			login: string,
-			password: string,
-			intraLogin?: string
-		},
-		@Res({ passthrough: true }) response: Response
-	) {
-		const user = await this.userService.findOneUser(query.login)
-		if (user)
-			return {
-				'statusCode' : 403,
-				'message': 'login already use'
-			}
-		const newUser = {login: query.login, password: query.password, intraLogin: query.intraLogin}
-		this.authService.createUser(newUser, response)
-		return {
-			'statusCode': 200,
-			'message' : 'user successfully signed in',
-			'body': JSON.stringify(newUser)
-		}
-	}
-
-	@Post('intra')
-	async handleSignupIntra(
-		@Query() query: {
-			login: string,
-			intraLogin: string
-		},
-		@Res({ passthrough: true }) response: Response
-	) {
-		console.log('query: ', query)
-		const user = await this.userService.findOneUser(query.login)
-		if (user)
-			return {
-				'statusCode' : 403,
-				'message': 'login already use'
-			}
-		const newUser = {login: query.login, password: "", intraLogin: query.intraLogin}
-		this.authService.createUser(newUser, response)
- 		return {
-			'statusCode': 200,
-			'message' : 'user successfully signed in',
-			'body' : JSON.stringify(newUser)
-		}
-	}
-*/
