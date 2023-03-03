@@ -10,7 +10,8 @@ import {
 import React, {
 	useCallback,
 	useRef,
-	useState
+	useState,
+	useMemo
 } from 'react'
 //import { LogoutButton } from '/src/pong/component/LogoutButton';
 import { Oauth2 } from '/src/pong/component/Oauth2';
@@ -23,7 +24,7 @@ import '/src/App'
 
 export const Login = () => {
 
-	const {authLogin, user} = useAuth();
+	const {authLogin, authSignup} = useAuth();
 
 	const [error, setError] = useState('');
 
@@ -34,12 +35,13 @@ export const Login = () => {
 
 	const handleLogin = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
-		authLogin(`${username.current.value}`,`${password.current.value}`);
+		async function loginAsync() {
+			setError(await authLogin(username.current.value, password.current.value))
+		}
+		loginAsync();
 	}
 
-
-
-		const handleSignup = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+	const handleSignup = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
 
 		if (username.current.value === '')
@@ -53,29 +55,11 @@ export const Login = () => {
 			return
 		}
 
-		const requestOptions = {
-			method: "POST",
-			headers : {'Content-Type' : 'application/json'} ,
-			body: JSON.stringify({
-				login : username.current.value,
-				password: password.current.value
-			})
+		async function loginAsync() {
+			setError(await authSignup(username.current.value, password.current.value))
 		}
-
-		console.log('requestOptions: ', requestOptions)
-
-		fetch(`http://localhost:8080/api/auth/signup`,
-			requestOptions)
-		.then(response => 
-			response.json().then(data => {
-				if (response.status != 201)
-					setError(data['message'])
-				else
-					location.replace('http://localhost:8080')
-			})
-		)
-
-	},)
+		loginAsync();
+	})
 	
 	return <>
 	<Box sx={{my: 'auto'}}>
@@ -103,7 +87,7 @@ export const Login = () => {
 			<Button sx={{color: 'primary.main'}} onClick={handleSignup}>signup</Button>
 			<Button sx={{color: 'primary.main'}} onClick={handleLogin}>signin</Button>
 			<Oauth2>Login via intra</Oauth2>
-			{error === '' ? null : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
+			{error === '' ? null : <Typography align="center" color="tomato">{error}</Typography> }
 		</FormControl>
 	</Grid>
 	</>

@@ -15,11 +15,12 @@ interface AuthContextType {
 	token: string;
 	setUser: React.Dispatch<React.SetStateAction<string>>,
 	setToken: React.Dispatch<React.SetStateAction<string>>,
+	setIntraLogin: React.Dispatch<React.SetStateAction<string>>,
 	loading: boolean;
 	error?: Error;
-	authLogin: (login: string, password: string) => void;
+	authLogin: (login: string, password: string) => Promise<string | undefined>;
 	authLogout: () => void;
-	authSignup: (login: string, password: string) => void;
+	authSignup: (login: string, password: string) => Promise<string | undefined>;
 	authLogIntra: (url: URL) => void;
 	authSignIntra: (url: URL) => void;
 }
@@ -48,7 +49,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 	useEffect(() => {
 		if (error)
-			setError(null);
+			setError(undefined);
 	}, [location.pathname]);
 
 	useEffect( () => {
@@ -124,8 +125,6 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 		try {
 			const response = await fetch(url)
 			const data = await response.json()
-			console.log(data);
-			console.log(response);
 			if (response.status == 200) {
 				if (data['signedIn']) {
 					setUser(data.user['login'])
@@ -155,11 +154,13 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				setUser(data['login'])
 				setToken(data['aT']);
 				navigate('/pong')
+				return ''
 			} else {
-				setUser('');
-				setToken('');
-				setIntraLogin('')
-				navigate('/login')
+//				setUser('');
+//				setToken('');
+//				setIntraLogin('')
+//				navigate('/login')
+				return data['message']
 			}
 		} catch(err) {
 			console.log(err);
@@ -191,8 +192,9 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				setUser(login);
 				setToken(data['aT']);
 				navigate('/pong')
+				return ''
 			}
-
+			return data['message']
 		} catch (err) {
 			console.log(err);
 		} finally {
@@ -225,7 +227,10 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				setUser(login);
 				setToken(data['aT']);
 				navigate('/pong')
+				return ''
 			}
+			else
+				return 'invalid login or password'
 		} catch (err) {
 			console.log(err);
 		} finally {
@@ -266,6 +271,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			token,
 			setUser,
 			setToken,
+			setIntraLogin,
 			loading,
 			error,
 			authLogin,
@@ -285,8 +291,8 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 }
 
 export function useFetchAuth() {
-	const {token, setToken, setUser } = useContext(AuthContext);
-	return {token, setToken, setUser};
+	const {token, setToken, setUser, setIntraLogin } = useContext(AuthContext);
+	return {token, setToken, setUser, setIntraLogin};
 }
 
 export default function useAuth() {

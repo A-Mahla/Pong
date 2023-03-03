@@ -1,10 +1,31 @@
 import { Box, Grid } from '@mui/material'
+import { useEffect } from 'react'
 import '/src/pong/page/LeadPage.css'
 //import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ProfileAvatar from '/src/pong/Profile/Avatar'
+import { useFetchAuth } from '/src/pong/context/useAuth' 
+import { FetchApi, Api } from '/src/pong/component/FetchApi' 
 
 
 const Profile = () => {
+
+
+	const fetchType: Api = {
+		api: {
+			input: `http://${import.meta.env.VITE_SITE}/api/users/profile/auth`,
+			option: {
+				method: "GET",
+			},
+		},
+		auth: useFetchAuth(),
+	}
+	console.log(fetchType)
+
+
+	useEffect(() => {
+		const {response, data} = FetchApi(fetchType)
+		return undefined
+	}, [])
 
 	return <>
 			<Grid item xs={5}

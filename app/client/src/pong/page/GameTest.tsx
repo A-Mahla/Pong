@@ -11,7 +11,20 @@ import PropTypes from 'prop-types';
 const PLAYER_HEIGHT = 100;
 const PLAYER_WIDTH = 5;
 
+const drawScore = (canvas, scorePlayer1, scorePlayer2) => {
+	const context = canvas.getContext('2d');
 
+	// Set font to futuristic style
+	context.font = "75px 'Tr2n', sans-serif";
+
+	// Draw player 1 score
+	context.fillStyle = '#2f8ca3';
+	context.fillText(scorePlayer1, canvas.width / 2 - 62, 85);
+
+	// Draw player 2 score
+	context.fillStyle = '#2f8ca3';
+	context.fillText(scorePlayer2, canvas.width / 2 + 20, 85);
+  }
 
 const draw = (canvas, game) => {
 	const context = canvas.getContext('2d')
@@ -37,9 +50,9 @@ const draw = (canvas, game) => {
 	context.arc(game.ball.x, game.ball.y, game.ball.r, 0, Math.PI * 2, false)
 	context.fill();
 
+	// draw score
+	drawScore(canvas, game.player1.score, game.player2.score);
 
-	// context.fillStyle = "rgba(0, 0, 200, 0.5)";
-	// context.fillRect(30, 30, 50, 50);
 };
 
 const ballMove = (game, canvas) => {
@@ -61,58 +74,62 @@ const ballMove = (game, canvas) => {
 		const bornInf = (game.player1.y - PLAYER_HEIGHT)
 		const bornSup = (game.player1.y + PLAYER_HEIGHT)
 		if (game.ball.y > bornInf && game.ball.y < bornSup)
-		{
-			game.ball.speed.x *= -1;
-			if (game.ball.y < game.player1.y || game.ball.y > game.player1.y)
-				game.ball.speed.y *= 2;
+			game.ball.speed.x *= -1,2;
+		else {
+			// player1 loose, we reset the ball at the center of the field
+			game.player2.score += 1;
+			game.ball.x = canvas.width / 2
+			game.ball.y = canvas.height / 2
+			game.ball.speed.x = 0;
+			game.ball.speed.y = 0;
 		}
-		//else
-			// you lost !!
 	}
 
 }
 
 const Canvas = ({draw, height, width}) => {
 	const canvas = React.useRef<HTMLCanvasElement>();
+	const [isPlaying, setIsPlaying] = React.useState(1);
 	const [game, setGame] = React.useState({
 		player1: {
-			y: 640 / 2 - PLAYER_HEIGHT / 2
+			y: 640 / 2 - PLAYER_HEIGHT / 2,
+			score: 0
 		},
 		player2: {
-			y: 640 / 2 - PLAYER_HEIGHT / 2
+			y: 640 / 2 - PLAYER_HEIGHT / 2,
+			score: 0
 		},
 		ball: {
 			x: 1200 / 2,
 			y: 640 / 2,
 			r: 5,
 			speed: {
-				x: -2,
-				y: -2
+				x: 2,
+				y: 2
 			}
 		}
 	})
-
 	React.useEffect(() => {
-		const canvas_test = canvas.current
+		const canvasHandler = canvas.current
+	if (isPlaying){
 		let raquette = game.player1.y;
-
 		const handleMouseMove = (event) => {
-			const canvasLocation = canvas_test?.getBoundingClientRect();
+			const canvasLocation = canvasHandler?.getBoundingClientRect();
 			const mouseLocation = event.clientY - canvasLocation?.y
 			if (mouseLocation < PLAYER_HEIGHT / 2) {
 				raquette = 0;
-			} else if (mouseLocation > canvas_test.height - PLAYER_HEIGHT / 2) {
-				raquette = canvas_test.height - PLAYER_HEIGHT;
+			} else if (mouseLocation > canvasHandler.height - PLAYER_HEIGHT / 2) {
+				raquette = canvasHandler.height - PLAYER_HEIGHT;
 			} else {
 				raquette = mouseLocation - PLAYER_HEIGHT / 2;
 			}
 		}
 		window.addEventListener('mousemove', handleMouseMove);
-		ballMove(game, canvas_test)
-
+		ballMove(game, canvasHandler)
 		const timer = setTimeout(() => {
 			setGame({...game,
 			player1: {
+				...game.player1,
 				y: raquette
 			},
 			ball: {...game.ball,
@@ -120,19 +137,23 @@ const Canvas = ({draw, height, width}) => {
 				y: game.ball.y + game.ball.speed.y
 			}})
 		}, 20)
-		draw(canvas_test, game);
+		draw(canvasHandler, game);
 		return () => {
 			window.removeEventListener(
-			  'mousemove',
-			  handleMouseMove
-			);
-			clearTimeout(timer);
-		};
+				'mousemove',
+				handleMouseMove
+				);
+				clearTimeout(timer);
+			};
+		} else {
+			draw(canvasHandler, game);
+		}
 
 	}, [game]);
-
 	return (
-		<canvas ref={canvas} height={height} width={width} />
+		<main role="main">
+				<canvas ref={canvas} height={height} width={width} />
+		</main>
 	);
 };
 
@@ -150,8 +171,7 @@ const GameTest = () => {
 				<Canvas draw={draw} height={640} width={1200} />
 			</div>
 		</>
-
-	  )
+	)
 
 }
 export default GameTest

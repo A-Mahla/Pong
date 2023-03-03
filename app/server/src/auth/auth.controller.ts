@@ -22,7 +22,8 @@ import { Controller,
 	ConsoleLogger,
 	Req,
 	UsePipes,
-	ValidationPipe
+	ValidationPipe,
+	HttpStatus
 } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from 'src/users/User.dto'
 import { UsersService } from 'src/users/users.service'
@@ -105,25 +106,19 @@ export class AuthController {
 		@Query('intraLogin') intraLogin: string,
 		@Res({ passthrough: true }) response: Response
 	) {
-		console.log(login)
 		const ifExist = await this.userService.findIfExistUser(login)
 
 		if (ifExist)
-		{
-			return {
-				statusCode: 400,
-				message: 'login already use'
-			}
-		}
+			throw new HttpException('login unavailable', HttpStatus.FORBIDDEN);
 
 		return {
 			login: login,
 			aT: await this.authService.login(
-					await this.userService.createUser({
-						login: login,
-						password: '',
-						intraLogin: intraLogin
-					}),
+				await this.userService.createUser({
+					login: login,
+					password: '',
+					intraLogin: intraLogin
+				}),
 				response
 			),
 		}

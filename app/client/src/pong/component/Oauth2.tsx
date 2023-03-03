@@ -39,7 +39,10 @@ const IntraSignup = () => {
 	const handleIntraLogin = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
 		e.preventDefault()
-		authSignIntra(`http://${import.meta.env.VITE_SITE}/api/auth/intra42?login=${login.current.value}&intraLogin=${intraLogin}`)
+		async function signAsync() {
+			setError(await authSignIntra(`http://${import.meta.env.VITE_SITE}/api/auth/intra42?login=${login.current.value}&intraLogin=${intraLogin}`))
+		}
+		signAsync();
 	})
 
 
