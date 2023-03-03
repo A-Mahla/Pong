@@ -4,7 +4,6 @@ import  MainPage  from '/src/pong/page/MainPage';
 import LeadPage from '/src/pong/page/LeadPage';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Login } from '/src/pong/component/Login';
-import { Test } from '/src/pong/component/Test';
 import { AuthProvider } from '/src/pong/context/useAuth';
 import PrivateRoute from '/src/pong/component/PrivateRoute';
 import LoggedRoute from '/src/pong/component/LoggedRoute';
@@ -42,7 +41,6 @@ export const Pong = () => {
 						<Route element= { <PrivateRoute /> }>
 							<Route path='/pong' element={<LeadPage/>} />
 						</Route>
-						<Route path='/test' element={<Test/>} />
 						<Route path="/redirect" element={<Redirect/>} />
 						<Route path="/gameTest" element={<GameTest/>} />
 					</Routes>
