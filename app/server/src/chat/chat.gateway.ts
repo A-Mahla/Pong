@@ -1,10 +1,12 @@
-import { UseGuards } from '@nestjs/common';
+import { Controller, UseGuards } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { User } from '@prisma/client';
 import { Server, Socket } from 'socket.io';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { UsersService } from 'src/users/users.service';
+import { AuthMiddleware } from './chat.middleware';
 import { RoomsService } from './rooms/rooms.service';
+import { WsGuard } from './ws.guard';
 
 type MessageData = {
 	content: string,
@@ -18,14 +20,9 @@ type CreateRoomData = {
   ownerName: string,
 }
 
-@WebSocketGateway(
- // {cors : {
- //   origin: "http://localhost:3000",
- //   methods: ["GET", "POST"],
- //   transports: ['websocket', 'polling'],
- //   }
- // }
-  )
+@WebSocketGateway()
+@UseGuards(AuthMiddleware)
+@Controller('chat')
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
 
   constructor (private readonly roomService: RoomsService, private readonly userService : UsersService) {}
@@ -33,8 +30,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @WebSocketServer()
   server: Server;
 
+  //@UseGuards(WsGuard)
   @SubscribeMessage('message')
-  handleMessage(client: any, payload: MessageData): MessageData {
+  handleMessage(client: any, payload: MessageData)/* : MessageData */ {
     console.log('payload: ',payload)
     if (payload.room)
     {
@@ -45,7 +43,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     }
     else
       this.server.emit('message', payload)
-    return payload;
+    //return payload;
   }
 
   @SubscribeMessage('createRoom')
@@ -87,8 +85,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     console.log('Initialized')
   }
 
+  @UseGuards(AuthMiddleware)
   handleConnection(client: Socket, ...args: any[]): any {
+    console.log('args: ', args)
     console.log(`Client connected: ${client.id}`);
+    //console.log('handshake headers: ', client.handshake.headers )
   }
 
   handleDisconnect(client: Socket): any {
