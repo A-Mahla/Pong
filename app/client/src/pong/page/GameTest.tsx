@@ -9,19 +9,20 @@ import Profile from '/src/pong/Profile/Profile'
 import PropTypes from 'prop-types';
 import { useFetchAuth } from '/src/pong/context/useAuth'
 import { FetchApi, Api } from '/src/pong/component/FetchApi'
+import useAuth from '/src/pong/context/useAuth'
 
 const PLAYER_HEIGHT = 100;
 const PLAYER_WIDTH = 5;
 
-// const fetchType: Api = {
-// 				api: {
-// 					input: `http://localhost:8080/api/users/sacha`,
-// 					option: {
-// 						method: "GET",
-// 					},
-//  			},
-// 				auth: useFetchAuth(),
-// 			}
+//  const fetchType: Api = {
+//  				api: {
+//  					input: `http://localhost:8080/api/users/sacha`,
+//  					option: {
+//  						method: "GET",
+//  					},
+//   			},
+//  				auth: useFetchAuth(),
+// }
 // const {response, data} = FetchApi(fetchType)
 
 const drawScore = (canvas, scorePlayer1, scorePlayer2) => {
@@ -128,11 +129,17 @@ const ballMove = (game, canvas, handleClick) => {
 }
 
 const Canvas = ({draw, height, width}) => {
+
+	const {user} = useAuth()
+
 	const canvas = React.useRef<HTMLCanvasElement>();
+
 	const [isPlaying, setIsPlaying] = React.useState(false);
+	//const {response, data} = FetchApi(fetchType)
+
 	const [game, setGame] = React.useState({
 		player1: {
-			login: 'sacha',
+			login: user,
 			y: 640 / 2 - PLAYER_HEIGHT / 2,
 			score: 0
 		},
@@ -150,13 +157,17 @@ const Canvas = ({draw, height, width}) => {
 				y: 4
 			}
 		}
+
 	})
+
 	const handleClick = () => {
 		if (!isPlaying)
 			setIsPlaying(true)
 		else
 		setIsPlaying(false)
 	}
+
+
 	React.useEffect(() => {
 		const canvasHandler = canvas.current
 	if (isPlaying){
@@ -198,6 +209,11 @@ const Canvas = ({draw, height, width}) => {
 		}
 
 	}, [game, isPlaying]);
+
+
+
+
+
 	return (
 		<main role="main">
 				< Mybutt isPlaying={isPlaying} onClick={handleClick} />
