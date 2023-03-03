@@ -5,18 +5,11 @@ import { RoomsService } from "./rooms/rooms.service";
 import { UsersService } from "src/users/users.service";
 import { GameService } from "src/game/game.service";
 import { ChatGateway } from "./chat.gateway";
-import { AuthMiddleware } from "./chat.middleware";
 
 @Module({
 	imports: [PrismaModule],
-	controllers: [RoomsController, ChatGateway],
+	controllers: [RoomsController],
 	providers: [UsersService, RoomsService, GameService]
 })
-export class ChatModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes({ path: 'chat', method: RequestMethod.ALL})
-  }
-}
+export class ChatModule {}
 

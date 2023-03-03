@@ -4,7 +4,6 @@ import { User } from '@prisma/client';
 import { Server, Socket } from 'socket.io';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { UsersService } from 'src/users/users.service';
-import { AuthMiddleware } from './chat.middleware';
 import { RoomsService } from './rooms/rooms.service';
 import { WsGuard } from './ws.guard';
 
@@ -21,8 +20,6 @@ type CreateRoomData = {
 }
 
 @WebSocketGateway()
-@UseGuards(AuthMiddleware)
-@Controller('chat')
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
 
   constructor (private readonly roomService: RoomsService, private readonly userService : UsersService) {}
@@ -30,7 +27,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @WebSocketServer()
   server: Server;
 
-  //@UseGuards(WsGuard)
   @SubscribeMessage('message')
   handleMessage(client: any, payload: MessageData)/* : MessageData */ {
     console.log('payload: ',payload)
@@ -85,11 +81,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     console.log('Initialized')
   }
 
-  @UseGuards(AuthMiddleware)
   handleConnection(client: Socket, ...args: any[]): any {
+    client.disconnect();
     console.log('args: ', args)
     console.log(`Client connected: ${client.id}`);
-    //console.log('handshake headers: ', client.handshake.headers )
   }
 
   handleDisconnect(client: Socket): any {
