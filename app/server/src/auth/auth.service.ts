@@ -55,22 +55,6 @@ export class AuthService {
 		}
 	}
 
-	async getAccesToken(user: any) {
-		const payload = { sub: user.id, login: user.login }
-		const accessToken = await this.jwtService.signAsync(
-			{
-			  sub: payload.sub,
-			  login: payload.login,
-			},
-			{
-			  secret: jwtConstants.secret,
-			  expiresIn: '7d',
-			},
-		)
-		return { aT: accessToken }
-
-	}
-
 	async getTokens(user: JwtPayload, response: Response) {
 
 

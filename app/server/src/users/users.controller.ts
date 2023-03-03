@@ -55,42 +55,12 @@ export class UsersController {
 	@UseGuards(LocalAuthGuard)
 	@Get('login')
 	async handleLogin(@Query() query: {login: string, password: string}) {
-		const user = await this.userService.findOneUser(query.login)
-		if (!user)
-			return {
-				'statusCode': 403,
-				'message': 'invalid login or password'
-			}
-		if (user.password != query.password)
-			return {
-				'statusCode': 403,
-				'message': 'invalid login or password'
-			}
-		if (user.intraLogin)
-			return {
-				'statusCode': 403,
-				'message': 'invalid login or password'
-			}
-		return {
-			'statusCode': 200,
-			'message': 'valid infos',
-			'body': JSON.stringify(user)
-		}
+		return await this.userService.findOneUser(query.login)
 	}
 
 	@Get('intra')
 	async getIntraUser(@Query() query: {intraLogin : string}) {
-		const intraUser = this.userService.findOneIntraUser(query.intraLogin)
-		if (!intraUser)
-			return {
-				'statusCode' : 403,
-				'message': 'no such intra user'
-			}
-		return {
-			'statusCode': 200,
-			'message' : 'user successfully signed in',
-			'body' : JSON.stringify(intraUser)
-		}
+		return this.userService.findOneIntraUser(query.intraLogin)
 	}
 
 	/*@UseGuards(JwtAuthGuard)
