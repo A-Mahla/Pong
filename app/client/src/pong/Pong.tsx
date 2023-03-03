@@ -42,7 +42,7 @@ export const Pong = () => {
 							<Route path='/pong' element={<LeadPage/>} />
 						</Route>
 						<Route path="/redirect" element={<Redirect/>} />
-						<Route path="/gameTest" element={<GameTest/>} />
+						<Route path="/gametest" element={<GameTest/>} />
 					</Routes>
 				</AuthProvider>
 			</BrowserRouter>

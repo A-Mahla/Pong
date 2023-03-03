@@ -43,9 +43,9 @@ export const refreshRequest = async () => {
 
 /**
  * @include
- * 			import { useFetchAuth } from '/src/pong/context/useAuth' 
- * 			import { FetchApi, Api } from '/src/pong/component/FetchApi' 
- * 
+ * 			import { useFetchAuth } from '/src/pong/context/useAuth'
+ * 			import { FetchApi, Api } from '/src/pong/component/FetchApi'
+ *
  * @Usage
  * 			const fetchType: Api = {
  * 				api: {
@@ -56,14 +56,14 @@ export const refreshRequest = async () => {
  *  			},
  * 				auth: useFetchAuth(),
  * 			}
- * 			
- * 			...
- * 	
- * 			const {response, data} = FetchApi(fetchType)
- * 
  *
- * @param 
- * 			fetchType: Api 
+ * 			...
+ *
+ * 			const {response, data} = FetchApi(fetchType)
+ *
+ *
+ * @param
+ * 			fetchType: Api
  * @returns
  * 			const {response, data}
  */

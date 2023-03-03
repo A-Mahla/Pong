@@ -7,9 +7,22 @@ import Tab from '@mui/material/Tab'
 import Swipeable from '/src/pong/component/Swipeable'
 import Profile from '/src/pong/Profile/Profile'
 import PropTypes from 'prop-types';
+import { useFetchAuth } from '/src/pong/context/useAuth'
+import { FetchApi, Api } from '/src/pong/component/FetchApi'
 
 const PLAYER_HEIGHT = 100;
 const PLAYER_WIDTH = 5;
+
+// const fetchType: Api = {
+// 				api: {
+// 					input: `http://localhost:8080/api/users/sacha`,
+// 					option: {
+// 						method: "GET",
+// 					},
+//  			},
+// 				auth: useFetchAuth(),
+// 			}
+// const {response, data} = FetchApi(fetchType)
 
 const drawScore = (canvas, scorePlayer1, scorePlayer2) => {
 	const context = canvas.getContext('2d');
@@ -24,13 +37,41 @@ const drawScore = (canvas, scorePlayer1, scorePlayer2) => {
 	// Draw player 2 score
 	context.fillStyle = '#2f8ca3';
 	context.fillText(scorePlayer2, canvas.width / 2 + 20, 85);
-  }
+}
+
+const drawLogin = (canvas, loginPlayer1: string, loginPlayer2: string) => {
+	const context = canvas.getContext('2d');
+
+	// Set font to futuristic style
+	context.font = "37px 'Tr2n', sans-serif";
+
+	// Measure the width of the player 1 login text
+	//const player1LoginWidth = context.measureText(loginPlayer1).width;
+
+	// Draw player1 login at the top left of the canvas
+	context.fillStyle = '#2f8ca3';
+	context.fillText(loginPlayer1, 10, 30);
+
+	// Measure the width of the player 2 login text
+	const player2LoginWidth = context.measureText(loginPlayer2).width;
+
+	// Draw player2 login at the top right of the canvas, aligned with player1 login
+	context.fillStyle = '#2f8ca3';
+	context.fillText(loginPlayer2, canvas.width - player2LoginWidth - 10, 30);
+}
 
 const draw = (canvas, game) => {
 	const context = canvas.getContext('2d')
 	// background
 	context.fillStyle = 'black';
 	context.fillRect(0, 0, canvas.width, canvas.height);
+
+	// draw login
+	drawLogin(canvas, game.player1.login, game.player2.login);
+	//draw score
+	drawScore(canvas, game.player1.score, game.player2.score);
+
+	// draw playerLogin
 
 	// dram middle line
 	context.strokeStyle = 'white';
@@ -50,12 +91,10 @@ const draw = (canvas, game) => {
 	context.arc(game.ball.x, game.ball.y, game.ball.r, 0, Math.PI * 2, false)
 	context.fill();
 
-	// draw score
-	drawScore(canvas, game.player1.score, game.player2.score);
 
 };
 
-const ballMove = (game, canvas) => {
+const ballMove = (game, canvas, handleClick) => {
 	if (game.ball.y > canvas.height || game.ball.y < 0) {
         game.ball.speed.y *= -1;
     }
@@ -80,8 +119,9 @@ const ballMove = (game, canvas) => {
 			game.player2.score += 1;
 			game.ball.x = canvas.width / 2
 			game.ball.y = canvas.height / 2
-			game.ball.speed.x = 0;
-			game.ball.speed.y = 0;
+			game.ball.speed.x = 4;
+			game.ball.speed.y = 4;
+			handleClick();
 		}
 	}
 
@@ -89,13 +129,15 @@ const ballMove = (game, canvas) => {
 
 const Canvas = ({draw, height, width}) => {
 	const canvas = React.useRef<HTMLCanvasElement>();
-	const [isPlaying, setIsPlaying] = React.useState(1);
+	const [isPlaying, setIsPlaying] = React.useState(false);
 	const [game, setGame] = React.useState({
 		player1: {
+			login: 'sacha',
 			y: 640 / 2 - PLAYER_HEIGHT / 2,
 			score: 0
 		},
 		player2: {
+			login: 'testLogin2',
 			y: 640 / 2 - PLAYER_HEIGHT / 2,
 			score: 0
 		},
@@ -104,11 +146,17 @@ const Canvas = ({draw, height, width}) => {
 			y: 640 / 2,
 			r: 5,
 			speed: {
-				x: 2,
-				y: 2
+				x: 4,
+				y: 4
 			}
 		}
 	})
+	const handleClick = () => {
+		if (!isPlaying)
+			setIsPlaying(true)
+		else
+		setIsPlaying(false)
+	}
 	React.useEffect(() => {
 		const canvasHandler = canvas.current
 	if (isPlaying){
@@ -125,7 +173,7 @@ const Canvas = ({draw, height, width}) => {
 			}
 		}
 		window.addEventListener('mousemove', handleMouseMove);
-		ballMove(game, canvasHandler)
+		ballMove(game, canvasHandler, handleClick)
 		const timer = setTimeout(() => {
 			setGame({...game,
 			player1: {
@@ -149,13 +197,28 @@ const Canvas = ({draw, height, width}) => {
 			draw(canvasHandler, game);
 		}
 
-	}, [game]);
+	}, [game, isPlaying]);
 	return (
 		<main role="main">
+				< Mybutt isPlaying={isPlaying} onClick={handleClick} />
 				<canvas ref={canvas} height={height} width={width} />
 		</main>
 	);
 };
+
+function Mybutt ({isPlaying, onClick} : any) {
+	let content;
+	// event handler :
+	if (isPlaying)
+	  content = <button onClick={onClick}>--- PAUSE ---</button>
+	else
+	  content = <button onClick={onClick}>--- PLAY ---</button>
+	return (
+	  <div>
+		{content}
+	  </div>
+	)
+}
 
 Canvas.propTypes = {
   draw: PropTypes.func.isRequired,

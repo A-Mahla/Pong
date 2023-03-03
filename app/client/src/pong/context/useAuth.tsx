@@ -62,10 +62,10 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 					navigate(location)
 					return ;
 				}
-				if ( location.pathname === '/gameTest' ) {
-					navigate(location)
-					return ;
-				}
+				// if ( location.pathname === '/gameTest' ) {
+				// 	navigate(location)
+				// 	return ;
+				// }
 
 				const url = `http://${import.meta.env.VITE_SITE}/api/users/profile/auth`;
 					const requestOption = {
@@ -86,7 +86,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 						setToken('');
 						setIntraLogin('')
 						if ( location.pathname === '/login'
-							|| location.pathname === '/pong' )
+							|| location.pathname === '/pong' || location.pathname === '/gameTest' )
 							navigate('/login')
 						else
 							navigate('/');
