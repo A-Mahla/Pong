@@ -145,6 +145,12 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 		const requestOptions = {
 			method: "POST",
+			headers: {
+      			"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				intraLogin: intraLogin,
+			}),
 		}
 
 		try {
@@ -155,12 +161,13 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				setToken(data['aT']);
 				navigate('/pong')
 				return ''
-			} else {
-//				setUser('');
-//				setToken('');
-//				setIntraLogin('')
-//				navigate('/login')
+			} else if ( data['message'] === 'login unavailable'){
 				return data['message']
+			} else {
+				setUser('');
+				setToken('');
+				setIntraLogin('')
+				navigate('/login')
 			}
 		} catch(err) {
 			console.log(err);

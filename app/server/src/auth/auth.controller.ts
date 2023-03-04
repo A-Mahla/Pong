@@ -92,9 +92,10 @@ export class AuthController {
 		@Res({ passthrough: true }) response: Response
 	) {
 		if (req.intraUserInfo.signedIn){
+			const accessToken = await this.authService.login(req.intraUserInfo.user, response)
 			return {
 				...req.intraUserInfo,
-				token: await this.authService.login(req.intraUserInfo.user, response)
+				token: accessToken['aT']
 			}
 		}
 		return req.intraUserInfo
@@ -104,23 +105,31 @@ export class AuthController {
 	async createIntraUser(
 		@Query('login') login: string,
 		@Query('intraLogin') intraLogin: string,
+		@Body() body: any,
 		@Res({ passthrough: true }) response: Response
 	) {
+
+
+		if (body['intraLogin'] !== intraLogin )
+			throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
+	
 		const ifExist = await this.userService.findIfExistUser(login)
 
 		if (ifExist)
 			throw new HttpException('login unavailable', HttpStatus.FORBIDDEN);
 
+		const token = await this.authService.login(
+			await this.userService.createUser({
+				login: login,
+				password: '',
+				intraLogin: intraLogin
+			}),
+			response
+		)
+
 		return {
 			login: login,
-			aT: await this.authService.login(
-				await this.userService.createUser({
-					login: login,
-					password: '',
-					intraLogin: intraLogin
-				}),
-				response
-			),
+			aT: token['aT'],
 		}
 	}	
 

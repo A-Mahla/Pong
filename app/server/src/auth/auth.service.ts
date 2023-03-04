@@ -47,7 +47,6 @@ export class AuthService {
 
 	async refreshTokens(user: any, response: Response) {
 		const userTry = await this.usersService.findOneUser(user.login);
-		console.log('test')
 		const tokens = await this.getTokens(user, response);
 		await this.usersService.updateRefreshToken(user.login, tokens.refreshToken);
 		return {
