@@ -7,7 +7,7 @@ import { Login } from '/src/pong/component/Login';
 import { AuthProvider } from '/src/pong/context/useAuth';
 import PrivateRoute from '/src/pong/component/PrivateRoute';
 import LoggedRoute from '/src/pong/component/LoggedRoute';
-import { Chat } from './Chat';
+import { Chat } from '/src/pong/Chat/Chat';
 import GameTest from '/src/pong/page/GameTest';
 
 /**

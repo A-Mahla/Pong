@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException} from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { Room } from "@prisma/client"
+import { Room, User, User_Room } from "@prisma/client"
 import { CreateRoomParam } from "../Chat.types";
 import { UsersService } from "src/users/users.service";
 
@@ -18,21 +18,36 @@ export class RoomsService {
 		if (!roomOwner)
 			return null 
 
-		const newRoom = {
+		const newRoomData = {
 			createdAt: new Date(),
 			name: roomDetails.roomName,
-			ownerId: roomOwner.id
+			ownerId: roomOwner.id,
+			//members: {
+			//	connect: [{ member_id : roomOwner.id}]
+			//}
 		}
 
-		console.log('newRoom: ', newRoom)
-		
-		return this.prisma.room.create({
-			data: {...newRoom}
+		console.log('newRoomData: ', newRoomData)
+		const newRoom = await this.prisma.room.create({
+			data: {...newRoomData}
 		}).catch((e: any) => {throw e});
+
+		const memberRoom = await this.prisma.user_Room.create({
+			data: {
+				member_id : roomOwner.id,
+				room_id : newRoom.room_id
+			}
+		}).catch((e) => {throw new BadRequestException(e)})
+
+		return newRoom 
 	}
 
 	async findAll () {
-		return this.prisma.room.findMany()
+		return this.prisma.room.findMany({
+			include: {
+				members: true
+			}
+		})
 	}
 
 	async getRoomById (roomId: number) {
@@ -40,7 +55,7 @@ export class RoomsService {
 		return this.prisma.room.findUnique(
 			{
 				where: {
-					id : id
+					room_id : id
 				}
 			}
 		)
@@ -54,6 +69,9 @@ export class RoomsService {
 		if (room.ownerId === null)
 			throw new BadRequestException('Invalid content', { cause: new Error(), description: 'room dont have owner' })  
 
-		return this.userService.findUserById((room as Room).ownerId as number)
+		const user = await this.userService.findUserById((room as Room).ownerId as number)
+		console.log(user)
+		//return (user as User).ownedRooms
+		return user
 	}
 }

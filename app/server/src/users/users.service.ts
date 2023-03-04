@@ -1,6 +1,6 @@
 import { BadGatewayException, BadRequestException, Injectable, UseInterceptors, UploadedFile, Param } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma, User, User_Game, Games } from '@prisma/client';
+import { Prisma, User, User_Game, Games, Room } from '@prisma/client';
 import { GameService } from 'src/game/game.service';
 import { CreateUserParams, UpdateUserParams, profile } from './User.types'
 import { FileInterceptor } from '@nestjs/platform-express'
@@ -10,7 +10,7 @@ import { ok } from 'assert';
 export class UsersService {
 
 	constructor( private prisma: PrismaService,
-				 private readonly gameService: GameService ) {}
+				 private readonly gameService: GameService) {}
 
 	async findUsers(): Promise<User[]> {
 		return this.prisma.user.findMany()
@@ -32,10 +32,16 @@ export class UsersService {
 
 	async findUserById(id : number) : Promise<User | null> {
 		return await this.prisma.user.findUnique({
-			where: { id: id}
+			where: {
+				id: id 
+			},
+			include: {
+				ownedRooms: true,
+				member: true
+			}
 		}).catch((e) => {
 			throw new BadRequestException(); // maybe we will have to specifie the error later
-		})
+		});
 	}
 
 	async findOneIntraUser(intraLogin: string) : Promise<User | null> {
@@ -47,12 +53,14 @@ export class UsersService {
 	}
 
 	async updateUser(login: string, updateUserDetails: UpdateUserParams) : Promise<User> {
-		return await this.prisma.user.update({
+		return await this.prisma.user.update(
+		{
 			where: { login: login },
-			data: { ...updateUserDetails }
-		}).catch((e) => {
+			data: {...updateUserDetails}
+			}
+		).catch((e) => {
 			throw new BadRequestException(); // maybe we will have to specifie the error later
-		})
+		});
 	}
 
 	async updateRefreshToken(login: string, refreshToken: string) {
@@ -120,6 +128,52 @@ export class UsersService {
 			nbLoss: (await this.gameService.getVictoryLossCountForUser(user_id, false)),
 		};
 	}
+
+	//============================ ROOMS =======================
+
+	async findAllUserRooms(login: string) /* : Promise<Room> */ {
+		const user = await this.findOneUser(login)
+		if (!user)
+			throw new BadRequestException('Invalid content', { cause: new Error(), description: 'invalid room id' })  
+		const userRooms = await this.prisma.user_Room.findMany({
+			where : {
+				member_id : user.id
+			}
+		})
+		const userRoomsId = userRooms.map((value) => (value.room_id))
+
+
+		const rooms = await this.prisma.room.findMany({
+			where: {
+				room_id : { in : (userRoomsId as number[])}
+			}
+		})
+
+		return rooms
+	}
+
+	//async addRoom(login : string, roomName : string) {
+	//	const user = await this.prisma.user.findUnique({
+	//		where: {
+	//			login: login
+	//		},
+	//	})
+
+	//	const room = await this.prisma.room.find({
+	//		where : {
+	//			name : roomName,
+	//		}
+	//	})
+
+	//	const updateUserRoom = this.prisma.user_Room.update({
+	//		where: {
+	//			member_id : (user as User).id
+	//		}
+	//	})
+
+	//	
+	//}
+
 
 
 

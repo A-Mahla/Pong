@@ -137,4 +137,14 @@ export class UsersController {
 	) {
 		await this.userService.deleteUser(login);
 	}
+
+	//================== ROOMS =================
+
+	@Get('rooms/:login')
+	async getRooms(
+		@Param('login') login: string
+	)
+	{
+		return this.userService.findAllUserRooms(login)
+	}
 }
