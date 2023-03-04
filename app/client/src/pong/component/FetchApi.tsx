@@ -1,4 +1,5 @@
 import { useContext, useNavigate } from 'react'
+import * as React from 'react'
 import useAuth from '/src/pong/context/useAuth'
 
 export type Api = {
