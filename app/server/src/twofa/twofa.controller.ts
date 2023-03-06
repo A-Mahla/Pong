@@ -14,7 +14,7 @@ import {
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
-@Controller('twofa')
+@Controller('2fa')
 @UseInterceptors(ClassSerializerInterceptor)
 export class TwofaController {
 	constructor(private readonly twoFAService: TwoFAService) {}
