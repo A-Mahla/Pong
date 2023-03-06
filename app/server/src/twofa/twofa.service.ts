@@ -1,4 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import {
+	Injectable,
+	BadRequestException,
+} from '@nestjs/common';
 import { User } from '@prisma/client';
 import { UsersService } from 'src/users/users.service';
 import { toFileStream } from 'qrcode';
@@ -10,6 +13,18 @@ export class TwoFAService {
 	constructor(
 		private readonly usersService: UsersService,
 	) {}
+
+	public isTwoFactorAuthenticationCodeValid(twoFACode: string, user: User) {
+
+		if (!user.twoFA)
+			throw new BadRequestException;
+
+		return speakeasy.totp.verify({
+			secret: user.twoFA,
+			encoding: 'base32',
+			token: twoFACode,
+		})
+	}
 
 	public async generateTwoFASecret(login: string) {
 		const secret = speakeasy.generateSecret();

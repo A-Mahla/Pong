@@ -5,6 +5,7 @@ import {
   Header,
   Param,
   Post,
+  Get,
   UseInterceptors,
   Res,
   UseGuards,
@@ -19,7 +20,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 export class TwofaController {
 	constructor(private readonly twoFAService: TwoFAService) {}
 
-	@Post('generate')
+	@Get('generate')
 	@UseGuards(JwtAuthGuard)
 	async register(
 		@Res() response: Response, 

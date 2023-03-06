@@ -68,7 +68,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				// }
 
 				const url = `http://${import.meta.env.VITE_SITE}/api/users/profile/auth`;
-					const requestOption = {
+				const requestOption = {
 					method: "GET",
 					headers: { 'Authorization': `Bearer ${token}` },
 				}

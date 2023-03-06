@@ -5,19 +5,21 @@ import useAuth from '/src/pong/context/useAuth'
 export type Api = {
 	api: {
 		input: RequestInfo | URL,
-		option: RequestInit,
+		option?: RequestInit,
+		dataType?: string,
 	}
 	auth: {
 		token: string,
 		setUser: React.Dispatch<React.SetStateAction<string>>,
 		setToken: React.Dispatch<React.SetStateAction<string>>,
 		setIntraLogin: React.Dispatch<React.SetStateAction<string>>,
-	}
+	},
 }
 
 export type apiInput = {
 	input: RequestInfo | URL,
-	option: RequestInit,
+	option?: RequestInit,
+	dataType?: string,
 }
 
 export type responseApi = {
@@ -28,7 +30,13 @@ export type responseApi = {
 export const originalRequest = async (api: apiInput) => {
 
 	const response = await fetch(api.input, api.option);
-	const data = await response.json();
+	let data;
+	if (!api.dataType)
+		data = await response.json();
+	else if (api.dataType === 'text')
+		data = await response.text();
+	else if (api.dataType === 'null')
+		data = null;
 	return {response, data};
 
 }

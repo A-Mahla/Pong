@@ -11,6 +11,7 @@ export class UpdateUserParams {
 	avatar?: string;
 	intraLogin?: string;
 	twoFA?: string;
+	isTwoFA?: boolean;
 }
 
 export class profile {
