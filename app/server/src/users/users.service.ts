@@ -108,6 +108,8 @@ export class UsersService {
 		});
 	}
 
+/* =========================== 2FA ====================================*/
+
 	async setTwoFASecret(secret: string, login: string) {
 		return this.updateUser( login, {
 				twoFA: secret
@@ -115,11 +117,13 @@ export class UsersService {
 		);
 	}
 
-	async turnOnTwoFactorAuthentication(login: string) {
+	async turnOnTwoFA(login: string) {
 		return this.updateUser(login, {
 			isTwoFA: true
 		});
 	}
+
+/* ============^^^^^^^^^^^^^^^^^^^^^^^^^^^^^========================*/
 
 /* ============================ get profile ========================*/
 

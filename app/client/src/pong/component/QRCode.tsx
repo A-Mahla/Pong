@@ -11,10 +11,14 @@ export const QRCode = () => {
 	const [fetched, setFetched] = useState(false);
 	const [url, setUrl] = useState('');
 	const [qrcode, setQrcode] = useState<string>('');
+	const [code, setCode] = useState<string>('');
 
 	const fetchType: Api = {
 		api: {
 			input: `http://${import.meta.env.VITE_SITE}/api/2fa/generate`,
+			option: {
+				method: 'POST'
+			},
 			dataType: 'null',
 		},
 		auth: useFetchAuth(),
@@ -24,14 +28,27 @@ export const QRCode = () => {
 
 		async function fetching() {
 			const {response, data} = await FetchApi(fetchType);
+			const result = await response.body.getReader().read();
+			/*			console.log(result)
+			console.log(new TextDecoder().decode(result.value))
+			setUrl(new TextDecoder().decode(result.value))
+			 */
+			console.log(result)
+			
+
+			setUrl(result)
 			setFetched(true);
-			setUrl(response.body.getReader())
 		}
 		fetching();
 		return undefined
 	}, [])
+
+
 	
-	return <Box>
+	return <Box sx={{ 
+			display: 'flex',
+			justifyContent: 'center',
+		}}>
 		{!fetched ?
 			null :
 			<QRCodeCanvas
@@ -45,3 +62,4 @@ export const QRCode = () => {
 	</Box>
 
 }
+
