@@ -108,6 +108,15 @@ export class UsersService {
 		});
 	}
 
+ async setTwoFASecret(secret: string, login: string) {
+	 return this.updateUser(
+		 login,
+		 {
+			 twoFA: secret
+		 }
+	 );
+  }
+
 /* ============================ get profile ========================*/
 
 	async getProfileInfo(user_id: number) {
