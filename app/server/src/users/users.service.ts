@@ -152,6 +152,15 @@ export class UsersService {
 		return rooms
 	}
 
+	async joinRoom(userId : number, roomId : number) {
+		return this.prisma.user_Room.create({
+			data: {
+				member_id: userId,
+				room_id : roomId
+			} 
+		})
+	}
+
 	//async addRoom(login : string, roomName : string) {
 	//	const user = await this.prisma.user.findUnique({
 	//		where: {

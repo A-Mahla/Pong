@@ -40,12 +40,14 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RefreshJwtAuthGuard } from 'src/auth/refresh-jwt-auth.guard'
 import { Intra42AuthGuard } from 'src/auth/intra42.guard';
 import { numberFormat } from './User.dto'
+import { RoomsService } from 'src/chat/rooms/rooms.service';
 
 
 @Controller('users')
 export class UsersController {
 
-	constructor(private userService: UsersService,) {}
+	constructor(private userService: UsersService,
+		private roomService : RoomsService) {}
 
 	@Get()
 	async getUsers() { // return all users
@@ -140,11 +142,29 @@ export class UsersController {
 
 	//================== ROOMS =================
 
-	@Get('rooms/:login')
+	@UseGuards(JwtAuthGuard)
+	@Get(':login/rooms')
 	async getRooms(
 		@Param('login') login: string
 	)
 	{
 		return this.userService.findAllUserRooms(login)
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Patch('/:login/:roomId')
+	async addRoom(
+		@Param('login') login : string,
+		@Param('roomId') roomId : number
+		)
+	{
+		const user = await this.userService.findOneUser(login)
+
+		const room = await this.roomService.getRoomById(roomId)
+
+		console.log('user: ', user);
+		console.log('room: ', room);
+
+		return this.userService.joinRoom(user?.id as number, room?.room_id as number)
 	}
 }

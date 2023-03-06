@@ -74,4 +74,13 @@ export class RoomsService {
 		//return (user as User).ownedRooms
 		return user
 	}
+
+	async findManyRooms (name : string) {
+		const rooms = await this.prisma.room.findMany({
+			where: {
+				name : name
+			}
+		})
+		return rooms
+	}
 }

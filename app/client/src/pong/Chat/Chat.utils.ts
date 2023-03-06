@@ -9,7 +9,7 @@ export async function getUserRooms(login: string) {
 		}
 	}
 
-	const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/users/rooms/${login}`)
+	const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/users/${login}/rooms`)
 	return (await response.json()).map((value) => ({
 		id: value.id,
 		name: value.name,

@@ -19,7 +19,7 @@ type CreateRoomData = {
   ownerName: string,
 }
 
-@WebSocketGateway()
+@WebSocketGateway({namespace : 'chat'})
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
 
   constructor (private readonly roomService: RoomsService, private readonly userService : UsersService) {}
@@ -46,11 +46,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   handleCreateRoom(client: any, payload: CreateRoomData) {
     
     console.log('payload: ', payload);
-    
     client.join(payload.roomName)
     //client.emit('roomCreated', payload.roomName)
     
-    return this.roomService.createRoom(payload) 
+    return this.roomService.createRoom(payload)
   }
 
   @SubscribeMessage('join')
@@ -76,13 +75,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     
   }
     
-
   afterInit(server : Server): any {
     console.log('Initialized')
   }
 
   handleConnection(client: Socket, ...args: any[]): any {
-    client.disconnect();
     console.log('args: ', args)
     console.log(`Client connected: ${client.id}`);
   }
