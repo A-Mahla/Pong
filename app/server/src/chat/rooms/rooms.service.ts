@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException} from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Room, User, User_Room } from "@prisma/client"
-import { CreateRoomParam } from "../Chat.types";
+import { CreateRoomData } from "../Chat.types";
 import { UsersService } from "src/users/users.service";
 
 @Injectable()
@@ -10,9 +10,11 @@ export class RoomsService {
 	constructor(private prisma: PrismaService, 
 		private userService: UsersService) {}
 
-	async createRoom (roomDetails: CreateRoomParam) : Promise<Room | null> {
+	async createRoom (roomDetails: CreateRoomData) : Promise<Room | null> {
 
-    	const roomOwner = await this.userService.findOneUser(roomDetails.ownerName)
+		console.log(roomDetails)
+		console.log(roomDetails.roomOwner)
+    	const roomOwner = await this.userService.findOneUser(roomDetails.roomOwner)
 		console.log("roomOwner: ", roomOwner)
 
 		if (!roomOwner)
@@ -22,6 +24,7 @@ export class RoomsService {
 			createdAt: new Date(),
 			name: roomDetails.roomName,
 			ownerId: roomOwner.id,
+			password: roomDetails.roomPassword 
 			//members: {
 			//	connect: [{ member_id : roomOwner.id}]
 			//}
@@ -82,5 +85,29 @@ export class RoomsService {
 			}
 		})
 		return rooms
+	}
+
+	async deleteRelation(userName: string, roomName: string) {
+		const user = await this.userService.findOneUser(userName)
+
+		const room = await this.prisma.room.findFirst({
+			where: {
+					name: roomName
+			}
+		})
+
+		console.log((user as User).id, (room as Room).room_id);
+		
+
+		return this.prisma.user_Room.delete({
+			where : {
+				member_id_room_id: {
+					member_id : (user as User).id,
+					room_id : (room as Room).room_id
+				}
+			}
+		})
+
+
 	}
 }

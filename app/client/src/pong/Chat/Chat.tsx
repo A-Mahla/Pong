@@ -20,7 +20,8 @@ const initialChatContext = {
 	isJoining: null,
 	joining: false,
 	isCreatoing: null,
-	creating: false
+	creating: false,
+	socket: null
 }
 
 export const ChatContext = createContext(initialChatContext)
@@ -38,11 +39,14 @@ export function Chat() {
 
 	const [creating, isCreating] = useState(false)
 
+	const socket = io.connect("http://localhost:8080/chat")
+
 	const context = {
 		isJoining: isJoining,
 		joining: joining,
 		isCreating: isCreating,
-		creating: creating
+		creating: creating,
+		socket: socket
 	}
 
 	const {user} = useAuth()
@@ -55,8 +59,6 @@ export function Chat() {
 	},
 		auth: useFetchAuth(),
 	}
-
-	const socket = io.connect("http://localhost:8080/chat")
 
 	const messageListener = (...args) => {
 
@@ -77,7 +79,6 @@ export function Chat() {
 	useEffect(() => {
 		const getRooms = async () => {
 			const {response, data} = await FetchApi(findRooms)
-
 			return data.map((value) =>({
 				id : value.id ,
 				name: value.name
@@ -119,35 +120,29 @@ export function Chat() {
 
 	const handleCreateRoom = useCallback(async (e: React.MouseEvent<HTMLButtonElement>) => {
 
-		isCreating(true)
+		creating ? isCreating(false) : isCreating(true)
+		if (joining)
+			isJoining(false)
 
-		if (message.current.value === '')
-			return
-
-		const payload = {
-			roomName: message.current.value,
-			ownerName: user
-		}
-
-		socket.emit('createRoom', payload, function(response) {
-			console.log("room created: ", response)
-		})
-
-		const {data} = await FetchApi(findRooms)
-
-		const newRooms = data.map((value) =>({
-			id : value.id ,
-			name: value.name
-		}))
-		setRooms(newRooms)
-
-		isCreating(false)
-	}, [creating])
+	}, [creating, joining])
 
 	const handleSearchRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-		isJoining(true)
-		
-	}, [joining])
+		joining ? isJoining(false) : isJoining(true)
+		if (creating)
+			isCreating(false)
+
+	}, [joining, creating])
+
+	const handleLeaveRoom = useCallback((e) => {
+		const leaveData = {
+			user: user,
+			room: state.room
+		}
+
+		socket.emit('leaveRoom', leaveData, (response) => {
+			console.log('leave room response: ', response);
+		})
+	})
 
 	return (
 		<ChatContext.Provider value={context}>
@@ -161,9 +156,12 @@ export function Chat() {
 					<TextField type='text' placeholder={`${state.room}`}  inputRef={message}/>
 					
 					<Button onClick={handleSubmit}>send message</Button>
-					{rooms.map((value, key) => (<Button value={value.name} key={key} onClick={handleChangeRoom}>{value.name}</Button>))}
 					<Button onClick={handleCreateRoom}>create room</Button>
+					<Button onClick={handleLeaveRoom}>leave room</Button>
 					<Button onClick={handleSearchRoom}>search room</Button>
+				</Paper>
+				<Paper>
+					{rooms.map((value, key) => (<Button value={value.name} key={key} onClick={handleChangeRoom}>{value.name}</Button>))}
 				</Paper>
 					{creating ? <CreateRoom/> : null}
 					{joining ? <SearchRoom/>: null }

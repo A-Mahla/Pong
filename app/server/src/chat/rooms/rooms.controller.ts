@@ -1,9 +1,9 @@
 import { Controller, UseGuards } from "@nestjs/common";
 import { RoomsService } from "./rooms.service";
-import { Get, Param } from "@nestjs/common"
+import { Get, Param, Post, Body } from "@nestjs/common"
 import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 
-//@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('rooms')
 export class RoomsController {
 	constructor(private readonly roomService: RoomsService) {}
@@ -26,4 +26,5 @@ export class RoomsController {
 	) {
 		return this.roomService.findManyRooms(name)
 	}
+
 }

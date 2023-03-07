@@ -1,4 +1,4 @@
-import { Box, TextField, InputAdornment, List, ListItem, Button } from '@mui/material'
+import { Box, TextField, InputAdornment, List, ListItem, Button, FormControl } from '@mui/material'
 import Search from '@mui/icons-material/Search'
 import React, { useCallback, useState, useEffect, useContext} from 'react'
 import { ChatContext } from './Chat'
@@ -59,7 +59,7 @@ export function SearchRoom(children : string) {
 	})
 
 	return (
-				<Box>
+				<FormControl>
 					<TextField
 						size="small"
 						variant="outlined"
@@ -78,6 +78,6 @@ export function SearchRoom(children : string) {
 								>{value.name}</ListItem>)
 						)}
 					</List>
-				</Box>
+				</FormControl>
 	) 
 } 

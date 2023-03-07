@@ -5,6 +5,7 @@ import { Server, Socket } from 'socket.io';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { UsersService } from 'src/users/users.service';
 import { RoomsService } from './rooms/rooms.service';
+import { CreateRoomData } from './Chat.types';
 import { WsGuard } from './ws.guard';
 
 type MessageData = {
@@ -12,11 +13,6 @@ type MessageData = {
 	sender: string,
   time?: string,
   room?: string
-}
-
-type CreateRoomData = {
-  roomName: string;
-  ownerName: string,
 }
 
 @WebSocketGateway({namespace : 'chat'})
@@ -45,11 +41,20 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('createRoom')
   handleCreateRoom(client: any, payload: CreateRoomData) {
     
-    console.log('payload: ', payload);
+    console.log('payload: \n\n\n\n\n\n\n\n\n\n\n\n\n', payload);
     client.join(payload.roomName)
     //client.emit('roomCreated', payload.roomName)
     
     return this.roomService.createRoom(payload)
+  }
+
+  @SubscribeMessage('leaveRoom')
+  handleLeaveRoom(client: any, payload: {user: string, room: string}) {
+
+    client.leave(payload.room)
+    client.to(payload.room).emit('user left: ', payload.user)
+
+    return this.roomService.deleteRelation(payload.user, payload.room)
   }
 
   @SubscribeMessage('join')
