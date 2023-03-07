@@ -34,8 +34,7 @@ export class TwofaController {
 	) {
 		const { otpauthUrl } = await this.twoFAService.generateTwoFASecret(req.user.login);
 
-		response.setHeader('content-type','image/png');
-		return this.twoFAService.pipeQrCodeStream(response, otpauthUrl);
+		return this.twoFAService.QrCode(response, otpauthUrl);
 	}
 
 	@Post('on')

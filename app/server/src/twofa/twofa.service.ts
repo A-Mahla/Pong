@@ -8,6 +8,7 @@ import {
 	toFileStream,
 	toString,
 	toCanvas,
+	toDataURL,
 } from 'qrcode';
 import { Response } from 'express';
 import { authenticator } from 'otplib';
@@ -52,9 +53,15 @@ export class TwoFAService {
 		}
 	}
 
-	public async pipeQrCodeStream(stream: Response, otpauthUrl: string) {
-		return toFileStream(stream, otpauthUrl);
-//		return toString(stream, otpauthUrl);
-	}
+	public async QrCode(stream: Response, otpauthUrl: string) {
+		return toFileStream(stream, otpauthUrl, {
+			color: {
+				dark: '#000000',
+				light: '#FFFFFF'
+//				light: '#F5F5FF'
+			}
 
+		});
+
+	}
 }

@@ -29,7 +29,14 @@ export type responseApi = {
 
 export const originalRequest = async (api: apiInput) => {
 
-	const response = await fetch(api.input, api.option);
+	let response;
+
+	if (!api.option)
+		response = await fetch(api.input);
+	else
+		response = await fetch(api.input, api.option);
+
+
 	let data;
 	if (!api.dataType)
 		data = await response.json();
@@ -82,16 +89,22 @@ export const FetchApi = async (fetchType: Api) => {
 	try {
 
 
+		let newHeaders = {
+			...fetchType.api.option?.headers,
+			'Authorization': `Bearer ${fetchType.auth.token}`
+		}
+
 		let newOption = {
 			...fetchType.api.option,
-			headers: { 'Authorization': `Bearer ${fetchType.auth.token}` }
+			headers: newHeaders,
 		};
+
 		let newApi = {
 			...fetchType.api,
 			option: newOption
 		};
 
-
+		console.log(newApi)
 
 		const response: responseApi = await originalRequest(newApi)
 
@@ -107,10 +120,17 @@ export const FetchApi = async (fetchType: Api) => {
 			}
 
 			fetchType.auth.setToken(refresh.data['aT']);
+
+			newHeaders = {
+				...fetchType.api.option?.headers,
+				'Authorization': `Bearer ${refresh.data['aT']}`
+			}
+
 			newOption = {
 				...fetchType.api.option,
-				headers: { 'Authorization': `Bearer ${refresh.data['aT']}` }
+				headers: newHeaders,
 			};
+
 			newApi = {
 				...fetchType.api,
 				option: newOption
