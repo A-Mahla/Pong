@@ -10,9 +10,19 @@ import PropTypes from 'prop-types';
 import { useFetchAuth } from '/src/pong/context/useAuth'
 import { FetchApi, Api } from '/src/pong/component/FetchApi'
 import useAuth from '/src/pong/context/useAuth'
+import io from "socket.io-client";
+
 
 const PLAYER_HEIGHT = 100;
 const PLAYER_WIDTH = 5;
+
+const socket = io.connect("http://localhost:8080/gameTrans", {
+})
+
+socket.on("connect", () => {
+	console.log("connected to server");
+})
+
 
 //  const fetchType: Api = {
 //  				api: {
@@ -24,6 +34,9 @@ const PLAYER_WIDTH = 5;
 //  				auth: useFetchAuth(),
 // }
 // const {response, data} = FetchApi(fetchType)
+
+// const socket = io("http://localhost:8080/api/gameTrans");
+
 
 const drawScore = (canvas, scorePlayer1, scorePlayer2) => {
 	const context = canvas.getContext('2d');
@@ -95,6 +108,7 @@ const draw = (canvas, game) => {
 
 };
 
+// controlling the ball position regarding the paddle and the frame
 const ballMove = (game, canvas, handleClick) => {
 	if (game.ball.y > canvas.height || game.ball.y < 0) {
         game.ball.speed.y *= -1;
@@ -129,14 +143,17 @@ const ballMove = (game, canvas, handleClick) => {
 }
 
 const Canvas = ({draw, height, width}) => {
+	const sendMove = (moveData) => {
+		socket.emit("move", moveData);
+	}
 
-	const {user} = useAuth()
+	const {user} = useAuth() // automatic fetch for profile information
 
-	const canvas = React.useRef<HTMLCanvasElement>();
+	const canvas = React.useRef<HTMLCanvasElement>(); // reference/pointer on html5 canvas element, so you can draw on it
 
 	const [isPlaying, setIsPlaying] = React.useState(false);
-	//const {response, data} = FetchApi(fetchType)
 
+	// game data var watched with useState api
 	const [game, setGame] = React.useState({
 		player1: {
 			login: user,
@@ -160,6 +177,7 @@ const Canvas = ({draw, height, width}) => {
 
 	})
 
+	// button handling play/pause status of the game
 	const handleClick = () => {
 		if (!isPlaying)
 			setIsPlaying(true)
@@ -167,11 +185,14 @@ const Canvas = ({draw, height, width}) => {
 			setIsPlaying(false)
 	}
 
-
+	// useEffect re-render all side effect of component when watched variable (game) state is modified
 	React.useEffect(() => {
-		const canvasHandler = canvas.current
+
+	const canvasHandler = canvas.current
 	if (isPlaying){
 		let paddle = game.player1.y;
+
+		// handling Mouse position for moving the paddle
 		const handleMouseMove = (event) => {
 			const canvasLocation = canvasHandler?.getBoundingClientRect();
 			const mouseLocation = event.clientY - canvasLocation?.y
@@ -184,7 +205,10 @@ const Canvas = ({draw, height, width}) => {
 			}
 		}
 		window.addEventListener('mousemove', handleMouseMove);
+
 		ballMove(game, canvasHandler, handleClick)
+
+		// changing state of game every 20ms, wich provoque useEffect re-render
 		const timer = setTimeout(() => {
 			setGame({...game,
 			player1: {
@@ -196,7 +220,16 @@ const Canvas = ({draw, height, width}) => {
 				y: game.ball.y + game.ball.speed.y
 			}})
 		}, 20)
+
+		// re-drawing the canva
 		draw(canvasHandler, game);
+
+		sendMove(game);
+
+		socket.on("gameUpdate", (gameData) => {
+			game.player2.y = gameData.player1.y;
+			game.player1.score = gameData.player1.score;
+		});
 		return () => {
 			window.removeEventListener(
 				'mousemove',
