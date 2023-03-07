@@ -50,7 +50,7 @@ model User_Room {
 }
 
 model Games {
-	game_id			Int	@id @default(autoincrement())
+	game_id			Int	@id		@default(autoincrement())
 	played_at		DateTime	@default(now())
 	status			String		@default("--")
 	players			User_Game[]

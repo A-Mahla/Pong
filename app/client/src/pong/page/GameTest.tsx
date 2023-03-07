@@ -164,23 +164,23 @@ const Canvas = ({draw, height, width}) => {
 		if (!isPlaying)
 			setIsPlaying(true)
 		else
-		setIsPlaying(false)
+			setIsPlaying(false)
 	}
 
 
 	React.useEffect(() => {
 		const canvasHandler = canvas.current
 	if (isPlaying){
-		let raquette = game.player1.y;
+		let paddle = game.player1.y;
 		const handleMouseMove = (event) => {
 			const canvasLocation = canvasHandler?.getBoundingClientRect();
 			const mouseLocation = event.clientY - canvasLocation?.y
 			if (mouseLocation < PLAYER_HEIGHT / 2) {
-				raquette = 0;
+				paddle = 0;
 			} else if (mouseLocation > canvasHandler.height - PLAYER_HEIGHT / 2) {
-				raquette = canvasHandler.height - PLAYER_HEIGHT;
+				paddle = canvasHandler.height - PLAYER_HEIGHT;
 			} else {
-				raquette = mouseLocation - PLAYER_HEIGHT / 2;
+				paddle = mouseLocation - PLAYER_HEIGHT / 2;
 			}
 		}
 		window.addEventListener('mousemove', handleMouseMove);
@@ -189,7 +189,7 @@ const Canvas = ({draw, height, width}) => {
 			setGame({...game,
 			player1: {
 				...game.player1,
-				y: raquette
+				y: paddle
 			},
 			ball: {...game.ball,
 				x: game.ball.x + game.ball.speed.x,
@@ -209,9 +209,6 @@ const Canvas = ({draw, height, width}) => {
 		}
 
 	}, [game, isPlaying]);
-
-
-
 
 
 	return (
