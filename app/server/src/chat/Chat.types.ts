@@ -5,4 +5,5 @@ export class CreateRoomParam {
 	password?: string;
 	roomName: string;
 	ownerName: string
-} 
+}
+

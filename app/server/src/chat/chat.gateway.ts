@@ -44,13 +44,13 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   @SubscribeMessage('createRoom')
   handleCreateRoom(client: any, payload: CreateRoomData) {
-    
+
     console.log('payload: ', payload);
-    
+
     client.join(payload.roomName)
     //client.emit('roomCreated', payload.roomName)
-    
-    return this.roomService.createRoom(payload) 
+
+    return this.roomService.createRoom(payload)
   }
 
   @SubscribeMessage('join')
@@ -73,9 +73,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   handleJoinRoom(client : Socket, payload : {userLogin : string, room : string, password : string})
   {
     //this.userService.addRoom(login, room)
-    
+
   }
-    
+
 
   afterInit(server : Server): any {
     console.log('Initialized')
