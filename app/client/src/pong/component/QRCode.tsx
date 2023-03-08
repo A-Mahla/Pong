@@ -20,14 +20,21 @@ import {
 import { useFormControl } from '@mui/material/FormControl';
 
 
-const centralBoxStyle = {
-	height: '25rem',
-	p: 1,
-	borderRadius: '32px',
-	'&.MuiPaper-root': {
-		backgroundColor: 'primary'
+	const centralBoxStyle = {
+		height: '25rem',
+		p: 1,
+		borderRadius: '32px',
+		'&.MuiPaper-root': {
+			backgroundColor: 'primary'
+		},
+		'@media (max-width: 950px)': {
+			p: 0,
+			height: '40rem'
+		},
+		'@media (max-width: 780px)': {
+			width: 400
+		}
 	}
-}
 
 const AuthInstruction = () => {
 
@@ -37,15 +44,17 @@ const AuthInstruction = () => {
 			justifyContent='center'
 			sx={{
 				mt: '2rem',
-				height: '2rem'
+				height: '2rem',
 			}}
 		>
 			<Typography variant='body'>
-				Two-Factor Authentication (2FA)
+				Two-Factor Authentication
 			</Typography>
 		</Box>
 		<Divider variant='middle'/>
-		<Box display='flex' justifyContent='center'>
+		<Box display='flex'
+			justifyContent='center'
+		>
 			<List>
 				<ListItem
 					sx={{
@@ -101,19 +110,15 @@ export const QRCodeComponent = () => {
 
 	const {user, token} = useAuth();
 
-	const [open, setOpen] = useState(false);
-
 	const [fetched, setFetched] = useState(false);
-	const [url, setUrl] = useState<string>('');
 	const [qrcode, setQrcode] = useState<string>('');
 	const [code, setCode] = useState<string>('');
 
-	const codeValidate = useRef<HTMLInputElement>('')
-
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault()
-		if( e.target.value.length === 6 )
-			console.log(e.target.value)
+		if( e.target.value.length === 6 ) {
+			setCode(parseInt(e.target.value))
+		}
 	}
 
 
@@ -121,18 +126,19 @@ export const QRCodeComponent = () => {
 	useEffect( () => {
 
 			async function fetching() {
+
 				const result = await axios.post(
-				`/api/2fa/generate`,
-				{},
-				{ 
-					responseType: 'blob',
-					headers: {
-						'Authorization': `Bearer ${token}`
-					},
-				}
+					`/api/2fa/generate`,
+					{},
+					{ 
+						responseType: 'blob',
+						headers: {
+							'Authorization': `Bearer ${token}`
+						},
+					}
 				);
 
-			setUrl(URL.createObjectURL(result.data))
+			setQrcode(URL.createObjectURL(result.data))
 			setFetched(true);
 		}
 		fetching();
@@ -149,7 +155,17 @@ export const QRCodeComponent = () => {
 						<Typography variant='h4'>Pong</Typography>
 					</Box>
 					<Divider variant='middle' />
-					<Box sx={{mt: '3rem', px: '10rem', pt: '5rem'}}>
+					<Box display='flex'
+						justifyContent='center'
+						sx={{
+							mt: '3rem',
+							px: '10rem',
+							pt: '5rem',
+							'@media (max-width: 780px)': {
+								px: '0vw;'
+							}
+						}}
+					>
 						<Paper elevation={24} sx={centralBoxStyle}>
 							<Grid container
 								className='test'
@@ -162,16 +178,17 @@ export const QRCodeComponent = () => {
 									height: '19rem',
 									widht:  '30rem',
 									display: 'flex',
-									flexDirection: 'row',
-									flexWrap: 'wrap'
+									'@media (max-width: 950px)': {
+										display: 'block',
+									}
 								}}
 							>
-								<Grid item xs={6}>
+								<Grid item md={6} xs={12}>
 									<AuthInstruction />
 								</Grid>
-								<Grid justifyContent='center' item xs={6}>
+								<Grid justifyContent='center' item md={6} xs={12}>
 									<Box display='flex' justifyContent='center'>
-										<img src={url} />
+										<img src={qrcode} />
 									</Box>
 									<Box
 										display='flex'
@@ -183,11 +200,12 @@ export const QRCodeComponent = () => {
 										<FormControl>
 											<TextField
 												type='text'
-												inputRef={codeValidate}
-												label="Authentication"
+												label="Authentication Code"
+												onChange={handleChange}
 												inputProps={{
 													inputMode: 'numeric',
 													pattern: '[0-9]*',
+													maxLength: 6,
 													style: {
 														textAlign: 'center',
 													},
@@ -206,19 +224,12 @@ export const QRCodeComponent = () => {
 							</Grid>
 						</Paper>
 					</Box>
-
 				</>
 			)}
-		</>
+			</>
 	);
 
 
 	
 
 }
-
-//			<Grid container justifyContent='center' sx={{ height: 600, pt: 15 }}>
-//				</Grid>
-
-
- 
