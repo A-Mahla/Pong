@@ -29,12 +29,8 @@ export type responseApi = {
 
 export const originalRequest = async (api: apiInput) => {
 
-	let response;
 
-	if (!api.option)
-		response = await fetch(api.input);
-	else
-		response = await fetch(api.input, api.option);
+	const response = await fetch(api.input, api.option);
 
 
 	let data;
