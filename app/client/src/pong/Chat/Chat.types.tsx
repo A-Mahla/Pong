@@ -7,13 +7,16 @@ export type MessageData = {
 }
 
 export type State = {
-	room: string,
+	room: {
+		name: string,
+		id: number
+	},
 	messages: MessageData[]
 }
 
 export type Action = {
 	type: string,
-	payload: string | MessageData
+	payload: {name: string, id: number} | MessageData
 }
 
 export type User = {
@@ -23,4 +26,12 @@ export type User = {
 export type Room = {
 	id : number,
 	name: string,
+}
+
+export type Message = {
+	id: number,
+	date: string,
+	sender_id: number,
+	room_id: number,
+	content: string
 }

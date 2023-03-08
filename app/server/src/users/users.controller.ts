@@ -41,6 +41,7 @@ import { RefreshJwtAuthGuard } from 'src/auth/refresh-jwt-auth.guard'
 import { Intra42AuthGuard } from 'src/auth/intra42.guard';
 import { numberFormat } from './User.dto'
 import { RoomsService } from 'src/chat/rooms/rooms.service';
+import { User } from '@prisma/client';
 
 
 @Controller('users')
@@ -148,7 +149,9 @@ export class UsersController {
 		@Param('login') login: string
 	)
 	{
-		return this.userService.findAllUserRooms(login)
+		const user = await this.userService.findOneUser(login)
+
+		return this.userService.findAllUserRooms((user as User).id)
 	}
 
 	@UseGuards(JwtAuthGuard)

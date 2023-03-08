@@ -50,7 +50,10 @@ export class RoomsService {
 			include: {
 				members: true
 			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
 		})
+
 	}
 
 	async getRoomById (roomId: number) {
@@ -61,7 +64,10 @@ export class RoomsService {
 					room_id : id
 				}
 			}
-		)
+		).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
 	}
 
 	async getRoomOwner (roomId: number) {
@@ -73,6 +79,10 @@ export class RoomsService {
 			throw new BadRequestException('Invalid content', { cause: new Error(), description: 'room dont have owner' })  
 
 		const user = await this.userService.findUserById((room as Room).ownerId as number)
+		.catch((e) => {
+			throw new BadRequestException(e);
+		})
+
 		console.log(user)
 		//return (user as User).ownedRooms
 		return user
@@ -83,31 +93,33 @@ export class RoomsService {
 			where: {
 				name : name
 			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
 		})
+
 		return rooms
 	}
 
-	async deleteRelation(userName: string, roomName: string) {
+	async deleteRelation(userName: string, roomId: number) {
 		const user = await this.userService.findOneUser(userName)
-
-		const room = await this.prisma.room.findFirst({
-			where: {
-					name: roomName
-			}
+		.catch((e) => {
+			throw new BadRequestException(e);
 		})
 
-		console.log((user as User).id, (room as Room).room_id);
+
+
+		console.log((user as User).id, roomId);
 		
 
 		return this.prisma.user_Room.delete({
 			where : {
 				member_id_room_id: {
 					member_id : (user as User).id,
-					room_id : (room as Room).room_id
+					room_id : roomId
 				}
 			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
 		})
-
-
 	}
 }

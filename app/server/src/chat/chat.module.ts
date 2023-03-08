@@ -5,11 +5,13 @@ import { RoomsService } from "./rooms/rooms.service";
 import { UsersService } from "src/users/users.service";
 import { GameService } from "src/game/game.service";
 import { ChatGateway } from "./chat.gateway";
+import { MessageService } from "./messages/messages.service";
+import { MessageController } from "./messages/messages.controller";
 
 @Module({
 	imports: [PrismaModule],
-	controllers: [RoomsController],
-	providers: [UsersService, RoomsService, GameService]
+	controllers: [RoomsController, MessageController],
+	providers: [UsersService, RoomsService, GameService, MessageService]
 })
 export class ChatModule {}
 

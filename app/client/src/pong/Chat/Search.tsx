@@ -7,7 +7,7 @@ import { Api, FetchApi } from '../component/FetchApi'
 
 export function SearchRoom(children : string) {
 
-	const {isJoining} = useContext(ChatContext)
+	const {isJoining, socket} = useContext(ChatContext)
 
 	const {user} = useAuth()
 
@@ -42,17 +42,28 @@ export function SearchRoom(children : string) {
 
 	const handleJoin = useCallback(async (e) => {
 
-		const {response, data} = await FetchApi({
-			api: {
-				input : `http://${import.meta.env.VITE_SITE}/api/users/${user}/${e.target.value}`,
-				option : {
-					method : 'PATCH'
-				}
-			},
-			auth : useContextAuth
+		const payload = {
+			userLogin: user,
+			roomId: e.target.value 
+		}
+
+		console.log('join Room payload: ', payload);
+		
+
+		socket.emit('joinRoom',  payload, (response) => {
+			console.log('join room response: ', response)
 		})
+		//await FetchApi({
+		//	api: {
+		//		input : `http://${import.meta.env.VITE_SITE}/api/users/${user}/${e.target.value}`,
+		//		option : {
+		//			method : 'PATCH'
+		//		}
+		//	},
+		//	auth : useContextAuth
+		//})
 		isJoining(false)
-	})	
+	}, [socket])	
 
 	const handleChange = useCallback((e) => {
 		setSearchTerm(e.target.value)

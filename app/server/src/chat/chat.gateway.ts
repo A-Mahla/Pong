@@ -7,31 +7,38 @@ import { UsersService } from 'src/users/users.service';
 import { RoomsService } from './rooms/rooms.service';
 import { CreateRoomData } from './Chat.types';
 import { WsGuard } from './ws.guard';
+import { MessageService } from './messages/messages.service';
 
 type MessageData = {
 	content: string,
 	sender: string,
   time?: string,
-  room?: string
+  room?: {
+    name: string,
+    id: number
+  }
 }
 
 @WebSocketGateway({namespace : 'chat'})
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
 
-  constructor (private readonly roomService: RoomsService, private readonly userService : UsersService) {}
+  constructor (private readonly roomService: RoomsService,
+    private readonly userService : UsersService,
+    private readonly messageService: MessageService) {}
 
   @WebSocketServer()
   server: Server;
 
   @SubscribeMessage('message')
-  handleMessage(client: any, payload: MessageData)/* : MessageData */ {
+  async handleMessage(client: any, payload: MessageData)/* : MessageData */ {
     console.log('payload: ',payload)
+    const user = await this.userService.findOneUser(payload.sender)
     if (payload.room)
     {
       console.log('client rooms in handle MESSAGE', client.rooms)
-      this.server.to(payload.room).emit('message', payload)
+      this.server.to(payload.room.id.toString()).emit('message', {sender: (user as User).id, content: payload.content, room: payload.room})
       console.log('payload in message handler', payload)
-
+      this.messageService.createMessage((user as User).id, payload.room.id, payload.content) 
     }
     else
       this.server.emit('message', payload)
@@ -49,35 +56,40 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   @SubscribeMessage('leaveRoom')
-  handleLeaveRoom(client: any, payload: {user: string, room: string}) {
+  handleLeaveRoom(client: any, payload: {user: string, roomId: number}) {
 
-    client.leave(payload.room)
-    client.to(payload.room).emit('user left: ', payload.user)
+    client.leave(payload.roomId.toString())
+    client.to(payload.roomId.toString()).emit('message', `${payload.user} leaved the room`)
 
-    return this.roomService.deleteRelation(payload.user, payload.room)
+    return this.roomService.deleteRelation(payload.user, payload.roomId)
   }
 
   @SubscribeMessage('join')
   async handleJoin(client: Socket, login: string) {
     const user = await this.userService.findOneUser(login)
 
-    const rooms = await this.userService.findAllUserRooms((user as User).login)
+    const rooms = await this.userService.findAllUserRooms((user as User).id)
 
     console.log('client rooms in handle JOIN', client.rooms)
 
     for (let room of rooms)
     {
-      client.join(room.name)
-      console.log(room.name)
+      client.join(room.room_id.toString())
+      console.log(room.room_id)
     }
     console.log('rooms: ', rooms)
   }
 
   @SubscribeMessage('joinRoom')
-  handleJoinRoom(client : Socket, payload : {userLogin : string, room : string, password : string})
+  async handleJoinRoom(client : Socket, payload : {userLogin : string, roomId : number})
   {
-    //this.userService.addRoom(login, room)
-    
+    const user = await this.userService.findOneUser(payload.userLogin)
+
+    console.log('handle JOIN ROOM payload : ', payload)
+
+    client.join(payload.roomId.toString())
+
+    return this.userService.joinRoom((user as User).id, payload.roomId)
   }
     
   afterInit(server : Server): any {

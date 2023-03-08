@@ -131,60 +131,42 @@ export class UsersService {
 
 	//============================ ROOMS =======================
 
-	async findAllUserRooms(login: string) /* : Promise<Room> */ {
-		const user = await this.findOneUser(login)
-		if (!user)
-			throw new BadRequestException('Invalid content', { cause: new Error(), description: 'invalid room id' })  
+	async findAllUserRooms(id: number) /* : Promise<Room> */ {
 		const userRooms = await this.prisma.user_Room.findMany({
 			where : {
-				member_id : user.id
+				member_id : id
 			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
 		})
-		const userRoomsId = userRooms.map((value) => (value.room_id))
 
+		const userRoomsId = userRooms.map((value) => (value.room_id))
 
 		const rooms = await this.prisma.room.findMany({
 			where: {
-				room_id : { in : (userRoomsId as number[])}
+				room_id : { in : userRoomsId}
 			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
 		})
+
 
 		return rooms
 	}
 
 	async joinRoom(userId : number, roomId : number) {
+		const room_id = +roomId
+
 		return this.prisma.user_Room.create({
 			data: {
 				member_id: userId,
-				room_id : roomId
+				room_id : room_id
 			} 
+		}).catch((e) => {
+			throw new BadRequestException(e);
 		})
+
 	}
-
-	//async addRoom(login : string, roomName : string) {
-	//	const user = await this.prisma.user.findUnique({
-	//		where: {
-	//			login: login
-	//		},
-	//	})
-
-	//	const room = await this.prisma.room.find({
-	//		where : {
-	//			name : roomName,
-	//		}
-	//	})
-
-	//	const updateUserRoom = this.prisma.user_Room.update({
-	//		where: {
-	//			member_id : (user as User).id
-	//		}
-	//	})
-
-	//	
-	//}
-
-
-
 
 }
 /* ============================ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ========================*/

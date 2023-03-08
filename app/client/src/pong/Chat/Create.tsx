@@ -43,7 +43,7 @@ export function CreateRoom() {
 		console.log('roomName: ', roomName.current.value);
 		console.log('roomPasswd: ', roomPassword.current.value);
 		isCreating(false)
-	})
+	}, [socket])
 
 	return (
 		<FormControl>
