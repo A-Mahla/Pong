@@ -28,7 +28,10 @@ type GameDataType = {
 			y: number
 		}
 	}
+}
 
+type RoomInfo = {
+	roomId: string
 }
 
 @WebSocketGateway({ namespace: 'gameTrans' })
@@ -41,12 +44,26 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	@SubscribeMessage('createGame')
 	async newGame(client: Socket) {
-		const newGame = await this.gameService.registerNewGame();
+		const newGame = await this.gameService.registerNewGame('WAIT');
 		if (newGame)
 			client.join(newGame.game_id.toString());
+		console.log("----------------------> " + client.id + " created a new game");
 		return newGame;
-
 	}
+
+	@SubscribeMessage('joinGame')
+	async joinGame(client: Socket, roomInfo: RoomInfo) {
+		const roomId = roomInfo.roomId;
+		if (!this.server.sockets.adapter.rooms.get(roomId)) {
+		  // La salle n'existe pas
+		  return { error: 'La salle n\'existe pas' };
+		}
+		// La salle existe, rejoindre la salle
+		client.join(roomId);
+		return { success: true };
+	}
+	
+
 
 	@SubscribeMessage('move')
 	onMove(client: Socket, gameData: GameDataType){

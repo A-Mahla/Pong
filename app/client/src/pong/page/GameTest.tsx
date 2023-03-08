@@ -8,10 +8,11 @@ import Swipeable from '/src/pong/component/Swipeable'
 import Profile from '/src/pong/Profile/Profile'
 import PropTypes from 'prop-types';
 import { useFetchAuth } from '/src/pong/context/useAuth'
-import { FetchApi, Api } from '/src/pong/component/FetchApi'
+import { FetchApi, Api, responseApi } from '/src/pong/component/FetchApi'
 import useAuth from '/src/pong/context/useAuth'
 import io from "socket.io-client";
-
+import './game.css'
+import { render } from 'react-dom'
 
 const PLAYER_HEIGHT = 100;
 const PLAYER_WIDTH = 5;
@@ -27,7 +28,7 @@ socket.on("connect", () => {
 //  const fetchType: Api = {
 //  				api: {
 //  					input: `http://localhost:8080/api/users/sacha`,
-//  					option: {
+//  					option?: {
 //  						method: "GET",
 //  					},
 //   			},
@@ -77,7 +78,7 @@ const drawLogin = (canvas, loginPlayer1: string, loginPlayer2: string) => {
 const draw = (canvas, game) => {
 	const context = canvas.getContext('2d')
 	// background
-	context.fillStyle = 'black';
+	context.fillStyle = '#15232f';
 	context.fillRect(0, 0, canvas.width, canvas.height);
 
 	// draw login
@@ -230,6 +231,7 @@ const Canvas = ({draw, height, width}) => {
 			game.player2.y = gameData.player1.y;
 			game.player1.score = gameData.player1.score;
 		});
+
 		return () => {
 			window.removeEventListener(
 				'mousemove',
@@ -266,21 +268,149 @@ function Mybutt ({isPlaying, onClick} : any) {
 	)
 }
 
+function MatchRender ({thereIsMatch, onClick} : any){
+
+	const [gameIscreated, setGameIscreated] = React.useState(false);
+	const [isFetched, setIsFetched] = React.useState(false);
+	const [joinGameList, setJoinGameList] = React.useState({});
+
+	const createGame = () => {
+		console.log(socket.emit("createGame"));
+	}
+
+	const handleCreateGame = () => {
+		if (!gameIscreated)
+		{
+			createGame();
+			setGameIscreated(true)
+		}
+	}
+
+
+
+
+	const fetchGameList: Api = {
+		api: {
+			input: `http://localhost:8080/api/game/gamewatinglist`,
+		},
+		auth: useFetchAuth(),
+	}
+
+	// const sendMove = (moveData) => {
+		// socket.emit("move", moveData);
+	// }
+
+
+	// socket.on("gameUpdate", (gameData) => {
+		// game.player2.y = gameData.player1.y;
+		// game.player1.score = gameData.player1.score;
+	// });
+
+	React.useEffect(() => {
+
+		async function fetchingGameList() {
+			const gameList: responseApi = await FetchApi(fetchGameList);
+			setIsFetched(true);
+			setJoinGameList(gameList.data);
+		}
+
+		fetchingGameList();
+		console.log("-------------->   LALALALA " + joinGameList);
+	}, [])
+
+
+	return (
+		<>
+		{gameIscreated ?
+			(
+				<>
+				<div>
+					the game is created, know you wait for a competitor
+				</div>
+				</>
+			) : (
+
+				<>
+				<div>
+				<button onClick={handleCreateGame}>
+					CREATE GAME
+				</button>
+				<> -- this button will create a new game and make you wait for a competitor</>
+				</div>
+				</>
+			)
+		}
+		<div>
+
+		</div>
+		</>
+	)
+}
+
 Canvas.propTypes = {
-  draw: PropTypes.func.isRequired,
-  height: PropTypes.number.isRequired,
-  width: PropTypes.number.isRequired,
+	draw: PropTypes.func.isRequired,
+	height: PropTypes.number.isRequired,
+	width: PropTypes.number.isRequired,
 };
 
 const GameTest = () => {
-	return (
-		<>
-		<h1>Game</h1>
-			<div>
-				<Canvas draw={draw} height={640} width={1200} />
-			</div>
-		</>
-	)
 
-}
+	const [thereIsMatch, setThereIsMatch] = React.useState(false);
+
+	const handleClick = () => {
+		if (!thereIsMatch)
+			setThereIsMatch(true)
+		else
+			setThereIsMatch(false)
+	}
+
+	if (thereIsMatch) {
+		return (
+		  <>
+		  <h1 style={{ fontSize: "3em" }}>Game</h1>
+			<div style={{ clear: 'both' }}>
+			  <Canvas draw={draw} height={640} width={1200} style={canvasStyle} />
+			</div>
+		  </>
+		);
+	}
+	else
+	{
+		return (
+			<>
+			  <h1 style={{ fontSize: "3em" }}>Game Matchmaking</h1>
+			  <div style={{ display: 'inline-block', marginLeft: '20px' }}>
+				<MatchRender thereIsMatch={thereIsMatch} onClick={handleClick} />
+			  </div>
+			</>
+		  );
+	}
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+  const canvasStyle = {
+	display: 'inline-block',
+	verticalAlign: 'top',
+  };
+
+  const buttonStyle = {
+	backgroundColor: '#15232F',
+	color: 'white',
+	border: 'none',
+	padding: '15px 30px',
+	borderRadius: '5px',
+	marginLeft: '20px',
+  };
+
 export default GameTest

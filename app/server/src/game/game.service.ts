@@ -8,9 +8,11 @@ export class GameService {
 
 
 /* ============================ POST game related information ========================*/
-	async registerNewGame() {
+	async registerNewGame(status: string) {
 		return this.prisma.games.create({
-			data: {}
+			data: {
+				status: status
+			}
 		}).catch((e) => {throw e})
 	}
 	async registerNewPlayer(game_id: number, user_id: number, score: number) {
@@ -47,6 +49,14 @@ export class GameService {
 		}).catch((e) => {throw e})
 	}
 
+
+	async gamesbyStatus(statusTofind: string) {
+		return (this.prisma.games.findMany({
+			where: {
+				status: statusTofind
+			}
+		}))
+	}
 //	================ GET SOME STATS ABOUT GAME AND USERGAME ===========
 
 	async getVictoryLossCountForUser(userId: number, InfSup: boolean) {
