@@ -46,18 +46,24 @@ export class GameController {
 	constructor(private readonly gameService: GameService) {}
 
 //	======================== Registering new Game routes ==================
-	//@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard)
 	@Post('newGame')
 	async registerNewGame() {
-		return (this.gameService.registerNewGame());
+		return (this.gameService.registerNewGame('--'));
 	}
 
-	//@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard)
 	@Post('userInGame/:gameId')
 	async registerNewPlayer(@Param('gameId') game_id: number, @Body() user: any) {
 		return (this.gameService.registerNewPlayer(game_id, parseInt(user.id), parseInt(user.score)));
 	}
+
 //	======================== ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ================
+//	======================== Getting Game inforation ==================
+	@Get('gamewatinglist')
+	async getGameWaitingList() {
+		return (this.gameService.gamesbyStatus('WAIT'))
+	}
 //	======================== Getting raw stats about a player game ================
 
 	//@UseGuards(JwtAuthGuard)
