@@ -22,6 +22,7 @@ import { AuthService } from 'src/auth/auth.service'
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { TwoFAJwtAuthGuard } from 'src/auth/2fa-jwt-auth.guard';
+import { jwtConstants} from "src/auth/constants";
 
 @Controller('2fa')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -88,11 +89,23 @@ export class TwofaController {
 			throw new UnauthorizedException('Wrong authentication code');
 		}
 
+		response.cookie(
+			`${jwtConstants.twofa_jwt_name}`,
+			null,
+			{
+				maxAge: 5000,
+				httpOnly: true,
+				sameSite: 'strict',
+
+			}
+		)
+
 		return await this.authService.login(user, response);
 
 	}
 
 	@UseGuards(TwoFAJwtAuthGuard)
+	@HttpCode(200)
 	@Get('authorisation')
 	async checkToken() {
 		return ;

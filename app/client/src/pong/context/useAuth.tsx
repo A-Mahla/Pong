@@ -68,11 +68,10 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				if ( location.pathname === '/2fa' ) {
 					
 					const res: responseApi = await fetch(`http://${import.meta.env.VITE_SITE}/api/2fa/authorisation`)
-					if ( res.status === 200 ) {
-						return ;
-					} else {
-						navigate('/login')
+					if ( res.status !== 200 ) {
+						navigate('/pong')
 					}
+					return ;
 
 				}
 
