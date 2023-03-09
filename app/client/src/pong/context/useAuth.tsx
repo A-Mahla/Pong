@@ -62,6 +62,20 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 					navigate(location)
 					return ;
 				}
+
+				if ( location.pathname === '/2fa' ) {
+					
+					const res: responseApi = await originalRequest({
+						input: `http://${import.meta.env.VITE_SITE}/api/2fa/auth`
+					})
+					if ( res.status === 200 ) {
+						return ;
+					} else {
+						navigate('/login')
+					}
+
+				}
+
 				// if ( location.pathname === '/gameTest' ) {
 				// 	navigate(location)
 				// 	return ;

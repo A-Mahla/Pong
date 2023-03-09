@@ -64,9 +64,9 @@ export class TwofaController {
 	}
 
 
+	@UseGuards(TwoFAJwtAuthGuard)
 	@Post('authenticate')
 	@HttpCode(200)
-	@UseGuards(TwoFAJwtAuthGuard)
 	async authenticate(
 		@Req() req: any,
 		@Body() body: any,
@@ -90,5 +90,12 @@ export class TwofaController {
 		return await this.authService.login(user, response);
 
 	}
+
+	@UseGuards(TwoFAJwtAuthGuard)
+	@Get('auth')
+	async checkToken() {
+		return ;
+	}
+
 
 }
