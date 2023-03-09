@@ -136,11 +136,14 @@ function Mybutt ({isPlaying, onClick} : any) {
 }
 
 const Canvas = ({draw, height, width}) => {
+
 	const sendMove = (moveData) => {
 		socket.emit("move", moveData);
 	}
 
 	const {user} = useAuth() // automatic fetch for profile information
+
+	console.log(user);
 
 	const canvas = React.useRef<HTMLCanvasElement>(); // reference/pointer on html5 canvas element, so you can draw on it
 
@@ -154,7 +157,7 @@ const Canvas = ({draw, height, width}) => {
 			score: 0
 		},
 		player2: {
-			login: 'testLogin2',
+			login: '',
 			y: 640 / 2 - PLAYER_HEIGHT / 2,
 			score: 0
 		},
@@ -214,15 +217,15 @@ const Canvas = ({draw, height, width}) => {
 			}})
 		}, 20)
 
-		// re-drawing the canva
-		draw(canvasHandler, game);
-
 		sendMove(game);
-
 		socket.on("gameUpdate", (gameData) => {
 			game.player2.y = gameData.player1.y;
 			game.player1.score = gameData.player1.score;
+			game.player2.login = gameData.player1.login;
 		});
+
+		// re-drawing the canva
+		draw(canvasHandler, game);
 
 		return () => {
 			window.removeEventListener(
@@ -232,6 +235,7 @@ const Canvas = ({draw, height, width}) => {
 				clearTimeout(timer);
 			};
 		} else {
+			console.log("------------------> " + user);
 			draw(canvasHandler, game);
 		}
 

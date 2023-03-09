@@ -7,6 +7,7 @@ import Tab from '@mui/material/Tab'
 import Swipeable from '/src/pong/component/Swipeable'
 import Profile from '/src/pong/Profile/Profile'
 import './LeadPage.css'
+import useAuth from '/src/pong/context/useAuth'
 
 const header = {
 	height: '4vw;',
@@ -65,6 +66,8 @@ const LeadPage = () => {
 
 	const [value, setValue] = React.useState(1);
 
+	const {user} = useAuth();
+
 	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
 		setValue(newValue);
 	};
@@ -103,7 +106,7 @@ const LeadPage = () => {
 				<Profile/>
 			</TabPanel>
 			<TabPanel value={value} index={1}>
-				<Typography variant='h1'>PLAY</Typography>
+				<Typography variant='h1'>{user}</Typography>
 			</TabPanel>
 			<TabPanel value={value} index={2}>
 				<Typography variant='h1'>Chat</Typography>

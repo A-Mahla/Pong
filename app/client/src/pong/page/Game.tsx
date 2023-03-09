@@ -18,7 +18,7 @@ import { draw } from '../component/gameCanva'
 
 
 /* --- connecting to the socket.IO server*/
-const socket = io.connect("http://localhost:8080/gameTrans", {
+const socket = io.connect(`http://${import.meta.env.VITE_SITE}/gameTrans`, {
 })
 
 socket.on("connect", () => {
@@ -26,15 +26,36 @@ socket.on("connect", () => {
 })
 /* ---------------- ^^^^ ---------------*/
 
- type waitingGame = {
-	 game_id: string,
-	 played_at: string,
-	 status: string
- }
- type arrWaitingGame = waitingGame[];
+/* ---------------- type definition for matchmaking fetch informations --------- */
+type waitingGame = {
+	game_id: string,
+	played_at: string,
+	status: string
+}
 
-const JoinGame = ({joinGameList} : any): any => {
+type arrWaitingGame = waitingGame[];
 
+interface JoinGameProps {
+	joinGameList: arrWaitingGame;
+}
+/* ---------------- ^^^^ ---------------*/
+
+
+function JoinGame({joinGameList}: JoinGameProps): JSX.Element {
+
+	const JoinGame = (game_id: string) => {
+		socket.emit("joinGame", { roomId: game_id });
+	}
+
+	return (
+	<div style={{display: "flex", flexDirection: "column"}}>
+		{joinGameList.map((game) => (
+			<button onClick={() => JoinGame(game.game_id)} key={game.game_id} >
+				Join game {game.game_id}
+			</button>
+		))}
+	</div>
+  )
 }
 
 function MatchMaker ({thereIsMatch, onClick} : any){
@@ -58,7 +79,7 @@ function MatchMaker ({thereIsMatch, onClick} : any){
 
 	const fetchGameList: Api = {
 		api: {
-			input: `http://localhost:8080/api/game/gamewatinglist`,
+			input: `http://${import.meta.env.VITE_SITE}/api/game/gamewatinglist`,
 		},
 		auth: useFetchAuth(),
 	}
@@ -80,30 +101,47 @@ function MatchMaker ({thereIsMatch, onClick} : any){
 			setJoinGameList(model);
 		});
 
-	}, [])
+		socket.on("roomsUpdate", () => {
+			setIsFetched(false);
+		})
+
+		socket.on("lockAndLoaded", () => {
+			onClick();
+		})
+
+		return () => {/* Don't know what to return for a clean exit */}
+	}, [gameIscreated, isFetched])
 
 
 	return (
 		<>
-		{gameIscreated ?
-			(
-				<>
-				<div>
-					the game is created, know you wait for a competitor
-				</div>
-				</>
-			) : (
+		<div style={{display: "flex", justifyContent: "space-between"}}>
 
-				<>
-				<div>
-				<button onClick={handleCreateGame}>
-					CREATE GAME
-				</button>
-				</div>
-				</>
-			)
-		}
+			{gameIscreated ?
+				(
+					<>
+					<div>
+						<h2>CREATE GAME</h2>
+						<>game is created, now you wait for a competitor</>
+					</div>
+					</>
+				) : (
 
+					<>
+					<div style={{textAlign: "right"}}>
+						<h2>CREATE GAME</h2>
+						<button onClick={handleCreateGame}>
+							NEW GAME
+						</button>
+					</div>
+					</>
+				)
+			}
+			<div>
+				<h2>JOIN GAME</h2>
+				{joinGameList? (<JoinGame joinGameList={joinGameList} />) : (<>PROBLEM</>) }
+			</div>
+		</div>
 		</>
 	)
 }
