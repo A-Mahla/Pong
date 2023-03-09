@@ -22,7 +22,7 @@ interface AuthContextType {
 	authLogout: () => void;
 	authSignup: (login: string, password: string) => Promise<string | undefined>;
 	authLogIntra: (url: URL) => void;
-	authSignIntra: (url: URL) => void;
+	authSignupIntra: (url: URL) => void;
 }
 
 export type fetchContext = {
@@ -90,6 +90,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 							navigate('/login')
 						else
 							navigate('/');
+						return ;
 					}
 					else {
 
@@ -104,10 +105,14 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 							},
 						});
 						setUser(response2.data['login']);
+
 					}
 				}
 				else
 					setUser(response1.data['login']);
+
+				//				if (location.pathname === '/2fa')
+				//	navigate('/pong')
 
 			} catch (err) {
 				console.log(err);
@@ -127,9 +132,13 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			const data = await response.json()
 			if (response.status == 200) {
 				if (data['signedIn']) {
-					setUser(data.user['login'])
-					setToken(data['token'])
-					navigate('/pong')
+					if (data['token'] === '2faActivate') {
+						navigate('/2fa')
+					} else {
+						setUser(data.user['login'])
+						setToken(data['token'])
+						navigate('/pong')
+					}
 				}
 				setIntraLogin(data['intraLogin'])
 			} else {
@@ -140,7 +149,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 		}
 	}
 
-	async function authSignIntra(url: URL) {
+	async function authSignupIntra(url: URL) {
 
 
 		const requestOptions = {
@@ -231,9 +240,13 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				option: requestOptions,
 			});
 			if ( response.status === 201) {
-				setUser(login);
-				setToken(data['aT']);
-				navigate('/pong')
+				if (data['aT'] === '2faActivate') {
+					navigate('/2fa')
+				} else {
+					setUser(login);
+					setToken(data['aT']);
+					navigate('/pong')
+				}
 				return ''
 			}
 			else
@@ -271,6 +284,23 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 		}
 	}
 
+	async function twoFAAuth(url: URL) {
+
+		try {
+			const response = await fetch(url)
+			const data = await response.json()
+			if (response.status == 200) {
+				setUser(login);
+				setToken(data['aT']);
+				navigate('/pong')
+			} else {
+				navigate('/login')
+			}
+		} catch (err) {
+			console.log(err)
+		}
+	}
+
 	const memoValue = useMemo(
 		() => ({
 			user,
@@ -285,7 +315,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			authLogout,
 			authSignup,
 			authLogIntra,
-			authSignIntra,
+			authSignupIntra,
 		}),
 		[user, intraLogin, token, loading, error]
 	);

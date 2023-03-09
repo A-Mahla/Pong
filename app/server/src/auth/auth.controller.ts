@@ -32,6 +32,7 @@ import { Request as ExpressRequest } from 'express'
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from 'src/auth/auth.service'
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
+import { TwoFAJwtAuthGuard } from 'src/auth/2fa-jwt-auth.guard';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RefreshJwtAuthGuard } from 'src/auth/refresh-jwt-auth.guard'
 import { Intra42AuthGuard } from 'src/auth/intra42.guard'
@@ -63,6 +64,20 @@ export class AuthController {
 		@Request() req: any,
 		@Res({ passthrough: true }) response: Response
 	) {
+
+		if (req.user.isTwoFA) {
+			await this.authService.getTwoFAToken(
+				{
+					sub: req.user.id,
+					login: req.user.login
+				},
+				response
+			)
+			return {
+				aT: '2faActivate'
+			};
+		}
+
 		return await this.authService.login(req.user, response);
 	}
 
@@ -71,7 +86,7 @@ export class AuthController {
 		@Body() user: { login: string },
 		@Res({ passthrough: true }) response: Response
 	) {
-		return this.authService.logout(user, response);
+		return await this.authService.logout(user, response);
 	}
 
 	@UseGuards(RefreshJwtAuthGuard)
@@ -83,6 +98,19 @@ export class AuthController {
 		return await this.authService.refreshTokens(req.user, response);
 	}
 
+	// ========================================= 2FA ======================
+
+
+/*	@UseGuards(TwoFAJwtAuthGuard)
+	@Post('2fa')
+	async validateCode (
+		@Request() req: any,
+		@Res({ passthrough: true }) response: Response
+	) {
+		return await this.authService.login(req.user, response);
+	}
+*/
+
 	//	=========================================OAuth2=======================
 
 	@UseGuards(Intra42AuthGuard)
@@ -91,8 +119,26 @@ export class AuthController {
 		@Request() req: any,
 		@Res({ passthrough: true }) response: Response
 	) {
-		if (req.intraUserInfo.signedIn){
-			const accessToken = await this.authService.login(req.intraUserInfo.user, response)
+
+		if (req.intraUserInfo.signedIn) {
+
+			let accessToken;
+
+			if (req.user.isTwoFA) {
+				await this.authService.getTwoFAToken(
+					{
+						sub: req.user.id,
+						login: req.user.login
+					},
+					response
+				)
+				accessToken = {
+					aT: '2faActivate'
+				};
+			} else {
+				accessToken = await this.authService.login(req.intraUserInfo.user, response)
+			}
+
 			return {
 				...req.intraUserInfo,
 				token: accessToken['aT']

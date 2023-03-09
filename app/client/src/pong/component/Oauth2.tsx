@@ -30,7 +30,7 @@ export const Oauth2 = (props: Props) => {
 
 const IntraSignup = () => {
 
-	const {intraLogin, authSignIntra, loading} = useAuth()
+	const {intraLogin, authSignupIntra, loading} = useAuth()
 
 	const [error, setError] = useState('')
 
@@ -40,7 +40,7 @@ const IntraSignup = () => {
 
 		e.preventDefault()
 		async function signAsync() {
-			setError(await authSignIntra(`http://${import.meta.env.VITE_SITE}/api/auth/intra42?login=${login.current.value}&intraLogin=${intraLogin}`))
+			setError(await authSignupIntra(`http://${import.meta.env.VITE_SITE}/api/auth/intra42?login=${login.current.value}&intraLogin=${intraLogin}`))
 		}
 		signAsync();
 	})

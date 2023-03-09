@@ -1,17 +1,20 @@
-import { Module } from '@nestjs/common';
 import { TwoFAService } from './twofa.service';
 import { UsersService } from 'src/users/users.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TwofaController } from './twofa.controller';
 import { GameService } from 'src/game/game.service';
+import { forwardRef, Module } from '@nestjs/common';
+import { AuthModule } from 'src/auth/auth.module';
+import { PrismaModule } from '../prisma/prisma.module'
 
 @Module({
-  controllers: [TwofaController],
-  providers: [
-	  TwoFAService,
-	  UsersService,
-	  PrismaService,
-	  GameService,
-  ]
+	imports: [PrismaModule, forwardRef(() => AuthModule)],
+	controllers: [TwofaController],
+	providers: [
+		TwoFAService,
+		UsersService,
+		PrismaService,
+		GameService,
+	]
 })
 export class TwofaModule {}

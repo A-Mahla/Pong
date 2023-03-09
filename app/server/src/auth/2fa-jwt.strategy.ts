@@ -5,30 +5,27 @@ import { Request } from 'express';
 import { jwtConstants} from "./constants";
 import { JwtPayload } from './auth.types'
 
-
 @Injectable()
-export class RefreshTokenStrategy extends PassportStrategy(
+export class TwoFATokenStrategy extends PassportStrategy(
 	Strategy,
-	'jwt-refresh'
+	'jwt-2fa'
 ) {
 	constructor() {
 		super({
 			usernameField: 'login',
 			jwtFromRequest: ExtractJwt.fromExtractors([(request: Request) => {
-                const data = request?.cookies[`${jwtConstants.refresh_jwt_name}`];
+                const data = request?.cookies[`${jwtConstants.twofa_jwt_name}`];
                 if(!data){
                     return null;
                 }
                 return data
             }]),
-			secretOrKey: jwtConstants.refresh_jwt_secret,
-			passReqToCallback: true,
+			secretOrKey: jwtConstants.twofa_jwt_secret,
 			ignoreExpiration: false
 		  });
 	}
 
-	validate(request: Request, payload: JwtPayload) {
-		const refreshToken = request?.cookies[`${jwtConstants.refresh_jwt_name}`];
-		return { ...payload, refreshToken };
+	validate(payload: JwtPayload) {
+		return payload;
 	}
 }

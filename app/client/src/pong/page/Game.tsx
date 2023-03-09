@@ -33,9 +33,9 @@ socket.on("connect", () => {
  }
  type arrWaitingGame = waitingGame[];
 
-const JoinGame = ({joinGameList} : any): any => {
+ /*const TOREMOVE = ({joinGameList} : any): any => {
 
-}
+   }*/
 
 function MatchMaker ({thereIsMatch, onClick} : any){
 
