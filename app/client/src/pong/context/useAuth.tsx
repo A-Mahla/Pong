@@ -23,6 +23,7 @@ interface AuthContextType {
 	authSignup: (login: string, password: string) => Promise<string | undefined>;
 	authLogIntra: (url: URL) => void;
 	authSignupIntra: (url: URL) => void;
+	twoFA: (url: URL) => void;
 }
 
 export type fetchContext = {
@@ -53,6 +54,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 	}, [location.pathname]);
 
 	useEffect( () => {
+
 		async function auth()  {
 
 			try {
@@ -65,9 +67,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 				if ( location.pathname === '/2fa' ) {
 					
-					const res: responseApi = await originalRequest({
-						input: `http://${import.meta.env.VITE_SITE}/api/2fa/auth`
-					})
+					const res: responseApi = await fetch(`http://${import.meta.env.VITE_SITE}/api/2fa/authorisation`)
 					if ( res.status === 200 ) {
 						return ;
 					} else {
@@ -147,6 +147,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			if (response.status == 200) {
 				if (data['signedIn']) {
 					if (data['token'] === '2faActivate') {
+						setUser(data.user['login'])
 						navigate('/2fa')
 					} else {
 						setUser(data.user['login'])
@@ -255,6 +256,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			});
 			if ( response.status === 201) {
 				if (data['aT'] === '2faActivate') {
+					setUser(login);
 					navigate('/2fa')
 				} else {
 					setUser(login);
@@ -298,16 +300,16 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 		}
 	}
 
-	async function twoFAAuth(url: URL) {
+	async function twoFA(url: URL) {
 
 		try {
-			const response = await fetch(url)
+			const response = await fetch( url, { method: 'POST'} )
 			const data = await response.json()
 			if (response.status == 200) {
-				setUser(login);
 				setToken(data['aT']);
 				navigate('/pong')
 			} else {
+				setUser('');
 				navigate('/login')
 			}
 		} catch (err) {
@@ -330,6 +332,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			authSignup,
 			authLogIntra,
 			authSignupIntra,
+			twoFA,
 		}),
 		[user, intraLogin, token, loading, error]
 	);

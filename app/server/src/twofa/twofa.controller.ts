@@ -14,6 +14,7 @@ import {
   Request,
   Req,
   HttpCode,
+  Query,
 } from '@nestjs/common';
 import { TwoFAService } from './twofa.service';
 import { UsersService } from 'src/users/users.service'
@@ -31,7 +32,7 @@ export class TwofaController {
 		private readonly authService: AuthService,
 	) {}
 
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(TwoFAJwtAuthGuard)
 	@Post('generate')
 	async register(
 		@Res() response: Response, 
@@ -42,7 +43,6 @@ export class TwofaController {
 		return this.twoFAService.QrCode(response, otpauthUrl);
 	}
 
-//	@UseGuards(TwoFAJwtAuthGuard)
 	@UseGuards(JwtAuthGuard)
 	@Post('turn-on')
 	@HttpCode(200)
@@ -52,7 +52,7 @@ export class TwofaController {
 	) {
 
 /*		const isCodeValid = await this.twoFAService.isTwoFACodeValid(
-			body.twoFACode,
+			body.twoFA,
 			request.user.login
 		);
 
@@ -69,7 +69,7 @@ export class TwofaController {
 	@HttpCode(200)
 	async authenticate(
 		@Req() req: any,
-		@Body() body: any,
+		@Query() { twoFA }: any,
 		@Res({ passthrough: true }) response: Response
 	) {
 
@@ -79,9 +79,10 @@ export class TwofaController {
 			throw new BadRequestException();
 
 		const isCodeValid = await this.twoFAService.isTwoFACodeValid(
-			body.twoFACode,
-			user.login,
+			twoFA,
+			user,
 		);
+
 
 		if (!isCodeValid) {
 			throw new UnauthorizedException('Wrong authentication code');
@@ -92,7 +93,7 @@ export class TwofaController {
 	}
 
 	@UseGuards(TwoFAJwtAuthGuard)
-	@Get('auth')
+	@Get('authorisation')
 	async checkToken() {
 		return ;
 	}

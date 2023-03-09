@@ -6,6 +6,8 @@ import { GameService } from 'src/game/game.service';
 import { forwardRef, Module } from '@nestjs/common';
 import { AuthModule } from 'src/auth/auth.module';
 import { PrismaModule } from '../prisma/prisma.module'
+import { JwtStrategy } from 'src/auth/jwt.strategy'
+import { TwoFATokenStrategy } from 'src/auth/2fa-jwt.strategy'
 
 @Module({
 	imports: [PrismaModule, forwardRef(() => AuthModule)],
@@ -15,6 +17,8 @@ import { PrismaModule } from '../prisma/prisma.module'
 		UsersService,
 		PrismaService,
 		GameService,
+		TwoFATokenStrategy,
+		JwtStrategy,
 	]
 })
 export class TwofaModule {}

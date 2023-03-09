@@ -19,12 +19,8 @@ export class TwoFAService {
 		private readonly usersService: UsersService,
 	) {}
 
-	public async isTwoFACodeValid(twoFACode: string, login: string) {
+	public async isTwoFACodeValid(twoFACode: string, user: any) {
 
-		const user = await this.usersService.findOneUser(login);
-
-		if (!user || !user.twoFA)
-			throw new BadRequestException;
 
 		return authenticator.verify({
 			token: twoFACode,

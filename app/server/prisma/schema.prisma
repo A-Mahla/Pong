@@ -21,7 +21,7 @@ model User {
   intraLogin   String?     @unique
   refreshToken String?
   twoFA		   String?
-  isTwoFA	   Boolean     @default(true)
+  isTwoFA	   Boolean     @default(false)
   games        User_Game[]
   ownedRooms   Room[]      @relation("RoomOwner")
   member       User_Room[]

@@ -20,21 +20,25 @@ import {
 import { useFormControl } from '@mui/material/FormControl';
 
 
-	const centralBoxStyle = {
-		height: '25rem',
-		p: 1,
-		borderRadius: '32px',
-		'&.MuiPaper-root': {
-			backgroundColor: 'primary'
-		},
-		'@media (max-width: 950px)': {
-			p: 0,
-			height: '40rem'
-		},
-		'@media (max-width: 780px)': {
-			width: 400
-		}
+function isNumber(str) {
+  return /^\d+$/.test(str);
+}
+
+const centralBoxStyle = {
+	height: '25rem',
+	p: 1,
+	borderRadius: '32px',
+	'&.MuiPaper-root': {
+		backgroundColor: 'primary'
+	},
+	'@media (max-width: 950px)': {
+		p: 0,
+		height: '40rem'
+	},
+	'@media (max-width: 780px)': {
+		width: 400
 	}
+}
 
 const AuthInstruction = () => {
 
@@ -108,7 +112,9 @@ const AuthInstruction = () => {
 
 export const QRCodeComponent = () => {
 
-	const {user, token} = useAuth();
+	const {user, token, twoFA} = useAuth();
+
+	const {error, setError} = useState<string>('')
 
 	const [fetched, setFetched] = useState(false);
 	const [qrcode, setQrcode] = useState<string>('');
@@ -117,7 +123,19 @@ export const QRCodeComponent = () => {
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault()
 		if( e.target.value.length === 6 ) {
-			setCode(parseInt(e.target.value))
+
+			if (!isNumber(e.target.value)) {
+				setError('Error Code')
+			} else {
+
+				try {
+					twoFA(`http://${import.meta.env.VITE_SITE}/api/2fa/authenticate?twoFA=${e.target.value}`)
+				} catch(err) {
+					console.log(err)
+				}
+
+			}
+
 		}
 	}
 
@@ -125,21 +143,26 @@ export const QRCodeComponent = () => {
 
 	useEffect( () => {
 
-			async function fetching() {
 
+		async function fetching() {
+
+			try {
 				const result = await axios.post(
-					`/api/2fa/generate`,
-					{},
+
+					`http://${import.meta.env.VITE_SITE}/api/2fa/generate`,
+						{},
 					{ 
+						withCredentials: true,
 						responseType: 'blob',
-						headers: {
-							'Authorization': `Bearer ${token}`
-						},
 					}
 				);
 
-			setQrcode(URL.createObjectURL(result.data))
-			setFetched(true);
+				setQrcode(URL.createObjectURL(result.data))
+			} catch(err) {
+				console.lof(err)
+			} finally {
+				setFetched(true);
+			}
 		}
 		fetching();
 		return undefined

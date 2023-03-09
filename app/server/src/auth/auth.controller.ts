@@ -122,13 +122,14 @@ export class AuthController {
 
 		if (req.intraUserInfo.signedIn) {
 
+
 			let accessToken;
 
-			if (req.user.isTwoFA) {
+			if (req.intraUserInfo.user.isTwoFA) {
 				await this.authService.getTwoFAToken(
 					{
-						sub: req.user.id,
-						login: req.user.login
+						sub: req.intraUserInfo.user.id,
+						login: req.intraUserInfo.user.login
 					},
 					response
 				)
