@@ -19,6 +19,15 @@ const theme = createTheme({
 	typography: {
 		fontFamily: ['pong-policy']
 	},
+	breakpoints: {
+		values: {
+			xs: 0,
+			sm: 600,
+			md: 950,
+			lg: 1200,
+			xl: 1536,
+		},
+	},
 	palette: {
 		primary: {
 			main: 'rgba(21, 35, 47, 0.87)'
