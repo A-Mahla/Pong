@@ -62,7 +62,9 @@ export class GameController {
 //	======================== Getting Game inforation ==================
 	@Get('gamewatinglist')
 	async getGameWaitingList() {
-		return (this.gameService.gamesbyStatus('WAIT'))
+		return (
+			this.gameService.gamesbyStatus('WAIT')
+		);
 	}
 //	======================== Getting raw stats about a player game ================
 

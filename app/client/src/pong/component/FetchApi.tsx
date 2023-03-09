@@ -50,7 +50,6 @@ export const refreshRequest = async () => {
 	const response = await fetch(`http://${import.meta.env.VITE_SITE}/api/auth/refresh`);
 	const data = await response.json();
 	return { response, data };
-
 }
 
 /**
