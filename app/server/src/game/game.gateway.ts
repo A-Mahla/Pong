@@ -9,6 +9,9 @@ import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service'
 
 type GameDataType = {
+	roomInfo: {
+		roomId: string
+	}
 	player1: {
 		login?: string,
 		y: number,
@@ -30,7 +33,7 @@ type GameDataType = {
 	}
 }
 
-type RoomInfo = {
+interface RoomInfo {
 	roomId: string
 }
 
@@ -48,27 +51,31 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		if (newGame)
 			client.join(newGame.game_id.toString());
 		console.log("----------------------> " + client.id + " created a new game");
+		this.server.emit('roomsUpdate');
 		return newGame;
 	}
 
 	@SubscribeMessage('joinGame')
 	async joinGame(client: Socket, roomInfo: RoomInfo) {
-		const roomId = roomInfo.roomId;
-		if (!this.server.sockets.adapter.rooms.get(roomId)) {
-		  // La salle n'existe pas
-		  return { error: 'La salle n\'existe pas' };
-		}
+		const roomId: string = roomInfo.roomId;
+		// if (!this.server.sockets.adapter.rooms.get(roomId)) {
+		//   La salle n'existe pas
+		//   console.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeere")
+		//   return { error: 'La salle n\'existe pas' };
+		// }
 		// La salle existe, rejoindre la salle
 		client.join(roomId);
+		this.gameService.updateGamestatus(parseInt(roomInfo.roomId), 'FULL');
+		this.server.emit('roomsUpdate');
+		this.server.to(roomId).emit('lockAndLoaded');
+		console.log("room join attempt, roomID: " + roomId);
 		return { success: true };
 	}
-	
-
 
 	@SubscribeMessage('move')
 	onMove(client: Socket, gameData: GameDataType){
 		//console.log("|\n|\n|\n|\n|\n|\n|\n|\n|\n-----------------------------------> " + gameData);
-		this.server.emit('gameUpdate', gameData);
+		client.broadcast.emit('gameUpdate', gameData);
 	}
 
 	handleConnection(client: Socket, ...args: any[]) {

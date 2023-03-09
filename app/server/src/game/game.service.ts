@@ -100,6 +100,23 @@ export class GameService {
 		return nbGames;
 	}
 
+
+	//	================ UPDATE GAME STATUS ===========
+	async updateGamestatus(game_id: number, status: string) {
+		return this.prisma.games.update({
+			where: {
+				game_id: game_id
+			},
+			data : {
+				status: status
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e)
+		})
+	}
 }
+
+
+//	================ ^^^^^^^^^^^^^^^^^^ ===========
 
 
