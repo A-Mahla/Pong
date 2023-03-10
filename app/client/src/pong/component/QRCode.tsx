@@ -150,16 +150,16 @@ export const QRCodeComponent = () => {
 				const result = await axios.post(
 
 					`http://${import.meta.env.VITE_SITE}/api/2fa/generate`,
-						{},
+					{},
 					{ 
 						withCredentials: true,
 						responseType: 'blob',
 					}
 				);
-
+		
 				setQrcode(URL.createObjectURL(result.data))
 			} catch(err) {
-				console.lof(err)
+				console.log(err)
 			} finally {
 				setFetched(true);
 			}

@@ -67,18 +67,14 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 				if ( location.pathname === '/2fa' ) {
 					
-					const res: responseApi = await fetch(`http://${import.meta.env.VITE_SITE}/api/2fa/authorisation`)
-					if ( res.status !== 200 ) {
-						navigate('/pong')
+					const res: responseApi = await originalRequest({
+						input: `http://${import.meta.env.VITE_SITE}/api/2fa/authorisation`
+					})
+					if ( res.response.status === 200 ) {
+						setUser(res.data['login'])
+						return ;
 					}
-					return ;
-
 				}
-
-				// if ( location.pathname === '/gameTest' ) {
-				// 	navigate(location)
-				// 	return ;
-				// }
 
 				const url = `http://${import.meta.env.VITE_SITE}/api/users/profile/auth`;
 				const requestOption = {
@@ -124,8 +120,9 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				else
 					setUser(response1.data['login']);
 
-				//				if (location.pathname === '/2fa')
-				//	navigate('/pong')
+
+				if (location.pathname === '/2fa')
+					navigate('/pong')
 
 			} catch (err) {
 				console.log(err);

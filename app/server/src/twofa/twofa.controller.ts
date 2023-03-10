@@ -41,7 +41,7 @@ export class TwofaController {
 	) {
 		const { otpauthUrl } = await this.twoFAService.generateTwoFASecret(req.user.login);
 
-		return this.twoFAService.QrCode(response, otpauthUrl);
+		return this.twoFAService.QrCode(response, otpauthUrl)
 	}
 
 	@UseGuards(JwtAuthGuard)
@@ -105,10 +105,12 @@ export class TwofaController {
 	}
 
 	@UseGuards(TwoFAJwtAuthGuard)
-	@HttpCode(200)
 	@Get('authorisation')
-	async checkToken() {
-		return ;
+	async checkToken(@Req() req: any,) {
+		const login = req.user.login;
+		return {
+			login: login
+		}
 	}
 
 
