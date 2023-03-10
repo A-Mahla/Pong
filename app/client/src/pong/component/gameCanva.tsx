@@ -203,6 +203,8 @@ const Canvas = ({socket, height, width}: any) => {
 
 	const [countdown, setCountDown] = React.useState(10);
 
+	const [gameIsInit, setGameIsInit] = React.useState(false);
+
 	// game data var watched with useState api
 	const [game, setGame] = React.useState<GameData>({
 		roomInfo: {
@@ -233,20 +235,6 @@ const Canvas = ({socket, height, width}: any) => {
 		}
 	})
 
-	setupGame(game);
-	/* here we receive the other player gameData set,
-	 * it should be the same for both because set by the server except for the login
-	 * that have been set separatly just upstair
-	 * */
-	socket.on("gameUpdate", (gameData: GameData) => {
-		setGame({...gameData,
-			player2: {
-				...gameData.player2,
-				login: gameData.player1.login
-			}
-		})
-	})
-
 	// button handling play/pause status of the game
 	const handleClick = () => {
 		if (!countdown)
@@ -259,6 +247,25 @@ const Canvas = ({socket, height, width}: any) => {
 	React.useEffect(() => {
 
 	const canvasHandler = canvas.current
+
+	if (!gameIsInit)
+	{
+		setupGame(game);
+		/* here we receive the other player gameData set,
+		 * it should be the same for both because set by the server except for the login
+		 * that have been set separatly just upstair
+		 * */
+		socket.on("gameUpdate", (gameData: GameData) => {
+			console.log("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+			setGame({...gameData,
+				player2: {
+					...gameData.player2,
+					login: gameData.player1.login
+				}
+			})
+		})
+		setGameIsInit(true);
+	}
 	if (!countdown){
 		// handling Mouse position for moving the paddle
 		const handleMouseMove = (event: any) => {
@@ -324,7 +331,6 @@ const Canvas = ({socket, height, width}: any) => {
 };
 
 Canvas.propTypes = {
-	draw: PropTypes.func.isRequired,
 	height: PropTypes.number.isRequired,
 	width: PropTypes.number.isRequired,
 };
