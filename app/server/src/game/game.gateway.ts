@@ -93,6 +93,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	@SubscribeMessage('move')
 	onMove(client: Socket, gameData: GameDataType){
 		const playerInfo = this.players.find(p => p.playerID === client.id);
+		// if game is paused, we make it move
+		if (gameData.ball.speed.x === 0 && gameData.ball.speed.y  === 0)
+			gameData.ball.speed.x = gameData.ball.speed.y = 2;
 		// make the ball bounce on the height limits, should be common to both players
 		if (gameData.ball.y > gameData.roomInfo.canvasHeight || gameData.ball.y < 0) {
 			gameData.ball.speed.y *= -1;
@@ -103,15 +106,30 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				const bornInf = (gameData.player1.y - gameData.roomInfo.playerHeight)
 				const bornSup = (gameData.player1.y + gameData.roomInfo.playerHeight)
 				if (gameData.ball.y > bornInf && gameData.ball.y < bornSup)
-					gameData.ball.speed.x *= -1,2;
+				gameData.ball.speed.x *= -1,2;
 				else {
 					// player1 loose, we reset the ball at the center of the field
-					
+					console.log(" 1 1 1 1 1 1 1 1  1 1 1 1 1 1 player1 should lost now");
+					gameData.ball.speed.x *= -1,2;
 				}
 			}
+			gameData.ball.x = (gameData.roomInfo.canvasWidth / 2) + ((gameData.ball.x - gameData.roomInfo.canvasWidth / 2) * -1)
+			gameData.ball.speed.x *= -1;
 			client.broadcast.emit('gameUpdate', gameData);
 		} else if ( playerInfo?.playerRole === "p2" ) {
-			gameData.ball.x *= -1;
+			if (gameData.ball.x < 15) {
+				const bornInf = (gameData.player1.y - gameData.roomInfo.playerHeight)
+				const bornSup = (gameData.player1.y + gameData.roomInfo.playerHeight)
+				if (gameData.ball.y > bornInf && gameData.ball.y < bornSup)
+				gameData.ball.speed.x *= -1,2;
+				else {
+					// player2 loose, we reset the ball at the center of the field
+					console.log("2 2 2 2 2  2 2 2 2 2 2 2 2 2 2 2 player2 should lost now");
+					gameData.ball.speed.x *= -1,2;
+				}
+			}
+			gameData.ball.x = (gameData.roomInfo.canvasWidth / 2) + ((gameData.ball.x - gameData.roomInfo.canvasWidth / 2) * -1)
+			gameData.ball.speed.x *= -1;
 			client.broadcast.emit('gameUpdate', gameData);
 		}
 	}

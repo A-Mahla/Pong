@@ -287,7 +287,13 @@ const Canvas = ({socket, height, width}: any) => {
 		});
 
 		// changing state of game every 20ms, wich provoque useEffect re-render
-		const timer = setTimeout(() => { setGame( {...game} ) }, 20)
+		const timer = setTimeout(() => {
+			setGame({...game,
+			ball: {...game.ball,
+				x: game.ball.x + game.ball.speed.x,
+				y: game.ball.y + game.ball.speed.y
+			}})
+		}, 20)
 		// re-drawing the canva
 		draw(canvasHandler, game);
 
