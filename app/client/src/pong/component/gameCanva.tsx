@@ -14,12 +14,64 @@ import io from "socket.io-client";
 // import '../page/game.css'
 import { render } from 'react-dom'
 
+const CANVAS_HEIGHT = 640;
+const CANVAS_WIDTH = 1200;
+
 
 const PLAYER_HEIGHT = 100;
 const PLAYER_WIDTH = 5;
 
+type GameData = {
+	roomInfo: {
+		//roomId: string,
+		countDownRequired: boolean,
+		canvasHeight: number,
+		canvasWidth: number,
+		playerHeight: number
+		playerWidth: number
+	}
+	player1: {
+		login?: string,
+		y: number,
+		score: number
+	},
+	player2: {
+		login?: string
+		y: number,
+		score: number
+	},
+	ball: {
+		x: number,
+		y: number,
+		r: number,
+		speed: {
+			x: number,
+			y: number
+		}
+	}
+}
 
-const drawScore = (canvas, scorePlayer1, scorePlayer2) => {
+const drawCountDown = (canvas: any, countdown: number) => {
+	const context = canvas.getContext('2d');
+
+	// Set font to futuristic style and increase size by 50%
+	context.font = "112.5px 'Tr2n', sans-serif";
+
+	// Set color and thickness for countdown text
+	context.fillStyle = '#2f8ca3';
+	context.lineWidth = 4;
+	context.strokeStyle = '#2f8ca3';
+
+	// Center countdown text horizontally and vertically
+	context.textAlign = 'center';
+	context.textBaseline = 'middle';
+
+	// Draw countdown text
+	context.strokeText(countdown.toString(), canvas.width / 2, canvas.height / 2);
+	context.fillText(countdown.toString(), canvas.width / 2, canvas.height / 2);
+  }
+
+const drawScore = (canvas: any , scorePlayer1: number, scorePlayer2: number) => {
 	const context = canvas.getContext('2d');
 
 	// Set font to futuristic style
@@ -34,7 +86,7 @@ const drawScore = (canvas, scorePlayer1, scorePlayer2) => {
 	context.fillText(scorePlayer2, canvas.width / 2 + 20, 85);
 }
 
-const drawLogin = (canvas, loginPlayer1: string, loginPlayer2: string) => {
+const drawLogin = (canvas: any, loginPlayer1: string, loginPlayer2: string) => {
 	const context = canvas.getContext('2d');
 
 	// Set font to futuristic style
@@ -55,7 +107,7 @@ const drawLogin = (canvas, loginPlayer1: string, loginPlayer2: string) => {
 	context.fillText(loginPlayer2, canvas.width - player2LoginWidth - 10, 30);
 }
 
-export const draw = (canvas, game) => {
+export const draw = (canvas: any, game: any) => {
 	const context = canvas.getContext('2d')
 	// background
 	context.fillStyle = '#15232f';
@@ -88,7 +140,7 @@ export const draw = (canvas, game) => {
 };
 
 // controlling the ball position regarding the paddle and the frame
-const ballMove = (game, canvas, handleClick) => {
+const ballMove = (game: GameData, canvas: any, handleClick: any) => {
 	if (game.ball.y > canvas.height || game.ball.y < 0) {
         game.ball.speed.y *= -1;
     }
@@ -121,10 +173,10 @@ const ballMove = (game, canvas, handleClick) => {
 
 }
 
-function Mybutt ({isPlaying, onClick} : any) {
+function Mybutt ({countdown, onClick} : any) {
 	let content;
 	// event handler :
-	if (isPlaying)
+	if (countdown)
 	  content = <button onClick={onClick}>--- PAUSE ---</button>
 	else
 	  content = <button onClick={onClick}>--- PLAY ---</button>
@@ -135,95 +187,107 @@ function Mybutt ({isPlaying, onClick} : any) {
 	)
 }
 
-const Canvas = ({draw, height, width}) => {
+const Canvas = ({socket, height, width}: any) => {
 
-	const sendMove = (moveData) => {
+	const sendMove = (moveData: GameData) => {
 		socket.emit("move", moveData);
+	}
+
+	const setupGame = (initData: GameData) => {
+		socket.emit("setupGame", initData);
 	}
 
 	const {user} = useAuth() // automatic fetch for profile information
 
-	console.log(user);
-
 	const canvas = React.useRef<HTMLCanvasElement>(); // reference/pointer on html5 canvas element, so you can draw on it
 
-	const [isPlaying, setIsPlaying] = React.useState(false);
+	const [countdown, setCountDown] = React.useState(10);
 
 	// game data var watched with useState api
-	const [game, setGame] = React.useState({
+	const [game, setGame] = React.useState<GameData>({
+		roomInfo: {
+			countDownRequired: true,
+			canvasHeight: CANVAS_HEIGHT,
+			canvasWidth: CANVAS_WIDTH,
+			playerHeight: PLAYER_HEIGHT,
+			playerWidth: PLAYER_WIDTH
+		},
 		player1: {
 			login: user,
-			y: 640 / 2 - PLAYER_HEIGHT / 2,
+			y: 0,
 			score: 0
 		},
 		player2: {
 			login: '',
-			y: 640 / 2 - PLAYER_HEIGHT / 2,
+			y: 0,
 			score: 0
 		},
 		ball: {
-			x: 1200 / 2,
-			y: 640 / 2,
-			r: 5,
+			x: 0,
+			y: 0,
+			r: 0,
 			speed: {
-				x: 4,
-				y: 4
+				x: 0,
+				y: 0
 			}
 		}
+	})
 
+	setupGame(game);
+	/* here we receive the other player gameData set,
+	 * it should be the same for both because set by the server except for the login
+	 * that have been set separatly just upstair
+	 * */
+	socket.on("gameUpdate", (gameData: GameData) => {
+		setGame({...gameData,
+			player2: {
+				...gameData.player2,
+				login: gameData.player1.login
+			}
+		})
 	})
 
 	// button handling play/pause status of the game
 	const handleClick = () => {
-		if (!isPlaying)
-			setIsPlaying(true)
+		if (!countdown)
+			setCountDown(10);
 		else
-			setIsPlaying(false)
+			setCountDown(0);
 	}
 
 	// useEffect re-render all side effect of component when watched variable (game) state is modified
 	React.useEffect(() => {
 
 	const canvasHandler = canvas.current
-	if (isPlaying){
-		let paddle = game.player1.y;
-
+	if (!countdown){
 		// handling Mouse position for moving the paddle
-		const handleMouseMove = (event) => {
+		const handleMouseMove = (event: any) => {
 			const canvasLocation = canvasHandler?.getBoundingClientRect();
 			const mouseLocation = event.clientY - canvasLocation?.y
 			if (mouseLocation < PLAYER_HEIGHT / 2) {
-				paddle = 0;
+				game.player1.y = 0;
 			} else if (mouseLocation > canvasHandler.height - PLAYER_HEIGHT / 2) {
-				paddle = canvasHandler.height - PLAYER_HEIGHT;
+				game.player1.y = canvasHandler.height - PLAYER_HEIGHT;
 			} else {
-				paddle = mouseLocation - PLAYER_HEIGHT / 2;
+				game.player1.y = mouseLocation - PLAYER_HEIGHT / 2;
 			}
 		}
 		window.addEventListener('mousemove', handleMouseMove);
 
-		ballMove(game, canvasHandler, handleClick)
-
-		// changing state of game every 20ms, wich provoque useEffect re-render
-		const timer = setTimeout(() => {
-			setGame({...game,
-			player1: {
-				...game.player1,
-				y: paddle
-			},
-			ball: {...game.ball,
-				x: game.ball.x + game.ball.speed.x,
-				y: game.ball.y + game.ball.speed.y
-			}})
-		}, 20)
-
+		//ballMove(game, canvasHandler, handleClick)
+		// after capturing the
 		sendMove(game);
-		socket.on("gameUpdate", (gameData) => {
+		socket.on("gameUpdate", (gameData: GameData) => {
 			game.player2.y = gameData.player1.y;
-			game.player1.score = gameData.player1.score;
 			game.player2.login = gameData.player1.login;
+			game.ball.speed.x = gameData.ball.speed.x;
+			game.ball.speed.y = gameData.ball.speed.y;
+			game.ball.x = gameData.ball.x;
+			game.ball.y = gameData.ball.y;
 		});
 
+		// changing state of game every 20ms, wich provoque useEffect re-render
+		const timer = setTimeout(() => { setGame( {...game} ) }, 20)
 		// re-drawing the canva
 		draw(canvasHandler, game);
 
@@ -235,16 +299,19 @@ const Canvas = ({draw, height, width}) => {
 				clearTimeout(timer);
 			};
 		} else {
-			console.log("------------------> " + user);
+			const timer = setTimeout(() => {
+				setCountDown(countdown - 1)
+			}, 1000)
+			drawCountDown(canvasHandler, countdown);
 			draw(canvasHandler, game);
+			return () => { clearTimeout(timer) }
 		}
 
-	}, [game, isPlaying]);
+	}, [game, countdown]);
 
 
 	return (
 		<main role="main">
-				< Mybutt isPlaying={isPlaying} onClick={handleClick} />
 				<canvas ref={canvas} height={height} width={width} />
 		</main>
 	);

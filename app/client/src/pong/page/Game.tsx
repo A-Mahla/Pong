@@ -165,7 +165,7 @@ const Game = () => {
 		  <>
 		  <h1 style={{ fontSize: "3em" }}>Game</h1>
 			<div style={{ clear: 'both' }}>
-			  <Canvas draw={draw} height={640} width={1200} style={canvasStyle} />
+			  <Canvas socket={socket} height={640} width={1200} style={canvasStyle} />
 			</div>
 		  </>
 		);
