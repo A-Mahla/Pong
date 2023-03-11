@@ -59,7 +59,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	// so i will be able to difference both player in the game
 	players: playerInfo[] = [];
-
+	connectionCount = 0;
 
 	@SubscribeMessage('createGame')
 	async newGame(client: Socket) {
@@ -115,7 +115,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			}
 			gameData.ball.x = (gameData.roomInfo.canvasWidth / 2) + ((gameData.ball.x - gameData.roomInfo.canvasWidth / 2) * -1)
 			gameData.ball.speed.x *= -1;
-			client.broadcast.emit('gameUpdate', gameData);
 		} else if ( playerInfo?.playerRole === "p2" ) {
 			if (gameData.ball.x < 15) {
 				const bornInf = (gameData.player1.y - gameData.roomInfo.playerHeight)
@@ -130,9 +129,12 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			}
 			gameData.ball.x = (gameData.roomInfo.canvasWidth / 2) + ((gameData.ball.x - gameData.roomInfo.canvasWidth / 2) * -1)
 			gameData.ball.speed.x *= -1;
-			client.broadcast.emit('gameUpdate', gameData);
 		}
+		console.log('number of connected client <--> ' + this.connectionCount);
+		client.broadcast.emit('gameUpdate', gameData);
 	}
+
+
 
 	@SubscribeMessage('setupGame')
 	onInit(client: Socket, gameData: GameDataType) {
@@ -154,15 +156,20 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		gameData.ball.speed.x = 0;
 		gameData.ball.speed.y = 0;
 
+		console.log("login p1" + gameData.player1.login)
+		console.log("login p2" + gameData.player2.login)
 		// we emit the setup separatly so each user will be able to get the username of the other
-		client.broadcast.emit('gameUpdate', gameData);
+		client.broadcast.emit('gameIsSet', gameData);
 	}
 
 	handleConnection(client: Socket, ...args: any[]) {
+		this.connectionCount++;
 		console.log(`\n|\n|\n|\n|\n|\n|\n|Client connected: ${client.id}`);
+		console.log('number of connected client ' + this.connectionCount);
 	}
 
 	handleDisconnect(client: Socket) {
+		this.connectionCount--;
 		console.log(`Client disconnected: ${client.id}`);
 	}
 }

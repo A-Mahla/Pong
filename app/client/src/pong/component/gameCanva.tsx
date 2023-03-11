@@ -31,7 +31,7 @@ type GameData = {
 		playerWidth: number
 	}
 	player1: {
-		login?: string,
+		login?: string
 		y: number,
 		score: number
 	},
@@ -235,17 +235,8 @@ const Canvas = ({socket, height, width}: any) => {
 		}
 	})
 
-	// button handling play/pause status of the game
-	const handleClick = () => {
-		if (!countdown)
-			setCountDown(10);
-		else
-			setCountDown(0);
-	}
-
 	// useEffect re-render all side effect of component when watched variable (game) state is modified
 	React.useEffect(() => {
-
 	const canvasHandler = canvas.current
 
 	if (!gameIsInit)
@@ -255,17 +246,26 @@ const Canvas = ({socket, height, width}: any) => {
 		 * it should be the same for both because set by the server except for the login
 		 * that have been set separatly just upstair
 		 * */
-		socket.on("gameUpdate", (gameData: GameData) => {
-			console.log("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+		socket.on("gameIsSet", (gameData: GameData) => {
+
 			setGame({...gameData,
+				player1: {
+					...gameData.player1,
+					login: game.player1.login
+				},
 				player2: {
 					...gameData.player2,
 					login: gameData.player1.login
 				}
 			})
+			console.log("---> game.player1.login" + game.player1.login);
+			console.log("--->  gameData.player1.login" +  gameData.player1.login);
+
+			console.log(" game.player2.login "  + game.player2.login);
+			setGameIsInit(true);
 		})
-		setGameIsInit(true);
 	}
+
 	if (!countdown){
 		// handling Mouse position for moving the paddle
 		const handleMouseMove = (event: any) => {
@@ -281,12 +281,11 @@ const Canvas = ({socket, height, width}: any) => {
 		}
 		window.addEventListener('mousemove', handleMouseMove);
 
-		//ballMove(game, canvasHandler, handleClick)
+		// ballMove(game, canvasHandler, handleClick)
 		// after capturing the
 		sendMove(game);
 		socket.on("gameUpdate", (gameData: GameData) => {
 			game.player2.y = gameData.player1.y;
-			game.player2.login = gameData.player1.login;
 			game.ball.speed.x = gameData.ball.speed.x;
 			game.ball.speed.y = gameData.ball.speed.y;
 			game.ball.x = gameData.ball.x;
@@ -315,12 +314,10 @@ const Canvas = ({socket, height, width}: any) => {
 			const timer = setTimeout(() => {
 				setCountDown(countdown - 1)
 			}, 1000)
-			drawCountDown(canvasHandler, countdown);
 			draw(canvasHandler, game);
 			return () => { clearTimeout(timer) }
 		}
-
-	}, [game, countdown]);
+	});
 
 
 	return (

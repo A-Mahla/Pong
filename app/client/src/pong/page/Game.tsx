@@ -84,6 +84,7 @@ function MatchMaker ({thereIsMatch, onClick} : any){
 		auth: useFetchAuth(),
 	}
 
+	 // where is if (isfetched)
 	React.useEffect(() => {
 		async function fetchingGameList() {
 			const gameList: responseApi = await FetchApi(fetchGameList);
