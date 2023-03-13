@@ -15,10 +15,10 @@ async function bootstrap() {
     whitelist: true,
   }),);
 
-  const socketIOAdapter = new SocketIOAdapter(app)
-
-  app.useWebSocketAdapter(socketIOAdapter)
-
+//  const socketIOAdapter = new SocketIOAdapter(app)
+//
+//  app.useWebSocketAdapter(socketIOAdapter)
+//
   await app.listen(3500);
 }
 bootstrap();

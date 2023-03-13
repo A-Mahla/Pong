@@ -13,10 +13,11 @@ import { GameService } from './game/game.service';
 import { SocketIOAdapter } from './adapter/socket-io.adapter';
 import { HttpAdapterHost } from '@nestjs/core';
 import { MessageService } from './chat/messages/messages.service';
+import { ChatService } from './chat/chat.service';
 
 @Module({
   imports: [UsersModule, AuthModule, JwtModule, ChatModule, GameModule],
   controllers: [AppController],
-  providers: [AppService, PrismaService, RoomsService, MessageService, ChatGateway, GameService],
+  providers: [AppService, PrismaService, RoomsService, MessageService, ChatService, ChatGateway, GameService],
 })
 export class AppModule {}

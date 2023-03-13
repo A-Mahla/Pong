@@ -32,10 +32,9 @@ export const ChatContext = createContext(initialChatContext)
 
 export function Chat() {
 
-
 	const message = useRef('')
 
-	const [state, dispatch] = useReducer(reducer, initialState)
+	const [current, setCurrent] = useState({name: '', id: 0})
 
 	const [rooms, setRooms] = useState<Room[]>([])
 
@@ -68,22 +67,6 @@ export function Chat() {
 		auth: auth,
 	}
 
-	const messageListener = (...args) => {
-
-		console.log('message receive: ', args[0]);
-
-
-		const newMessage = {
-			...args[0],
-			time:
-				new Date(Date.now()).getHours() +
-				':' +
-				new Date(Date.now()).getMinutes(),
-		}
-
-		//dispatch({type: 'ADD_MESSAGE', payload: newMessage})
-	}
-
 	useEffect(() => {
 		const getRooms = async () => {
 			const { data } = await FetchApi(findRooms)
@@ -106,8 +89,6 @@ export function Chat() {
 				messages.push(data)
 			}
 
-			//const ret = messages.map((value) => (value))
-
 			return {
 				rooms: rooms,
 				messages: messages[0]
@@ -121,9 +102,9 @@ export function Chat() {
 			console.log('rooms: ', data.rooms)
 		})
 
-		console.log('state: ', state);
+		console.log('state: ', current);
 
-	}, [joining, creating])
+	}, [])
 
 	useEffect(() => {
 		console.log('socket in useEffect', socket);
@@ -132,11 +113,32 @@ export function Chat() {
 			socket.emit('join', user)
 			console.log('connected')
 		})
-		socket.on('message', messageListener)
+		socket.on('message', (newMessage) => {
+
+			console.log('setMessages', newMessage)
+			messages !== undefined ? setMessages([...messages, newMessage]) : setMessages([newMessage])
+				
+		})
+
+		socket.on('roomCreated', (payload) => {
+			console.log('roomCreated: ', payload)
+			setRooms([...rooms, payload])
+		})
+
+		socket.on('roomJoined', (payload) => {
+			setRooms([...rooms, payload])
+		})
+
+		socket.on('roomLeaved', (roomId) => {
+			setRooms(rooms.filter((value) => {
+				return value.id !== roomId
+			}))
+		})
+
 		return () => {
-			socket.off("message", messageListener)
+			//socket.off('message', messageListener)
 		}
-	}, [socket])
+	}, [socket, rooms])
 
 	const handleSubmit = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
@@ -144,32 +146,26 @@ export function Chat() {
 			content: message.current.value,
 			sender: user,
 			room: {
-				id: state.room.id,
-				name: state.room.name
+				id: current.id,
+				name: current.name
 			}
-
 		}
 
-		console.log('messageData: ', messageData)
-
-		socket.emit('message', messageData, function (response) {
+		socket.emit('message', messageData/*,  function (response) {
 			console.log('RESPONSE', response);
-		})
-	}, [state.room])
+		} */)
+	}, [current])
 
 	const handleChangeRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
 		const payload = JSON.parse(e.target.value)
 
-		//console.log('target vs state: ', payload, state.room);
-
-		if (payload.id === state.room.id)
+		if (payload.id === current.id)
 			return
 
-		console.log('change room payload: ', payload);
+		setCurrent(payload)
 
-		dispatch({ type: "SET_ROOM", payload: payload })
-	}, [state.room])
+	}, [messages])
 
 	const handleCreateRoom = useCallback(async (e: React.MouseEvent<HTMLButtonElement>) => {
 
@@ -189,18 +185,13 @@ export function Chat() {
 	const handleLeaveRoom = useCallback((e) => {
 		const leaveData = {
 			user: user,
-			roomId: state.room.id
+			roomId: current.id
 		}
-
-		console.log('leave payload: ', leaveData);
-
 
 		socket.emit('leaveRoom', leaveData, (response) => {
 			console.log('leave room response: ', response);
 		})
-	})
-
-	//{state.messages.map((message, index) => (state.room.id === message.room.id ? <Box key={index} className='messageSent'>{message.content} + {message.time}</Box> : null))}
+	}, [current])
 
 	return (
 		<ChatContext.Provider value={context}>
@@ -210,8 +201,8 @@ export function Chat() {
 				<Paper>
 					<Paper>
 					</Paper>
-					{messages.map((message) => (state.room.id === message.room_id ? <Box key={message.id} className='messageSent'>{message.content}</Box> : null))}
-					<TextField type='text' placeholder={`${state.room.name}`} inputRef={message} />
+					{messages ? messages.map((message) => (current.id === message.room_id ? <Box key={message.id} className='messageSent'>{message.content} {message.createdAt}</Box> : null)) : null}
+					<TextField type='text' placeholder={`${current.name}`} inputRef={message} />
 
 					<Button onClick={handleSubmit}>send message</Button>
 					<Button onClick={handleCreateRoom}>create room</Button>

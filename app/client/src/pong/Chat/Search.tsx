@@ -42,9 +42,12 @@ export function SearchRoom(children : string) {
 
 	const handleJoin = useCallback(async (e) => {
 
+		const value = JSON.parse(e.target.value)
+
 		const payload = {
 			userLogin: user,
-			roomId: e.target.value 
+			roomId: value.id,
+			roomName: value.name
 		}
 
 		console.log('join Room payload: ', payload);
@@ -53,15 +56,7 @@ export function SearchRoom(children : string) {
 		socket.emit('joinRoom',  payload, (response) => {
 			console.log('join room response: ', response)
 		})
-		//await FetchApi({
-		//	api: {
-		//		input : `http://${import.meta.env.VITE_SITE}/api/users/${user}/${e.target.value}`,
-		//		option : {
-		//			method : 'PATCH'
-		//		}
-		//	},
-		//	auth : useContextAuth
-		//})
+
 		isJoining(false)
 	}, [socket])	
 
@@ -84,7 +79,7 @@ export function SearchRoom(children : string) {
 							(<ListItem 
 								key={value.id}
 								secondaryAction={
-									<Button value={value.id} onClick={handleJoin}>JOIN</Button>
+									<Button value={JSON.stringify(value)} onClick={handleJoin}>JOIN</Button>
 								}
 								>{value.name}</ListItem>)
 						)}

@@ -37,8 +37,9 @@ export function CreateRoom() {
 
 		socket.emit('createRoom', newRoomData, (response) => {
 			console.log('creatRoom response: ', response);
+			console.log('clientId: ', socket.id);
+			
 		})
-
 
 		console.log('roomName: ', roomName.current.value);
 		console.log('roomPasswd: ', roomPassword.current.value);

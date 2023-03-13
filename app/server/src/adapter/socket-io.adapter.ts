@@ -16,8 +16,8 @@ export class SocketIOAdapter extends IoAdapter {
 		const server : Server = super.createIOServer(port, options)
 		server.use((socket, next) => {
 			console.log('socket in middleware: ', socket.handshake)
-			//next(new Error('invalid'))
-			next()
+			next(new Error('invalid'))
+			//next()
 		})
 
 		return server

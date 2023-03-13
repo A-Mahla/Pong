@@ -18,7 +18,7 @@ export class MessageService {
 			data: {
 				sender_id:senderId,
 				room_id: roomId, 
-				content: content
+				content: content,
 			} 
 		}).catch((e) => {
 			throw new BadRequestException(e);

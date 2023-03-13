@@ -6,3 +6,14 @@ export type CreateRoomData = {
   roomPassword?: string,
   roomOwner: string,
 }
+
+
+export type MessageData = {
+	content: string,
+	sender: string,
+  time?: string,
+  room?: {
+    name: string,
+    id: number
+  }
+}
