@@ -43,6 +43,7 @@ interface RoomInfo {
 }
 
 interface playerInfo {
+	roomID: string,
 	playerID: string,
 	playerRole: "p1" | "p2"
 }
@@ -68,7 +69,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			client.join(newGame.game_id.toString());
 		console.log("----------------------> " + client.id + " created a new game");
 		this.server.emit('roomsUpdate');
-		this.players.push( { playerID: client.id, playerRole: "p1" } );
+		// keeping track of the room configuration
+		this.players.push( { playerID: client.id, playerRole: "p1", roomID: newGame.game_id.toString()} );
 		return newGame;
 	}
 
@@ -82,7 +84,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		// }
 		// La salle existe, rejoindre la salle
 		client.join(roomId);
-		this.players.push( { playerID: client.id, playerRole: "p2" } );
+		this.players.push( { playerID: client.id, playerRole: "p2", roomID: roomId} );
 		this.gameService.updateGamestatus(parseInt(roomInfo.roomId), 'FULL');
 		this.server.emit('roomsUpdate');
 		this.server.to(roomId).emit('lockAndLoaded');
@@ -100,37 +102,30 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		if (gameData.ball.y > gameData.roomInfo.canvasHeight || gameData.ball.y < 0) {
 			gameData.ball.speed.y *= -1;
 		}
+		if (gameData.ball.x < 15) {
+			let bornInf = (gameData.player1.y - gameData.roomInfo.playerHeight)
+			let bornSup = (gameData.player1.y + gameData.roomInfo.playerHeight)
+			console.log("gameData.roomInfo.playerHeight: " + gameData.roomInfo.playerHeight + " | bornSup " + bornSup);
+			if (gameData.ball.y > bornInf && gameData.ball.y < bornSup) {
+				gameData.ball.speed.x *= -1,2;
+			} else {
+				// player1 loose, we reset the ball at the center of the field
+				gameData.player2.score = 1;
+				gameData.ball.x = gameData.roomInfo.canvasWidth / 2;
+				gameData.ball.y = gameData.roomInfo.canvasHeight / 2;
+				gameData.ball.speed.x = 0;
+				gameData.ball.speed.y = 0;
+			}
+		}
+
 		if ( playerInfo?.playerRole === "p1" )
 		{
-			if (gameData.ball.x < 15) {
-				const bornInf = (gameData.player1.y - gameData.roomInfo.playerHeight)
-				const bornSup = (gameData.player1.y + gameData.roomInfo.playerHeight)
-				if (gameData.ball.y > bornInf && gameData.ball.y < bornSup)
-				gameData.ball.speed.x *= -1,2;
-				else {
-					// player1 loose, we reset the ball at the center of the field
-					console.log(" 1 1 1 1 1 1 1 1  1 1 1 1 1 1 player1 should lost now");
-					gameData.ball.speed.x *= -1,2;
-				}
-			}
 			gameData.ball.x = (gameData.roomInfo.canvasWidth / 2) + ((gameData.ball.x - gameData.roomInfo.canvasWidth / 2) * -1)
 			gameData.ball.speed.x *= -1;
 		} else if ( playerInfo?.playerRole === "p2" ) {
-			if (gameData.ball.x < 15) {
-				const bornInf = (gameData.player1.y - gameData.roomInfo.playerHeight)
-				const bornSup = (gameData.player1.y + gameData.roomInfo.playerHeight)
-				if (gameData.ball.y > bornInf && gameData.ball.y < bornSup)
-				gameData.ball.speed.x *= -1,2;
-				else {
-					// player2 loose, we reset the ball at the center of the field
-					console.log("2 2 2 2 2  2 2 2 2 2 2 2 2 2 2 2 player2 should lost now");
-					gameData.ball.speed.x *= -1,2;
-				}
-			}
 			gameData.ball.x = (gameData.roomInfo.canvasWidth / 2) + ((gameData.ball.x - gameData.roomInfo.canvasWidth / 2) * -1)
 			gameData.ball.speed.x *= -1;
 		}
-		console.log('number of connected client <--> ' + this.connectionCount);
 		client.broadcast.emit('gameUpdate', gameData);
 	}
 
@@ -139,7 +134,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	@SubscribeMessage('setupGame')
 	onInit(client: Socket, gameData: GameDataType) {
 		// setting the player paddle height 64 time smaller than the canvas height
-		gameData.roomInfo.playerHeight = gameData.roomInfo.canvasHeight / 64;
+		gameData.roomInfo.playerHeight = gameData.roomInfo.canvasHeight / 6.4;
 
 		// setting players positions at (height / 2)
 		gameData.player1.y = gameData.roomInfo.canvasHeight / 2 - gameData.roomInfo.playerHeight / 2;

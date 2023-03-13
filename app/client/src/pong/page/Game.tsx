@@ -58,24 +58,47 @@ function JoinGame({joinGameList}: JoinGameProps): JSX.Element {
   )
 }
 
-function MatchMaker ({thereIsMatch, onClick} : any){
+function CreateGameButton({setGameIscreated, gameIscreated}: any): JSX.Element {
 
-	const [gameIscreated, setGameIscreated] = React.useState(false);
-	const [isFetched, setIsFetched] = React.useState(false);
-	let model: arrWaitingGame;
-	const [joinGameList, setJoinGameList] = React.useState<arrWaitingGame>();
-
+	// callback for creating a new game (in DB and in socket.IO)
 	const createGame = () => {
-		console.log(socket.emit("createGame"));
+		socket.emit("createGame");
 	}
 
 	const handleCreateGame = () => {
 		if (!gameIscreated)
 		{
 			createGame();
-			setGameIscreated(true)
+			setGameIscreated(true);
 		}
 	}
+
+	if (gameIscreated)
+	{
+		return (
+			<>
+				<>game is created, now you wait for a competitor</>
+			</>
+		)
+	} else {
+		return (
+			<>
+			<div style={{textAlign: "right"}}>
+				<button onClick={handleCreateGame}>
+					NEW GAME
+				</button>
+			</div>
+			</>
+		)
+	}
+}
+
+function MatchMaker ({thereIsMatch, onClick} : any){
+
+	const [gameIscreated, setGameIscreated] = React.useState(false);
+	const [isFetched, setIsFetched] = React.useState(false);
+	const [joinGameList, setJoinGameList] = React.useState<arrWaitingGame>();
+	let model: arrWaitingGame;
 
 	const fetchGameList: Api = {
 		api: {
@@ -84,8 +107,9 @@ function MatchMaker ({thereIsMatch, onClick} : any){
 		auth: useFetchAuth(),
 	}
 
-	 // where is if (isfetched)
 	React.useEffect(() => {
+
+		// every time we fetch, we convert result as array into the 'model' variable
 		async function fetchingGameList() {
 			const gameList: responseApi = await FetchApi(fetchGameList);
 			setIsFetched(true);
@@ -98,7 +122,6 @@ function MatchMaker ({thereIsMatch, onClick} : any){
 		}
 
 		fetchingGameList().then(e => {
-			console.log("model.lenght -----------------------> " + model.length)
 			setJoinGameList(model);
 		});
 
@@ -106,11 +129,12 @@ function MatchMaker ({thereIsMatch, onClick} : any){
 			setIsFetched(false);
 		})
 
+		// event send to member of a room when room is lock and loaded (means two players are in the room)
 		socket.on("lockAndLoaded", () => {
 			onClick();
 		})
 
-		return () => {/* Don't know what to return for a clean exit */}
+		return () => {/* Don't know yet what to return for a clean exit */}
 	}, [gameIscreated, isFetched])
 
 
@@ -118,26 +142,11 @@ function MatchMaker ({thereIsMatch, onClick} : any){
 		<>
 		<div style={{display: "flex", justifyContent: "space-between"}}>
 
-			{gameIscreated ?
-				(
-					<>
-					<div>
-						<h2>CREATE GAME</h2>
-						<>game is created, now you wait for a competitor</>
-					</div>
-					</>
-				) : (
-
-					<>
-					<div style={{textAlign: "right"}}>
-						<h2>CREATE GAME</h2>
-						<button onClick={handleCreateGame}>
-							NEW GAME
-						</button>
-					</div>
-					</>
-				)
-			}
+			{/* if game is created, we stop the user from creating another game */}
+			<div>
+				<h2>CREATE GAME</h2>
+				<CreateGameButton setGameIscreated={setGameIscreated} gameIscreated={gameIscreated}/>
+			</div>
 			<div>
 				<h2>JOIN GAME</h2>
 				{joinGameList? (<JoinGame joinGameList={joinGameList} />) : (<>PROBLEM</>) }
@@ -146,7 +155,6 @@ function MatchMaker ({thereIsMatch, onClick} : any){
 		</>
 	)
 }
-
 
 // Main Game page, rendering either matchmaking page or Canvas if therIsMatch == true
 const Game = () => {

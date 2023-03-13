@@ -29,6 +29,7 @@ type GameData = {
 		canvasWidth: number,
 		playerHeight: number
 		playerWidth: number
+
 	}
 	player1: {
 		login?: string
@@ -51,6 +52,7 @@ type GameData = {
 	}
 }
 
+
 const drawCountDown = (canvas: any, countdown: number) => {
 	const context = canvas.getContext('2d');
 
@@ -58,18 +60,12 @@ const drawCountDown = (canvas: any, countdown: number) => {
 	context.font = "112.5px 'Tr2n', sans-serif";
 
 	// Set color and thickness for countdown text
-	context.fillStyle = '#2f8ca3';
-	context.lineWidth = 4;
 	context.strokeStyle = '#2f8ca3';
-
-	// Center countdown text horizontally and vertically
-	context.textAlign = 'center';
-	context.textBaseline = 'middle';
 
 	// Draw countdown text
 	context.strokeText(countdown.toString(), canvas.width / 2, canvas.height / 2);
 	context.fillText(countdown.toString(), canvas.width / 2, canvas.height / 2);
-  }
+}
 
 const drawScore = (canvas: any , scorePlayer1: number, scorePlayer2: number) => {
 	const context = canvas.getContext('2d');
@@ -139,53 +135,6 @@ export const draw = (canvas: any, game: any) => {
 	context.fill();
 };
 
-// controlling the ball position regarding the paddle and the frame
-const ballMove = (game: GameData, canvas: any, handleClick: any) => {
-	if (game.ball.y > canvas.height || game.ball.y < 0) {
-        game.ball.speed.y *= -1;
-    }
-	if (game.ball.x > canvas.width){
-		game.ball.speed.x *= -1;
-		if (game.ball.speed.x < 0)
-		{
-			game.ball.speed.x -= 1;
-			game.ball.speed.y -= 1;
-		} else {
-			game.ball.speed.x += 1;
-			game.ball.speed.y += 1;
-		}
-	}
-	else if (game.ball.x < 15) {
-		const bornInf = (game.player1.y - PLAYER_HEIGHT)
-		const bornSup = (game.player1.y + PLAYER_HEIGHT)
-		if (game.ball.y > bornInf && game.ball.y < bornSup)
-			game.ball.speed.x *= -1,2;
-		else {
-			// player1 loose, we reset the ball at the center of the field
-			game.player2.score += 1;
-			game.ball.x = canvas.width / 2
-			game.ball.y = canvas.height / 2
-			game.ball.speed.x = 4;
-			game.ball.speed.y = 4;
-			handleClick();
-		}
-	}
-
-}
-
-function Mybutt ({countdown, onClick} : any) {
-	let content;
-	// event handler :
-	if (countdown)
-	  content = <button onClick={onClick}>--- PAUSE ---</button>
-	else
-	  content = <button onClick={onClick}>--- PLAY ---</button>
-	return (
-	  <div>
-		{content}
-	  </div>
-	)
-}
 
 const Canvas = ({socket, height, width}: any) => {
 
@@ -205,7 +154,7 @@ const Canvas = ({socket, height, width}: any) => {
 
 	const [gameIsInit, setGameIsInit] = React.useState(false);
 
-	// game data var watched with useState api
+	// we only init the parameter that the server cannot have (room info) the rest is set to 0
 	const [game, setGame] = React.useState<GameData>({
 		roomInfo: {
 			countDownRequired: true,
@@ -239,6 +188,7 @@ const Canvas = ({socket, height, width}: any) => {
 	React.useEffect(() => {
 	const canvasHandler = canvas.current
 
+	// to make sure we init the game only once
 	if (!gameIsInit)
 	{
 		setupGame(game);
@@ -246,8 +196,7 @@ const Canvas = ({socket, height, width}: any) => {
 		 * it should be the same for both because set by the server except for the login
 		 * that have been set separatly just upstair
 		 * */
-		socket.on("gameIsSet", (gameData: GameData) => {
-
+			socket.on("gameIsSet", (gameData: GameData) => {
 			setGame({...gameData,
 				player1: {
 					...gameData.player1,
@@ -258,10 +207,6 @@ const Canvas = ({socket, height, width}: any) => {
 					login: gameData.player1.login
 				}
 			})
-			console.log("---> game.player1.login" + game.player1.login);
-			console.log("--->  gameData.player1.login" +  gameData.player1.login);
-
-			console.log(" game.player2.login "  + game.player2.login);
 			setGameIsInit(true);
 		})
 	}
@@ -281,25 +226,33 @@ const Canvas = ({socket, height, width}: any) => {
 		}
 		window.addEventListener('mousemove', handleMouseMove);
 
-		// ballMove(game, canvasHandler, handleClick)
-		// after capturing the
-		sendMove(game);
-		socket.on("gameUpdate", (gameData: GameData) => {
-			game.player2.y = gameData.player1.y;
-			game.ball.speed.x = gameData.ball.speed.x;
-			game.ball.speed.y = gameData.ball.speed.y;
-			game.ball.x = gameData.ball.x;
-			game.ball.y = gameData.ball.y;
-		});
-
 		// changing state of game every 20ms, wich provoque useEffect re-render
 		const timer = setTimeout(() => {
-			setGame({...game,
-			ball: {...game.ball,
-				x: game.ball.x + game.ball.speed.x,
-				y: game.ball.y + game.ball.speed.y
-			}})
-		}, 20)
+			sendMove(game);
+			socket.on("gameUpdate", (gameData: GameData) => {
+				setGame({...game,
+					player1: {
+						...game.player1,
+						score: game.player1.score + gameData.player2.score
+					},
+					player2: {
+						...game.player2,
+						y: gameData.player1.y,
+						score: game.player2.score + gameData.player1.score
+					},
+					ball: {...game.ball,
+						x: gameData.ball.x + gameData.ball.speed.x,
+						y: gameData.ball.y + gameData.ball.speed.y,
+						speed: {
+							x: gameData.ball.speed.x,
+							y: gameData.ball.speed.y
+						}
+					}
+
+				})
+			});
+
+		}, 8)
 		// re-drawing the canva
 		draw(canvasHandler, game);
 
@@ -309,12 +262,17 @@ const Canvas = ({socket, height, width}: any) => {
 				handleMouseMove
 				);
 				clearTimeout(timer);
+			socket.on("disconnect", () => {
+				console.log("-----------------------------------> disconnection");
+			})
+
 			};
 		} else {
 			const timer = setTimeout(() => {
 				setCountDown(countdown - 1)
+				draw(canvasHandler, game);
+				drawCountDown(canvasHandler, countdown);
 			}, 1000)
-			draw(canvasHandler, game);
 			return () => { clearTimeout(timer) }
 		}
 	});
