@@ -239,7 +239,12 @@ export const QRCodeComponent = () => {
 														fontSize:22,
 													},
 												}}
-												sx={{p: 0, pt: 0.5, mx: 1, mt: 1}}
+												sx={{
+													p: 0,
+													pt: 0.5,
+													mx: 1,
+													mt: 1
+												}}
 											></TextField>
 										</FormControl>
 									</Box>
