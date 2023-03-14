@@ -1,33 +1,40 @@
 import Avatar from '@mui/material/Avatar';
-import { Typography, Grid } from '@mui/material';
+import { Typography, Grid, IconButton } from '@mui/material';
 
 //src="http://localhost:5500/api/users/default/default_avatar"
 
 const ProfileAvatar = () => {
 
 	return (
-		<Avatar
-			alt="avatar"
-			src=""
-			sx={{
-				p: 0,
-				border: 1,
-				boxShadow: 24,
-				'@media (max-width: 550px)': {
-					width: '7rem',
-					height: '7rem',
-				},
-				'@media (min-width:550px) and (max-width: 950px)': {
-					width: '6rem',
-					height: '6rem',
-				},
-				'@media (min-width: 950px)': {
-					width: '8rem',
-					height: '8rem',
-				},
-				AlignItems: 'center'
-			}}
-		/>
+		<>
+		<input accept="image/*" id="upload-avatar-pic" type="file" hidden />
+		<label htmlFor="upload-avatar-pic">
+			<IconButton component="span">
+				<Avatar
+					alt="avatar"
+					src=""
+					sx={{
+						p: 0,
+						border: 1,
+						boxShadow: 24,
+						'@media (max-width: 550px)': {
+							width: '7rem',
+							height: '7rem',
+						},
+						'@media (min-width:550px) and (max-width: 950px)': {
+							width: '6rem',
+							height: '6rem',
+						},
+						'@media (min-width: 950px)': {
+							width: '8rem',
+							height: '8rem',
+						},
+						AlignItems: 'center'
+					}}
+				/>
+			</IconButton>
+		</label>
+		</>
 	)
 }
 

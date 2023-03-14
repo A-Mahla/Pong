@@ -1,4 +1,12 @@
-import { Grid, Switch, FormControlLabel } from '@mui/material'
+import {
+	Grid,
+	Switch,
+	FormControlLabel,
+	Accordion,
+	AccordionSummary,
+	AccordionDetails
+} from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { useState } from 'react'
 
 const UserPanelGrid = () => {
@@ -21,7 +29,19 @@ const UserPanelGrid = () => {
 			}}
 		
 		>
-			<Switch checked={check} onChange={handleChange}/>
+			<Accordion elevation={0}>
+				 <AccordionSummary
+					expandIcon={<ExpandMoreIcon />}
+					aria-controls="panel1a-content"
+					id="panel1a-header"
+				>
+					<FormControlLabel
+						disable typography
+						control={<Switch checked={check} onChange={handleChange}/>}
+						label="Activate 2FA"
+					/>
+				</AccordionSummary>
+			</Accordion>
 		</Grid>
 
 		<Grid item xl={4} md={4} xs={4}
