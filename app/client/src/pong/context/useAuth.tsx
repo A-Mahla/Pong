@@ -118,12 +118,12 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 							},
 						});
 						setUser(response2.data['login']);
-						setId(res.data['id'])
+						setId(response2.data['id'])
 
 					}
 				} else {
 					setUser(response1.data['login']);
-					setId(res.data['id'])
+					setId(response1.data['id'])
 				}
 
 

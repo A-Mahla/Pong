@@ -81,7 +81,7 @@ export class TwofaController {
 			throw new UnauthorizedException('Wrong authentication code');
 		} */
 
-		await this.usersService.turnOnTwoFA(request.user.login);
+		return await this.usersService.turnOnTwoFA(request.user.login);
 	}
 
 	@UseGuards(JwtAuthGuard)
@@ -91,7 +91,7 @@ export class TwofaController {
 		@Req() request: any,
 		@Body() body : any
 	) {
-		await this.usersService.turnOffTwoFA(request.user.login);
+		return await this.usersService.turnOffTwoFA(request.user.login);
 	}
 
 

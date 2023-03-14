@@ -111,21 +111,21 @@ export class UsersService {
 /* =========================== 2FA ====================================*/
 
 	async setTwoFASecret(secret: string, login: string) {
-		return this.updateUser( login, {
+		return await this.updateUser( login, {
 				twoFA: secret
 			}
 		);
 	}
 
 	async turnOnTwoFA(login: string) {
-		return this.updateUser(login, {
+		return await this.updateUser(login, {
 			isTwoFA: true,
 			twoFA: ''
 		});
 	}
 
 	async turnOffTwoFA(login: string) {
-		return this.updateUser(login, {
+		return await this.updateUser(login, {
 			isTwoFA: false,
 			twoFA: ''
 		});

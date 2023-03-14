@@ -121,6 +121,7 @@ export class AuthController {
 	) {
 
 		const {signedIn, intraLogin, user} = req.intraUserInfo;
+		console.log(signedIn, intraLogin, user);
 
 		if (req.intraUserInfo.signedIn) {
 
@@ -153,8 +154,6 @@ export class AuthController {
 		return {
 			signedIn: signedIn,
 			intraLogin: intraLogin,
-			login: user.login,
-			id: user.id,
 		}
 	}
 
