@@ -264,6 +264,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			if ( response.status === 201) {
 				if (data['aT'] === '2faActivate') {
 					setUser(login);
+					setId(data['id']);
 					navigate('/2fa')
 				} else {
 					setUser(login);

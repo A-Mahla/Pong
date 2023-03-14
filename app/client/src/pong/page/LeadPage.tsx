@@ -66,7 +66,7 @@ const LeadPage = () => {
 
 	const [value, setValue] = React.useState(1);
 
-	const {user} = useAuth();
+	const {user, id} = useAuth();
 
 	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
 		setValue(newValue);
@@ -107,6 +107,8 @@ const LeadPage = () => {
 			</TabPanel>
 			<TabPanel value={value} index={1}>
 				<Typography variant='h1'>{user}</Typography>
+				<br/>
+				<Typography variant='h1'>{id}</Typography>
 			</TabPanel>
 			<TabPanel value={value} index={2}>
 				<Typography variant='h1'>Chat</Typography>

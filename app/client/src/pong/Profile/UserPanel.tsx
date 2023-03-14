@@ -59,6 +59,7 @@ const TFAComponent = () => {
 						auth: auth
 				})
 				setCheck(response.data['isTfaActivate'] ? true : false)
+				setIsActivate(response.data['isTfaActivate'] ? 'Disable' : 'Enable')
 			} catch(err) {
 				console.log(err)
 			}

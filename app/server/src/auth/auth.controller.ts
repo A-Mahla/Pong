@@ -74,7 +74,8 @@ export class AuthController {
 				response
 			)
 			return {
-				aT: '2faActivate'
+				aT: '2faActivate',
+				id: req.user.id
 			};
 		}
 
