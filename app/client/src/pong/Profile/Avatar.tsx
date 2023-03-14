@@ -1,4 +1,5 @@
 import Avatar from '@mui/material/Avatar';
+import { Typography, Grid } from '@mui/material';
 
 //src="http://localhost:5500/api/users/default/default_avatar"
 
@@ -9,39 +10,72 @@ const ProfileAvatar = () => {
 			alt="avatar"
 			src=""
 			sx={{
-				width: '10rem;',
-				height: '10rem',
+				p: 0,
 				border: 1,
 				boxShadow: 24,
-				'@media (max-width: 350px)': {
-					position: 'absolute',
-					mt: 0,
-					mr: '10vw;',
-					width: '4rem',
-					height: '4rem',
+				'@media (max-width: 550px)': {
+					width: '7rem',
+					height: '7rem',
 				},
-				'@media (min-width: 350px) and (max-width: 470px)': {
-					width: '4rem',
-					height: '4rem',
-					mt: -10
-				},
-				'@media (min-width:470px) and (max-width: 600px)': {
+				'@media (min-width:550px) and (max-width: 950px)': {
 					width: '6rem',
 					height: '6rem',
-					mt: -10
 				},
-				'@media (min-width: 600px) and (max-width: 1000px)': {
-					mt: -5
-				},
-				'@media (min-width: 1000px) and (max-width: 1200px)': {
-					ml: '4vw;',
-				},
-				'@media (min-width: 1200px)': {
-					ml: '6vw;',
+				'@media (min-width: 950px)': {
+					width: '8rem',
+					height: '8rem',
 				},
 				AlignItems: 'center'
 			}}
 		/>
 	)
 }
-export default ProfileAvatar;
+
+const NameAvatar = () => {
+	
+	return (
+		<Typography noWrap 
+			fontSize={{
+				xl: '2rem',
+				lg: '1.5rem',
+				md: '1.3rem',
+				mmd: '1.2rem',
+				sm: '1rem',
+				xs: '1.5rem'
+			}}
+		>
+			Loginsuperlong
+		</Typography>
+	)
+}
+
+const AvatarGrid = () => {
+
+	return <>
+		<Grid item xl={5} md={6} xs={12}
+			sx={{
+				p: '1vw;',
+				border: 1,
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center'
+			}
+		}>
+			<ProfileAvatar />
+		</Grid>
+		<Grid item xl={7} md={6} xs={12}
+			sx={{
+				p: '1vw;',
+				border: 1,
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center'
+			}}
+		>
+			<NameAvatar />
+		</Grid>
+	</>
+
+}
+
+export default AvatarGrid;
