@@ -7,46 +7,8 @@ import { 	SubscribeMessage,
 import { stringify } from "querystring";
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service'
+import { GameDataType, RoomInfo, playerInfo } from './game.types'
 
-type GameDataType = {
-	roomInfo: {
-		//roomId: string,
-		countDownRequired: boolean,
-		canvasHeight: number,
-		canvasWidth: number,
-		playerHeight: number
-		playerWidth: number
-	}
-	player1: {
-		login?: string,
-		y: number,
-		score: number
-	},
-	player2: {
-		login?: string,
-		y: number,
-		score: number
-	},
-	ball: {
-		x: number,
-		y: number,
-		r: number,
-		speed: {
-			x: number,
-			y: number
-		}
-	}
-}
-
-interface RoomInfo {
-	roomId: string
-}
-
-interface playerInfo {
-	roomID: string,
-	playerID: string,
-	playerRole: "p1" | "p2"
-}
 
 @WebSocketGateway({ namespace: 'gameTrans' })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -70,6 +32,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		console.log("----------------------> " + client.id + " created a new game");
 		this.server.emit('roomsUpdate');
 		// keeping track of the room configuration
+		
 		this.players.push( { playerID: client.id, playerRole: "p1", roomID: newGame.game_id.toString()} );
 		return newGame;
 	}
@@ -105,16 +68,16 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		if (gameData.ball.x < 15) {
 			let bornInf = (gameData.player1.y - gameData.roomInfo.playerHeight)
 			let bornSup = (gameData.player1.y + gameData.roomInfo.playerHeight)
-			console.log("gameData.roomInfo.playerHeight: " + gameData.roomInfo.playerHeight + " | bornSup " + bornSup);
 			if (gameData.ball.y > bornInf && gameData.ball.y < bornSup) {
 				gameData.ball.speed.x *= -1,2;
 			} else {
 				// player1 loose, we reset the ball at the center of the field
-				gameData.player2.score = 1;
+				gameData.player2.score += 1;
 				gameData.ball.x = gameData.roomInfo.canvasWidth / 2;
 				gameData.ball.y = gameData.roomInfo.canvasHeight / 2;
 				gameData.ball.speed.x = 0;
 				gameData.ball.speed.y = 0;
+				gameData.roomInfo.countDownRequired = true;
 			}
 		}
 
@@ -126,22 +89,27 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			gameData.ball.x = (gameData.roomInfo.canvasWidth / 2) + ((gameData.ball.x - gameData.roomInfo.canvasWidth / 2) * -1)
 			gameData.ball.speed.x *= -1;
 		}
-		client.broadcast.emit('gameUpdate', gameData);
+		// will have to change to emit in a specific room
+		if (playerInfo?.roomID)
+			return client.to(playerInfo.roomID).emit('gameUpdate', gameData);
+		else
+			return client.broadcast.emit('gameUpdate', gameData);
 	}
 
 
 
 	@SubscribeMessage('setupGame')
 	onInit(client: Socket, gameData: GameDataType) {
+		const playerInfo = this.players.find(p => p.playerID === client.id);
+
+		gameData.roomInfo.countDownRequired = false;
 		// setting the player paddle height 64 time smaller than the canvas height
 		gameData.roomInfo.playerHeight = gameData.roomInfo.canvasHeight / 6.4;
 
 		// setting players positions at (height / 2)
 		gameData.player1.y = gameData.roomInfo.canvasHeight / 2 - gameData.roomInfo.playerHeight / 2;
-		gameData.player1.score = 0;
 
 		gameData.player2.y = gameData.roomInfo.canvasHeight / 2 - gameData.roomInfo.playerHeight / 2;
-		gameData.player2.score = 0;
 
 		// ball is set up in the middle of the canva, 64 times smaller than the height
 		gameData.ball.x = gameData.roomInfo.canvasWidth / 2;
@@ -151,10 +119,12 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		gameData.ball.speed.x = 0;
 		gameData.ball.speed.y = 0;
 
-		console.log("login p1" + gameData.player1.login)
-		console.log("login p2" + gameData.player2.login)
 		// we emit the setup separatly so each user will be able to get the username of the other
-		client.broadcast.emit('gameIsSet', gameData);
+		//client.broadcast.emit('gameIsSet', gameData);
+		if (playerInfo?.roomID)
+			client.to(playerInfo.roomID).emit('gameIsSet', gameData);
+		else
+			client.broadcast.emit('gameIsSet', gameData); //NORMALY THERE I EMIT AN ERROR !!
 	}
 
 	handleConnection(client: Socket, ...args: any[]) {

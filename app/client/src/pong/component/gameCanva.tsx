@@ -14,6 +14,8 @@ import io from "socket.io-client";
 // import '../page/game.css'
 import { render } from 'react-dom'
 
+
+
 const CANVAS_HEIGHT = 640;
 const CANVAS_WIDTH = 1200;
 
@@ -139,11 +141,53 @@ export const draw = (canvas: any, game: any) => {
 const Canvas = ({socket, height, width}: any) => {
 
 	const sendMove = (moveData: GameData) => {
-		socket.emit("move", moveData);
+		socket.volatile.emit("move", moveData);
+	}
+
+	const catchMove = () => {
+
+		socket.on("gameUpdate", (gameDataServer: GameData) => {
+			setGame({...game,
+				player1: {
+					...game.player1,
+					score: gameDataServer.player2.score
+				},
+				player2: {
+					...game.player2,
+					y: gameDataServer.player1.y,
+					score: gameDataServer.player1.score
+				},
+				ball: {...game.ball,
+					x: gameDataServer.ball.x + gameDataServer.ball.speed.x,
+					y: gameDataServer.ball.y + gameDataServer.ball.speed.y,
+					speed: {
+						x: gameDataServer.ball.speed.x,
+						y: gameDataServer.ball.speed.y
+					}
+				}
+
+			})
+		});
+
 	}
 
 	const setupGame = (initData: GameData) => {
-		socket.emit("setupGame", initData);
+		socket.volatile.emit("setupGame", initData);
+	}
+	const catchSetup = () => {
+		socket.on("gameIsSet", (gameData: GameData) => {
+			setGame({...gameData,
+				player1: {
+					...gameData.player1,
+					login: game.player1.login
+				},
+				player2: {
+					...gameData.player2,
+					login: gameData.player1.login
+				}
+			})
+			setGameIsInit(true);
+		})
 	}
 
 	const {user} = useAuth() // automatic fetch for profile information
@@ -164,7 +208,7 @@ const Canvas = ({socket, height, width}: any) => {
 			playerWidth: PLAYER_WIDTH
 		},
 		player1: {
-			login: user,
+			login: user, 
 			y: 0,
 			score: 0
 		},
@@ -191,68 +235,34 @@ const Canvas = ({socket, height, width}: any) => {
 	// to make sure we init the game only once
 	if (!gameIsInit)
 	{
-		setupGame(game);
 		/* here we receive the other player gameData set,
 		 * it should be the same for both because set by the server except for the login
 		 * that have been set separatly just upstair
 		 * */
-			socket.on("gameIsSet", (gameData: GameData) => {
-			setGame({...gameData,
-				player1: {
-					...gameData.player1,
-					login: game.player1.login
-				},
-				player2: {
-					...gameData.player2,
-					login: gameData.player1.login
-				}
-			})
-			setGameIsInit(true);
-		})
+		setupGame(game);
+		catchSetup();
+	}
+
+	// handling Mouse position for moving the paddle
+	const handleMouseMove = (event: any) => {
+		const canvasLocation = canvasHandler?.getBoundingClientRect();
+		const mouseLocation = event.clientY - canvasLocation?.y
+		if (mouseLocation < PLAYER_HEIGHT / 2) {
+			game.player1.y = 0;
+		} else if (mouseLocation > canvasHandler.height - PLAYER_HEIGHT / 2) {
+			game.player1.y = canvasHandler.height - PLAYER_HEIGHT;
+		} else {
+			game.player1.y = mouseLocation - PLAYER_HEIGHT / 2;
+		}
 	}
 
 	if (!countdown){
-		// handling Mouse position for moving the paddle
-		const handleMouseMove = (event: any) => {
-			const canvasLocation = canvasHandler?.getBoundingClientRect();
-			const mouseLocation = event.clientY - canvasLocation?.y
-			if (mouseLocation < PLAYER_HEIGHT / 2) {
-				game.player1.y = 0;
-			} else if (mouseLocation > canvasHandler.height - PLAYER_HEIGHT / 2) {
-				game.player1.y = canvasHandler.height - PLAYER_HEIGHT;
-			} else {
-				game.player1.y = mouseLocation - PLAYER_HEIGHT / 2;
-			}
-		}
-		window.addEventListener('mousemove', handleMouseMove);
-
 		// changing state of game every 20ms, wich provoque useEffect re-render
 		const timer = setTimeout(() => {
+			window.addEventListener('mousemove', handleMouseMove);
 			sendMove(game);
-			socket.on("gameUpdate", (gameData: GameData) => {
-				setGame({...game,
-					player1: {
-						...game.player1,
-						score: game.player1.score + gameData.player2.score
-					},
-					player2: {
-						...game.player2,
-						y: gameData.player1.y,
-						score: game.player2.score + gameData.player1.score
-					},
-					ball: {...game.ball,
-						x: gameData.ball.x + gameData.ball.speed.x,
-						y: gameData.ball.y + gameData.ball.speed.y,
-						speed: {
-							x: gameData.ball.speed.x,
-							y: gameData.ball.speed.y
-						}
-					}
-
-				})
-			});
-
-		}, 8)
+			catchMove()
+		}, 10)
 		// re-drawing the canva
 		draw(canvasHandler, game);
 
@@ -262,10 +272,6 @@ const Canvas = ({socket, height, width}: any) => {
 				handleMouseMove
 				);
 				clearTimeout(timer);
-			socket.on("disconnect", () => {
-				console.log("-----------------------------------> disconnection");
-			})
-
 			};
 		} else {
 			const timer = setTimeout(() => {
@@ -275,7 +281,7 @@ const Canvas = ({socket, height, width}: any) => {
 			}, 1000)
 			return () => { clearTimeout(timer) }
 		}
-	});
+	}, [game, countdown]);
 
 
 	return (
