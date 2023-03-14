@@ -119,13 +119,36 @@ export class UsersService {
 
 	async turnOnTwoFA(login: string) {
 		return this.updateUser(login, {
-			isTwoFA: true
+			isTwoFA: true,
+			twoFA: ''
+		});
+	}
+
+	async turnOffTwoFA(login: string) {
+		return this.updateUser(login, {
+			isTwoFA: false,
+			twoFA: ''
 		});
 	}
 
 /* ============^^^^^^^^^^^^^^^^^^^^^^^^^^^^^========================*/
 
 /* ============================ get profile ========================*/
+
+	async getProfileAuth(user_id: number) {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id: user_id
+			},
+			select: {
+				login: true
+			}
+		})
+		return {
+			login: user?.login,
+			id: user_id
+		};
+	}
 
 	async getProfileInfo(user_id: number) {
 		const user = await this.prisma.user.findUnique({

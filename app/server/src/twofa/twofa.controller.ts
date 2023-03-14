@@ -44,8 +44,28 @@ export class TwofaController {
 		return this.twoFAService.QrCode(response, otpauthUrl)
 	}
 
+
 	@UseGuards(JwtAuthGuard)
-	@Post('turn-on')
+	@Get('activate')
+	@HttpCode(200)
+	async isActivate(
+		@Req() request: any,
+		@Body() body : any
+	) {
+		const user = await this.usersService.findOneUser(request.user.login);
+
+		if (!user)
+			return null;
+
+		return {
+			isTfaActivate: user.isTwoFA
+		}
+	}
+
+
+
+	@UseGuards(JwtAuthGuard)
+	@Get('turn-on')
 	@HttpCode(200)
 	async turnOnTFAuthentication(
 		@Req() request: any,
@@ -61,7 +81,17 @@ export class TwofaController {
 			throw new UnauthorizedException('Wrong authentication code');
 		} */
 
-		await this.usersService.turnOnTwoFA(request.user.id);
+		await this.usersService.turnOnTwoFA(request.user.login);
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Get('turn-off')
+	@HttpCode(200)
+	async turnOffTFAuthentication(
+		@Req() request: any,
+		@Body() body : any
+	) {
+		await this.usersService.turnOffTwoFA(request.user.login);
 	}
 
 
@@ -107,9 +137,10 @@ export class TwofaController {
 	@UseGuards(TwoFAJwtAuthGuard)
 	@Get('authorisation')
 	async checkToken(@Req() req: any,) {
-		const login = req.user.login;
+		const {sub, login} = req.user.login;
 		return {
-			login: login
+			login: login,
+			id: sub
 		}
 	}
 

@@ -52,7 +52,7 @@ export class AuthController {
 		@Body() createUserDto: CreateUserDto,
 		@Res({ passthrough: true }) response: Response
 	) {
-		return this.authService.login(
+		return this.authService.loginWithId(
 			await this.userService.createUser(createUserDto),
 			response
 		);
@@ -78,7 +78,7 @@ export class AuthController {
 			};
 		}
 
-		return await this.authService.login(req.user, response);
+		return await this.authService.loginWithId(req.user, response);
 	}
 
 	@Post('logout')
@@ -120,6 +120,8 @@ export class AuthController {
 		@Res({ passthrough: true }) response: Response
 	) {
 
+		const {signedIn, intraLogin, user} = req.intraUserInfo;
+
 		if (req.intraUserInfo.signedIn) {
 
 
@@ -141,11 +143,19 @@ export class AuthController {
 			}
 
 			return {
-				...req.intraUserInfo,
+				signedIn: signedIn,
+				intraLogin: intraLogin,
+				login: user.login,
+				id: user.id,
 				token: accessToken['aT']
 			}
 		}
-		return req.intraUserInfo
+		return {
+			signedIn: signedIn,
+			intraLogin: intraLogin,
+			login: user.login,
+			id: user.id,
+		}
 	}
 
 	@Post('intra42')
@@ -165,7 +175,7 @@ export class AuthController {
 		if (ifExist)
 			throw new HttpException('login unavailable', HttpStatus.FORBIDDEN);
 
-		const token = await this.authService.login(
+		const token = await this.authService.loginWithId(
 			await this.userService.createUser({
 				login: login,
 				password: '',
@@ -176,6 +186,7 @@ export class AuthController {
 
 		return {
 			login: login,
+			id: token['id'],
 			aT: token['aT'],
 		}
 	}	

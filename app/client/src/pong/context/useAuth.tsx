@@ -11,6 +11,7 @@ import { originalRequest, refreshRequest, responseApi } from "/src/pong/componen
 
 interface AuthContextType {
 	user: string;
+	id: number;
 	intraLogin?: string;
 	token: string;
 	setUser: React.Dispatch<React.SetStateAction<string>>,
@@ -39,6 +40,7 @@ const AuthContext = createContext<AuthContextType>(
 export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 	const [user, setUser] = useState<string>('');
+	const [id, setId] = useState<number>(0);
 	const [intraLogin, setIntraLogin] = useState<string>('');
 	const [token, setToken] = useState<string>('');
 	const [error, setError] = useState<Error>();
@@ -72,6 +74,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 					})
 					if ( res.response.status === 200 ) {
 						setUser(res.data['login'])
+						setId(res.data['id'])
 						return ;
 					}
 				}
@@ -92,6 +95,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 					if (refresh.response.status !== 200 && refresh.response.status !== 304) {
 						setUser('');
+						setId(0);
 						setToken('');
 						setIntraLogin('')
 						if ( location.pathname === '/login'
@@ -114,11 +118,13 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 							},
 						});
 						setUser(response2.data['login']);
+						setId(res.data['id'])
 
 					}
-				}
-				else
+				} else {
 					setUser(response1.data['login']);
+					setId(res.data['id'])
+				}
 
 
 				if (location.pathname === '/2fa')
@@ -143,10 +149,12 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			if (response.status == 200) {
 				if (data['signedIn']) {
 					if (data['token'] === '2faActivate') {
-						setUser(data.user['login'])
+						setUser(data['login'])
+						setId(data['id'])
 						navigate('/2fa')
 					} else {
-						setUser(data.user['login'])
+						setUser(data['login'])
+						setId(data['id'])
 						setToken(data['token'])
 						navigate('/pong')
 					}
@@ -178,6 +186,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			const data = await response.json()
 			if ( response.status === 201) {
 				setUser(data['login'])
+				setId(data['id'])
 				setToken(data['aT']);
 				navigate('/pong')
 				return ''
@@ -185,6 +194,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				return data['message']
 			} else {
 				setUser('');
+				setId(0);
 				setToken('');
 				setIntraLogin('')
 				navigate('/login')
@@ -217,6 +227,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			});
 			if ( response.status === 201) {
 				setUser(login);
+				setId(data['id'])
 				setToken(data['aT']);
 				navigate('/pong')
 				return ''
@@ -256,6 +267,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 					navigate('/2fa')
 				} else {
 					setUser(login);
+					setId(data['id']);
 					setToken(data['aT']);
 					navigate('/pong')
 				}
@@ -287,6 +299,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			if ( response.status === 201) {
 				setUser('');
 				setToken('');
+				setId(0);
 				setIntraLogin('')
 				navigate('/')
 			}
@@ -306,6 +319,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				navigate('/pong')
 			} else {
 				setUser('');
+				setId(0);
 				navigate('/login')
 			}
 		} catch (err) {
@@ -317,8 +331,10 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 		() => ({
 			user,
 			intraLogin,
+			id,
 			token,
 			setUser,
+			setId,
 			setToken,
 			setIntraLogin,
 			loading,
@@ -341,8 +357,8 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 }
 
 export function useFetchAuth() {
-	const {token, setToken, setUser, setIntraLogin } = useContext(AuthContext);
-	return {token, setToken, setUser, setIntraLogin};
+	const {token, setToken, setId, setUser, setIntraLogin } = useContext(AuthContext);
+	return {token, setToken, setId, setUser, setIntraLogin};
 }
 
 export default function useAuth() {

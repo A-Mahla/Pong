@@ -34,6 +34,18 @@ export class AuthService {
 		}
 	}
 
+	async loginWithId(user: any, response: Response) { // I put any to fit the tutorial but User seem to work fine
+
+		const payload = { sub: user.id, login: user.login }
+		const tokens = await this.getTokens(payload, response)
+		await this.usersService.updateRefreshToken(payload.login, tokens.refreshToken);
+		return {
+			id: user.id,
+			aT: tokens.accessToken
+		}
+	}
+
+
 	async logout(user: any, response: Response) {
 		await this.usersService.updateRefreshToken(user.login, "");
 		response.clearCookie(

@@ -25,7 +25,6 @@ export class TwoFATokenStrategy extends PassportStrategy(Strategy, 'twofa') {
 	}
 
 	validate(payload: JwtPayload) {
-		console.log('test')
 		return payload;
 	}
 }

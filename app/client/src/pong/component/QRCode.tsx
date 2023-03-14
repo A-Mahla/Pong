@@ -112,7 +112,8 @@ const AuthInstruction = () => {
 
 export const QRCodeComponent = () => {
 
-	const {user, token, twoFA} = useAuth();
+	//	const {user, token, twoFA} = useAuth();
+	const {twoFA} = useAuth();
 
 	const {error, setError} = useState<string>('')
 

@@ -1,5 +1,6 @@
 import Avatar from '@mui/material/Avatar';
 import { Typography, Grid, IconButton } from '@mui/material';
+import useAuth from '/src/pong/context/useAuth'
 
 //src="http://localhost:5500/api/users/default/default_avatar"
 
@@ -39,6 +40,8 @@ const ProfileAvatar = () => {
 }
 
 const NameAvatar = () => {
+
+	const {user} = useAuth()
 	
 	return (
 		<Typography noWrap 
@@ -51,7 +54,7 @@ const NameAvatar = () => {
 				xs: '1.5rem'
 			}}
 		>
-			Loginsuperlong
+			{user}
 		</Typography>
 	)
 }
