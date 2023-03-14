@@ -15,5 +15,6 @@ export type MessageData = {
   room?: {
     name: string,
     id: number
-  }
+  },
+  recipient_id?: number
 }

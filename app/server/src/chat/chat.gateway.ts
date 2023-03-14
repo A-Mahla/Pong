@@ -43,6 +43,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
     const rooms = await this.userService.findAllUserRooms((user as User).id)
 
+    //join his direct message room
+    client.join((user as User).id.toString())
 
     console.log('client rooms in handle JOIN', client.rooms)
 

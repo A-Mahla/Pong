@@ -6,6 +6,7 @@ import { reducer, getUserRooms } from "./Chat.utils"
 import io from "socket.io-client"
 import { SearchRoom } from "./Search";
 import { CreateRoom } from "./Create";
+import { DirectMessages } from "./DirectMessages";
 import './Chat.css'
 
 
@@ -25,6 +26,8 @@ const initialChatContext = {
 	joining: false,
 	isCreatoing: null,
 	creating: false,
+	setDirect: null,
+	direct: false,
 	socket: null
 }
 
@@ -44,6 +47,8 @@ export function Chat() {
 
 	const [creating, isCreating] = useState(false)
 
+	const [direct, setDirect] = useState(false)
+
 	const socket = io.connect("http://localhost:8080/chat")
 
 	const { user } = useAuth()
@@ -55,6 +60,8 @@ export function Chat() {
 		joining: joining,
 		isCreating: isCreating,
 		creating: creating,
+		setDirect: setDirect,
+		direct: direct,
 		socket: socket
 	}
 
@@ -172,6 +179,8 @@ export function Chat() {
 		creating ? isCreating(false) : isCreating(true)
 		if (joining)
 			isJoining(false)
+		if (direct)
+			setDirect(false)
 
 	}, [creating, joining])
 
@@ -179,6 +188,8 @@ export function Chat() {
 		joining ? isJoining(false) : isJoining(true)
 		if (creating)
 			isCreating(false)
+		if (direct)
+			setDirect(false)
 
 	}, [joining, creating])
 
@@ -192,6 +203,14 @@ export function Chat() {
 			console.log('leave room response: ', response);
 		})
 	}, [current])
+
+	const handleDirectMessages = useCallback(() => {
+		direct ? setDirect(false) : setDirect(true)
+		if (creating)
+			isCreating(false)
+		if (joining)
+			isJoining(false)
+	})
 
 	return (
 		<ChatContext.Provider value={context}>
@@ -208,12 +227,14 @@ export function Chat() {
 					<Button onClick={handleCreateRoom}>create room</Button>
 					<Button onClick={handleLeaveRoom}>leave room</Button>
 					<Button onClick={handleSearchRoom}>search room</Button>
+					<Button onClick={handleDirectMessages}>direct messages</Button>
 				</Paper>
 				<Paper>
 					{rooms.map((value) => (<Button value={JSON.stringify(value)} key={value.id} onClick={handleChangeRoom}>{value.name}</Button>))}
 				</Paper>
 				{creating ? <CreateRoom /> : null}
 				{joining ? <SearchRoom /> : null}
+				{direct ? <DirectMessages/> : null}
 			</FormControl>
 		</ChatContext.Provider>
 	)

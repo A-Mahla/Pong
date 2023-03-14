@@ -1,9 +1,12 @@
-
 export type MessageData = {
 	content: string,
 	sender: string,
-	time?: string,
-	room?: string
+  time?: string,
+  room?: {
+    name: string,
+    id: number
+  },
+  recipient_id?: number 
 }
 
 export type State = {
@@ -33,5 +36,13 @@ export type Message = {
 	date: string,
 	sender_id: number,
 	room_id: number,
+	content: string
+}
+
+export type DirectMessage = {
+	id: number,
+	date: string,
+	sender_id: number,
+	recipient_id: number,
 	content: string
 }

@@ -28,16 +28,25 @@ export class ChatService {
 
 		async manageMessage(server: Server, client: Socket, payload: MessageData) {
 			
-			const user = await this.userService.findOneUser(payload.sender)
-			if (payload.room)
+			const sender = await this.userService.findOneUser(payload.sender)
+			if (payload.room !== undefined)
 			{
 				console.log('client rooms in handle MESSAGE', client.rooms)
-				const newMessage = await this.messageService.createMessage((user as User).id, payload.room.id, payload.content) 
+				const newMessage = await this.messageService.createMessage((sender as User).id, payload.room.id, payload.content) 
 				server.to(payload.room.id.toString() + payload.room.name).emit('message', newMessage)
 				console.log('payload in message handler', payload)
 			}
 			else
-				server.emit('message', payload)
+			{
+				//const recipient = await this.userService.findOneUser(payload.recipient as string)
+				console.log('payload in create direct message: ', payload)
+				const newDirectMessage = await this.messageService.createDirectMessage((sender as User).id, payload.recipient_id as number, payload.content)
+				server.to((payload.recipient_id as number).toString()).emit('directMessage', newDirectMessage)
+				server.to(client.id).emit('directMessage', newDirectMessage)
+				console.log('payload direct message: ', payload)
+				console.log('newDirectMessage: ', newDirectMessage)
+			}
+			return payload
 		}  
 
 		async leaveRoom(server: Server, client: Socket, payload: {user: string, roomId: number}) {

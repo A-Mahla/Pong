@@ -1,9 +1,9 @@
 .messageSent {
 	text-align: right;
-	background-color: tomato;
+	background-color: aquamarine;
 }
 
 .messageReceived {
 	text-align: right;
-	background-color: aqua;
+	background-color: grey;
 }

@@ -3,6 +3,7 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { UsersService } from "src/users/users.service";
 import { RoomsService } from "../rooms/rooms.service";
 import { BadRequestException } from "@nestjs/common";
+import { User } from "@prisma/client";
 
 @Injectable()
 export class MessageService {
@@ -23,6 +24,7 @@ export class MessageService {
 		}).catch((e) => {
 			throw new BadRequestException(e);
 		})
+
 	}	
 
 	async getRoomMessages(roomId: number) {
@@ -36,4 +38,44 @@ export class MessageService {
 
 	}
 
+	async createDirectMessage(senderId: number, recipientId: number, content: string) {
+		console.log('in create message: ', senderId, recipientId, content)
+
+		return await this.prisma.direct_Message.create({
+			data: {
+				sender_id : senderId,
+				recipient_id: recipientId,
+				content: content
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+	}
+
+	async getUserDirectMessages(userId: number) {
+		return await this.prisma.direct_Message.findMany({
+			where: {
+				recipient_id: userId
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+	}
+
+	async getUserDirectMessagesLogin(userLogin: string) { //TODO supprimer cette merde pour travailler que avec des ID svp
+		
+		const recipient = await this.userService.findOneUser(userLogin)
+
+		return await this.prisma.direct_Message.findMany({
+			where: {
+				recipient_id: (recipient as User).id
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+	}
+ 
 }
