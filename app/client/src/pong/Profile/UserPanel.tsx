@@ -8,10 +8,11 @@ import {
 	createTheme,
 	ThemeProvider,
 	Typography,
-	FormControl
+	FormControl,
+	TextField,
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { useState, useEffect, useLayoutEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useFetchAuth } from '/src/pong/context/useAuth'
 import { FetchApi, Api } from '/src/pong/component/FetchApi'
 
@@ -25,7 +26,7 @@ import { FetchApi, Api } from '/src/pong/component/FetchApi'
 const TFAComponent = () => {
 
 	const [check, setCheck] = useState(false)
-	const [isActivate, setIsActivate] = useState('Enable')
+	const [isActivate, setIsActivate] = useState('Disable')
 
 	const auth = useFetchAuth()
 
@@ -46,7 +47,7 @@ const TFAComponent = () => {
 					auth: auth
 			})
 		}
-		setIsActivate(e.target.checked === true ? 'Disable' : 'Enable')
+		setIsActivate(!e.target.checked === true ? 'Disable' : 'Enable')
 	}
 
 	useEffect(() => {
@@ -59,7 +60,7 @@ const TFAComponent = () => {
 						auth: auth
 				})
 				setCheck(response.data['isTfaActivate'] ? true : false)
-				setIsActivate(response.data['isTfaActivate'] ? 'Disable' : 'Enable')
+				setIsActivate(!response.data['isTfaActivate'] ? 'Disable' : 'Enable')
 			} catch(err) {
 				console.log(err)
 			}
@@ -119,10 +120,37 @@ const TFAComponent = () => {
 
 }
 
-const ChangePassword = () => {
+const ChangeInfo = () => {
+
+	const [error, setError] = useState('');
+
+	const username = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
+
+	const password = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 
 	return <>
-		
+		<FormControl>
+			<TextField
+				type="password"
+				id="outlined-password-input"
+				inputRef={password}
+				variant="outlined"
+				label="New Password"
+				size="small"
+				sx={{p: 1 }}
+			></TextField>
+			<TextField
+				type="password"
+				id="outlined-password-input"
+				inputRef={password}
+				variant="outlined"
+				label="Confirm Password"
+				size="small"
+				sx={{p: 1 }}
+			></TextField>
+
+			{error === '' ? null : <Typography align="center" color="tomato">{error}</Typography> }
+		</FormControl>
 	</>
 
 }
@@ -149,7 +177,7 @@ const UserPanelGrid = () => {
 		>
 			<TFAComponent />
 		</Grid>
-		<Grid item xl={4} md={4} xs={4}
+		<Grid item xl={8} md={7} xs={12}
 			sx={{
 				p: '1vw;',
 				border: 1,
@@ -158,19 +186,7 @@ const UserPanelGrid = () => {
 				justifyContent: 'center'
 			}}
 		>
-
-		</Grid>
-
-		<Grid item xl={4} md={4} xs={4}
-			sx={{
-				p: '1vw;',
-				border: 1,
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'center'
-			}}
-		>
-			
+			<ChangeInfo/>
 		</Grid>
 	</>
 
