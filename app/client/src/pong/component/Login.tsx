@@ -48,10 +48,11 @@ export const Login = () => {
 		{
 			setError("invalid login");
 			return
-		}
-		else if (password.current.value === '')
-		{
+		} else if (password.current.value === '') {
 			setError('password invalid')
+			return
+		} else if (password.current.length >= 72) {
+			setError('password too long')
 			return
 		}
 
