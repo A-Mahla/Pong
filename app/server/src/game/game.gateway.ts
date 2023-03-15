@@ -8,14 +8,15 @@ import { stringify } from "querystring";
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service'
 import { GameDataType, RoomInfo, playerInfo } from './game.types'
-
+import { GameAlgo } from "./game.algo";
 
 @WebSocketGateway({ namespace: 'gameTrans' })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
-	constructor (private readonly gameService: GameService) {}
-
-
+	constructor (
+		private readonly gameService: GameService,
+		private readonly gameAlgo: GameAlgo
+		) {}
 
 	@WebSocketServer()
 	server: Server
@@ -32,7 +33,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		console.log("----------------------> " + client.id + " created a new game");
 		this.server.emit('roomsUpdate');
 		// keeping track of the room configuration
-		
+
 		this.players.push( { playerID: client.id, playerRole: "p1", roomID: newGame.game_id.toString()} );
 		return newGame;
 	}
@@ -40,18 +41,31 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	@SubscribeMessage('joinGame')
 	async joinGame(client: Socket, roomInfo: RoomInfo) {
 		const roomId: string = roomInfo.roomId;
-		// if (!this.server.sockets.adapter.rooms.get(roomId)) {
-		//   La salle n'existe pas
-		//   console.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeere")
-		//   return { error: 'La salle n\'existe pas' };
-		// }
-		// La salle existe, rejoindre la salle
+		/**
+		 * here i still need to check if the room ID is in the players array
+		 */
+		// if roomID has been created before, you make the client join it
 		client.join(roomId);
+
+		// we add the player2 in the players array
 		this.players.push( { playerID: client.id, playerRole: "p2", roomID: roomId} );
+
+		// we update in the DB the status of the game
 		this.gameService.updateGamestatus(parseInt(roomInfo.roomId), 'FULL');
+
+		// we tell every socket that the game waiting list have change so they can refresh their list
 		this.server.emit('roomsUpdate');
+
+		// we tell the room (so both player 1 and 2) that everything is ready to start the game
 		this.server.to(roomId).emit('lockAndLoaded');
+
+		// we start the game in the server by calling the runGame function, we give player1 and player2 info
+		const player1 = this.players.find(p => p.playerRole === 'p1' && p.roomID === roomId);
+		const player2 = this.players.find(p => p.playerRole === 'p2' && p.roomID === roomId);
+
+		this.gameAlgo.runGame(this.server, [player1, player2] , 2)
 		console.log("room join attempt, roomID: " + roomId);
+
 		return { success: true };
 	}
 

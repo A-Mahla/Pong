@@ -165,7 +165,6 @@ const Canvas = ({socket, height, width}: any) => {
 						y: gameDataServer.ball.speed.y
 					}
 				}
-
 			})
 		});
 
@@ -208,7 +207,7 @@ const Canvas = ({socket, height, width}: any) => {
 			playerWidth: PLAYER_WIDTH
 		},
 		player1: {
-			login: user, 
+			login: user,
 			y: 0,
 			score: 0
 		},
