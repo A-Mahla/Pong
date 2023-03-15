@@ -12,6 +12,7 @@ import {
 	TextField,
 	FormLabel,
 	Dialog,
+	DialogTitle,
 	DialogContent,
 } from '@mui/material'
 
@@ -47,19 +48,6 @@ function isNumber(str) {
 const AuthInstruction = () => {
 
 	return <>
-		<Box
-			display='flex'
-			justifyContent='center'
-			sx={{
-				mt: '2rem',
-				height: '2rem',
-			}}
-		>
-			<Typography variant='body'>
-				Two-Factor Authentication
-			</Typography>
-		</Box>
-		<Divider variant='middle'/>
 		<Box display='flex'
 			justifyContent='center'
 		>
@@ -114,8 +102,13 @@ const AuthInstruction = () => {
 
 }
 
+type QRProps = {
+	open: boolean,
+	setOpen: React.Dispatch<React.SetStateAction<boolean>>,
+}
 
-export const QRCodeComponent = () => {
+
+export const QRCodeComponent = (props: QRProps) => {
 
 	//	const {user, token, twoFA} = useAuth();
 	const {twoFA, token} = useAuth();
@@ -143,6 +136,11 @@ export const QRCodeComponent = () => {
 			}
 
 		}
+	}
+
+
+	const handleClose = () => {
+		props.setOpen(false);
 	}
 
 
@@ -219,15 +217,36 @@ export const QRCodeComponent = () => {
 				<CircularProgress />
 			) : (
 				<>
+			<Dialog open={props.open} onClose={handleClose}
+				 PaperProps={{
+					style: {
+						borderRadius: '32px',
+						height: '28rem',
+					}
+				}}
+			>
+			<DialogTitle>
+				<Box
+					display="flex"
+					justifyContent="center"
+					alignItems="center"
+					sx={{mt: 4}}
+				>
+					<Typography variant='subtitle2' align="center">
+					Two-Factor Authentication
+					</Typography>
+				</Box>
+				<Divider variant='middle'/>
+			</DialogTitle>
+			<DialogContent>
 					<Grid container
-						className='test'
 						sx={{
 							all: 'initial',
 							ml: '3rem',
-							mt: '3rem',
+							mt: '0.5rem',
 							mb: '3rem',
 							mr: '3rem',
-							height: '19rem',
+							height: '10.5rem',
 							widht:  '30rem',
 							display: 'flex',
 							'@media (max-width: 950px)': {
@@ -242,6 +261,9 @@ export const QRCodeComponent = () => {
 							<Box display='flex' justifyContent='center'>
 								<img src={qrcode} />
 							</Box>
+						</Grid>
+					</Grid>
+						<Grid justifyContent='center' container>
 							<Box
 								display='flex'
 								justifyContent='center'
@@ -277,8 +299,9 @@ export const QRCodeComponent = () => {
 									></TextField>
 								</FormControl>
 							</Box>
-						</Grid>
 					</Grid>
+			</DialogContent>
+		</Dialog>
 				</>
 			)}
 			</>
@@ -298,9 +321,6 @@ const TFAComponent = () => {
 
 	const auth = useFetchAuth()
 
-	const handleClose = () => {
-		setOpen(false);
-	}
 
 
 	const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -390,11 +410,7 @@ const TFAComponent = () => {
 					/>
 				</AccordionDetails>
 			</Accordion>
-		<Dialog open={open} onClose={handleClose}>
-			<DialogContent>
-				<QRCodeComponent/>
-			</DialogContent>
-		</Dialog>
+			<QRCodeComponent open={open} setOpen={setOpen}/>
 	</>
 
 }

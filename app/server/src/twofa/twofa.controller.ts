@@ -43,7 +43,7 @@ export class TwofaController {
 		console.log('test')
 		const { otpauthUrl } = await this.twoFAService.generateTwoFASecret(req.user.login);
 
-		return await this.twoFAService.QrCode(response, otpauthUrl)
+		return this.twoFAService.QrCode(response, otpauthUrl)
 	}
 
 
