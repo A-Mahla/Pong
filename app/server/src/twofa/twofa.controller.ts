@@ -25,7 +25,7 @@ import { TwoFAJwtAuthGuard } from 'src/auth/2fa-jwt-auth.guard';
 import { jwtConstants} from "src/auth/constants";
 
 @Controller('2fa')
-@UseInterceptors(ClassSerializerInterceptor)
+//@UseInterceptors(ClassSerializerInterceptor)
 export class TwofaController {
 	constructor(
 		private readonly twoFAService: TwoFAService,
@@ -33,15 +33,17 @@ export class TwofaController {
 		private readonly authService: AuthService,
 	) {}
 
-	@UseGuards(TwoFAJwtAuthGuard)
+//	@UseGuards(TwoFAJwtAuthGuard)
+	@UseGuards(JwtAuthGuard)
 	@Post('generate')
 	async register(
 		@Res() response: Response, 
 		@Request() req: any,
 	) {
+		console.log('test')
 		const { otpauthUrl } = await this.twoFAService.generateTwoFASecret(req.user.login);
 
-		return this.twoFAService.QrCode(response, otpauthUrl)
+		return await this.twoFAService.QrCode(response, otpauthUrl)
 	}
 
 
