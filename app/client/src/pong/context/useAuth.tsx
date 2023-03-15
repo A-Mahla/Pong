@@ -11,6 +11,7 @@ import { originalRequest, refreshRequest, responseApi } from "/src/pong/componen
 
 interface AuthContextType {
 	user: string;
+	id: number;
 	intraLogin?: string;
 	token: string;
 	setUser: React.Dispatch<React.SetStateAction<string>>,
@@ -22,7 +23,8 @@ interface AuthContextType {
 	authLogout: () => void;
 	authSignup: (login: string, password: string) => Promise<string | undefined>;
 	authLogIntra: (url: URL) => void;
-	authSignIntra: (url: URL) => void;
+	authSignupIntra: (url: URL) => void;
+	twoFA: (url: URL) => void;
 }
 
 export type fetchContext = {
@@ -38,6 +40,7 @@ const AuthContext = createContext<AuthContextType>(
 export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 	const [user, setUser] = useState<string>('');
+	const [id, setId] = useState<number>(0);
 	const [intraLogin, setIntraLogin] = useState<string>('');
 	const [token, setToken] = useState<string>('');
 	const [error, setError] = useState<Error>();
@@ -53,6 +56,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 	}, [location.pathname]);
 
 	useEffect( () => {
+
 		async function auth()  {
 
 			try {
@@ -62,13 +66,21 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 					navigate(location)
 					return ;
 				}
-				if ( location.pathname === '/gameTest' ) {
-					navigate(location)
-					return ;
+
+				if ( location.pathname === '/2fa' ) {
+					
+					const res: responseApi = await originalRequest({
+						input: `http://${import.meta.env.VITE_SITE}/api/2fa/authorisation`
+					})
+					if ( res.response.status === 200 ) {
+						setUser(res.data['login'])
+						setId(res.data['id'])
+						return ;
+					}
 				}
 
 				const url = `http://${import.meta.env.VITE_SITE}/api/users/profile/auth`;
-					const requestOption = {
+				const requestOption = {
 					method: "GET",
 					headers: { 'Authorization': `Bearer ${token}` },
 				}
@@ -83,13 +95,15 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 					if (refresh.response.status !== 200 && refresh.response.status !== 304) {
 						setUser('');
+						setId(0);
 						setToken('');
 						setIntraLogin('')
 						if ( location.pathname === '/login'
-							|| location.pathname === '/pong' )
+							|| location.pathname === '/pong' || location.pathname === '/gameTest' )
 							navigate('/login')
 						else
 							navigate('/');
+						return ;
 					}
 					else {
 
@@ -104,10 +118,17 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 							},
 						});
 						setUser(response2.data['login']);
+						setId(response2.data['id'])
+
 					}
-				}
-				else
+				} else {
 					setUser(response1.data['login']);
+					setId(response1.data['id'])
+				}
+
+
+				if (location.pathname === '/2fa')
+					navigate('/pong')
 
 			} catch (err) {
 				console.log(err);
@@ -127,9 +148,16 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			const data = await response.json()
 			if (response.status == 200) {
 				if (data['signedIn']) {
-					setUser(data.user['login'])
-					setToken(data['token'])
-					navigate('/pong')
+					if (data['token'] === '2faActivate') {
+						setUser(data['login'])
+						setId(data['id'])
+						navigate('/2fa')
+					} else {
+						setUser(data['login'])
+						setId(data['id'])
+						setToken(data['token'])
+						navigate('/pong')
+					}
 				}
 				setIntraLogin(data['intraLogin'])
 			} else {
@@ -140,11 +168,17 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 		}
 	}
 
-	async function authSignIntra(url: URL) {
+	async function authSignupIntra(url: URL) {
 
 
 		const requestOptions = {
 			method: "POST",
+			headers: {
+      			"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				intraLogin: intraLogin,
+			}),
 		}
 
 		try {
@@ -152,15 +186,18 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			const data = await response.json()
 			if ( response.status === 201) {
 				setUser(data['login'])
+				setId(data['id'])
 				setToken(data['aT']);
 				navigate('/pong')
 				return ''
-			} else {
-//				setUser('');
-//				setToken('');
-//				setIntraLogin('')
-//				navigate('/login')
+			} else if ( data['message'] === 'login unavailable'){
 				return data['message']
+			} else {
+				setUser('');
+				setId(0);
+				setToken('');
+				setIntraLogin('')
+				navigate('/login')
 			}
 		} catch(err) {
 			console.log(err);
@@ -190,6 +227,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			});
 			if ( response.status === 201) {
 				setUser(login);
+				setId(data['id'])
 				setToken(data['aT']);
 				navigate('/pong')
 				return ''
@@ -224,9 +262,16 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				option: requestOptions,
 			});
 			if ( response.status === 201) {
-				setUser(login);
-				setToken(data['aT']);
-				navigate('/pong')
+				if (data['aT'] === '2faActivate') {
+					setUser(login);
+					setId(data['id']);
+					navigate('/2fa')
+				} else {
+					setUser(login);
+					setId(data['id']);
+					setToken(data['aT']);
+					navigate('/pong')
+				}
 				return ''
 			}
 			else
@@ -255,6 +300,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			if ( response.status === 201) {
 				setUser('');
 				setToken('');
+				setId(0);
 				setIntraLogin('')
 				navigate('/')
 			}
@@ -264,12 +310,32 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 		}
 	}
 
+	async function twoFA(url: URL) {
+
+		try {
+			const response = await fetch( url, { method: 'POST'} )
+			const data = await response.json()
+			if (response.status == 200) {
+				setToken(data['aT']);
+				navigate('/pong')
+			} else {
+				setUser('');
+				setId(0);
+				navigate('/login')
+			}
+		} catch (err) {
+			console.log(err)
+		}
+	}
+
 	const memoValue = useMemo(
 		() => ({
 			user,
 			intraLogin,
+			id,
 			token,
 			setUser,
+			setId,
 			setToken,
 			setIntraLogin,
 			loading,
@@ -278,7 +344,8 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			authLogout,
 			authSignup,
 			authLogIntra,
-			authSignIntra,
+			authSignupIntra,
+			twoFA,
 		}),
 		[user, intraLogin, token, loading, error]
 	);
@@ -291,8 +358,8 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 }
 
 export function useFetchAuth() {
-	const {token, setToken, setUser, setIntraLogin } = useContext(AuthContext);
-	return {token, setToken, setUser, setIntraLogin};
+	const {token, setToken, setId, setUser, setIntraLogin } = useContext(AuthContext);
+	return {token, setToken, setId, setUser, setIntraLogin};
 }
 
 export default function useAuth() {

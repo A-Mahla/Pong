@@ -20,7 +20,6 @@ import { Controller,
 	Injectable,
 	UseGuards,
 	ConsoleLogger,
-	Req,
 	UsePipes,
 	ValidationPipe
 } from '@nestjs/common';
@@ -109,6 +108,12 @@ export class UsersController {
 
 	@UseGuards(JwtAuthGuard)
 	@Get('profile/auth')
+	async getProfileAuth(@Request() req: any) {
+		return this.userService.getProfileAuth(parseInt(req.user.sub))
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Get('profile/info')
 	async getProfileInfo(@Request() req: any) {
 		return this.userService.getProfileInfo(parseInt(req.user.sub))
 	}
@@ -118,6 +123,7 @@ export class UsersController {
 //	=========================================OAuth2=======================
 
 
+	@UseGuards(JwtAuthGuard)
 	@Put(':login')
 	async updateUserById(
 		@Param('login') login: string,
@@ -126,6 +132,7 @@ export class UsersController {
 		await this.userService.updateUser(login, updateUserDto);
 	}
 
+	@UseGuards(JwtAuthGuard)
 	@Patch(':login')
 	async updatePatchUserById(
 		@Param('login') login: string,
@@ -134,40 +141,40 @@ export class UsersController {
 		await this.userService.updateUser(login, updateUserDto);
 	}
 
+/*	@UseGuards(JwtAuthGuard)
 	@Delete(':login')
 	async deleteByID(
 		@Param('login') login: string
 	) {
 		await this.userService.deleteUser(login);
-	}
+	}*/
 
 	//================== ROOMS =================
 
 	@UseGuards(JwtAuthGuard)
-	@Get(':login/rooms')
+	@Get('rooms')
 	async getRooms(
-		@Param('login') login: string
+		@Request() req: any,
 	)
 	{
-		const user = await this.userService.findOneUser(login)
-
-		return this.userService.findAllUserRooms((user as User).id)
+		console.log('user in request getRooms: ', req.user)
+		return this.userService.findAllUserRooms(req.user.sub)
 	}
 
-	@UseGuards(JwtAuthGuard)
-	@Patch('/:login/:roomId')
-	async addRoom(
-		@Param('login') login : string,
-		@Param('roomId') roomId : number
-		)
-	{
-		const user = await this.userService.findOneUser(login)
+	//@UseGuards(JwtAuthGuard)
+	//@Patch('/:login/:roomId')
+	//async addRoom(
+	//	@Param('login') login : string,
+	//	@Param('roomId') roomId : number
+	//	)
+	//{
+	//	const user = await this.userService.findOneUser(login)
 
-		const room = await this.roomService.getRoomById(roomId)
+	//	const room = await this.roomService.getRoomById(roomId)
 
-		console.log('user: ', user);
-		console.log('room: ', room);
+	//	console.log('user: ', user);
+	//	console.log('room: ', room);
 
-		return this.userService.joinRoom(user?.id as number, room?.room_id as number)
-	}
+	//	return this.userService.joinRoom(user?.id as number, room?.room_id as number)
+	//}
 }

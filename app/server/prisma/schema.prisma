@@ -12,18 +12,20 @@ datasource db {
 }
 
 model User {
-  id               Int         @id @default(autoincrement())
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
-  login            String      @unique
-  password         String
-  avatar           String      @default("default_avatar.jpg")
-  intraLogin       String?     @unique
-  refreshToken     String?
-  games            User_Game[]
-  ownedRooms       Room[]      @relation("RoomOwner")
-  member           User_Room[] @relation("RoomMember")
-  sendMessages     Message[]
+  id                      Int         @id @default(autoincrement())
+  createdAt               DateTime    @default(now())
+  updatedAt               DateTime    @updatedAt
+  login                   String      @unique
+  password                String
+  avatar                  String      @default("default_avatar.jpg")
+  intraLogin              String?     @unique
+  refreshToken            String?
+  twoFA                   String?
+  isTwoFA	                Boolean     @default(false)
+  games                   User_Game[]
+  ownedRooms              Room[]      @relation("RoomOwner")
+  member                  User_Room[] @relation("RoomMember")
+  sendMessages            Message[]
   directMessageSend       Direct_Message[] @relation("Sender")
   directMessageReceived   Direct_Message[] @relation("Recipient")
 
@@ -31,15 +33,15 @@ model User {
 
 model Room {
   room_id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isPublic  Boolean  @default(false)
-  password  String?
-  name      String
-  owner     User?    @relation("RoomOwner", fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  ownerId   Int?
-  members   User_Room[]
-  messages  Message[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  isPublic       Boolean  @default(false)
+  password       String?
+  name           String
+  owner          User?    @relation("RoomOwner", fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  ownerId        Int?
+  members        User_Room[]
+  messages       Message[]
 
 }
 
@@ -55,7 +57,7 @@ model User_Room {
 }
 
 model Games {
-	game_id			Int	@id @default(autoincrement())
+	game_id			Int	@id		@default(autoincrement())
 	played_at		DateTime	@default(now())
 	status			String		@default("--")
 	players			User_Game[]
@@ -81,7 +83,6 @@ model Direct_Message {
   recipient     User @relation("Recipient", fields: [recipient_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   recipient_id  Int
   content       String
-
 }
 
 model Message {

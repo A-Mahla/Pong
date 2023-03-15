@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Room, User } from "@prisma/client";
 import { Server, Socket } from "socket.io";
 import { UsersService } from "src/users/users.service";
-import { CreateRoomData, MessageData } from "./Chat.types";
+import { CreateRoomData, MessageData, LeaveRoomData } from "./Chat.types";
 import { MessageService } from "./messages/messages.service";
 import { RoomsService } from "./rooms/rooms.service";
 
@@ -17,30 +17,26 @@ export class ChatService {
 
 			const newRoom = await this.roomService.createRoom(payload);
 
-			client.join((newRoom as Room).room_id.toString() + payload.roomName)
+			client.join((newRoom as Room).room_id.toString() + payload.name)
 
-			console.log('clientId: ', client.id)
-
-			server.to(client.id).emit('roomCreated', {name: payload.roomName, id: newRoom?.room_id})
+			server.to(client.id).emit('roomCreated', {name: payload.name, id: newRoom?.room_id})
 	
 			return newRoom 
 		}
 
 		async manageMessage(server: Server, client: Socket, payload: MessageData) {
 			
-			const sender = await this.userService.findOneUser(payload.sender)
 			if (payload.room !== undefined)
 			{
 				console.log('client rooms in handle MESSAGE', client.rooms)
-				const newMessage = await this.messageService.createMessage((sender as User).id, payload.room.id, payload.content) 
+				const newMessage = await this.messageService.createMessage(payload.sender_id, payload.room.id, payload.content) 
 				server.to(payload.room.id.toString() + payload.room.name).emit('message', newMessage)
 				console.log('payload in message handler', payload)
 			}
 			else
 			{
-				//const recipient = await this.userService.findOneUser(payload.recipient as string)
 				console.log('payload in create direct message: ', payload)
-				const newDirectMessage = await this.messageService.createDirectMessage((sender as User).id, payload.recipient_id as number, payload.content)
+				const newDirectMessage = await this.messageService.createDirectMessage(payload.sender_id, payload.recipient_id as number, payload.content)
 				server.to((payload.recipient_id as number).toString()).emit('directMessage', newDirectMessage)
 				server.to(client.id).emit('directMessage', newDirectMessage)
 				console.log('payload direct message: ', payload)
@@ -49,12 +45,44 @@ export class ChatService {
 			return payload
 		}  
 
-		async leaveRoom(server: Server, client: Socket, payload: {user: string, roomId: number}) {
+		async leaveRoom(server: Server, client: Socket, payload: LeaveRoomData) {
 
-			client.leave(payload.roomId.toString())
-			client.to(payload.roomId.toString()).emit('message', `${payload.user} leaved the room`)
-			server.to(client.id).emit('roomLeaved', payload.roomId)
+			client.leave(payload.room_id.toString() + payload.room_name)
 
-			return this.roomService.deleteRelation(payload.user, payload.roomId)
+			const message : MessageData  = {
+				content: `${payload.user_login} leaved the room`,
+				sender_id: payload.user_id,
+				room: {
+					name: payload.room_name,
+					id: payload.room_id,
+				}
+			}
+
+			console.log('leaveRoom payload: \n\n\n\n', payload, message)
+
+			const newMessage = await this.messageService.createMessage(payload.room_id, payload.room_id,`${payload.user_login} leaved the room`)
+
+			server.to(payload.room_id.toString() + payload.room_name).emit('message', newMessage)
+			server.to(client.id).emit('roomLeaved', payload.room_id)
+
+			return this.roomService.deleteRelation(payload.user_id, payload.room_id)
+		}
+
+		async join(client: Socket, userId: number) {
+
+			const rooms = await this.userService.findAllUserRooms(userId)
+
+			//join his direct message room
+			client.join(userId.toString())
+
+			console.log('client rooms in handle JOIN', client.rooms)
+
+			for (let room of rooms)
+			{
+				client.join(room.room_id.toString() + room.name)
+				console.log(room.room_id.toString() + room.name)
+			}
+			console.log('rooms: ', rooms)
+
 		}
 }

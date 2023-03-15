@@ -6,10 +6,12 @@ export class CreateUserParams {
 }
 
 export class UpdateUserParams {
-	login: string;
-	password: string;
-	avatar: string;
-	intraLogin: string;
+	login?: string;
+	password?: string;
+	avatar?: string;
+	intraLogin?: string;
+	twoFA?: string;
+	isTwoFA?: boolean;
 }
 
 export class profile {

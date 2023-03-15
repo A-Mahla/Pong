@@ -10,13 +10,15 @@ import { RoomsService } from './chat/rooms/rooms.service';
 import { PrismaService } from './prisma/prisma.service';
 import { GameModule } from './game/game.module';
 import { GameService } from './game/game.service';
+import { GameGateway } from './game/game.gateway'
 import { SocketIOAdapter } from './adapter/socket-io.adapter';
 import { HttpAdapterHost } from '@nestjs/core';
 import { MessageService } from './chat/messages/messages.service';
 import { ChatService } from './chat/chat.service';
+import { TwofaModule } from './twofa/twofa.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, JwtModule, ChatModule, GameModule],
+  imports: [UsersModule, AuthModule, JwtModule, ChatModule, GameModule, TwofaModule],
   controllers: [AppController],
   providers: [AppService, PrismaService, RoomsService, MessageService, ChatService, ChatGateway, GameService],
 })

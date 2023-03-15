@@ -9,6 +9,7 @@ import { CreateRoomData, MessageData } from './Chat.types';
 import { WsGuard } from './ws.guard';
 import { MessageService } from './messages/messages.service';
 import { ChatService } from './chat.service';
+import { LeaveRoomData } from './Chat.types';
 
 @WebSocketGateway({namespace : 'chat'})
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
@@ -33,27 +34,13 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   @SubscribeMessage('leaveRoom')
-  async handleLeaveRoom(client: any, payload: {user: string, roomId: number}) {
+  async handleLeaveRoom(client: any, payload: LeaveRoomData) {
     return await this.chatService.leaveRoom(this.server, client, payload)
   }
 
   @SubscribeMessage('join')
-  async handleJoin(client: Socket, login: string) {
-    const user = await this.userService.findOneUser(login)
-
-    const rooms = await this.userService.findAllUserRooms((user as User).id)
-
-    //join his direct message room
-    client.join((user as User).id.toString())
-
-    console.log('client rooms in handle JOIN', client.rooms)
-
-    for (let room of rooms)
-    {
-      client.join(room.room_id.toString() + room.name)
-      console.log(room.room_id)
-    }
-    console.log('rooms: ', rooms)
+  async handleJoin(client: Socket, id: number) {
+    return this.chatService.join(client, id)
   }
 
   @SubscribeMessage('joinRoom')
@@ -64,6 +51,15 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     console.log('handle JOIN ROOM payload : ', payload)
 
     client.join(payload.roomId.toString() + payload.roomName)
+
+    const messages = await this.messageService.getRoomMessages(payload.roomId)
+
+    console.log('previous messages after join a room: ', messages)
+
+    for (let message of messages)
+    {
+      this.server.to(client.id).emit('message', message)
+    }
 
     this.server.to(client.id).emit('roomJoined', {name: payload.roomName, id: payload.roomId})
 

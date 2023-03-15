@@ -21,7 +21,7 @@ export function DirectMessages() {
 
 	const directMessage = useRef('')
 
-	const {user} = useAuth()
+	const {user, id} = useAuth()
 
 	const auth = useFetchAuth()
 
@@ -36,7 +36,7 @@ export function DirectMessages() {
 
 	const getMessagesRequest: Api = {
 		api: {
-			input: `http://${import.meta.env.VITE_SITE}/api/messages/direct/${user}`,
+			input: `http://${import.meta.env.VITE_SITE}/api/messages/direct`,
 			option: {
 			},
 		},
@@ -80,7 +80,7 @@ export function DirectMessages() {
 
 		const payload: MessageData = {
 			content: directMessage.current.value,
-			sender: user,
+			sender_id: id,
 			recipient_id: target.id	
 		}
 
@@ -90,13 +90,6 @@ export function DirectMessages() {
 			console.log('message response: ', response);
 		})
 	}, [socket, target, messages])
-
-
-	//target.id === message.recipient_id ?
-	//	<Box key={message.id} className='messageSent'>{message.sender_id} {message.content} {message.createdAt}</Box>
-	//	: (target.id === message.sender_id) ?
-	//		<Box key={message.id} className='messageSent'>{message.sender_id} {message.content} {message.createdAt}</Box>
-	//		: null
 
 	return (
 		<FormControl>

@@ -1,20 +1,23 @@
-import { User } from "@prisma/client"
-import { CreateUserParams } from "src/users/User.types";
-
-export type CreateRoomData = {
-  roomName: string;
-  roomPassword?: string,
-  roomOwner: string,
+export type LeaveRoomData = {
+	user_id: number,
+	user_login: string,
+	room_id: number,
+	room_name: string
 }
 
+export type CreateRoomData = {
+  name: string;
+  password?: string,
+  owner_id: number,
+}
 
 export type MessageData = {
 	content: string,
-	sender: string,
-  time?: string,
-  room?: {
-    name: string,
-    id: number
-  },
-  recipient_id?: number
+	sender_id: number,
+	time?: string,
+	room?: {
+		name: string,
+		id: number
+	},
+	recipient_id?: number 
 }

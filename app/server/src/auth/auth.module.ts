@@ -8,6 +8,7 @@ import { jwtConstants } from './constants';
 import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy'
 import { RefreshTokenStrategy } from './refresh-jwt.strategy'
+import { TwoFATokenStrategy } from './2fa-jwt.strategy'
 import { AuthController } from './auth.controller'
 
 
@@ -23,7 +24,9 @@ import { AuthController } from './auth.controller'
 		AuthService,
 		LocalStrategy,
 		JwtStrategy,
-		RefreshTokenStrategy
+		RefreshTokenStrategy,
+		TwoFATokenStrategy,
+
 	],
 	exports: [AuthService],
 })

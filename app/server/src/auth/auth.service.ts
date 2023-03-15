@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
-import { jwtConstants } from "./constants";
 import { JwtPayload } from './auth.types'
 import { UserDto } from 'src/users/User.dto';
 import { Response } from 'express'
+import { jwtConstants} from "src/auth/constants";
+import { Prisma, User } from '@prisma/client';
+
 
 @Injectable()
 export class AuthService {
@@ -24,6 +25,7 @@ export class AuthService {
 	}
 
 	async login(user: any, response: Response) { // I put any to fit the tutorial but User seem to work fine
+
 		const payload = { sub: user.id, login: user.login }
 		const tokens = await this.getTokens(payload, response)
 		await this.usersService.updateRefreshToken(payload.login, tokens.refreshToken);
@@ -32,22 +34,33 @@ export class AuthService {
 		}
 	}
 
+	async loginWithId(user: any, response: Response) { // I put any to fit the tutorial but User seem to work fine
+
+		const payload = { sub: user.id, login: user.login }
+		const tokens = await this.getTokens(payload, response)
+		await this.usersService.updateRefreshToken(payload.login, tokens.refreshToken);
+		return {
+			id: user.id,
+			aT: tokens.accessToken
+		}
+	}
+
+
 	async logout(user: any, response: Response) {
 		await this.usersService.updateRefreshToken(user.login, "");
-		response.cookie(
-			'rT',
-			null,
+		response.clearCookie(
+			`${jwtConstants.refresh_jwt_name}`,
 			{
-				maxAge: 900000,
+				maxAge: 5000,
 				httpOnly: true,
 				sameSite: 'strict',
+
 			}
 		);
 	}
 
 	async refreshTokens(user: any, response: Response) {
 		const userTry = await this.usersService.findOneUser(user.login);
-		console.log('test')
 		const tokens = await this.getTokens(user, response);
 		await this.usersService.updateRefreshToken(user.login, tokens.refreshToken);
 		return {
@@ -55,37 +68,61 @@ export class AuthService {
 		}
 	}
 
+	async getTwoFAToken(user: JwtPayload, response: Response) {
+
+		const accessToken = await this.jwtService.signAsync(
+			{
+				sub: user.sub,
+				login: user.login,
+			},
+			{
+				secret: jwtConstants.twofa_jwt_secret,
+				expiresIn: '5m',
+			},
+		);
+
+		response.cookie(
+			`${jwtConstants.twofa_jwt_name}`,
+			accessToken,
+			{
+				maxAge: 300000,
+				httpOnly: true,
+				sameSite: 'strict'
+			}
+		);
+
+	}
+
 	async getTokens(user: JwtPayload, response: Response) {
 
 
 		const [accessToken, refreshToken] = await Promise.all([
-		  this.jwtService.signAsync(
-			{
-			  sub: user.sub,
-			  login: user.login,
-			},
-			{
-			  secret: jwtConstants.secret,
-			  expiresIn: '7d',
-			},
-		  ),
-		  this.jwtService.signAsync(
-			{
-			  sub: user.sub,
-			  login: user.login,
-			},
-			{
-			  secret: jwtConstants.refresh_secret,
-			  expiresIn: '7d',
-			},
-		  ),
+			this.jwtService.signAsync(
+				{
+					sub: user.sub,
+					login: user.login,
+				},
+				{
+					secret: jwtConstants.jwt_secret,
+					expiresIn: '10m',
+				},
+			),
+			this.jwtService.signAsync(
+				{
+					sub: user.sub,
+					login: user.login,
+				},
+				{
+					secret: jwtConstants.refresh_jwt_secret,
+					expiresIn: '7d',
+				},
+			),
 		]);
 		response.cookie(
-			'rT',
+			`${jwtConstants.refresh_jwt_name}`,
 			refreshToken,
 			{
-				expires: new Date(new Date().getTime()+5*60*1000),
-				maxAge: 900000000,
+				maxAge: 604800000,
 				httpOnly: true,
 				sameSite: 'strict'
 			}

@@ -8,7 +8,8 @@ import { AuthProvider } from '/src/pong/context/useAuth';
 import PrivateRoute from '/src/pong/component/PrivateRoute';
 import LoggedRoute from '/src/pong/component/LoggedRoute';
 import { Chat } from '/src/pong/Chat/Chat';
-import GameTest from '/src/pong/page/GameTest';
+import { QRCodeComponent } from '/src/pong/component/QRCode';
+import Game from '/src/pong/page/Game';
 
 /**
  * ============ Entrypoint of the project =============
@@ -17,6 +18,15 @@ import GameTest from '/src/pong/page/GameTest';
 const theme = createTheme({
 	typography: {
 		fontFamily: ['pong-policy']
+	},
+	breakpoints: {
+		values: {
+			xs: 0,
+			sm: 600,
+			md: 950,
+			lg: 1200,
+			xl: 1536,
+		},
 	},
 	palette: {
 		primary: {
@@ -35,6 +45,7 @@ export const Pong = () => {
 					<Routes>
 						<Route path='/' element={<MainPage/>} />
 						<Route path='/chat' element={<Chat/>} />
+						<Route path='/2fa' element={<QRCodeComponent/>} />
 						<Route element= { <LoggedRoute /> }>
 							<Route path='/login' element={<Login/>}/>
 						</Route>
@@ -42,7 +53,7 @@ export const Pong = () => {
 							<Route path='/pong' element={<LeadPage/>} />
 						</Route>
 						<Route path="/redirect" element={<Redirect/>} />
-						<Route path="/gameTest" element={<GameTest/>} />
+						<Route path="/game" element={<Game/>} />
 					</Routes>
 				</AuthProvider>
 			</BrowserRouter>

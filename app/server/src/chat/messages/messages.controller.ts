@@ -1,7 +1,10 @@
 import { Controller, Get, Param, UseGuards} from "@nestjs/common"
+import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 import { UsersService } from "src/users/users.service";
 import { MessageService } from "./messages.service";
+import { Request } from "@nestjs/common";
 
+@UseGuards(JwtAuthGuard)
 @Controller('messages')
 export class MessageController {
 	constructor (private readonly messageService: MessageService, 
@@ -14,14 +17,10 @@ export class MessageController {
 		return this.messageService.getRoomMessages(roomId)
 	}
 
-	@Get('direct/:login')
+	@Get('direct')
 	getDirectMessages(
-		@Param('login') recipientLogin: string
+		@Request() req: any 
 	) {
-
-		//return this.messageService.getUserDirectMessages()
-
-		return this.messageService.getUserDirectMessagesLogin(recipientLogin)
-
+		return this.messageService.getUserDirectMessages(req.user.sub)
 	}
 }

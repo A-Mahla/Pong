@@ -37,6 +37,7 @@ export class Intra42AuthGuard implements CanActivate {
 
 		const intraLogin = response['login']
 
+
 		const user = await this.usersService.findOneIntraUser(intraLogin)
 
 		const signedIn = (user === null ? false : true)	

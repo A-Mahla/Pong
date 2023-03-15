@@ -1,6 +1,6 @@
 import { Button, TextField, FormControl, Paper, Box, InputAdornment, List } from "@mui/material"
 import React, { useRef, useCallback, useState, useEffect, useReducer, createContext } from "react"
-import { State, Room, Message } from "./Chat.types"
+import { State, Room, Message, MessageData, LeaveRoomData } from "./Chat.types"
 import useAuth from '/src/pong/context/useAuth';
 import { reducer, getUserRooms } from "./Chat.utils"
 import io from "socket.io-client"
@@ -51,7 +51,7 @@ export function Chat() {
 
 	const socket = io.connect("http://localhost:8080/chat")
 
-	const { user } = useAuth()
+	const { user, id } = useAuth()
 
 	const auth = useFetchAuth()
 
@@ -67,7 +67,7 @@ export function Chat() {
 
 	const findRooms: Api = {
 		api: {
-			input: `http://${import.meta.env.VITE_SITE}/api/users/${user}/rooms`,
+			input: `http://${import.meta.env.VITE_SITE}/api/users/rooms`,
 			option: {
 			},
 		},
@@ -117,7 +117,7 @@ export function Chat() {
 		console.log('socket in useEffect', socket);
 
 		socket.on('connect', () => {
-			socket.emit('join', user)
+			socket.emit('join', id)
 			console.log('connected')
 		})
 		socket.on('message', (newMessage) => {
@@ -145,13 +145,13 @@ export function Chat() {
 		return () => {
 			//socket.off('message', messageListener)
 		}
-	}, [socket, rooms])
+	}, [socket])
 
 	const handleSubmit = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
-		const messageData = {
+		const messageData : MessageData = {
 			content: message.current.value,
-			sender: user,
+			sender_id: id,
 			room: {
 				id: current.id,
 				name: current.name
@@ -165,6 +165,8 @@ export function Chat() {
 
 	const handleChangeRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
+		console.log('all messages: ', messages)
+		
 		const payload = JSON.parse(e.target.value)
 
 		if (payload.id === current.id)
@@ -194,10 +196,17 @@ export function Chat() {
 	}, [joining, creating])
 
 	const handleLeaveRoom = useCallback((e) => {
-		const leaveData = {
-			user: user,
-			roomId: current.id
+		const leaveData : LeaveRoomData = {
+			user_id: id,
+			user_login: user,
+			room_id: current.id,
+			room_name: current.name
 		}
+
+		current.id = 0,
+		current.name = ''
+
+		console.log('leaveData: ', leaveData)
 
 		socket.emit('leaveRoom', leaveData, (response) => {
 			console.log('leave room response: ', response);

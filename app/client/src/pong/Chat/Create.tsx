@@ -3,17 +3,18 @@ import { Box, FormControl, Switch, TextField, FormControlLabel, Button } from "@
 import { ChatContext } from "./Chat"
 import useAuth, { useFetchAuth } from '../context/useAuth'
 import { FetchApi } from '../component/FetchApi'
+import { CreateRoomData } from './Chat.types'
 
 export function CreateRoom() {
-	const roomName = useRef('')
+	const name = useRef('')
 
-	const roomPassword = useRef('')
+	const password = useRef('')
 	
 	const {isCreating, socket} = useContext(ChatContext) 
 
 	const [secured, isSecured] = useState(false)
 
-	const {user} = useAuth()
+	const {user, id} = useAuth()
 
 	const handleSwitch = useCallback(() => {
 		secured ? isSecured(false) : isSecured(true)
@@ -21,28 +22,23 @@ export function CreateRoom() {
 
 	const handleCreateRoom = useCallback(() => {
 
-		if (roomName === '')
+		if (name === '')
 			return
-		else if (secured && roomPassword === '')
+		else if (secured && password === '')
 			return
 
-		const newRoomData = {
-			roomName: roomName.current.value,
-			roomPassword: roomPassword.current.value,
-			roomOwner: user
+		const newRoomData : CreateRoomData  = {
+			name: name.current.value,
+			password: password.current ? password.current.value : '',
+			owner_id: id
 		}
 
-		console.log('payload: ', newRoomData);
-		
-
-		socket.emit('createRoom', newRoomData, (response) => {
+		socket.emit('createRoom', newRoomData/* , (response) => {
 			console.log('creatRoom response: ', response);
 			console.log('clientId: ', socket.id);
 			
-		})
+		} */)
 
-		console.log('roomName: ', roomName.current.value);
-		console.log('roomPasswd: ', roomPassword.current.value);
 		isCreating(false)
 	}, [socket])
 
@@ -50,8 +46,8 @@ export function CreateRoom() {
 		<FormControl>
 			{secured ? 'secured' : 'not secured'} 
 			<FormControlLabel control={<Switch onChange={handleSwitch}/>} label="Protected" />
-			<TextField placeholder="room name" inputRef={roomName}/>
-			{secured ? <TextField placeholder="room password" inputRef={roomPassword}/> : null }
+			<TextField placeholder="room name" inputRef={name}/>
+			{secured ? <TextField placeholder="room password" inputRef={password}/> : null }
 			<Button onClick={handleCreateRoom}>Create room</Button>
 		</FormControl>
 	)

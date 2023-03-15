@@ -1,47 +1,91 @@
 import Avatar from '@mui/material/Avatar';
+import { Typography, Grid, IconButton } from '@mui/material';
+import useAuth from '/src/pong/context/useAuth'
 
 //src="http://localhost:5500/api/users/default/default_avatar"
 
 const ProfileAvatar = () => {
 
 	return (
-		<Avatar
-			alt="avatar"
-			src=""
-			sx={{
-				width: '10rem;',
-				height: '10rem',
-				border: 1,
-				boxShadow: 24,
-				'@media (max-width: 350px)': {
-					position: 'absolute',
-					mt: 0,
-					mr: '10vw;',
-					width: '4rem',
-					height: '4rem',
-				},
-				'@media (min-width: 350px) and (max-width: 470px)': {
-					width: '4rem',
-					height: '4rem',
-					mt: -10
-				},
-				'@media (min-width:470px) and (max-width: 600px)': {
-					width: '6rem',
-					height: '6rem',
-					mt: -10
-				},
-				'@media (min-width: 600px) and (max-width: 1000px)': {
-					mt: -5
-				},
-				'@media (min-width: 1000px) and (max-width: 1200px)': {
-					ml: '4vw;',
-				},
-				'@media (min-width: 1200px)': {
-					ml: '6vw;',
-				},
-				AlignItems: 'center'
-			}}
-		/>
+		<>
+		<input accept="image/*" id="upload-avatar-pic" type="file" hidden />
+		<label htmlFor="upload-avatar-pic">
+			<IconButton component="span">
+				<Avatar
+					alt="avatar"
+					src=""
+					sx={{
+						p: 0,
+						border: 1,
+						boxShadow: 24,
+						'@media (max-width: 550px)': {
+							width: '7rem',
+							height: '7rem',
+						},
+						'@media (min-width:550px) and (max-width: 950px)': {
+							width: '6rem',
+							height: '6rem',
+						},
+						'@media (min-width: 950px)': {
+							width: '8rem',
+							height: '8rem',
+						},
+						AlignItems: 'center'
+					}}
+				/>
+			</IconButton>
+		</label>
+		</>
 	)
 }
-export default ProfileAvatar;
+
+const NameAvatar = () => {
+
+	const {user} = useAuth()
+	
+	return (
+		<Typography noWrap 
+			fontSize={{
+				xl: '2rem',
+				lg: '1.5rem',
+				md: '1.3rem',
+				mmd: '1.2rem',
+				sm: '1rem',
+				xs: '1.5rem'
+			}}
+		>
+			{user}
+		</Typography>
+	)
+}
+
+const AvatarGrid = () => {
+
+	return <>
+		<Grid item xl={5} md={6} xs={12}
+			sx={{
+				p: '1vw;',
+				border: 1,
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center'
+			}
+		}>
+			<ProfileAvatar />
+		</Grid>
+		<Grid item xl={7} md={6} xs={12}
+			sx={{
+				p: '1vw;',
+				border: 1,
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center'
+			}}
+		>
+			<NameAvatar />
+		</Grid>
+	</>
+
+}
+
+export default AvatarGrid;
