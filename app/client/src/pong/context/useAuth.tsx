@@ -332,8 +332,9 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			})
 			if (response.response.status == 200) {
 				setToken(response.data['aT']);
+				return 0
 			} else {
-				setError('Invalid Authentification Code')
+				return 1
 			}
 		} catch (err) {
 			console.log(err)

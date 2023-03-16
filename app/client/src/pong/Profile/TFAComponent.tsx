@@ -45,8 +45,9 @@ const AuthInstruction = () => {
 					<ListItemText
 						primary='Install Google Authenticator (IOS - Android)
 							or Authy (IOS - Android).'
-						disableTypography={true}
+						disableTypography
 						sx={{
+							//				fontFamily: '"system-ui", sans-serif',
 							fontSize: 12
 						}}
 					/>
@@ -59,7 +60,7 @@ const AuthInstruction = () => {
 				>
 					<ListItemText
 						primary="In the authenticator app, select '+' icon"
-						disableTypography={true}
+						disableTypography
 						sx={{
 							fontSize: 12
 						}}
@@ -74,7 +75,7 @@ const AuthInstruction = () => {
 					<ListItemText
 						primary="Select 'Scan a barcode (or QR code)' and use the phone's camera
 								to scan this barcode."
-						disableTypography={true}
+						disableTypography
 						sx={{
 							fontSize: 12
 						}}
@@ -97,7 +98,6 @@ export const QRCodeComponent = (props: QRProps) => {
 	//	const {user, token, twoFA} = useAuth();
 	const {twoFA, token, error, setError} = useAuth();
 
-	const {twoFAerror, setTowFAError} = useState<string>('')
 
 	const [fetched, setFetched] = useState(false);
 	const [qrcode, setQrcode] = useState<string>('');
@@ -105,20 +105,21 @@ export const QRCodeComponent = (props: QRProps) => {
 
 	const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault()
+		setError(undefined)
 		if( e.target.value.length === 6 ) {
 
 			if (!isNumber(e.target.value)) {
-				setTwoFAError('Error Code')
+				setError('Error Authentification Code')
 			} else {
 
 				try {
-					await twoFA(`http://${import.meta.env.VITE_SITE}/api/2fa/authenticate?twoFA=${e.target.value}`)
-					console.log(error)
-					if (error === undefined) {
+					const res = await twoFA(`http://${import.meta.env.VITE_SITE}/api/2fa/authenticate?twoFA=${e.target.value}`)
+					if (!res) {
 						props.setCheck(true)
 						props.setOpen(false)
+					} else {
+						setError('Error Authentification Code')
 					}
-					setError(undefined)
 				} catch(err) {
 					console.log(err)
 				}
@@ -135,6 +136,7 @@ export const QRCodeComponent = (props: QRProps) => {
 
 
 
+
 	useEffect( () => {
 
 
@@ -142,7 +144,7 @@ export const QRCodeComponent = (props: QRProps) => {
 
 			try {
 
-				console.log(token)
+				setError(undefined)
 
 				const result = await axios.post(
 
@@ -157,7 +159,6 @@ export const QRCodeComponent = (props: QRProps) => {
 					}
 				)
 				
-				console.log(result.status)
 
 				if (result.status !== 201) {
 
@@ -224,8 +225,8 @@ export const QRCodeComponent = (props: QRProps) => {
 								alignItems="center"
 								sx={{mt: 4}}
 							>
-								<Typography variant='subtitle2' align="center">
-								Two-Factor Authentication
+								<Typography component={'span'} variant='subtitle2' align="center">
+									Two-Factor Authentication
 								</Typography>
 							</Box>
 							<Divider variant='middle'/>
@@ -289,15 +290,22 @@ export const QRCodeComponent = (props: QRProps) => {
 												mx: 1,
 												mt: 1
 											}}
-											helperText={
-												<Typography>
-
-												</Typography>
-											}
 										></TextField>
 									</FormControl>
 								</Box>
 							</Grid>
+
+			{ error === '' ? null :
+				<Typography variant='caption' align="center" color="tomato"
+					sx={{
+						//				fontFamily: '"system-ui", sans-serif',
+						fontSize: [9, '!important']
+					}}
+				>
+					{error}
+				</Typography>
+			}
+							
 						</DialogContent>
 					</Dialog>
 				</>
