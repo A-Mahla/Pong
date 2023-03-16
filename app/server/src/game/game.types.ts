@@ -1,6 +1,6 @@
 
 export type GameDataType = {
-	roomInfo: {
+	roomInfo?: {
 		//roomId: string, // not sure yet i need it
 		countDownRequired: boolean,
 		canvasHeight: number,
@@ -29,7 +29,17 @@ export type GameDataType = {
 	}
 }
 
-export const gamePatron = {
+export interface GamePatron {
+	//roomId: string, // not sure yet i need it
+	countDownRequired: boolean,
+	canvasHeight: number,
+	canvasWidth: number,
+	playerHeight: number,
+	playerWidth: number
+}
+
+
+export const gamePatron: GamePatron = {
 	//roomId: string, // not sure yet i need it
 	countDownRequired: false,
 	canvasHeight: 640,
