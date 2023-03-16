@@ -305,11 +305,16 @@ export const QRCodeComponent = (props: QRProps) => {
 
 }
 
+type TFAProps = {
+	open: boolean,
+	setOpen: React.Dispatch<React.SetStateAction<boolean>>,
+}
+
 const TFAComponent = () => {
 
 	const [check, setCheck] = useState(false)
-	const [isActivate, setIsActivate] = useState('Disable')
 	const [open, setOpen] = useState(false)
+	const [isActivate, setIsActivate] = useState('Disable')
 
 	const auth = useFetchAuth()
 

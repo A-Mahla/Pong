@@ -5,10 +5,12 @@ import {
 	TextField,
 } from '@mui/material'
 
+
 import { useState, useRef } from 'react'
 import * as React from 'react';
 
 import TFAComponent from '/src/pong/Profile/TFAComponent'
+
 
 const ChangeInfo = () => {
 
@@ -38,12 +40,17 @@ const ChangeInfo = () => {
 				size="small"
 				sx={{p: 1 }}
 			></TextField>
+
 			{error === '' ? null : <Typography align="center" color="tomato">{error}</Typography> }
 		</FormControl>
 	</>
 }
 
+
+
 const UserPanelGrid = () => {
+
+	const [open, setOpen] = useState<boolean>(false)
 
 	return <>
 
