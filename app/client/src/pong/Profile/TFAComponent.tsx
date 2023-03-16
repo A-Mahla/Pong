@@ -289,6 +289,11 @@ export const QRCodeComponent = (props: QRProps) => {
 												mx: 1,
 												mt: 1
 											}}
+											helperText={
+												<Typography>
+
+												</Typography>
+											}
 										></TextField>
 									</FormControl>
 								</Box>
@@ -356,9 +361,11 @@ const TFAComponent = (props: TFAProps) => {
 
 
 	return <>
-			<Accordion elevation={0}onChange = {(e,expanded) => {
-				if(expanded){
+			<Accordion elevation={0} onChange={(e,expanded) => {
+				if(expanded) {
 					props.setIsAccordion(true)
+				} else {
+					props.setIsAccordion(false)
 				}
 			}}>
 				 <AccordionSummary

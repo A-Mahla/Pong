@@ -62,6 +62,7 @@ const Profile = () => {
 					border: 1,
 					display: 'flex',
 					'@media (max-width: 950px)': {
+						p: 0,
 						display: 'grid',
 						height: '14rem',
 						alignItems: 'center',
@@ -82,6 +83,7 @@ const Profile = () => {
 					border: 1,
 					display: 'flex',
 					'@media (max-width: 950px)': {
+						py: '0.5vw;',
 						display: 'block',
 						height: '14rem',
 						alignItems: 'center',

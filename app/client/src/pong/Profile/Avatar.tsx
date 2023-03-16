@@ -18,18 +18,8 @@ const ProfileAvatar = () => {
 						p: 0,
 						border: 1,
 						boxShadow: 24,
-						'@media (max-width: 550px)': {
-							width: '7rem',
-							height: '7rem',
-						},
-						'@media (min-width:550px) and (max-width: 950px)': {
-							width: '6rem',
-							height: '6rem',
-						},
-						'@media (min-width: 950px)': {
-							width: '8rem',
-							height: '8rem',
-						},
+						width: '8rem',
+						height: '8rem',
 						AlignItems: 'center'
 					}}
 				/>
