@@ -1,4 +1,5 @@
 import {
+	Box,
 	Grid,
 	Typography,
 	FormControl,
@@ -11,8 +12,12 @@ import * as React from 'react';
 
 import TFAComponent from '/src/pong/Profile/TFAComponent'
 
+type InfoProps = {
+	isAccordion: boolean,
+	setIsAccordion: React.Dispatch<React.SetStateAction<boolean>>,
+}
 
-const ChangeInfo = () => {
+const ChangeInfo = (props: InfoProps) => {
 
 	const [error, setError] = useState('');
 
@@ -21,7 +26,7 @@ const ChangeInfo = () => {
 	const password = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 
 	return <>
-		<FormControl>
+		<Box display={props.isAccordion ? 'flex' : 'block'}>
 			<TextField
 				type='text'
 				id="outlined-password-input"
@@ -40,9 +45,8 @@ const ChangeInfo = () => {
 				size="small"
 				sx={{p: 1 }}
 			></TextField>
-
 			{error === '' ? null : <Typography align="center" color="tomato">{error}</Typography> }
-		</FormControl>
+		</Box>
 	</>
 }
 
@@ -50,7 +54,7 @@ const ChangeInfo = () => {
 
 const UserPanelGrid = () => {
 
-	const [open, setOpen] = useState<boolean>(false)
+	const [isAccordion, setIsAccordion] = useState<boolean>(false)
 
 	return <>
 
@@ -67,7 +71,7 @@ const UserPanelGrid = () => {
 			}}
 		
 		>
-			<TFAComponent />
+			<TFAComponent isAccordion={isAccordion} setIsAccordion={setIsAccordion}/>
 		</Grid>
 		<Grid item xl={8} md={7} xs={12}
 			sx={{
@@ -78,7 +82,7 @@ const UserPanelGrid = () => {
 				justifyContent: 'center'
 			}}
 		>
-			<ChangeInfo/>
+			<ChangeInfo isAccordion={isAccordion} setIsAccordion={setIsAccordion}/>
 		</Grid>
 	</>
 }

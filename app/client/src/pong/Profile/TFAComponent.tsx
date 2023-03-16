@@ -306,11 +306,11 @@ export const QRCodeComponent = (props: QRProps) => {
 }
 
 type TFAProps = {
-	open: boolean,
-	setOpen: React.Dispatch<React.SetStateAction<boolean>>,
+	isAccordion: boolean,
+	setIsAccordion: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
-const TFAComponent = () => {
+const TFAComponent = (props: TFAProps) => {
 
 	const [check, setCheck] = useState(false)
 	const [open, setOpen] = useState(false)
@@ -356,7 +356,11 @@ const TFAComponent = () => {
 
 
 	return <>
-			<Accordion elevation={0}>
+			<Accordion elevation={0}onChange = {(e,expanded) => {
+				if(expanded){
+					props.setIsAccordion(true)
+				}
+			}}>
 				 <AccordionSummary
 					expandIcon={<ExpandMoreIcon />}
 					aria-controls="panel1a-content"
