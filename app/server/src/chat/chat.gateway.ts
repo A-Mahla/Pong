@@ -5,7 +5,7 @@ import { Server, Socket } from 'socket.io';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { UsersService } from 'src/users/users.service';
 import { RoomsService } from './rooms/rooms.service';
-import { CreateRoomData, MessageData } from './Chat.types';
+import { CreateRoomData, JoinRoomData, MessageData } from './Chat.types';
 import { WsGuard } from './ws.guard';
 import { MessageService } from './messages/messages.service';
 import { ChatService } from './chat.service';
@@ -44,26 +44,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   @SubscribeMessage('joinRoom')
-  async handleJoinRoom(client : Socket, payload : {userLogin : string, roomId : number, roomName: string})
-  {
-    const user = await this.userService.findOneUser(payload.userLogin)
-
-    console.log('handle JOIN ROOM payload : ', payload)
-
-    client.join(payload.roomId.toString() + payload.roomName)
-
-    const messages = await this.messageService.getRoomMessages(payload.roomId)
-
-    console.log('previous messages after join a room: ', messages)
-
-    for (let message of messages)
-    {
-      this.server.to(client.id).emit('message', message)
-    }
-
-    this.server.to(client.id).emit('roomJoined', {name: payload.roomName, id: payload.roomId})
-
-    return this.userService.joinRoom((user as User).id, payload.roomId)
+  async handleJoinRoom(client : Socket, payload : JoinRoomData) {
+    return this.chatService.joinRoom(this.server, client, payload)
   }
     
   afterInit(server : Server): any {

@@ -1,3 +1,9 @@
+export type JoinRoomData = {
+	user_id: number,
+	room_id: number,
+	room_name: string	
+}
+
 export type LeaveRoomData = {
 	user_id: number,
 	user_login: string,

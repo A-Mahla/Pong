@@ -4,12 +4,13 @@ import React, { useCallback, useState, useEffect, useContext} from 'react'
 import { ChatContext } from './Chat'
 import useAuth, { useFetchAuth } from '../context/useAuth'
 import { Api, FetchApi } from '../component/FetchApi'
+import { JoinRoomData } from './Chat.types'
 
 export function SearchRoom(children : string) {
 
 	const {isJoining, socket} = useContext(ChatContext)
 
-	const {user} = useAuth()
+	const {user, id} = useAuth()
 
 	const [searchTerm, setSearchTerm] = useState('')
 
@@ -44,10 +45,10 @@ export function SearchRoom(children : string) {
 
 		const value = JSON.parse(e.target.value)
 
-		const payload = {
-			userLogin: user,
-			roomId: value.id,
-			roomName: value.name
+		const payload: JoinRoomData = {
+			user_id: id,
+			room_id: value.id,
+			room_name: value.name
 		}
 
 		console.log('join Room payload: ', payload);

@@ -95,10 +95,11 @@ export function Chat() {
 
 				messages.push(data)
 			}
+			console.log('messages in useEffect: ', messages)
 
 			return {
 				rooms: rooms,
-				messages: messages[0]
+				messages: messages.length !== 0 ? messages[0] : messages
 			}
 
 		}
@@ -109,23 +110,17 @@ export function Chat() {
 			console.log('rooms: ', data.rooms)
 		})
 
-		console.log('state: ', current);
-
 	}, [])
 
 	useEffect(() => {
-		console.log('socket in useEffect', socket);
 
 		socket.on('connect', () => {
 			socket.emit('join', id)
-			console.log('connected')
 		})
-		socket.on('message', (newMessage) => {
 
-			console.log('setMessages', newMessage)
-			messages !== undefined ? setMessages([...messages, newMessage]) : setMessages([newMessage])
-				
-		})
+	}, [socket])
+
+	useEffect(() => {		//---ROOMS--//
 
 		socket.on('roomCreated', (payload) => {
 			console.log('roomCreated: ', payload)
@@ -137,15 +132,37 @@ export function Chat() {
 		})
 
 		socket.on('roomLeaved', (roomId) => {
+				console.log(roomId)
 			setRooms(rooms.filter((value) => {
+				console.log(value)
 				return value.id !== roomId
 			}))
 		})
 
-		return () => {
-			//socket.off('message', messageListener)
-		}
-	}, [socket])
+	}, [socket ,/* rooms */])
+
+	useEffect(() => {		//---MESSAGES--//
+
+		socket.on('message', (newMessage) => {
+			console.log('setMessages', newMessage)
+			console.log('messages before setMessages', messages)
+			messages !== undefined ? setMessages([...messages, newMessage]) : setMessages([newMessage])
+			//setMessages([...messages, newMessage])
+		})
+
+		socket.on('roomLeaved', (roomId) => {
+				console.log(roomId)
+			setMessages(messages.filter((value) => {
+				console.log('value in filter: ', value)
+				return value.room_id !== roomId
+			}))
+
+		socket.on('roomJoined', (payload) => {
+			console.log('payload in message useEffect: ', payload)
+			})
+		})
+		
+	}, [socket ,/* messages */])
 
 	const handleSubmit = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
@@ -158,15 +175,11 @@ export function Chat() {
 			}
 		}
 
-		socket.emit('message', messageData/*,  function (response) {
-			console.log('RESPONSE', response);
-		} */)
+		socket.emit('message', messageData)
 	}, [current])
 
 	const handleChangeRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
-		console.log('all messages: ', messages)
-		
 		const payload = JSON.parse(e.target.value)
 
 		if (payload.id === current.id)
@@ -176,7 +189,7 @@ export function Chat() {
 
 	}, [messages])
 
-	const handleCreateRoom = useCallback(async (e: React.MouseEvent<HTMLButtonElement>) => {
+	const handleCreateRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
 		creating ? isCreating(false) : isCreating(true)
 		if (joining)
@@ -195,7 +208,7 @@ export function Chat() {
 
 	}, [joining, creating])
 
-	const handleLeaveRoom = useCallback((e) => {
+	const handleLeaveRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 		const leaveData : LeaveRoomData = {
 			user_id: id,
 			user_login: user,
@@ -203,15 +216,17 @@ export function Chat() {
 			room_name: current.name
 		}
 
-		current.id = 0,
-		current.name = ''
 
 		console.log('leaveData: ', leaveData)
 
 		socket.emit('leaveRoom', leaveData, (response) => {
 			console.log('leave room response: ', response);
 		})
-	}, [current])
+
+		current.id = 0,
+		current.name = ''
+
+	}, [current, socket])
 
 	const handleDirectMessages = useCallback(() => {
 		direct ? setDirect(false) : setDirect(true)
@@ -226,20 +241,30 @@ export function Chat() {
 			<FormControl>
 				<div>{user}</div>
 				<div>{message.length}</div>
-				<Paper>
-					<Paper>
-					</Paper>
-					{messages ? messages.map((message) => (current.id === message.room_id ? <Box key={message.id} className='messageSent'>{message.content} {message.createdAt}</Box> : null)) : null}
-					<TextField type='text' placeholder={`${current.name}`} inputRef={message} />
-
-					<Button onClick={handleSubmit}>send message</Button>
+				<Paper sx={{m:1}}>
 					<Button onClick={handleCreateRoom}>create room</Button>
-					<Button onClick={handleLeaveRoom}>leave room</Button>
 					<Button onClick={handleSearchRoom}>search room</Button>
 					<Button onClick={handleDirectMessages}>direct messages</Button>
 				</Paper>
-				<Paper>
+				<Paper sx={{m:1}}>
 					{rooms.map((value) => (<Button value={JSON.stringify(value)} key={value.id} onClick={handleChangeRoom}>{value.name}</Button>))}
+					{
+						current.name !== '' ?
+							<Paper>
+							<TextField type='text' placeholder={`${current.name}`} inputRef={message} />
+							<Button onClick={handleSubmit}>send message</Button>
+							<Button onClick={handleLeaveRoom}>leave room</Button>
+							{current.id}
+							{messages ?
+								messages.map((message) => 
+									(current.id === message.room_id ) ?
+										<Box key={message.id} className='messageSent'>{message.content} {message.createdAt}</Box>
+									: null)
+								: null}
+							</Paper>
+						: null
+					}
+					{messages.map((value) => (<div key={JSON.stringify(value)}>{JSON.stringify(value)}</div>))}
 				</Paper>
 				{creating ? <CreateRoom /> : null}
 				{joining ? <SearchRoom /> : null}

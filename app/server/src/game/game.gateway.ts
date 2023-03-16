@@ -65,8 +65,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	@SubscribeMessage('createGame')
 	async newGame(client: Socket) {
 		const newGame = await this.gameService.registerNewGame('WAIT');
-		if (newGame)
-			client.join(newGame.game_id.toString());
+		//if (newGame)
+		//	client.join(newGame.game_id.toString());
 		console.log("----------------------> " + client.id + " created a new game");
 		this.server.emit('roomsUpdate');
 		// keeping track of the room configuration

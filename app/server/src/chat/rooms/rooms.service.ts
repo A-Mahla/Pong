@@ -100,4 +100,5 @@ export class RoomsService {
 			throw new BadRequestException(e);
 		})
 	}
+	
 }

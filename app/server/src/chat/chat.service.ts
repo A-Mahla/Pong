@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Room, User } from "@prisma/client";
 import { Server, Socket } from "socket.io";
 import { UsersService } from "src/users/users.service";
-import { CreateRoomData, MessageData, LeaveRoomData } from "./Chat.types";
+import { CreateRoomData, MessageData, LeaveRoomData, JoinRoomData } from "./Chat.types";
 import { MessageService } from "./messages/messages.service";
 import { RoomsService } from "./rooms/rooms.service";
 
@@ -26,6 +26,9 @@ export class ChatService {
 
 		async manageMessage(server: Server, client: Socket, payload: MessageData) {
 			
+			console.log("payload:\n\n", payload);
+			
+
 			if (payload.room !== undefined)
 			{
 				console.log('client rooms in handle MESSAGE', client.rooms)
@@ -60,9 +63,9 @@ export class ChatService {
 
 			console.log('leaveRoom payload: \n\n\n\n', payload, message)
 
-			const newMessage = await this.messageService.createMessage(payload.room_id, payload.room_id,`${payload.user_login} leaved the room`)
+			const newMessage = await this.messageService.createMessage(payload.user_id, payload.room_id,`${payload.user_login} leaved the room`)
 
-			server.to(payload.room_id.toString() + payload.room_name).emit('message', newMessage)
+			//server.to(payload.room_id.toString() + payload.room_name).emit('message', newMessage)
 			server.to(client.id).emit('roomLeaved', payload.room_id)
 
 			return this.roomService.deleteRelation(payload.user_id, payload.room_id)
@@ -84,5 +87,21 @@ export class ChatService {
 			}
 			console.log('rooms: ', rooms)
 
+		}
+
+		async joinRoom(server: Server, client: Socket, payload: JoinRoomData) {
+
+			client.join(payload.room_id.toString() + payload.room_name)
+
+			//const messages = await this.messageService.getRoomMessages(payload.room_id)
+			//
+			// Dont know why these messages make shit in the front
+			//messages.forEach((message) => {
+			//  this.server.to(client.id).emit('message', message)
+			//})
+
+			server.to(client.id).emit('roomJoined', {name: payload.room_name, id: payload.room_id})
+
+			return this.userService.joinRoom(payload.user_id, payload.room_id)
 		}
 }

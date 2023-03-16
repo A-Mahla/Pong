@@ -111,7 +111,6 @@ export function DirectMessages() {
 					<TextField inputRef={directMessage} placeholder='direct message'/>
 					<Button onClick={handleSubmit}>send</Button>
 				</FormControl>
-
 			) : null}
 			<div>{`target: ${target.login} , ${target.id}`}</div>
 		</FormControl>
