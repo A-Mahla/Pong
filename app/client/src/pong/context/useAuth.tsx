@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { useNavigate, useLocation, createSearchParams } from "react-router-dom";
 import { originalRequest, refreshRequest, responseApi } from "/src/pong/component/FetchApi"
+import { FetchApi, Api } from '/src/pong/component/FetchApi'
 
 interface AuthContextType {
 	user: string;
@@ -17,6 +18,7 @@ interface AuthContextType {
 	setUser: React.Dispatch<React.SetStateAction<string>>,
 	setToken: React.Dispatch<React.SetStateAction<string>>,
 	setIntraLogin: React.Dispatch<React.SetStateAction<string>>,
+	setId: React.Dispatch<React.SetStateAction<number>>,
 	loading: boolean;
 	error?: Error;
 	authLogin: (login: string, password: string) => Promise<string | undefined>;
@@ -313,15 +315,25 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 	async function twoFA(url: URL) {
 
 		try {
-			const response = await fetch( url, { method: 'POST'} )
-			const data = await response.json()
-			if (response.status == 200) {
-				setToken(data['aT']);
-				navigate('/pong')
+			const response = await FetchApi({
+				api: {
+					input: url,
+					option: {
+						method: 'POST'
+					},
+				},
+				auth: {
+					token: token,
+					setUser: setUser,
+					setId: setId,
+					setToken: setToken,
+					setIntraLogin: setIntraLogin,
+				}
+			})
+			if (response.response.status == 200) {
+				setToken(response.data['aT']);
 			} else {
-				setUser('');
-				setId(0);
-				navigate('/login')
+				setError('Invalid Authentification Code')
 			}
 		} catch (err) {
 			console.log(err)
@@ -337,6 +349,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			setUser,
 			setId,
 			setToken,
+			setError,
 			setIntraLogin,
 			loading,
 			error,

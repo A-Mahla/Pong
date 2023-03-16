@@ -97,7 +97,7 @@ export class TwofaController {
 	}
 
 
-	@UseGuards(TwoFAJwtAuthGuard)
+	@UseGuards(JwtAuthGuard)
 	@Post('authenticate')
 	@HttpCode(200)
 	async authenticate(
@@ -105,6 +105,8 @@ export class TwofaController {
 		@Query() { twoFA }: any,
 		@Res({ passthrough: true }) response: Response
 	) {
+
+		console.log(req.user)
 
 		const user = await this.usersService.findOneUser(req.user.login);
 
