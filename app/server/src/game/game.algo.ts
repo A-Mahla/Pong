@@ -6,105 +6,94 @@ import { 	SubscribeMessage,
 	OnGatewayDisconnect
 						} from "@nestjs/websockets";
 import { Server, Socket } from 'socket.io';
-import { GameService } from './game.service'
+import { GameGateway } from './game.gateway';
 import { GameDataType, RoomInfo, playerInfo, gamePatron, GamePatron } from './game.types'
 
 /**
  * here we run all the game algorithm when a room is set up
  */
 
-@Injectable()
 export class GameAlgo {
 
+	readonly roomID: string;
+	readonly gameModel = gamePatron;
+	readonly nbPlayers = 2;
 
-	async	runGame(server: Server, players: (playerInfo | undefined)[], nbPlayers: number) {
-		const	gameModel = gamePatron;
-		let		gameData: GameDataType;
-		let		client1IsInit: boolean = false;
-		let		client2IsInit: boolean = false;
+	private gameData: GameDataType;
 
-		for (let i = 0; i < nbPlayers; i++){
-			if (players[i] === undefined ) {
-				// throw something because it is very not normal
-			}
-		}
+	constructor (
+		readonly player1: playerInfo,
+		readonly player2: playerInfo,
+		readonly server: Server
+	) {
+		if (player1 && player1.roomID === player2.roomID)
+			this.roomID = player1.roomID;
+			this.gameData = this.initGameData(this.gameModel)
+	}
 
-		gameData = this.initGameData(gameModel);
 
-		server.on('login', (login: string, socket: Socket) => {
-			console.log("LAAAAAAAAAAAAAAAAAAAAAAAAAAAAA !");
-			socket.to(players[0]!.roomID).emit('initSetup', {...gameData,
-				player2: {
-					...gameData.player2,
-					login: login
-				}
-			})
-			if (!client1IsInit || !client2IsInit)
-			{
+	async	runGame() {
 
-				//const player1 = this.players.find(p => p.playerRole === 'p1' && p.roomID === roomId);
-				if (players.find(p => p?.playerID === socket.id)?.playerRole === 'p1'){
-					gameData.player1.login = login;
-					client1IsInit = true;
-				}
-				else if (players.find(p => p?.playerID === socket.id)?.playerRole === 'p2') {
-					gameData.player2.login = login;
-					client2IsInit = true;
-				}
-			}
+		this.gameData = this.initGameData(this.gameModel);
+
+		this.player1.playerSocket.on('login', (login: string, socket: Socket) => {
+			this.gameData.player1.login = login;
+			this.server.to(this.player1.playerID).emit('initSetup', this.gameData)
+		})
+		this.player2.playerSocket.on('login', (login: string, socket: Socket) =>{
+			this.gameData.player2.login = login;
+			this.server.to(this.player2.playerID).emit('initSetup', this.rotateGameData(this.gameData))
 		})
 
-		server.on('paddlePos', (y: number, socket: Socket) => {
-			if (players.find(p => p?.playerID === socket.id)?.playerRole === 'p1')
-			gameData.player1.y = y;
-			else if (players.find(p => p?.playerID === socket.id)?.playerRole === 'p2')
-			gameData.player2.y = y;
+		this.player1.playerSocket.on('paddlePos', (y: number, socket: Socket) => {
+			this.gameData.player1.y = y;
+		})
+
+		this.player2.playerSocket.on('paddlePos', (y: number, socket: Socket) => {
+			this.gameData.player2.y = y;
 		})
 
 		const timer = setTimeout(() => {
 			setInterval(() => {
 				// if we hit height border, we bounce by reversing ball y velocity
-				if (gameData.ball.y > gameModel.canvasHeight || gameData.ball.y < 0) {
-					gameData.ball.speed.y *= -1;
+				if (this.gameData.ball.y > this.gameModel.canvasHeight || this.gameData.ball.y < 0) {
+					this.gameData.ball.speed.y *= -1;
 				}
 				// player 1 kill zone
-				if (gameData.ball.x < 15) {
-					let bornInfP1 = (gameData.player1.y - gameModel.playerHeight)
-					let bornSupP1 = (gameData.player1.y + gameModel.playerHeight)
+				if (this.gameData.ball.x < 15) {
+					let bornInfP1 = (this.gameData.player1.y - this.gameModel.playerHeight)
+					let bornSupP1 = (this.gameData.player1.y + this.gameModel.playerHeight)
 
-					if (gameData.ball.y > bornInfP1 && gameData.ball.y < bornSupP1) {
-						gameData.ball.speed.x *= -1,2;
+					if (this.gameData.ball.y > bornInfP1 && this.gameData.ball.y < bornSupP1) {
+						this.gameData.ball.speed.x *= -1,2;
 					} else {
 						// player1 loose, we reset the ball at the center of the field
-						gameData.player2.score += 1;
-						gameData.ball.x = gameModel.canvasWidth / 2;
-						gameData.ball.y = gameModel.canvasHeight / 2;
-						gameData.ball.speed.x = 0;
-						gameData.ball.speed.y = 0;
+						this.gameData.player2.score += 1;
+						this.gameData.ball.x = this.gameModel.canvasWidth / 2;
+						this.gameData.ball.y = this.gameModel.canvasHeight / 2;
+						this.gameData.ball.speed.x = 0;
+						this.gameData.ball.speed.y = 0;
 					}
 
 				}
 				// player 2 kill zone
-				if (gameData.ball.x > (gameModel.canvasWidth - 15)) {
-					let bornInfP2 = (gameData.player2.y - gameModel.playerHeight)
-					let bornSupP2 = (gameData.player2.y + gameModel.playerHeight)
+				if (this.gameData.ball.x > (this.gameModel.canvasWidth - 15)) {
+					let bornInfP2 = (this.gameData.player2.y - this.gameModel.playerHeight)
+					let bornSupP2 = (this.gameData.player2.y + this.gameModel.playerHeight)
 
-					if (gameData.ball.y > bornInfP2 && gameData.ball.y < bornSupP2) {
-						gameData.ball.speed.x *= -1,2;
+					if (this.gameData.ball.y > bornInfP2 && this.gameData.ball.y < bornSupP2) {
+						this.gameData.ball.speed.x *= -1,2;
 					} else {
 						// player2 loose, we reset the ball at the center of the field
-						gameData.player1.score += 1;
-						gameData.ball.x = gameModel.canvasWidth / 2;
-						gameData.ball.y = gameModel.canvasHeight / 2;
-						gameData.ball.speed.x = 0;
-						gameData.ball.speed.y = 0;
+						this.gameData.player1.score += 1;
+						this.gameData.ball.x = this.gameModel.canvasWidth / 2;
+						this.gameData.ball.y = this.gameModel.canvasHeight / 2;
+						this.gameData.ball.speed.x = 0;
+						this.gameData.ball.speed.y = 0;
 					}
 				}
-				for (let i = 0; i < nbPlayers; i++){
-					server.to(players[i]!.playerID).emit('updateClient', gameData);
-					gameData = this.rotateGameData(gameData);
-				}
-				gameData = this.rotateGameData(gameData)
+				this.server.to(this.player1!.playerID).emit('updateClient', this.gameData);
+				this.server.to(this.player2!.playerID).emit('updateClient', this.rotateGameData(this.gameData));
 			}, 16);
 		}, 5000);
 	}
@@ -136,7 +125,7 @@ export class GameAlgo {
 	}
 
 	rotateGameData(gameData: GameDataType): GameDataType {
-		let temp: GameDataType = {...gameData,
+		let temp = {...gameData,
 		player1: {
 			...gameData.player2
 		},

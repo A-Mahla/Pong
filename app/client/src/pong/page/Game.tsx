@@ -18,7 +18,7 @@ import { draw } from '../component/gameCanva'
 
 
 /* --- connecting to the socket.IO server*/
-const socket = io.connect(`http://${import.meta.env.VITE_SITE}/gameTrans`, {
+const socket = io.connect(`http://${import.meta.env.VITE_SITE}/gameTransaction`, {
 })
 
 socket.on("connect", () => {
@@ -170,6 +170,7 @@ const Game = () => {
 
 	if (thereIsMatch) {
 		// able to find a match so start the game
+		console.log("je suis une game")
 		return (
 		  <>
 		  <h1 style={{ fontSize: "3em" }}>Game</h1>

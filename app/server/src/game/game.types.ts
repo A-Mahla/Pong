@@ -1,3 +1,4 @@
+import { Socket } from "socket.io"
 
 export type GameDataType = {
 	roomInfo?: {
@@ -55,5 +56,6 @@ export interface RoomInfo {
 export interface playerInfo {
 	roomID: string,
 	playerID: string,
-	playerRole: "p1" | "p2"
+	playerRole: "p1" | "p2",
+	playerSocket: Socket
 }
