@@ -91,12 +91,14 @@ type QRProps = {
 	open: boolean,
 	setOpen: React.Dispatch<React.SetStateAction<boolean>>,
 	setCheck: React.Dispatch<React.SetStateAction<boolean>>,
+	setIsActivate: React.Dispatch<React.SetStateAction<string>>,
 }
 
 export const QRCodeComponent = (props: QRProps) => {
 
 	//	const {user, token, twoFA} = useAuth();
 	const {twoFA, token, error, setError} = useAuth();
+	const fetchAuth = useFetchAuth()
 
 
 	const [fetched, setFetched] = useState(false);
@@ -113,10 +115,19 @@ export const QRCodeComponent = (props: QRProps) => {
 			} else {
 
 				try {
-					const res = await twoFA(`http://${import.meta.env.VITE_SITE}/api/2fa/authenticate?twoFA=${e.target.value}`)
-					if (!res) {
+					const response = await FetchApi({
+						api: {
+							input: `http://${import.meta.env.VITE_SITE}/api/2fa/authenticateFirst?twoFA=${e.target.value}`,
+							option: {
+								method: 'POST'
+							},
+						},
+						auth: fetchAuth
+					})
+					if (response.response.status === 200) {
 						props.setCheck(true)
 						props.setOpen(false)
+						props.setIsActivate('Enable')
 					} else {
 						setError('Error Authentification Code')
 					}
@@ -132,6 +143,7 @@ export const QRCodeComponent = (props: QRProps) => {
 
 	const handleClose = () => {
 		props.setOpen(false);
+		setError(undefined);
 	}
 
 
@@ -203,6 +215,7 @@ export const QRCodeComponent = (props: QRProps) => {
 		}
 		return undefined
 	}, [props.open])
+
 
 	return (
 		<>
@@ -290,21 +303,22 @@ export const QRCodeComponent = (props: QRProps) => {
 												mx: 1,
 												mt: 1
 											}}
+											helperText={
+												error === '' ? null :
+												<Typography variant='caption' align="center" color="tomato"
+													sx={{
+														//				fontFamily: '"system-ui", sans-serif',
+														fontSize: [9, '!important']
+													}}
+												>
+													{error}
+												</Typography>
+											}
 										></TextField>
 									</FormControl>
 								</Box>
 							</Grid>
 
-			{ error === '' ? null :
-				<Typography variant='caption' align="center" color="tomato"
-					sx={{
-						//				fontFamily: '"system-ui", sans-serif',
-						fontSize: [9, '!important']
-					}}
-				>
-					{error}
-				</Typography>
-			}
 							
 						</DialogContent>
 					</Dialog>
@@ -345,8 +359,8 @@ const TFAComponent = (props: TFAProps) => {
 				},
 					auth: auth
 			})
+			setIsActivate('Disable')
 		}
-		setIsActivate(!e.target.checked === true ? 'Disable' : 'Enable')
 	}
 
 	useEffect(() => {
@@ -421,7 +435,7 @@ const TFAComponent = (props: TFAProps) => {
 					/>
 				</AccordionDetails>
 			</Accordion>
-			<QRCodeComponent open={open} setOpen={setOpen} setCheck={setCheck}/>
+			<QRCodeComponent open={open} setOpen={setOpen} setCheck={setCheck} setIsActivate={setIsActivate}/>
 	</>
 
 }

@@ -40,7 +40,6 @@ export class TwofaController {
 		@Res() response: Response, 
 		@Request() req: any,
 	) {
-		console.log('test')
 		const { otpauthUrl } = await this.twoFAService.generateTwoFASecret(req.user.login);
 
 		return this.twoFAService.QrCode(response, otpauthUrl)
@@ -123,19 +122,33 @@ export class TwofaController {
 			throw new UnauthorizedException('Wrong authentication code');
 		}
 
-		response.cookie(
-			`${jwtConstants.twofa_jwt_name}`,
-			null,
-			{
-				maxAge: 5000,
-				httpOnly: true,
-				sameSite: 'strict',
-
-			}
-		)
-
 		return await this.authService.login(user, response);
 
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Post('authenticate-first')
+	@HttpCode(200)
+	async authenticateFirst(
+		@Req() req: any,
+		@Query() { twoFA }: any,
+		@Res({ passthrough: true }) response: Response
+	) {
+
+		const user = await this.usersService.findOneUser(req.user.login);
+
+		if (!user)
+			throw new BadRequestException();
+
+		const isCodeValid = await this.twoFAService.isTwoFACodeValid(
+			twoFA,
+			user,
+		);
+
+
+		if (!isCodeValid) {
+			throw new UnauthorizedException('Wrong authentication code');
+		}
 	}
 
 	@UseGuards(TwoFAJwtAuthGuard)
