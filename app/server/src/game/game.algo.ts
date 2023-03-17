@@ -92,6 +92,8 @@ export class GameAlgo {
 						this.gameData.ball.speed.y = 0;
 					}
 				}
+				this.gameData.ball.x += this.gameData.ball.speed.x;
+				this.gameData.ball.y += this.gameData.ball.speed.y;
 				this.server.to(this.player1!.playerID).emit('updateClient', this.gameData);
 				this.server.to(this.player2!.playerID).emit('updateClient', this.rotateGameData(this.gameData));
 			}, 16);
