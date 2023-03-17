@@ -75,6 +75,8 @@ const Swipeable = (props: propsSwip) => {
 
 	const Swip = (props: propsSwip) => {
 
+		const {token} = useAuth()
+
 		return (
 			<Box
 				sx={{
@@ -99,7 +101,7 @@ const Swipeable = (props: propsSwip) => {
 						<Divider variant="middle" />
 					</ListSubheader>}
 				>
-					{props.login === false ?
+					{ !token ?
 						<ListItemButton component={Link} to="/login">
 						<ListItemIcon sx={listIconButton}>
 							<LoginIcon />

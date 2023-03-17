@@ -106,6 +106,12 @@ export class UsersController {
 
 	@UseGuards(JwtAuthGuard)
 	@Get('profile/auth')
+	async getProfileAuth(@Request() req: any) {
+		return this.userService.getProfileAuth(parseInt(req.user.sub))
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Get('profile/info')
 	async getProfileInfo(@Request() req: any) {
 		return this.userService.getProfileInfo(parseInt(req.user.sub))
 	}
@@ -115,6 +121,7 @@ export class UsersController {
 //	=========================================OAuth2=======================
 
 
+	@UseGuards(JwtAuthGuard)
 	@Put(':login')
 	async updateUserById(
 		@Param('login') login: string,
@@ -123,6 +130,7 @@ export class UsersController {
 		await this.userService.updateUser(login, updateUserDto);
 	}
 
+	@UseGuards(JwtAuthGuard)
 	@Patch(':login')
 	async updatePatchUserById(
 		@Param('login') login: string,
@@ -131,20 +139,20 @@ export class UsersController {
 		await this.userService.updateUser(login, updateUserDto);
 	}
 
+/*	@UseGuards(JwtAuthGuard)
 	@Delete(':login')
 	async deleteByID(
 		@Param('login') login: string
 	) {
 		await this.userService.deleteUser(login);
-	}
+	}*/
 
 	//================== ROOMS =================
 
 	@Get('rooms/:login')
 	async getRooms(
 		@Param('login') login: string
-	)
-	{
+	) {
 		return this.userService.findAllUserRooms(login)
 	}
 }

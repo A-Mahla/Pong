@@ -35,7 +35,7 @@ const Profile = () => {
 
 	const fetchType: Api = {
 		api: {
-			input: `http://${import.meta.env.VITE_SITE}/api/users/profile/auth`,
+			input: `http://${import.meta.env.VITE_SITE}/api/users/profile/info`,
 			option: {
 				method: "GET",
 			},
@@ -53,7 +53,7 @@ const Profile = () => {
 
 	return <>
 		<ThemeProvider theme={theme}>
-			<Grid item sm={5} xs={12} alignItems="stretch"
+			<Grid item sm={5} xs={12}
 				sx={{
 					position: 'relative',
 					top: '3rem',
@@ -62,6 +62,7 @@ const Profile = () => {
 					border: 1,
 					display: 'flex',
 					'@media (max-width: 950px)': {
+						p: 0,
 						display: 'grid',
 						height: '14rem',
 						alignItems: 'center',
@@ -82,7 +83,8 @@ const Profile = () => {
 					border: 1,
 					display: 'flex',
 					'@media (max-width: 950px)': {
-						display: 'grid',
+						py: '0.5vw;',
+						display: 'block',
 						height: '14rem',
 						alignItems: 'center',
 						justifyContent: 'center',

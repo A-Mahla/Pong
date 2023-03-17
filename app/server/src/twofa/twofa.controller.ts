@@ -25,7 +25,7 @@ import { TwoFAJwtAuthGuard } from 'src/auth/2fa-jwt-auth.guard';
 import { jwtConstants} from "src/auth/constants";
 
 @Controller('2fa')
-@UseInterceptors(ClassSerializerInterceptor)
+//@UseInterceptors(ClassSerializerInterceptor)
 export class TwofaController {
 	constructor(
 		private readonly twoFAService: TwoFAService,
@@ -33,7 +33,7 @@ export class TwofaController {
 		private readonly authService: AuthService,
 	) {}
 
-	@UseGuards(TwoFAJwtAuthGuard)
+	@UseGuards(JwtAuthGuard)
 	@Post('generate')
 	async register(
 		@Res() response: Response, 
@@ -44,24 +44,54 @@ export class TwofaController {
 		return this.twoFAService.QrCode(response, otpauthUrl)
 	}
 
+
 	@UseGuards(JwtAuthGuard)
-	@Post('turn-on')
+	@Get('activate')
+	@HttpCode(200)
+	async isActivate(
+		@Req() request: any,
+		@Body() body : any
+	) {
+		const user = await this.usersService.findOneUser(request.user.login);
+
+		if (!user)
+			return null;
+
+		return {
+			isTfaActivate: user.isTwoFA
+		}
+	}
+
+
+
+/*	@UseGuards(JwtAuthGuard)
+	@Get('turn-on')
 	@HttpCode(200)
 	async turnOnTFAuthentication(
 		@Req() request: any,
 		@Body() body : any
 	) {
 
-/*		const isCodeValid = await this.twoFAService.isTwoFACodeValid(
+		const isCodeValid = await this.twoFAService.isTwoFACodeValid(
 			body.twoFA,
 			request.user.login
 		);
 
 		if (!isCodeValid) {
 			throw new UnauthorizedException('Wrong authentication code');
-		} */
+		}
 
-		await this.usersService.turnOnTwoFA(request.user.id);
+		return await this.usersService.turnOnTwoFA(request.user.login);
+	}*/
+
+	@UseGuards(JwtAuthGuard)
+	@Get('turn-off')
+	@HttpCode(200)
+	async turnOffTFAuthentication(
+		@Req() request: any,
+		@Body() body : any
+	) {
+		return await this.usersService.turnOffTwoFA(request.user.login);
 	}
 
 
@@ -84,7 +114,6 @@ export class TwofaController {
 			user,
 		);
 
-
 		if (!isCodeValid) {
 			throw new UnauthorizedException('Wrong authentication code');
 		}
@@ -104,12 +133,40 @@ export class TwofaController {
 
 	}
 
+	@UseGuards(JwtAuthGuard)
+	@Post('authenticate-first')
+	@HttpCode(200)
+	async authenticateFirst(
+		@Req() req: any,
+		@Query() { twoFA }: any,
+		@Res({ passthrough: true }) response: Response
+	) {
+
+		const user = await this.usersService.findOneUser(req.user.login);
+
+		if (!user)
+			throw new BadRequestException();
+
+		const isCodeValid = await this.twoFAService.isTwoFACodeValid(
+			twoFA,
+			user,
+		);
+
+
+		if (!isCodeValid) {
+			throw new UnauthorizedException('Wrong authentication code');
+		}
+
+		return await this.usersService.turnOnTwoFA(user.login);
+	}
+
 	@UseGuards(TwoFAJwtAuthGuard)
 	@Get('authorisation')
 	async checkToken(@Req() req: any,) {
-		const login = req.user.login;
+		const {sub, login} = req.user.login;
 		return {
-			login: login
+			login: login,
+			id: sub
 		}
 	}
 

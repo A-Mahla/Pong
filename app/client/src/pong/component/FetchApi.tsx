@@ -11,6 +11,7 @@ export type Api = {
 	auth: {
 		token: string,
 		setUser: React.Dispatch<React.SetStateAction<string>>,
+		setId: React.Dispatch<React.SetStateAction<number>>,
 		setToken: React.Dispatch<React.SetStateAction<string>>,
 		setIntraLogin: React.Dispatch<React.SetStateAction<string>>,
 	},
@@ -99,7 +100,6 @@ export const FetchApi = async (fetchType: Api) => {
 			option: newOption
 		};
 
-		console.log(newApi)
 
 		const response: responseApi = await originalRequest(newApi)
 
@@ -110,6 +110,7 @@ export const FetchApi = async (fetchType: Api) => {
 			if (refresh.response.status !== 200 && refresh.response.status !== 304) {
 				fetchType.auth.setToken('');
 				fetchType.auth.setUser('');
+				fetchType.auth.setId(0);
 				fetchType.auth.setIntraLogin('');
 				useNavigate()('/login');
 			}
