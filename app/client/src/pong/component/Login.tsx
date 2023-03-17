@@ -17,6 +17,7 @@ import React, {
 	useState,
 	useMemo
 } from 'react'
+import { useNavigate } from "react-router-dom";
 //import { LogoutButton } from '/src/pong/component/LogoutButton';
 import { Oauth2 } from '/src/pong/component/Oauth2';
 //import Cookies from 'js-cookie'
@@ -74,6 +75,7 @@ export const TFAComponent = (props: TFAProps) => {
 			setError(undefined);
 			props.setOpen(false);
 			setCount(count => 3)
+			useNavigate()('/login')
 		}
 	}, [count])
 
