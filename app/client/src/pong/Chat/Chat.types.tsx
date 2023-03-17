@@ -45,17 +45,18 @@ export type User = {
 	login: string,
 }
 
-export type Room = {
-	id : number,
-	name: string,
-}
-
 export type Message = {
 	id: number,
 	date: string,
 	sender_id: number,
 	room_id: number,
 	content: string
+}
+
+export type Room = {
+	id : number,
+	name: string,
+	messages: Messages[]
 }
 
 export type DirectMessage = {

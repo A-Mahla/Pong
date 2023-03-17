@@ -7,6 +7,7 @@ import io from "socket.io-client"
 import { SearchRoom } from "./Search";
 import { CreateRoom } from "./Create";
 import { DirectMessages } from "./DirectMessages";
+import { RoomMessages } from "./RoomMessages";
 import './Chat.css'
 
 
@@ -31,7 +32,14 @@ const initialChatContext = {
 	socket: null
 }
 
+const initialRoomContext = {
+	rooms: [],
+	setRooms: null
+}
+
 export const ChatContext = createContext(initialChatContext)
+
+export const RoomContext = createContext(initialRoomContext)
 
 export function Chat() {
 
@@ -40,8 +48,6 @@ export function Chat() {
 	const [current, setCurrent] = useState({name: '', id: 0})
 
 	const [rooms, setRooms] = useState<Room[]>([])
-
-	const [messages, setMessages] = useState<Message[]>([])
 
 	const [joining, isJoining] = useState(false)
 
@@ -55,7 +61,7 @@ export function Chat() {
 
 	const auth = useFetchAuth()
 
-	const context = {
+	const chatContext = {
 		isJoining: isJoining,
 		joining: joining,
 		isCreating: isCreating,
@@ -63,6 +69,12 @@ export function Chat() {
 		setDirect: setDirect,
 		direct: direct,
 		socket: socket
+	}
+
+	const roomContext = {
+		rooms: rooms,
+		setRooms: setRooms,
+		current: current
 	}
 
 	const findRooms: Api = {
@@ -78,36 +90,20 @@ export function Chat() {
 		const getRooms = async () => {
 			const { data } = await FetchApi(findRooms)
 
+			console.log('rooms fetched response with messages: ', data)
+
 			const rooms = data.map((value) => ({
 				id: value.room_id,
-				name: value.name
+				name: value.name,
+				messages: value.messages
 			}))
 
-			const messages = []
-
-			for (const room of rooms) {
-				const { data } = await FetchApi({
-					api: {
-						input: `http://${import.meta.env.VITE_SITE}/api/messages/room/${room.id}`
-					},
-					auth: auth
-				})
-
-				messages.push(data)
-			}
-			console.log('messages in useEffect: ', messages)
-
-			return {
-				rooms: rooms,
-				messages: messages.length !== 0 ? messages[0] : messages
-			}
+			return rooms
 
 		}
 		getRooms().then(data => {
-			setRooms(data.rooms)
-			setMessages(data.messages)
-			console.log('messages: ', data.messages)
-			console.log('rooms: ', data.rooms)
+			setRooms(data)
+			console.log('rooms: ', data)
 		})
 
 	}, [])
@@ -145,24 +141,17 @@ export function Chat() {
 
 		socket.on('message', (newMessage) => {
 			console.log('setMessages', newMessage)
-			console.log('messages before setMessages', messages)
-			messages !== undefined ? setMessages([...messages, newMessage]) : setMessages([newMessage])
-			//setMessages([...messages, newMessage])
 		})
 
 		socket.on('roomLeaved', (roomId) => {
 				console.log(roomId)
-			setMessages(messages.filter((value) => {
-				console.log('value in filter: ', value)
-				return value.room_id !== roomId
-			}))
+		})
 
 		socket.on('roomJoined', (payload) => {
 			console.log('payload in message useEffect: ', payload)
-			})
 		})
-		
-	}, [socket ,/* messages */])
+
+	}, [socket])
 
 	const handleSubmit = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
@@ -182,12 +171,14 @@ export function Chat() {
 
 		const payload = JSON.parse(e.target.value)
 
+		console.log('current: ', payload)
+
 		if (payload.id === current.id)
 			return
 
 		setCurrent(payload)
 
-	}, [messages])
+	}, [])
 
 	const handleCreateRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
@@ -237,7 +228,7 @@ export function Chat() {
 	})
 
 	return (
-		<ChatContext.Provider value={context}>
+		<ChatContext.Provider value={chatContext}>
 			<FormControl>
 				<div>{user}</div>
 				<div>{message.length}</div>
@@ -247,7 +238,7 @@ export function Chat() {
 					<Button onClick={handleDirectMessages}>direct messages</Button>
 				</Paper>
 				<Paper sx={{m:1}}>
-					{rooms.map((value) => (<Button value={JSON.stringify(value)} key={value.id} onClick={handleChangeRoom}>{value.name}</Button>))}
+					{rooms.map((value) => (<Button value={JSON.stringify({id: value.id, name: value.name})} key={value.id} onClick={handleChangeRoom}>{value.name}</Button>))}
 					{
 						current.name !== '' ?
 							<Paper>
@@ -255,16 +246,12 @@ export function Chat() {
 							<Button onClick={handleSubmit}>send message</Button>
 							<Button onClick={handleLeaveRoom}>leave room</Button>
 							{current.id}
-							{messages ?
-								messages.map((message) => 
-									(current.id === message.room_id ) ?
-										<Box key={message.id} className='messageSent'>{message.content} {message.createdAt}</Box>
-									: null)
-								: null}
+							<RoomContext.Provider value={roomContext}>
+								<RoomMessages/>
+							</RoomContext.Provider>
 							</Paper>
 						: null
 					}
-					{messages.map((value) => (<div key={JSON.stringify(value)}>{JSON.stringify(value)}</div>))}
 				</Paper>
 				{creating ? <CreateRoom /> : null}
 				{joining ? <SearchRoom /> : null}

@@ -185,6 +185,9 @@ export class UsersService {
 		const rooms = await this.prisma.room.findMany({
 			where: {
 				room_id : { in : userRoomsId}
+			},
+			include: {
+				messages: true
 			}
 		}).catch((e) => {
 			throw new BadRequestException(e);
