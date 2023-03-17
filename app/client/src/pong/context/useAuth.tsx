@@ -135,20 +135,18 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			if (response.status == 200) {
 				if (data['signedIn']) {
 					if (data['token'] === '2faActivate') {
-						await setError('2FA')
 						setUser(data['login'])
 						setId(data['id'])
+						return '2FA'
 					} else {
 						setUser(data['login'])
 						setId(data['id'])
 						setToken(data['token'])
 						navigate('/pong')
-						await setError('logged')
 					}
-				} else {
-					await setError('Signup')
 				}
 				setIntraLogin(data['intraLogin'])
+				return 'else'
 			} else {
 				navigate('/login')
 			}

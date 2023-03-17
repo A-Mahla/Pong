@@ -37,13 +37,15 @@ type TFAProps = {
 
 export const TFAComponent = (props: TFAProps) => {
 
+	const navigate = useNavigate()
 
 	const {error, setError, setUser, setId, twoFA} = useAuth();
 	const [count, setCount] = useState(3)
 
 	const handleClose = () => {
 		props.setOpen(false)
-		setError('')
+		setError(undefined)
+		navigate('/login')
 	}
 
 	const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,7 +77,7 @@ export const TFAComponent = (props: TFAProps) => {
 			setError(undefined);
 			props.setOpen(false);
 			setCount(count => 3)
-			useNavigate()('/login')
+			navigate('/login')
 		}
 	}, [count])
 

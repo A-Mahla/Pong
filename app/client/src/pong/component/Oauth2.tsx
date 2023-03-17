@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Typography } from '@mui/material'
+import { Divider, Box, Button, Grid, Typography } from '@mui/material'
 import { useLocation } from 'react-router-dom'
 import React, { useCallback, useRef, useState, useEffect } from 'react'
 import { TextField, FormControl, CircularProgress } from "@mui/material"
@@ -60,6 +60,8 @@ export const Redirect = () => {
 
 	const {authLogIntra, error, setError} = useAuth()
 
+	const [status, setStatus] = useState('')
+
 	const [fetched, setFetched] = useState(false)
 
 	const [intraLogin, setIntraLogin] = useState('')
@@ -70,19 +72,12 @@ export const Redirect = () => {
 
 	useEffect(() => {
 		async function fetching() {
-			await authLogIntra(`http://${import.meta.env.VITE_SITE}/api/auth/intra42/login${url.search}`)
+			await setStatus(await authLogIntra(`http://${import.meta.env.VITE_SITE}/api/auth/intra42/login${url.search}`))
 			setFetched(true)
 		}
 		fetching()
 		return undefined
 	}, [])
-
-	useEffect(() => {
-		if (error === '2FA') {
-			setIsSignup(true)
-		}
-		setError(error => undefined)
-	}, [error])
 
 
 	return (
@@ -90,12 +85,18 @@ export const Redirect = () => {
 		<Box sx={{ my: 'auto' }}>
 			<Typography variant='h4'>Pong</Typography>
 		</Box>
-		<Grid container justifyContent="center">
-			{fetched && !error
+		<Divider variant='middle'/>
+		<Grid container justifyContent="center" sx={{pt: 10}}>
+			{fetched && (status === '2FA' || status === 'else')
 				? ( <>	
-					{ isSignup ? <TFAComponent open={open} setOpen={setOpen} /> : <IntraSignup /> }
+					{ status === '2FA' ? <TFAComponent open={open} setOpen={setOpen} /> : <IntraSignup /> }
 					</> )
-				: <CircularProgress/>  }
+				: (
+					<Box>
+						<CircularProgress/> 
+					</Box>
+				)
+			}
 		</Grid>
 		</>
 	)
