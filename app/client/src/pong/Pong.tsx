@@ -8,7 +8,6 @@ import { AuthProvider } from '/src/pong/context/useAuth';
 import PrivateRoute from '/src/pong/component/PrivateRoute';
 import LoggedRoute from '/src/pong/component/LoggedRoute';
 import { Chat } from '/src/pong/Chat/Chat';
-import { QRCodeComponent } from '/src/pong/component/QRCode';
 import Game from '/src/pong/page/Game';
 
 /**
@@ -45,7 +44,6 @@ export const Pong = () => {
 					<Routes>
 						<Route path='/' element={<MainPage/>} />
 						<Route path='/chat' element={<Chat/>} />
-						<Route path='/2fa' element={<QRCodeComponent/>} />
 						<Route element= { <LoggedRoute /> }>
 							<Route path='/login' element={<Login/>}/>
 						</Route>

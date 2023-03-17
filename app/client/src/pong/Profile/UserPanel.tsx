@@ -28,6 +28,11 @@ const ChangeInfo = (props: InfoProps) => {
 	const password = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 	const passwordConfirm = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		e.preventDefault()
+		setError('')
+	}
+
 	const handlePassword = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
 		if (password.current.value === '' || passwordConfirm.current.value === '') {
@@ -54,6 +59,7 @@ const ChangeInfo = (props: InfoProps) => {
 					variant="outlined"
 					label="New Password"
 					size="small"
+					onChange={handleChange}
 					inputProps={{
 						style: {
 							fontFamily: '"system-ui", sans-serif'
@@ -68,6 +74,7 @@ const ChangeInfo = (props: InfoProps) => {
 					variant="outlined"
 					label="Confirm Password"
 					size="small"
+					onChange={handleChange}
 					inputProps={{
 						style: {
 							fontFamily: '"system-ui", sans-serif'

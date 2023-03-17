@@ -123,7 +123,6 @@ export class UsersService {
 	async turnOnTwoFA(login: string) {
 		return await this.updateUser(login, {
 			isTwoFA: true,
-			twoFA: ''
 		});
 	}
 

@@ -26,7 +26,7 @@ import axios from 'axios';
 
 
 function isNumber(str) {
-  return /^\d+$/.test(str);
+	return /^\d+$/.test(str);
 }
 
 const AuthInstruction = () => {
@@ -117,7 +117,7 @@ export const QRCodeComponent = (props: QRProps) => {
 				try {
 					const response = await FetchApi({
 						api: {
-							input: `http://${import.meta.env.VITE_SITE}/api/2fa/authenticateFirst?twoFA=${e.target.value}`,
+							input: `http://${import.meta.env.VITE_SITE}/api/2fa/authenticate-first?twoFA=${e.target.value}`,
 							option: {
 								method: 'POST'
 							},

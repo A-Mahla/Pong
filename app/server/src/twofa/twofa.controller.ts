@@ -33,7 +33,6 @@ export class TwofaController {
 		private readonly authService: AuthService,
 	) {}
 
-//	@UseGuards(TwoFAJwtAuthGuard)
 	@UseGuards(JwtAuthGuard)
 	@Post('generate')
 	async register(
@@ -65,7 +64,7 @@ export class TwofaController {
 
 
 
-	@UseGuards(JwtAuthGuard)
+/*	@UseGuards(JwtAuthGuard)
 	@Get('turn-on')
 	@HttpCode(200)
 	async turnOnTFAuthentication(
@@ -73,17 +72,17 @@ export class TwofaController {
 		@Body() body : any
 	) {
 
-/*		const isCodeValid = await this.twoFAService.isTwoFACodeValid(
+		const isCodeValid = await this.twoFAService.isTwoFACodeValid(
 			body.twoFA,
 			request.user.login
 		);
 
 		if (!isCodeValid) {
 			throw new UnauthorizedException('Wrong authentication code');
-		} */
+		}
 
 		return await this.usersService.turnOnTwoFA(request.user.login);
-	}
+	}*/
 
 	@UseGuards(JwtAuthGuard)
 	@Get('turn-off')
@@ -96,7 +95,7 @@ export class TwofaController {
 	}
 
 
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(TwoFAJwtAuthGuard)
 	@Post('authenticate')
 	@HttpCode(200)
 	async authenticate(
@@ -104,8 +103,6 @@ export class TwofaController {
 		@Query() { twoFA }: any,
 		@Res({ passthrough: true }) response: Response
 	) {
-
-		console.log(req.user)
 
 		const user = await this.usersService.findOneUser(req.user.login);
 
@@ -117,10 +114,20 @@ export class TwofaController {
 			user,
 		);
 
-
 		if (!isCodeValid) {
 			throw new UnauthorizedException('Wrong authentication code');
 		}
+
+		response.cookie(
+			`${jwtConstants.twofa_jwt_name}`,
+			null,
+			{
+				maxAge: 5000,
+				httpOnly: true,
+				sameSite: 'strict',
+
+			}
+		)
 
 		return await this.authService.login(user, response);
 
@@ -149,6 +156,8 @@ export class TwofaController {
 		if (!isCodeValid) {
 			throw new UnauthorizedException('Wrong authentication code');
 		}
+
+		return await this.usersService.turnOnTwoFA(user.login);
 	}
 
 	@UseGuards(TwoFAJwtAuthGuard)

@@ -69,18 +69,6 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 					return ;
 				}
 
-				if ( location.pathname === '/2fa' ) {
-					
-					const res: responseApi = await originalRequest({
-						input: `http://${import.meta.env.VITE_SITE}/api/2fa/authorisation`
-					})
-					if ( res.response.status === 200 ) {
-						setUser(res.data['login'])
-						setId(res.data['id'])
-						return ;
-					}
-				}
-
 				const url = `http://${import.meta.env.VITE_SITE}/api/users/profile/auth`;
 				const requestOption = {
 					method: "GET",
@@ -128,10 +116,6 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 					setId(response1.data['id'])
 				}
 
-
-				if (location.pathname === '/2fa')
-					navigate('/pong')
-
 			} catch (err) {
 				console.log(err);
 			} finally {
@@ -151,15 +135,18 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			if (response.status == 200) {
 				if (data['signedIn']) {
 					if (data['token'] === '2faActivate') {
+						await setError('2FA')
 						setUser(data['login'])
 						setId(data['id'])
-						navigate('/2fa')
 					} else {
 						setUser(data['login'])
 						setId(data['id'])
 						setToken(data['token'])
 						navigate('/pong')
+						await setError('logged')
 					}
+				} else {
+					await setError('Signup')
 				}
 				setIntraLogin(data['intraLogin'])
 			} else {
@@ -267,17 +254,17 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				if (data['aT'] === '2faActivate') {
 					setUser(login);
 					setId(data['id']);
-					navigate('/2fa')
+					await setError('2FA');
 				} else {
 					setUser(login);
 					setId(data['id']);
 					setToken(data['aT']);
-					navigate('/pong')
+					navigate('/pong');
 				}
-				return ''
+			} else {
+				await setError('invalid login or password');
 			}
-			else
-				return 'invalid login or password'
+
 		} catch (err) {
 			console.log(err);
 		} finally {
@@ -315,26 +302,13 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 	async function twoFA(url: URL) {
 
 		try {
-			const response = await FetchApi({
-				api: {
-					input: url,
-					option: {
-						method: 'POST'
-					},
-				},
-				auth: {
-					token: token,
-					setUser: setUser,
-					setId: setId,
-					setToken: setToken,
-					setIntraLogin: setIntraLogin,
-				}
-			})
-			if (response.response.status == 200) {
-				setToken(response.data['aT']);
-				return 0
+			const response = await fetch( url, { method: 'POST'} )
+			const data = await response.json()
+			if (response.status == 200) {
+				setToken(data['aT']);
+				navigate('/pong')
 			} else {
-				return 1
+				await setError('Error Authentification Code')
 			}
 		} catch (err) {
 			console.log(err)

@@ -1,9 +1,10 @@
-import { Button, Grid, Typography } from '@mui/material'
+import { Box, Button, Grid, Typography } from '@mui/material'
 import { useLocation } from 'react-router-dom'
 import React, { useCallback, useRef, useState, useEffect } from 'react'
 import { TextField, FormControl, CircularProgress } from "@mui/material"
 import Cookies from 'js-cookie'
 import useAuth from '/src/pong/context/useAuth'
+import { TFAComponent } from '/src/pong/component/Login'
 
 
 type Props = {
@@ -57,11 +58,15 @@ export const Redirect = () => {
 
 	const url = useLocation()
 
-	const {authLogIntra} = useAuth()
+	const {authLogIntra, error, setError} = useAuth()
 
 	const [fetched, setFetched] = useState(false)
 
 	const [intraLogin, setIntraLogin] = useState('')
+
+	const [open, setOpen] = useState(true)
+
+	const [isSignup, setIsSignup] = useState(false)
 
 	useEffect(() => {
 		async function fetching() {
@@ -72,12 +77,26 @@ export const Redirect = () => {
 		return undefined
 	}, [])
 
+	useEffect(() => {
+		if (error === '2FA') {
+			setIsSignup(true)
+		}
+		setError(error => undefined)
+	}, [error])
+
 
 	return (
+		<>
+		<Box sx={{ my: 'auto' }}>
+			<Typography variant='h4'>Pong</Typography>
+		</Box>
 		<Grid container justifyContent="center">
-			{fetched ? 
-				<IntraSignup /> :
- 				<CircularProgress/>  }
+			{fetched && !error
+				? ( <>	
+					{ isSignup ? <TFAComponent open={open} setOpen={setOpen} /> : <IntraSignup /> }
+					</> )
+				: <CircularProgress/>  }
 		</Grid>
+		</>
 	)
 }
