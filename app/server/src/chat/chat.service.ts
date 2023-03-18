@@ -19,7 +19,7 @@ export class ChatService {
 
 			client.join((newRoom as Room).room_id.toString() + payload.name)
 
-			server.to(client.id).emit('roomCreated', {name: payload.name, id: newRoom?.room_id})
+			server.to(client.id).emit('roomCreated', {name: payload.name, id: newRoom?.room_id, messages : []})
 	
 			return newRoom 
 		}
@@ -33,7 +33,8 @@ export class ChatService {
 			{
 				console.log('client rooms in handle MESSAGE', client.rooms)
 				const newMessage = await this.messageService.createMessage(payload.sender_id, payload.room.id, payload.content) 
-				server.to(payload.room.id.toString() + payload.room.name).emit('message', newMessage)
+				//server.to(payload.room.id.toString() + payload.room.name).emit('message', newMessage)
+				client.to(payload.room.id.toString() + payload.room.name).emit('message', newMessage)
 				console.log('payload in message handler', payload)
 			}
 			else

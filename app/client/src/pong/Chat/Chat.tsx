@@ -135,11 +135,19 @@ export function Chat() {
 			}))
 		})
 
-	}, [socket ,/* rooms */])
+	}, [socket, rooms])
 
 	useEffect(() => {		//---MESSAGES--//
 
 		socket.on('message', (newMessage) => {
+			if (newMessage.room_id !== undefined) 
+			{
+				console.log('rooms before newMessage: ', rooms)
+				setRooms(rooms.map((room) => {
+					if (room.room_id === newMessage.room_id)
+						room.messages = [...room.messages, newMessage]
+				}))
+			}
 			console.log('setMessages', newMessage)
 		})
 
@@ -151,7 +159,7 @@ export function Chat() {
 			console.log('payload in message useEffect: ', payload)
 		})
 
-	}, [socket])
+	}, [socket, rooms])
 
 	const handleSubmit = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
