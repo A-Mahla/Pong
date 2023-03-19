@@ -14,10 +14,11 @@ import { GameGateway } from './game/game.gateway'
 import { SocketIOAdapter } from './adapter/socket-io.adapter';
 import { HttpAdapterHost } from '@nestjs/core';
 import { TwofaModule } from './twofa/twofa.module';
+import { GameAlgo } from './game/game.algo';
 
 @Module({
   imports: [UsersModule, AuthModule, JwtModule, ChatModule, GameModule, TwofaModule],
   controllers: [AppController],
-  providers: [AppService, PrismaService, RoomsService, ChatGateway, GameService, GameGateway],
+  providers: [AppService, PrismaService, RoomsService, ChatGateway, GameService, GameGateway, GameAlgo],
 })
 export class AppModule {}

@@ -1,6 +1,5 @@
 import { BadGatewayException, BadRequestException, Injectable, UseInterceptors, UploadedFile, Param } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma, User, User_Game, Games } from '@prisma/client';
 
 @Injectable()
 export class GameService {

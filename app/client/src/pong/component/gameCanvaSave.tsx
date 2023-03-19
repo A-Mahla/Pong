@@ -24,7 +24,7 @@ const PLAYER_HEIGHT = 100;
 const PLAYER_WIDTH = 5;
 
 type GameData = {
-	roomInfo?: {
+	roomInfo: {
 		//roomId: string,
 		countDownRequired: boolean,
 		canvasHeight: number,
@@ -47,7 +47,7 @@ type GameData = {
 		x: number,
 		y: number,
 		r: number,
-		speed?: {
+		speed: {
 			x: number,
 			y: number
 		}
@@ -69,7 +69,7 @@ const drawCountDown = (canvas: any, countdown: number) => {
 	context.fillText(countdown.toString(), canvas.width / 2, canvas.height / 2);
 }
 
-const drawScore = (canvas: any, scorePlayer1: number, scorePlayer2: number) => {
+const drawScore = (canvas: any , scorePlayer1: number, scorePlayer2: number) => {
 	const context = canvas.getContext('2d');
 
 	// Set font to futuristic style
@@ -138,101 +138,154 @@ export const draw = (canvas: any, game: any) => {
 };
 
 
-const Canvas = ({ socket, height, width }: any) => {
-	// ref to the html5 canvas on wich we will draw
-	const canvas = React.useRef<HTMLCanvasElement>(null); // reference/pointer on html5 canvas element, so you can draw on it
-	console.log(canvas)
-	// getting the user login to print it on canva and transmit it to the other player
-	const { user } = useAuth();
+const Canvas = ({socket, height, width}: any) => {
 
-	const [game, setGame] = React.useState<boolean>(false);
-
-	const gameCanvas = React.useCallback((node: null | HTMLCanvasElement) => {
-		if (node !== null) {
-		  setGame(true);
-		  canvas.current = node;
-		}
-	  }, []);
-
-	const [connected, setConnected] = React.useState(false)
-
-	const updateGame = () => {
-		socket.on("updateClient", (gameData: GameData) => {
-			console.log("---------------------> ON updateClient");
-			// setGame(gameData);
-			draw(canvas.current, gameData)
-		})
+	const sendMove = (moveData: GameData) => {
+		socket.volatile.emit("move", moveData);
 	}
 
-	// const sendLogin = () => {
-	// }
+	const catchMove = () => {
 
-	const initGame = () => {
-		socket.on("initSetup", (gameData: GameData) => {
-			console.log("---------------------> ON initSetup");
-			// setGame(gameData);
-			draw(canvas.current, gameData)
-			setConnected(true)
-		})
-		updateGame()
-	}
-
-
-	const handleMouseMove = React.useMemo(() => {
-		const canvasElement = canvas.current
-		if (game && canvasElement) {
-			const sendPos = (y: number) => {
-				socket.emit("paddlePos", y);
-			}
-			return (event: any) => {
-				const canvasLocation = canvasElement.getBoundingClientRect();
-				const mouseLocation = event.clientY - canvasLocation?.y
-				let y: number;
-
-				if (mouseLocation < PLAYER_HEIGHT / 2) {
-					y = 0;
-				} else if (mouseLocation > canvasElement.height - PLAYER_HEIGHT / 2) {
-					y = canvasElement.height - PLAYER_HEIGHT;
-				} else {
-					y = mouseLocation - PLAYER_HEIGHT / 2;
+		socket.on("gameUpdate", (gameDataServer: GameData) => {
+			setGame({...game,
+				player1: {
+					...game.player1,
+					score: gameDataServer.player2.score
+				},
+				player2: {
+					...game.player2,
+					y: gameDataServer.player1.y,
+					score: gameDataServer.player1.score
+				},
+				ball: {...game.ball,
+					x: gameDataServer.ball.x + gameDataServer.ball.speed.x,
+					y: gameDataServer.ball.y + gameDataServer.ball.speed.y,
+					speed: {
+						x: gameDataServer.ball.speed.x,
+						y: gameDataServer.ball.speed.y
+					}
 				}
-				sendPos(y);
+			})
+		});
+
+	}
+
+	const setupGame = (initData: GameData) => {
+		socket.volatile.emit("setupGame", initData);
+	}
+	const catchSetup = () => {
+		socket.on("gameIsSet", (gameData: GameData) => {
+			setGame({...gameData,
+				player1: {
+					...gameData.player1,
+					login: game.player1.login
+				},
+				player2: {
+					...gameData.player2,
+					login: gameData.player1.login
+				}
+			})
+			setGameIsInit(true);
+		})
+	}
+
+	const {user} = useAuth() // automatic fetch for profile information
+
+	const canvas = React.useRef<HTMLCanvasElement>(); // reference/pointer on html5 canvas element, so you can draw on it
+
+	const [countdown, setCountDown] = React.useState(10);
+
+	const [gameIsInit, setGameIsInit] = React.useState(false);
+
+	// we only init the parameter that the server cannot have (room info) the rest is set to 0
+	const [game, setGame] = React.useState<GameData>({
+		roomInfo: {
+			countDownRequired: true,
+			canvasHeight: CANVAS_HEIGHT,
+			canvasWidth: CANVAS_WIDTH,
+			playerHeight: PLAYER_HEIGHT,
+			playerWidth: PLAYER_WIDTH
+		},
+		player1: {
+			login: user,
+			y: 0,
+			score: 0
+		},
+		player2: {
+			login: '',
+			y: 0,
+			score: 0
+		},
+		ball: {
+			x: 0,
+			y: 0,
+			r: 0,
+			speed: {
+				x: 0,
+				y: 0
 			}
 		}
-		return undefined
-	}, [game])
+	})
 
-
+	// useEffect re-render all side effect of component when watched variable (game) state is modified
 	React.useEffect(() => {
-		if (game && canvas.current) {
-				console.log('TEST', user)
-				socket.emit("login", user);
-			// sendLogin();
-			initGame();
-			// updateGame();
+	const canvasHandler = canvas.current
+
+	// to make sure we init the game only once
+	if (!gameIsInit)
+	{
+		/* here we receive the other player gameData set,
+		 * it should be the same for both because set by the server except for the login
+		 * that have been set separatly just upstair
+		 * */
+		setupGame(game);
+		catchSetup();
+	}
+
+	// handling Mouse position for moving the paddle
+	const handleMouseMove = (event: any) => {
+		const canvasLocation = canvasHandler?.getBoundingClientRect();
+		const mouseLocation = event.clientY - canvasLocation?.y
+		if (mouseLocation < PLAYER_HEIGHT / 2) {
+			game.player1.y = 0;
+		} else if (mouseLocation > canvasHandler.height - PLAYER_HEIGHT / 2) {
+			game.player1.y = canvasHandler.height - PLAYER_HEIGHT;
+		} else {
+			game.player1.y = mouseLocation - PLAYER_HEIGHT / 2;
 		}
-	}, [game]);
+	}
 
-	// React.useEffect(() => {
-	// 	const canvasHandler = canvas.current;
+	if (!countdown){
+		// changing state of game every 20ms, wich provoque useEffect re-render
+		const timer = setTimeout(() => {
+			window.addEventListener('mousemove', handleMouseMove);
+			sendMove(game);
+			catchMove()
+		}, 10)
+		// re-drawing the canva
+		draw(canvasHandler, game);
 
-	// 	const time = setTimeout(() => {
+		return () => {
+			window.removeEventListener(
+				'mousemove',
+				handleMouseMove
+				);
+				clearTimeout(timer);
+			};
+		} else {
+			const timer = setTimeout(() => {
+				setCountDown(countdown - 1)
+				draw(canvasHandler, game);
+				drawCountDown(canvasHandler, countdown);
+			}, 1000)
+			return () => { clearTimeout(timer) }
+		}
+	}, [game, countdown]);
 
-	// 	}, 20);
-
-	// 	return () => {
-	// 		clearTimeout(time)
-	// 	}
-	// });
 
 	return (
 		<main role="main">
-			<div>
-				{connected ? <div>connected</div> : <div>not connected</div>}
-
-				<canvas onMouseMove={handleMouseMove} ref={gameCanvas} height={height} width={width} />
-
-			</div>
+				<canvas ref={canvas} height={height} width={width} />
 		</main>
 	);
 };
