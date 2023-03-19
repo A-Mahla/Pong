@@ -29,7 +29,7 @@ import { diskStorage } from  'multer';
 import { join } from  'path';
 import { createReadStream } from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express'
-import { CreateUserDto, UpdateUserDto } from './User.dto'
+import { CreateUserDto, UpdateUserDto, UpdateUserDtoPass } from './User.dto'
 import { UsersService } from './users.service'
 import { Response } from "express";
 import { Request as ExpressRequest } from 'express'
@@ -102,7 +102,18 @@ export class UsersController {
 	}
 //	====================== ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ===================
 
-//	======================= Test Profile  ================================
+//	======================= Profile  ================================
+
+	@UseGuards(JwtAuthGuard)
+	@Post('profile/pass')
+	async changePassword(
+		@Request() req: any,
+		@Body() updateUserPass: UpdateUserDtoPass
+	) {
+		return this.userService.updatePass(req.user.login, updateUserPass);
+	}
+
+
 
 	@UseGuards(JwtAuthGuard)
 	@Get('profile/auth')

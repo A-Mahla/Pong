@@ -18,6 +18,13 @@ export class CreateUserDto {
 	intraLogin?:string;
 }
 
+export class UpdateUserDtoPass {
+	@IsDefined()
+	@IsNotEmpty()
+	@IsString()
+	password: string;
+}
+
 export class UpdateUserDto {
 	login: string;
 	password: string;
