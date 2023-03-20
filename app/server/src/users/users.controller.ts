@@ -74,6 +74,10 @@ export class UsersController {
 
 //	====================== POST AND GET AVATAR ===================
 
+//	====================== ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ===================
+
+//	======================= Profile  ================================
+
 	@Post('profile/avatar/upload')
 	@UseGuards(JwtAuthGuard)
 	@UseInterceptors(FileInterceptor('file', {
@@ -88,10 +92,6 @@ export class UsersController {
 		return this.userService.updateAvatar(req.user.login , file.filename);
 	}
 
-//	====================== ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ===================
-
-//	======================= Profile  ================================
-
 	@UseGuards(JwtAuthGuard)
 	@Get('profile/avatar')
 	async getFile(
@@ -101,7 +101,7 @@ export class UsersController {
 	): Promise<StreamableFile> {
 		try {
 			const user = await this.userService.findOneUser(req.user.login);
-			if (!user) {
+			if (!user || !user.avatar) {
 				throw new BadRequestException;
 			}
 			const file = createReadStream(join('./src/avatar/', user.avatar));

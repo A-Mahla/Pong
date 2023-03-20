@@ -60,7 +60,7 @@ const Profile = () => {
 				const {response, data} = await FetchApi(fetchType);
 				if (response.status === 200 || response.status === 304) {
 
-					if (data['avatar'] !== 'default_avatar.jpg') {
+					if (data['avatar'] !== null) {
 
 						const result = await axios.get(
 

@@ -172,7 +172,7 @@ export const QRCodeComponent = (props: QRProps) => {
 				)
 				
 
-				if (result.status !== 201) {
+				if (result.status !== 201 && result.status !== 304) {
 
 					const refresh = await originalRequest()
 
