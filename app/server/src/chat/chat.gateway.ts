@@ -22,10 +22,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('message')
-  async handleMessage(client: any, payload: MessageData)/* : MessageData */ {
+  //@SubscribeMessage('message')
+  //async handleMessage(client: any, payload: MessageData)/* : MessageData */ {
+  //  console.log('payload: ', payload)
+  //  return await this.chatService.manageMessage(this.server, client, payload)
+  //}
+
+  @SubscribeMessage('roomMessage')
+  async handleRoomMessage(client: any, payload: MessageData)/* : MessageData */ {
     console.log('payload: ', payload)
-    return await this.chatService.manageMessage(this.server, client, payload)
+    return await this.chatService.manageRoomMessage(this.server, client, payload)
   }
 
   @SubscribeMessage('createRoom')

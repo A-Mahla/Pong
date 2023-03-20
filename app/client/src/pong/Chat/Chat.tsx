@@ -96,8 +96,6 @@ export function Chat() {
 		const getRooms = async () => {
 			const { data } = await FetchApi(findRooms)
 
-			console.log('rooms fetched response with messages: ', data)
-
 			const rooms = data.map((value) => ({
 				id: value.room_id,
 				name: value.name,
@@ -109,42 +107,51 @@ export function Chat() {
 		}
 		getRooms().then(data => {
 			setRooms(data)
-			console.log('rooms: ', data)
 		})
 
 	}, [])
 
-	useEffect(() => {
+	useEffect(() => {		//---ROOMS & MESSAGES--//
 
-		socket.on('connect', () => {
+		function onConnectEvent() {
 			socket.emit('join', id)
-		})
+		}
 
-	}, [socket])
+		socket.on('connect', onConnectEvent)
 
-	useEffect(() => {		//---ROOMS--//
-
-		socket.on('roomCreated', (payload) => {
-			console.log('roomCreated: ', payload)
+		function onRoomCreatedEvent(payload) {
 			setNewRoom(payload)
-		})
+		}
 
-		socket.on('roomJoined', (payload) => {
-			setNewRoom({id: payload.room_id, name: payload.name, messages: payload.messages})
-		})
+		socket.on('roomCreated', onRoomCreatedEvent)
 
-		socket.on('roomLeaved', (roomId) => {
-			console.log('room leaved: ', roomId)
-			setLeavedRoom(roomId)
-		})
+		function onRoomJoinedEvent(payload) {
+				setNewRoom({id: payload.room_id, name: payload.name, messages: payload.messages})		
+		}
 
-	}, [socket])
+		socket.on('roomJoined', onRoomJoinedEvent)
 
-	useEffect(() => {		//---MESSAGES--//
+		function onRoomLeavedEvent(payload) {
+			console.log(`leaving room ${payload.room_id}`)
+			setLeavedRoom(payload.room_id)
+		}
 
-		socket.on('message', (newMessage) => {
+		socket.on('roomLeaved', onRoomLeavedEvent)
+
+		function onRoomMessageEvent(newMessage) {
+			console.log(`receive message: "${newMessage.content}" send by n:${newMessage.sender_id}`)
 			setNewMessage(newMessage)
-		})
+		}
+
+		socket.on('roomMessage', onRoomMessageEvent)
+
+		return () => {
+			socket.off('connect', onConnectEvent)
+			socket.off('roomCreated', onRoomCreatedEvent)
+			socket.off('roomJoined', onRoomJoinedEvent)
+			socket.off('roomLeaved', onRoomLeavedEvent)
+			socket.off('roomMessage', onRoomMessageEvent)
+		}
 
 	}, [socket])
 
@@ -160,14 +167,11 @@ export function Chat() {
 			setNewMessage()
 		}
 		if (newRoom !== undefined) {
-			console.log('newRoom: ', newRoom)
 			setRooms([...rooms, newRoom])
 			setNewRoom()
 		}
 		if (leavedRoom !== undefined) {
-
-			console.log('newRoom: ', newRoom)
-
+			console.log('leave a room')
 			setRooms(rooms.filter((room) => {
 				if (room.id !== leavedRoom) {
 					return rooms 
@@ -178,8 +182,7 @@ export function Chat() {
 
 	}, [newMessage, newRoom, leavedRoom])
 
-	const handleSubmit = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-
+	const handleSubmit = () => {
 		const messageData : MessageData = {
 			content: message.current.value,
 			sender_id: id,
@@ -188,16 +191,25 @@ export function Chat() {
 				name: current.name
 			}
 		}
-		console.log('send message dans callback')
+		socket.emit('roomMessage', messageData)
+	}
 
-		socket.emit('message', messageData)
-	}, [current])
+	//const handleSubmit = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+
+	//	const messageData : MessageData = {
+	//		content: message.current.value,
+	//		sender_id: id,
+	//		room: {
+	//			id: current.id,
+	//			name: current.name
+	//		}
+	//	}
+	//	socket.emit('roomMessage', messageData)
+	//}, [current])
 
 	const handleChangeRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
 		const payload = JSON.parse(e.target.value)
-
-		console.log('current: ', payload)
 
 		if (payload.id === current.id)
 			return
@@ -233,12 +245,7 @@ export function Chat() {
 			room_name: current.name
 		}
 
-
-		console.log('leaveData: ', leaveData)
-
-		socket.emit('leaveRoom', leaveData, (response) => {
-			console.log('leave room response: ', response);
-		})
+		socket.emit('leaveRoom', leaveData)
 
 		current.id = 0,
 		current.name = ''

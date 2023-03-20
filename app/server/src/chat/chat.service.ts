@@ -24,7 +24,7 @@ export class ChatService {
 			return newRoom 
 		}
 
-		async manageMessage(server: Server, client: Socket, payload: MessageData) {
+		async manageRoomMessage(server: Server, client: Socket, payload: MessageData) {
 			
 			console.log("payload:\n\n", payload);
 			
@@ -33,25 +33,26 @@ export class ChatService {
 			{
 				console.log('client rooms in handle MESSAGE', client.rooms)
 				const newMessage = await this.messageService.createMessage(payload.sender_id, payload.room.id, payload.content) 
-				server.to(payload.room.id.toString() + payload.room.name).emit('message', newMessage)
-				//client.to(payload.room.id.toString() + payload.room.name).emit('message', newMessage)
+				server.to(payload.room.id.toString() + payload.room.name).emit('roomMessage', newMessage)
+				//client.to(payload.room.id.toString() + payload.room.name).emit('roomMessage', newMessage)
 				console.log('payload in message handler', payload)
 			}
-			else
-			{
-				console.log('payload in create direct message: ', payload)
-				const newDirectMessage = await this.messageService.createDirectMessage(payload.sender_id, payload.recipient_id as number, payload.content)
-				server.to((payload.recipient_id as number).toString()).emit('directMessage', newDirectMessage)
-				server.to(client.id).emit('directMessage', newDirectMessage)
-				console.log('payload direct message: ', payload)
-				console.log('newDirectMessage: ', newDirectMessage)
-			}
+
+			//else
+			//{
+			//	console.log('payload in create direct message: ', payload)
+			//	const newDirectMessage = await this.messageService.createDirectMessage(payload.sender_id, payload.recipient_id as number, payload.content)
+			//	server.to((payload.recipient_id as number).toString()).emit('directMessage', newDirectMessage)
+			//	server.to(client.id).emit('directMessage', newDirectMessage)
+			//	console.log('payload direct message: ', payload)
+			//	console.log('newDirectMessage: ', newDirectMessage)
+			//}
 			return payload
 		}  
 
 		async leaveRoom(server: Server, client: Socket, payload: LeaveRoomData) {
 
-			client.leave(payload.room_id.toString() + payload.room_name)
+			//client.leave(payload.room_id.toString() + payload.room_name)
 
 			const message : MessageData  = {
 				content: `${payload.user_login} leaved the room`,
@@ -67,7 +68,7 @@ export class ChatService {
 			const newMessage = await this.messageService.createMessage(payload.user_id, payload.room_id,`${payload.user_login} leaved the room`)
 
 			//server.to(payload.room_id.toString() + payload.room_name).emit('message', newMessage)
-			server.to(client.id).emit('roomLeaved', payload.room_id)
+			server.to(client.id).emit('roomLeaved', {room_id: payload.room_id, room_name: payload.room_name})
 
 			return this.roomService.deleteRelation(payload.user_id, payload.room_id)
 		}

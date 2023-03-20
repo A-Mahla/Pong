@@ -13,9 +13,6 @@ export function RoomMessages() {
 			return room.id === current.id
 		})
 
-		console.log('room: ', room)
-		console.log('room messages: ', room.messages)
-
 		setMessages(room.messages)
 
 	}, [rooms])

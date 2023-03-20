@@ -51,12 +51,7 @@ export function SearchRoom(children : string) {
 			room_name: value.name
 		}
 
-		console.log('join Room payload: ', payload);
-		
-
-		socket.emit('joinRoom',  payload, (response) => {
-			console.log('join room response: ', response)
-		})
+		socket.emit('joinRoom',  payload)
 
 		isJoining(false)
 	}, [socket])	
