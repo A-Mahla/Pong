@@ -74,15 +74,15 @@ export class UsersController {
 
 //	====================== POST AND GET AVATAR ===================
 
-	@Post('profile/avatar/upload/:id')
+	@Post('profile/avatar/upload')
 	@UseGuards(JwtAuthGuard)
 	@UseInterceptors(FileInterceptor('file', {
 		storage: diskStorage({
-		destination: './src/avatar',
-		filename: (req, file, cb) => {
+			destination: './src/avatar',
+/*		filename: (req, file, cb) => {
 				return cb(null, req.params.id + ".jpeg");
-			},
-		}),
+			},*/
+		})
 	}))
 	async checkAvatar(@Request() req: any, @UploadedFile() file: Express.Multer.File){
 		return this.userService.updateAvatar(req.user.login , file.filename);
