@@ -46,14 +46,14 @@ function TabPanel(props: TabPanelProps) {
 					sx={{
 						all: 'initial',
 						ml: '3rem',
-						mt: '3rem',
-						mb: '3rem',
 						mr: '3rem',
 						height: '39rem',
 						widht:  '30rem',
 						display: 'flex',
 						flexDirection: 'row',
-						flexWrap: 'wrap'
+						flexWrap: 'wrap',
+						alignItems: 'center',
+						justifyContent: 'center'
 					}}>
 					{props.children}
 				</Grid>

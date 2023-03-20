@@ -78,6 +78,7 @@ export class UsersController {
 	storage: diskStorage({
 		destination: './src/avatar',
 		filename: (req, file, cb) => {
+			console.log(req)
 			return cb(null, req.params.login + ".jpeg");
 			},
 		}),
@@ -86,11 +87,19 @@ export class UsersController {
 		return this.userService.updateAvatar(req.user.login , file.filename);
 	}
 
+//	====================== ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ===================
+
+//	======================= Profile  ================================
+
 	@UseGuards(JwtAuthGuard)
-	@Get('avatar/:login')
-	async getFile(@Param('login') login : string, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
+	@Get('profile/avatar')
+	async getFile(
+		@Res({ passthrough: true }) res: Response,
+		@Request() req: any,
+
+	): Promise<StreamableFile> {
 		try {
-			const user = await this.userService.findOneUser(login);
+			const user = await this.userService.findOneUser(req.user.login);
 			if (!user) {
 				throw new BadRequestException;
 			}
@@ -100,9 +109,6 @@ export class UsersController {
 			throw new BadRequestException;
 		}
 	}
-//	====================== ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ===================
-
-//	======================= Profile  ================================
 
 	@UseGuards(JwtAuthGuard)
 	@Post('profile/pass')
