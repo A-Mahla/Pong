@@ -33,6 +33,7 @@ import { CreateUserDto, UpdateUserDto, UpdateUserDtoPass } from './User.dto'
 import { UsersService } from './users.service'
 import { Response } from "express";
 import { Request as ExpressRequest } from 'express'
+import { JwtPayload } from 'src/auth/auth.types'
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from '../auth/auth.service'
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
@@ -72,14 +73,14 @@ export class UsersController {
 	}*/
 
 //	====================== POST AND GET AVATAR ===================
+
+	@Post('profile/avatar/upload/:id')
 	@UseGuards(JwtAuthGuard)
-	@Post(':login/avatar')
 	@UseInterceptors(FileInterceptor('file', {
-	storage: diskStorage({
+		storage: diskStorage({
 		destination: './src/avatar',
 		filename: (req, file, cb) => {
-			console.log(req)
-			return cb(null, req.params.login + ".jpeg");
+				return cb(null, req.params.id + ".jpeg");
 			},
 		}),
 	}))
