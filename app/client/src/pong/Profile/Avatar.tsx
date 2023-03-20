@@ -32,41 +32,49 @@ const ProfileAvatar = (props: AvatarProps) => {
 
 	return (
 		<>
+		<Grid container
+			sx={{
+				width: '10rem',
+				height: '9rem',
+				alignItems: 'center',
+				justifyContent: 'center'
+			}}
+		>
 		<input accept="image/*" id="upload-avatar-pic" type="file" hidden />
 		<label htmlFor="upload-avatar-pic">
 			<IconButton component="span">
 				<Avatar
+					variant="inherit"
 					alt="avatar"
 					src={props.image}
 					sx={{
-						display: 'grid',
+						display: 'flex',
 						p: 0,
 						border: 1,
 						boxShadow: 24,
 						width: '8rem',
 						height: '8rem',
-						AlignItems: 'center',
+						alignItems: 'center',
+						justifyContent: 'center'
 					}}
 				/>
 			</IconButton>
 		</label>
-		<Button
+		<IconButton
 			component="block"
 			variant="inherit"
 			size='small'
 			sx={{
-				position: 'absolute',
-				bottom: '2rem',
-				left: '2vw;',
-				//				'@media (min-width:1200px)': {
-				//			left: '2rem',
-				//		}
+				position: 'relative',
+				bottom: 35,
+				right: 65,
+				"&:hover": { boxShadow: 'none', }
 			}}
-			style={{color: '#808080'}}
 			onClick={handleClick}
 		>
 			{props.image ? <DeleteOutlineIcon/> : null}
-		</Button>
+		</IconButton>
+		</Grid>
 		</>
 	)
 }
