@@ -118,7 +118,7 @@ const ProfileAvatar = (props: AvatarProps) => {
 		<Grid container
 			sx={{
 				width: '10rem',
-				height: '9rem',
+				height: '10rem',
 				alignItems: 'center',
 				justifyContent: 'center'
 			}}
@@ -142,8 +142,8 @@ const ProfileAvatar = (props: AvatarProps) => {
 						p: 0,
 						border: 1,
 						boxShadow: 24,
-						width: '8rem',
-						height: '8rem',
+						width: '9rem',
+						height: '9rem',
 						alignItems: 'center',
 						justifyContent: 'center'
 					}}
