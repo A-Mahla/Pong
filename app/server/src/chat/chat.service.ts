@@ -33,8 +33,8 @@ export class ChatService {
 			{
 				console.log('client rooms in handle MESSAGE', client.rooms)
 				const newMessage = await this.messageService.createMessage(payload.sender_id, payload.room.id, payload.content) 
-				//server.to(payload.room.id.toString() + payload.room.name).emit('message', newMessage)
-				client.to(payload.room.id.toString() + payload.room.name).emit('message', newMessage)
+				server.to(payload.room.id.toString() + payload.room.name).emit('message', newMessage)
+				//client.to(payload.room.id.toString() + payload.room.name).emit('message', newMessage)
 				console.log('payload in message handler', payload)
 			}
 			else
@@ -94,14 +94,13 @@ export class ChatService {
 
 			client.join(payload.room_id.toString() + payload.room_name)
 
-			//const messages = await this.messageService.getRoomMessages(payload.room_id)
-			//
-			// Dont know why these messages make shit in the front
-			//messages.forEach((message) => {
-			//  this.server.to(client.id).emit('message', message)
-			//})
+			const room = await this.roomService.getRoomById(payload.room_id)
 
-			server.to(client.id).emit('roomJoined', {name: payload.room_name, id: payload.room_id})
+			console.log('room in JOIN: ', room)
+
+			//server.to(client.id).emit('roomJoined', {name: payload.room_name, id: payload.room_id})
+			//console.log('JOIN ROOM \n\n\n\n\n\n', {id: (room as Room).room_id, name: (room as Room).name, messages: (room as Room).messages})
+			server.to(client.id).emit('roomJoined', room)
 
 			return this.userService.joinRoom(payload.user_id, payload.room_id)
 		}

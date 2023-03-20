@@ -1,22 +1,25 @@
 import { Box } from '@mui/material'
-import {useContext} from 'react'
+import {useEffect, useContext, useState} from 'react'
 import { RoomContext } from './Chat'
 import './Chat.css'
 
 export function RoomMessages() {
 	const {rooms, setRooms, current} = useContext(RoomContext)
 
-	console.log('rooms in roomMessages: ', rooms)
-	console.log('CURRENT room in roomMessages: ', current)
+	const [messages, setMessages] = useState([])
 
-	const room = rooms.find((room) => {
-		return room.id === current.id
-	})
+	useEffect(() => {
+		const room = rooms.find((room) => {
+			return room.id === current.id
+		})
 
-	const messages = room.messages
+		console.log('room: ', room)
+		console.log('room messages: ', room.messages)
 
-	console.log('room: ', room)
-	console.log('room messages: ', room.messages)
+		setMessages(room.messages)
+
+	}, [rooms])
+
 
 	const messagesComponent = messages.map((message) => {
 		return (

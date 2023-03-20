@@ -50,6 +50,9 @@ export class RoomsService {
 			{
 				where: {
 					room_id : id
+				},
+				include: {
+					messages: true
 				}
 			}
 		).catch((e) => {

@@ -49,6 +49,12 @@ export function Chat() {
 
 	const [rooms, setRooms] = useState<Room[]>([])
 
+	const [newRoom, setNewRoom] = useState<Room>()
+
+	const [leavedRoom, setLeavedRoom] = useState<number>()
+
+	const [newMessage, setNewMessage] = useState<Message>()
+
 	const [joining, isJoining] = useState(false)
 
 	const [creating, isCreating] = useState(false)
@@ -120,46 +126,57 @@ export function Chat() {
 
 		socket.on('roomCreated', (payload) => {
 			console.log('roomCreated: ', payload)
-			setRooms([...rooms, payload])
+			setNewRoom(payload)
 		})
 
 		socket.on('roomJoined', (payload) => {
-			setRooms([...rooms, payload])
+			setNewRoom({id: payload.room_id, name: payload.name, messages: payload.messages})
 		})
 
 		socket.on('roomLeaved', (roomId) => {
-				console.log(roomId)
-			setRooms(rooms.filter((value) => {
-				console.log(value)
-				return value.id !== roomId
-			}))
+			console.log('room leaved: ', roomId)
+			setLeavedRoom(roomId)
 		})
 
-	}, [socket, rooms])
+	}, [socket])
 
 	useEffect(() => {		//---MESSAGES--//
 
 		socket.on('message', (newMessage) => {
-			if (newMessage.room_id !== undefined) 
-			{
-				console.log('rooms before newMessage: ', rooms)
+			setNewMessage(newMessage)
+		})
+
+	}, [socket])
+
+	useEffect(() => {
+		if (newMessage !== undefined) {
+			if (newMessage.room_id != undefined) {
 				setRooms(rooms.map((room) => {
-					if (room.room_id === newMessage.room_id)
+					if (room.id === newMessage.room_id)
 						room.messages = [...room.messages, newMessage]
+					return room
 				}))
 			}
-			console.log('setMessages', newMessage)
-		})
+			setNewMessage()
+		}
+		if (newRoom !== undefined) {
+			console.log('newRoom: ', newRoom)
+			setRooms([...rooms, newRoom])
+			setNewRoom()
+		}
+		if (leavedRoom !== undefined) {
 
-		socket.on('roomLeaved', (roomId) => {
-				console.log(roomId)
-		})
+			console.log('newRoom: ', newRoom)
 
-		socket.on('roomJoined', (payload) => {
-			console.log('payload in message useEffect: ', payload)
-		})
+			setRooms(rooms.filter((room) => {
+				if (room.id !== leavedRoom) {
+					return rooms 
+				}
+			}))
+			setLeavedRoom()
+		}
 
-	}, [socket, rooms])
+	}, [newMessage, newRoom, leavedRoom])
 
 	const handleSubmit = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
@@ -171,6 +188,7 @@ export function Chat() {
 				name: current.name
 			}
 		}
+		console.log('send message dans callback')
 
 		socket.emit('message', messageData)
 	}, [current])
@@ -246,7 +264,8 @@ export function Chat() {
 					<Button onClick={handleDirectMessages}>direct messages</Button>
 				</Paper>
 				<Paper sx={{m:1}}>
-					{rooms.map((value) => (<Button value={JSON.stringify({id: value.id, name: value.name})} key={value.id} onClick={handleChangeRoom}>{value.name}</Button>))}
+					{rooms.map((room) => (<div key={room.id}>{room.id}</div>))}
+					{rooms.length !== 0 ? rooms.map((value) => (<Button value={JSON.stringify({id: value.id, name: value.name})} key={value.id} onClick={handleChangeRoom}>{value.name}</Button>)): null}
 					{
 						current.name !== '' ?
 							<Paper>
