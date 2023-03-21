@@ -14,6 +14,10 @@ export class UpdateUserParams {
 	isTwoFA?: boolean;
 }
 
+export class UpdateUserPass {
+	password: string;
+}
+
 export class profile {
 	login: string;
 	avatar: string;

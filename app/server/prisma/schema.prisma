@@ -17,7 +17,7 @@ model User {
   updatedAt    DateTime    @updatedAt
   login        String      @unique
   password     String
-  avatar       String      @default("default_avatar.jpg")
+  avatar       String?
   intraLogin   String?     @unique
   refreshToken String?
   twoFA		   String?

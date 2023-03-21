@@ -2,7 +2,7 @@ import { BadGatewayException, BadRequestException, Injectable, UseInterceptors, 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, User, User_Game, Games, Room } from '@prisma/client';
 import { GameService } from 'src/game/game.service';
-import { CreateUserParams, UpdateUserParams, profile } from './User.types'
+import { CreateUserParams, UpdateUserParams, UpdateUserPass, profile } from './User.types'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { ok } from 'assert';
 import * as bcrypt from 'bcrypt';
@@ -135,7 +135,14 @@ export class UsersService {
 
 /* ============^^^^^^^^^^^^^^^^^^^^^^^^^^^^^========================*/
 
-/* ============================ get profile ========================*/
+/* ============================ Profile ========================*/
+
+	async updatePass(login: string, updateUserPass: UpdateUserPass) {
+		return await this.updateUser(
+			login,
+			{ password: await bcrypt.hash(updateUserPass.password, 12) }
+		)
+	}
 
 	async getProfileAuth(user_id: number) {
 		const user = await this.prisma.user.findUnique({

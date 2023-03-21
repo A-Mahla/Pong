@@ -1,12 +1,14 @@
 import { Box, Grid, Typography } from '@mui/material'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import '/src/pong/page/LeadPage.css'
 //import { ThemeProvider, createTheme } from '@mui/material/styles';
 import AvatarGrid from '/src/pong/Profile/Avatar'
 import UserPanelGrid from '/src/pong/Profile/UserPanel'
-import { useFetchAuth } from '/src/pong/context/useAuth' 
+import useAuth, { useFetchAuth } from '/src/pong/context/useAuth' 
 import { FetchApi, Api } from '/src/pong/component/FetchApi' 
-import { ThemeProvider, createTheme } from '@mui/material';
+import { ThemeProvider, createTheme, CircularProgress } from '@mui/material';
+import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 
 const theme = createTheme({
@@ -32,6 +34,13 @@ const theme = createTheme({
 
 const Profile = () => {
 
+	const navigate = useNavigate()
+
+	const {token} = useAuth();
+
+	const [image, setImage] = useState<URL>(null);
+	const [fetched, setFetched] = useState(false);
+
 
 	const fetchType: Api = {
 		api: {
@@ -45,13 +54,47 @@ const Profile = () => {
 
 
 	useEffect(() => {
-		const {response, data} = FetchApi(fetchType)
+		async function fetching() {
+
+			try {
+				const {response, data} = await FetchApi(fetchType);
+				if (response.status === 200 || response.status === 304) {
+
+					if (data['avatar'] !== null) {
+
+						const result = await axios.get(
+
+							`http://${import.meta.env.VITE_SITE}/api/users/profile/avatar`,
+								{ 
+								withCredentials: true,
+								responseType: 'blob',
+								headers: {
+									Authorization: `Bearer ${token}`,
+								}
+							}
+						)
+
+						await setImage(await URL.createObjectURL(result.data))
+					}
+
+				} else {
+					navigate('/login')
+				}
+			} catch(err) {
+				console.log(err)
+			} finally {
+				setFetched(true);
+			}
+
+		}
+		fetching()
 		return undefined
 	}, [])
 
 
 
 	return <>
+	{ !fetched ? <CircularProgress/> : 
 		<ThemeProvider theme={theme}>
 			<Grid item sm={5} xs={12}
 				sx={{
@@ -71,7 +114,7 @@ const Profile = () => {
 					},
 				}
 			}>
-				<AvatarGrid />
+				<AvatarGrid image={image} setImage={setImage} />
 			</Grid>
 			<Grid item xs={7}
 				sx={{
@@ -131,6 +174,7 @@ const Profile = () => {
 			}>
 			</Grid>
 		</ThemeProvider>
+		}
 	</>
 }
 export default Profile;

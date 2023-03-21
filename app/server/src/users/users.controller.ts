@@ -29,10 +29,11 @@ import { diskStorage } from  'multer';
 import { join } from  'path';
 import { createReadStream } from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express'
-import { CreateUserDto, UpdateUserDto } from './User.dto'
+import { CreateUserDto, UpdateUserDto, UpdateUserDtoPass } from './User.dto'
 import { UsersService } from './users.service'
 import { Response } from "express";
 import { Request as ExpressRequest } from 'express'
+import { JwtPayload } from 'src/auth/auth.types'
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from '../auth/auth.service'
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
@@ -72,26 +73,35 @@ export class UsersController {
 	}*/
 
 //	====================== POST AND GET AVATAR ===================
+
+//	====================== ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ===================
+
+//	======================= Profile  ================================
+
+	@Post('profile/avatar/upload')
 	@UseGuards(JwtAuthGuard)
-	@Post(':login/avatar')
 	@UseInterceptors(FileInterceptor('file', {
-	storage: diskStorage({
-		destination: './src/avatar',
-		filename: (req, file, cb) => {
-			return cb(null, req.params.login + ".jpeg");
-			},
-		}),
+		storage: diskStorage({
+			destination: './src/avatar',
+/*		filename: (req, file, cb) => {
+				return cb(null, req.params.id + ".jpeg");
+			},*/
+		})
 	}))
 	async checkAvatar(@Request() req: any, @UploadedFile() file: Express.Multer.File){
 		return this.userService.updateAvatar(req.user.login , file.filename);
 	}
 
 	@UseGuards(JwtAuthGuard)
-	@Get('avatar/:login')
-	async getFile(@Param('login') login : string, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
+	@Get('profile/avatar')
+	async getFile(
+		@Res({ passthrough: true }) res: Response,
+		@Request() req: any,
+
+	): Promise<StreamableFile> {
 		try {
-			const user = await this.userService.findOneUser(login);
-			if (!user) {
+			const user = await this.userService.findOneUser(req.user.login);
+			if (!user || !user.avatar) {
 				throw new BadRequestException;
 			}
 			const file = createReadStream(join('./src/avatar/', user.avatar));
@@ -100,9 +110,17 @@ export class UsersController {
 			throw new BadRequestException;
 		}
 	}
-//	====================== ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ===================
 
-//	======================= Test Profile  ================================
+	@UseGuards(JwtAuthGuard)
+	@Post('profile/pass')
+	async changePassword(
+		@Request() req: any,
+		@Body() updateUserPass: UpdateUserDtoPass
+	) {
+		return this.userService.updatePass(req.user.login, updateUserPass);
+	}
+
+
 
 	@UseGuards(JwtAuthGuard)
 	@Get('profile/auth')

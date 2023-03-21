@@ -20,7 +20,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import useAuth, { useFetchAuth } from '/src/pong/context/useAuth'
 import { useState, useEffect } from 'react'
-import { FetchApi, Api } from '/src/pong/component/FetchApi'
+import { FetchApi, Api, originalRequest } from '/src/pong/component/FetchApi'
 import * as React from 'react';
 import axios from 'axios';
 
@@ -172,7 +172,7 @@ export const QRCodeComponent = (props: QRProps) => {
 				)
 				
 
-				if (result.status !== 201) {
+				if (result.status !== 201 && result.status !== 304) {
 
 					const refresh = await originalRequest()
 
@@ -185,6 +185,8 @@ export const QRCodeComponent = (props: QRProps) => {
 						return
 					}
 
+					fetchType.auth.setToken(refresh.data['aT']);
+
 					const result2 = await axios.post(
 
 						`http://${import.meta.env.VITE_SITE}/api/2fa/generate`,
@@ -193,7 +195,7 @@ export const QRCodeComponent = (props: QRProps) => {
 							withCredentials: true,
 							responseType: 'blob',
 							headers: {
-								Authorzsation: `Bearer ${token}`,
+								Authorization: `Bearer ${refresh.data['aT']}`,
 							}
 						}
 					)

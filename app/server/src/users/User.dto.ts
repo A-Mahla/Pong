@@ -16,6 +16,18 @@ export class CreateUserDto {
 	@IsString()
 	@IsOptional()
 	intraLogin?:string;
+
+	@IsString()
+	@IsOptional()
+	avatar?:string;
+
+}
+
+export class UpdateUserDtoPass {
+	@IsDefined()
+	@IsNotEmpty()
+	@IsString()
+	password: string;
 }
 
 export class UpdateUserDto {
