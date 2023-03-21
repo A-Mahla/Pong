@@ -42,7 +42,7 @@ export const originalRequest = async (api: apiInput) => {
 	let data;
 	let token;
 
-	if (response.status !== 200 && response.status !== 201 && response.status !== 304)
+	if (response.status === 204)
 		data = null;
 	else if (!api.dataType)
 		data = await response.json();
