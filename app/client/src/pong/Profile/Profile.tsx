@@ -52,15 +52,17 @@ const Profile = () => {
 		auth: useFetchAuth(),
 	}
 
+	
+
 
 	useEffect(() => {
 		async function fetching() {
 
 			try {
-				const {response, data} = await FetchApi(fetchType);
-				if (response.status === 200 || response.status === 304) {
+				const response = await FetchApi(fetchType);
+				if (response.response.status === 200 || response.response.status === 304) {
 
-					if (data['avatar'] !== null) {
+					if (response.data['avatar'] !== null) {
 
 						const result = await axios.get(
 
@@ -69,12 +71,14 @@ const Profile = () => {
 								withCredentials: true,
 								responseType: 'blob',
 								headers: {
-									Authorization: `Bearer ${token}`,
+									Authorization: `Bearer ${response.token}`,
 								}
 							}
 						)
 
-						await setImage(await URL.createObjectURL(result.data))
+						if (result.status !== 204) {
+							await setImage(await URL.createObjectURL(result.data))
+						}
 					}
 
 				} else {

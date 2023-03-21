@@ -44,7 +44,6 @@ export const TFAComponent = (props: TFAProps) => {
 
 	const handleClose = () => {
 		props.setOpen(false)
-		setError(undefined)
 		navigate('/login')
 	}
 
@@ -52,8 +51,6 @@ export const TFAComponent = (props: TFAProps) => {
 		e.preventDefault()
 		setError(undefined)
 		if( e.target.value.length === 6 ) {
-
-			console.log('test')
 
 			if (!isNumber(e.target.value)) {
 				setError('Error Authentification Code')

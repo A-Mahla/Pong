@@ -20,7 +20,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import useAuth, { useFetchAuth } from '/src/pong/context/useAuth'
 import { useState, useEffect } from 'react'
-import { FetchApi, Api, originalRequest } from '/src/pong/component/FetchApi'
+import { FetchApi, Api, refreshRequest } from '/src/pong/component/FetchApi'
 import * as React from 'react';
 import axios from 'axios';
 
@@ -170,8 +170,7 @@ export const QRCodeComponent = (props: QRProps) => {
 						}
 					}
 				)
-				
-
+/*
 				if (result.status !== 201 && result.status !== 304) {
 
 					const refresh = await originalRequest()
@@ -203,11 +202,38 @@ export const QRCodeComponent = (props: QRProps) => {
 					await setQrcode(await URL.createObjectURL(result2.data))
 
 				} else {
-					await setQrcode(await URL.createObjectURL(result.data))
-				}
+*/					await setQrcode(await URL.createObjectURL(result.data))
+//				}
 		
 			} catch(err) {
-				console.log(err)
+				try {
+					const refresh = await refreshRequest()
+
+					if (refresh.response.status !== 200 && refresh.response.status !== 304) {
+						useNavigate()('/login');
+						return
+					}
+
+					fetchType.auth.setToken(refresh.data['aT']);
+
+					const result2 = await axios.post(
+
+						`http://${import.meta.env.VITE_SITE}/api/2fa/generate`,
+						{},
+						{ 
+							withCredentials: true,
+							responseType: 'blob',
+							headers: {
+								Authorization: `Bearer ${refresh.data['aT']}`,
+							}
+						}
+					)
+
+					await setQrcode(await URL.createObjectURL(result2.data))
+
+				} catch(err) {
+					console.log(err)
+				}
 			} finally {
 				setFetched(true);
 			}
