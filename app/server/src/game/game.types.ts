@@ -1,13 +1,9 @@
 import { Socket } from "socket.io"
 
 export type GameDataType = {
-	roomInfo?: {
+	roomInfo: {
 		//roomId: string, // not sure yet i need it
-		countDownRequired: boolean,
-		canvasHeight: number,
-		canvasWidth: number,
-		playerHeight: number
-		playerWidth: number
+		timer: number
 	}
 	player1: {
 		login?: string,

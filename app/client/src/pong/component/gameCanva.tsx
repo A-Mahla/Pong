@@ -26,12 +26,7 @@ const PLAYER_WIDTH = 5;
 type GameData = {
 	roomInfo?: {
 		//roomId: string,
-		countDownRequired: boolean,
-		canvasHeight: number,
-		canvasWidth: number,
-		playerHeight: number
-		playerWidth: number
-
+		timer: number
 	}
 	player1: {
 		login?: string
@@ -68,6 +63,34 @@ const drawCountDown = (canvas: any, countdown: number) => {
 	context.strokeText(countdown.toString(), canvas.width / 2, canvas.height / 2);
 	context.fillText(countdown.toString(), canvas.width / 2, canvas.height / 2);
 }
+
+const drawTimer = (canvas: any, timer: number) => {
+	const context = canvas.getContext('2d');
+
+	const minute = Math.floor((((3750 - timer) * 16) / 1000) / 60);
+	const seconde = Math.floor((((3750 - timer) * 16) / 1000) % 60);
+
+	const toString = minute.toString() + ':' + seconde.toString().padStart(2, '0');
+	// if (minute != 0)
+
+	// else
+		// toString = seconde.toString().padStart(2, '0');
+
+	// Set font to futuristic style and increase size by 50%
+	context.font = "70px 'Tr2n', sans-serif";
+
+	// Set color and thickness for countdown text
+	context.strokeStyle = '#2f8ca3';
+
+	// Center the text horizontally and place it at the bottom of the canvas
+	context.textAlign = 'center';
+	context.textBaseline = 'bottom';
+
+	// Draw timer text
+	context.strokeText(toString, canvas.width / 2, canvas.height - 50);
+	context.fillText(toString, canvas.width / 2, canvas.height - 50);
+}
+
 
 const drawScore = (canvas: any, scorePlayer1: number, scorePlayer2: number) => {
 	const context = canvas.getContext('2d');
@@ -116,7 +139,8 @@ export const draw = (canvas: any, game: any) => {
 	//draw score
 	drawScore(canvas, game.player1.score, game.player2.score);
 
-	// draw playerLogin
+	// draw timer
+	drawTimer(canvas, game.roomInfo.timer);
 
 	// dram middle line
 	context.strokeStyle = 'white';
@@ -159,18 +183,13 @@ const Canvas = ({ socket, height, width }: any) => {
 	const updateGame = () => {
 		socket.on("updateClient", (gameData: GameData) => {
 			console.log("---------------------> ON updateClient");
-			// setGame(gameData);
 			draw(canvas.current, gameData)
 		})
 	}
 
-	// const sendLogin = () => {
-	// }
-
 	const initGame = () => {
 		socket.on("initSetup", (gameData: GameData) => {
 			console.log("---------------------> ON initSetup");
-			// setGame(gameData);
 			draw(canvas.current, gameData)
 			setConnected(true)
 		})
@@ -207,31 +226,14 @@ const Canvas = ({ socket, height, width }: any) => {
 		if (game && canvas.current) {
 				console.log('TEST', user)
 				socket.emit("login", user);
-			// sendLogin();
 			initGame();
-			// updateGame();
 		}
 	}, [game]);
-
-	// React.useEffect(() => {
-	// 	const canvasHandler = canvas.current;
-
-	// 	const time = setTimeout(() => {
-
-	// 	}, 20);
-
-	// 	return () => {
-	// 		clearTimeout(time)
-	// 	}
-	// });
 
 	return (
 		<main role="main">
 			<div>
-				{connected ? <div>connected</div> : <div>not connected</div>}
-
 				<canvas onMouseMove={handleMouseMove} ref={gameCanvas} height={height} width={width} />
-
 			</div>
 		</main>
 	);

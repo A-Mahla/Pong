@@ -20,21 +20,22 @@ export class GameAlgo {
 	readonly nbPlayers = 2;
 
 	private gameData: GameDataType;
+	private countDown: NodeJS.Timeout | undefined;
 
 	constructor (
 		readonly player1: playerInfo,
 		readonly player2: playerInfo,
 		readonly server: Server
 	) {
-		if (player1 && player1.roomID === player2.roomID)
+		if (player1 && player1.roomID === player2.roomID) {
 			this.roomID = player1.roomID;
 			this.gameData = this.initGameData(this.gameModel)
+		}
+
 	}
 
 
 	async	runGame() {
-
-		this.gameData = this.initGameData(this.gameModel);
 
 		this.player1.playerSocket.on('login', (login: string, socket: Socket) => {
 			this.gameData.player1.login = login;
@@ -43,6 +44,9 @@ export class GameAlgo {
 		this.player2.playerSocket.on('login', (login: string, socket: Socket) =>{
 			this.gameData.player2.login = login;
 			this.server.to(this.player2.playerID).emit('initSetup', this.rotateGameData(this.gameData))
+			console.log("[ player1 --> " + this.gameData.ball.speed.x + " | " + this.gameData.ball.speed.y + " | " + this.gameData.ball.x + " | " + this.gameData.ball.y + "]\n");
+			let temp = this.rotateGameData(this.gameData)
+			console.log("[ player2 --> " + temp.ball.speed.x + " | " + temp.ball.speed.y + " | " + temp.ball.x + " | " + temp.ball.y + "]\n");
 		})
 
 		this.player1.playerSocket.on('paddlePos', (y: number, socket: Socket) => {
@@ -53,9 +57,13 @@ export class GameAlgo {
 			this.gameData.player2.y = y;
 		})
 
-		const timer = setTimeout(() => {
-			setInterval(() => {
-				// if we hit height border, we bounce by reversing ball y velocity
+		this.computeGame();
+
+	}
+
+	private computeGame() {
+		this.countDown = setTimeout(()=> {
+			const interval = setInterval(() => {
 				if (this.gameData.ball.y > this.gameModel.canvasHeight || this.gameData.ball.y < 0) {
 					this.gameData.ball.speed.y *= -1;
 				}
@@ -71,8 +79,9 @@ export class GameAlgo {
 						this.gameData.player2.score += 1;
 						this.gameData.ball.x = this.gameModel.canvasWidth / 2;
 						this.gameData.ball.y = this.gameModel.canvasHeight / 2;
-						this.gameData.ball.speed.x = 0;
-						this.gameData.ball.speed.y = 0;
+						clearInterval(interval);
+						clearTimeout(this.countDown);
+						this.computeGame()
 					}
 
 				}
@@ -88,22 +97,30 @@ export class GameAlgo {
 						this.gameData.player1.score += 1;
 						this.gameData.ball.x = this.gameModel.canvasWidth / 2;
 						this.gameData.ball.y = this.gameModel.canvasHeight / 2;
-						this.gameData.ball.speed.x = 0;
-						this.gameData.ball.speed.y = 0;
+						clearInterval(interval);
+						clearTimeout(this.countDown);
+						this.computeGame()
 					}
 				}
 				this.gameData.ball.x += this.gameData.ball.speed.x;
 				this.gameData.ball.y += this.gameData.ball.speed.y;
+
+				if (++this.gameData.roomInfo.timer == 3750)
+					return ;
+
 				this.server.to(this.player1!.playerID).emit('updateClient', this.gameData);
 				this.server.to(this.player2!.playerID).emit('updateClient', this.rotateGameData(this.gameData));
+
 			}, 16);
-		}, 5000);
+		}, 5000)
 	}
 
-
 	// initialising the players and ball positions
-	initGameData(gamePatron: GamePatron): GameDataType {
+	private initGameData(gamePatron: GamePatron): GameDataType {
 		return ({
+			roomInfo: {
+				timer: 0
+			},
 			player1: {
 				login: 'p1',
 				y: gamePatron.canvasHeight / 2,
@@ -119,26 +136,26 @@ export class GameAlgo {
 				y: gamePatron.canvasHeight / 2,
 				r: 5,
 				speed: {
-					x: 2,
-					y: 2
+					x: 3,
+					y: 3
 				}
 			}
 		})
 	}
 
-	rotateGameData(gameData: GameDataType): GameDataType {
+	private rotateGameData(gameData: GameDataType): GameDataType {
 		let temp = {...gameData,
-		player1: {
-			...gameData.player2
-		},
-		player2: {
-			...gameData.player1
-		},
-		ball: {
-			...gameData.ball,
-			x: (gameData.ball.x * -1)
-		}
-	};
+			player1: {
+				...gameData.player2
+			},
+			player2: {
+				...gameData.player1
+			},
+			ball: {
+				...gameData.ball,
+				x: (this.gameModel.canvasWidth / 2) - (gameData.ball.x - (this.gameModel.canvasWidth / 2))
+			}
+		};
 		return temp;
 	}
 
