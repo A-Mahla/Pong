@@ -4,7 +4,7 @@ import { RoomContext } from './Chat'
 import './Chat.css'
 
 export function RoomMessages() {
-	const {rooms, setRooms, current} = useContext(RoomContext)
+	const {rooms, current} = useContext(RoomContext)
 
 	const [messages, setMessages] = useState([])
 

@@ -1,4 +1,4 @@
-import { Button, TextField, FormControl, Paper, Box, InputAdornment, List } from "@mui/material"
+import { Button, TextField, FormControl, Paper, Box, InputAdornment, List, ListItem, ListItemButton, ListItemText, Dialog} from "@mui/material"
 import React, { useRef, useCallback, useState, useEffect, useReducer, createContext } from "react"
 import { State, Room, Message, MessageData, LeaveRoomData } from "./Chat.types"
 import useAuth from '/src/pong/context/useAuth';
@@ -9,6 +9,7 @@ import { CreateRoom } from "./Create";
 import { DirectMessages } from "./DirectMessages";
 import { RoomMessages } from "./RoomMessages";
 import './Chat.css'
+import { ChatFooter } from './ChatFooter'
 
 
 import { useFetchAuth } from '/src/pong/context/useAuth'
@@ -29,7 +30,6 @@ const initialChatContext = {
 	creating: false,
 	setDirect: null,
 	direct: false,
-	socket: null
 }
 
 const initialRoomContext = {
@@ -40,6 +40,8 @@ const initialRoomContext = {
 export const ChatContext = createContext(initialChatContext)
 
 export const RoomContext = createContext(initialRoomContext)
+
+export const socket = io.connect("http://localhost:8080/chat")
 
 export function Chat() {
 
@@ -53,15 +55,15 @@ export function Chat() {
 
 	const [leavedRoom, setLeavedRoom] = useState<number>()
 
-	const [newMessage, setNewMessage] = useState<Message>()
+	const [newRoomMessage, setNewRoomMessage] = useState<Message>()
+
+	const [newDirectMessage, setNewDirectMessage] = useState<Message>()
 
 	const [joining, isJoining] = useState(false)
 
 	const [creating, isCreating] = useState(false)
 
 	const [direct, setDirect] = useState(false)
-
-	const socket = io.connect("http://localhost:8080/chat")
 
 	const { user, id } = useAuth()
 
@@ -74,7 +76,6 @@ export function Chat() {
 		creating: creating,
 		setDirect: setDirect,
 		direct: direct,
-		socket: socket
 	}
 
 	const roomContext = {
@@ -113,11 +114,9 @@ export function Chat() {
 
 	useEffect(() => {		//---ROOMS & MESSAGES--//
 
-		function onConnectEvent() {
-			socket.emit('join', id)
-		}
+		console.log('add eventListeners')
 
-		socket.on('connect', onConnectEvent)
+		socket.emit('join', id)
 
 		function onRoomCreatedEvent(payload) {
 			setNewRoom(payload)
@@ -126,7 +125,8 @@ export function Chat() {
 		socket.on('roomCreated', onRoomCreatedEvent)
 
 		function onRoomJoinedEvent(payload) {
-				setNewRoom({id: payload.room_id, name: payload.name, messages: payload.messages})		
+			console.log(`room ${payload} joined`)
+			setNewRoom({id: payload.room_id, name: payload.name, messages: payload.messages})		
 		}
 
 		socket.on('roomJoined', onRoomJoinedEvent)
@@ -140,13 +140,18 @@ export function Chat() {
 
 		function onRoomMessageEvent(newMessage) {
 			console.log(`receive message: "${newMessage.content}" send by n:${newMessage.sender_id}`)
-			setNewMessage(newMessage)
+			setNewRoomMessage(newMessage)
 		}
 
 		socket.on('roomMessage', onRoomMessageEvent)
 
+		function onDirectMessageEvent(newMessage) {
+			setNewDirectMessage(newMessage)
+		}
+
+		socket.on('directMessage', onDirectMessageEvent)
+
 		return () => {
-			socket.off('connect', onConnectEvent)
 			socket.off('roomCreated', onRoomCreatedEvent)
 			socket.off('roomJoined', onRoomJoinedEvent)
 			socket.off('roomLeaved', onRoomLeavedEvent)
@@ -156,15 +161,15 @@ export function Chat() {
 	}, [socket])
 
 	useEffect(() => {
-		if (newMessage !== undefined) {
-			if (newMessage.room_id != undefined) {
+		if (newRoomMessage !== undefined) {
+			if (newRoomMessage.room_id != undefined) {
 				setRooms(rooms.map((room) => {
-					if (room.id === newMessage.room_id)
-						room.messages = [...room.messages, newMessage]
+					if (room.id === newRoomMessage.room_id)
+						room.messages = [...room.messages, newRoomMessage]
 					return room
 				}))
 			}
-			setNewMessage()
+			setNewRoomMessage()
 		}
 		if (newRoom !== undefined) {
 			setRooms([...rooms, newRoom])
@@ -180,39 +185,17 @@ export function Chat() {
 			setLeavedRoom()
 		}
 
-	}, [newMessage, newRoom, leavedRoom])
+	}, [newRoomMessage, newRoom, leavedRoom])
 
-	const handleSubmit = () => {
-		const messageData : MessageData = {
-			content: message.current.value,
-			sender_id: id,
-			room: {
-				id: current.id,
-				name: current.name
-			}
-		}
-		socket.emit('roomMessage', messageData)
-	}
-
-	//const handleSubmit = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-
-	//	const messageData : MessageData = {
-	//		content: message.current.value,
-	//		sender_id: id,
-	//		room: {
-	//			id: current.id,
-	//			name: current.name
-	//		}
-	//	}
-	//	socket.emit('roomMessage', messageData)
-	//}, [current])
 
 	const handleChangeRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
-		const payload = JSON.parse(e.target.value)
+		const payload = JSON.parse(e.currentTarget.getAttribute('value'))
 
 		if (payload.id === current.id)
 			return
+
+		console.log(payload)
 
 		setCurrent(payload)
 
@@ -237,21 +220,6 @@ export function Chat() {
 
 	}, [joining, creating])
 
-	const handleLeaveRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-		const leaveData : LeaveRoomData = {
-			user_id: id,
-			user_login: user,
-			room_id: current.id,
-			room_name: current.name
-		}
-
-		socket.emit('leaveRoom', leaveData)
-
-		current.id = 0,
-		current.name = ''
-
-	}, [current, socket])
-
 	const handleDirectMessages = useCallback(() => {
 		direct ? setDirect(false) : setDirect(true)
 		if (creating)
@@ -260,37 +228,125 @@ export function Chat() {
 			isJoining(false)
 	})
 
+	const roomList = rooms.map((room) => {
+
+		if (current.id === room.id) {
+			return (
+				<ListItem 
+					disablePadding
+					key={room.id}
+					sx={{borderRadius: 20,bgcolor: 'LightSkyBlue'}}
+					>
+					<ListItemButton
+						sx={{borderRadius: 10}}
+						onClick={handleChangeRoom}
+						value={JSON.stringify(room)}
+						>
+						<ListItemText
+							sx={{textAlign: 'center'}}
+							>{room.name}</ListItemText>
+					</ListItemButton>
+				</ListItem>
+			)
+
+		}
+		else {
+			return (
+				<ListItem 
+					disablePadding
+					key={room.id}
+					sx={{borderRadius: 20,bgcolor: 'lightgrey'}}
+					>
+					<ListItemButton
+						sx={{borderRadius: 10}}
+						onClick={handleChangeRoom}
+						value={JSON.stringify(room)}
+						>
+						<ListItemText
+							sx={{textAlign: 'center'}}
+							>{room.name}</ListItemText>
+					</ListItemButton>
+				</ListItem>
+			)
+
+		}
+
+	})
+
 	return (
 		<ChatContext.Provider value={chatContext}>
-			<FormControl>
-				<div>{user}</div>
-				<div>{message.length}</div>
-				<Paper sx={{m:1}}>
-					<Button onClick={handleCreateRoom}>create room</Button>
-					<Button onClick={handleSearchRoom}>search room</Button>
-					<Button onClick={handleDirectMessages}>direct messages</Button>
-				</Paper>
-				<Paper sx={{m:1}}>
-					{rooms.map((room) => (<div key={room.id}>{room.id}</div>))}
-					{rooms.length !== 0 ? rooms.map((value) => (<Button value={JSON.stringify({id: value.id, name: value.name})} key={value.id} onClick={handleChangeRoom}>{value.name}</Button>)): null}
-					{
-						current.name !== '' ?
-							<Paper>
-							<TextField type='text' placeholder={`${current.name}`} inputRef={message} />
-							<Button onClick={handleSubmit}>send message</Button>
-							<Button onClick={handleLeaveRoom}>leave room</Button>
-							{current.id}
-							<RoomContext.Provider value={roomContext}>
-								<RoomMessages/>
-							</RoomContext.Provider>
-							</Paper>
-						: null
-					}
-				</Paper>
-				{creating ? <CreateRoom /> : null}
-				{joining ? <SearchRoom /> : null}
-				{direct ? <DirectMessages/> : null}
-			</FormControl>
+			<Box
+				sx={{display: 'flex'}}
+				>
+				<List sx={{borderRadius:2, p:0,m:2,border: 1,maxHeight:800, maxWidth:200, overflow:'auto'}}>
+
+					<ListItem disablePadding>
+						<ListItemButton
+							onClick={handleDirectMessages}
+							sx={{borderRadius: 10}}>	
+							<ListItemText 
+								sx={{textAlign: 'center'}}
+								>direct messages</ListItemText>
+						</ListItemButton>
+					</ListItem>
+
+					<ListItem disablePadding>
+						<ListItemText
+							sx={{textAlign: 'center', bgcolor: 'grey' }}
+							>rooms</ListItemText>
+					</ListItem>
+
+					{roomList}
+
+					<ListItem disablePadding>
+						<ListItemText
+							sx={{textAlign: 'center', bgcolor: 'grey' }}
+							>options</ListItemText>
+					</ListItem>
+
+					<ListItem disablePadding>
+						<ListItemButton
+							onClick={handleCreateRoom}
+							sx={{borderRadius: 10}}>	
+							<ListItemText 
+								sx={{textAlign: 'center'}}
+								>create room</ListItemText>
+						</ListItemButton>
+					</ListItem>
+
+					<ListItem disablePadding>
+						<ListItemButton
+							onClick={handleSearchRoom}
+							sx={{borderRadius: 10}}>	
+							<ListItemText 
+								sx={{textAlign: 'center'}}
+								>search room</ListItemText>
+						</ListItemButton>
+					</ListItem>
+				</List>
+
+				<RoomContext.Provider value={roomContext}>
+					<Dialog
+						open={creating}
+						onClose={() => isCreating(false) }
+						>
+							<CreateRoom/>
+						</Dialog>
+
+					<Dialog
+						open={joining}
+						onClose={() => isJoining(false) }
+						>
+							<SearchRoom/>
+						</Dialog>
+
+					<Paper>
+						{current.name !== '' ? <RoomMessages/> : null}
+						{current.name !== '' ? <ChatFooter/> : null}
+					</Paper>
+				</RoomContext.Provider>
+			</Box>
 		</ChatContext.Provider>
 	)
+
 }

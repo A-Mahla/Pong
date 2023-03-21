@@ -24,6 +24,19 @@ export class ChatService {
 			return newRoom 
 		}
 
+		async manageDirectMessage(server: Server, client: Socket, payload: MessageData) {
+
+			if (payload.recipient_id !== undefined)
+			{
+				console.log('payload in create direct message: ', payload)
+				const newDirectMessage = await this.messageService.createDirectMessage(payload.sender_id, payload.recipient_id, payload.content)
+				server.to(payload.recipient_id.toString()).emit('directMessage', newDirectMessage)
+				server.to(client.id).emit('directMessage', newDirectMessage)
+				console.log('payload direct message: ', payload)
+				console.log('newDirectMessage: ', newDirectMessage)
+			}
+		}
+
 		async manageRoomMessage(server: Server, client: Socket, payload: MessageData) {
 			
 			console.log("payload:\n\n", payload);
@@ -38,15 +51,6 @@ export class ChatService {
 				console.log('payload in message handler', payload)
 			}
 
-			//else
-			//{
-			//	console.log('payload in create direct message: ', payload)
-			//	const newDirectMessage = await this.messageService.createDirectMessage(payload.sender_id, payload.recipient_id as number, payload.content)
-			//	server.to((payload.recipient_id as number).toString()).emit('directMessage', newDirectMessage)
-			//	server.to(client.id).emit('directMessage', newDirectMessage)
-			//	console.log('payload direct message: ', payload)
-			//	console.log('newDirectMessage: ', newDirectMessage)
-			//}
 			return payload
 		}  
 

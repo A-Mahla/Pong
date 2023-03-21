@@ -5,10 +5,11 @@ import useAuth, { useFetchAuth } from "../context/useAuth"
 import { Api, FetchApi } from "../component/FetchApi"
 import { DirectMessage, MessageData, User } from "./Chat.types"
 import './Chat.css'
+import { socket } from "./Chat"
 
 export function DirectMessages() {
 
-	const {socket, setDirect} = useContext(ChatContext)
+	const {setDirect} = useContext(ChatContext)
 
 	const [users, setUsers] = useState<User[]>([])
 

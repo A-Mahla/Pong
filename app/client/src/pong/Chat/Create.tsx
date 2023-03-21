@@ -4,13 +4,14 @@ import { ChatContext } from "./Chat"
 import useAuth, { useFetchAuth } from '../context/useAuth'
 import { FetchApi } from '../component/FetchApi'
 import { CreateRoomData } from './Chat.types'
+import { socket } from './Chat'
 
 export function CreateRoom() {
 	const name = useRef('')
 
 	const password = useRef('')
 	
-	const {isCreating, socket} = useContext(ChatContext) 
+	const {isCreating} = useContext(ChatContext) 
 
 	const [secured, isSecured] = useState(false)
 
@@ -44,6 +45,7 @@ export function CreateRoom() {
 
 	return (
 		<FormControl>
+			<Button onClick={() => (isCreating(false))}>x</Button>
 			{secured ? 'secured' : 'not secured'} 
 			<FormControlLabel control={<Switch onChange={handleSwitch}/>} label="Protected" />
 			<TextField placeholder="room name" inputRef={name}/>
