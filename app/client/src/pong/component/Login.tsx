@@ -44,6 +44,7 @@ export const TFAComponent = (props: TFAProps) => {
 
 	const handleClose = () => {
 		props.setOpen(false)
+		setError(undefined)
 		navigate('/login')
 	}
 
