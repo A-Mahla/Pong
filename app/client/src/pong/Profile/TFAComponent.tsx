@@ -170,40 +170,7 @@ export const QRCodeComponent = (props: QRProps) => {
 						}
 					}
 				)
-/*
-				if (result.status !== 201 && result.status !== 304) {
-
-					const refresh = await originalRequest()
-
-					if (refresh.response.status !== 200 && refresh.response.status !== 304) {
-						fetchType.auth.setToken('');
-						fetchType.auth.setUser('');
-						fetchType.auth.setId(0);
-						fetchType.auth.setIntraLogin('');
-						useNavigate()('/login');
-						return
-					}
-
-					fetchType.auth.setToken(refresh.data['aT']);
-
-					const result2 = await axios.post(
-
-						`http://${import.meta.env.VITE_SITE}/api/2fa/generate`,
-						{},
-						{ 
-							withCredentials: true,
-							responseType: 'blob',
-							headers: {
-								Authorization: `Bearer ${refresh.data['aT']}`,
-							}
-						}
-					)
-
-					await setQrcode(await URL.createObjectURL(result2.data))
-
-				} else {
-*/					await setQrcode(await URL.createObjectURL(result.data))
-//				}
+				await setQrcode(await URL.createObjectURL(result.data))
 		
 			} catch(err) {
 				try {

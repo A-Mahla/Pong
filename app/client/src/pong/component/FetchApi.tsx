@@ -92,7 +92,7 @@ export const refreshRequest = async () => {
  * @param
  * 			fetchType: Api
  * @returns
- * 			const {response, data}
+ * 			const {response, data, token}
  */
 
 export const FetchApi = async (fetchType: Api) => {
