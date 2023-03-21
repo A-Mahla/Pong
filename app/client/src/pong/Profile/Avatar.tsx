@@ -6,13 +6,6 @@ import React, { createRef, useState } from "react";
 import axios from 'axios';
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
-//const UploadIcon = styled(MuiCloudUpload)(spacing);
-//const DeleteIcon = styled(MuiDelete)(spacing);
-
-
-
-//src="http://localhost:5500/api/users/default/default_avatar"
-
 type AvatarProps = {
 	image: URL,
 	setImage: React.Dispatch<React.SetStateAction<URL>>,
@@ -59,7 +52,6 @@ const ProfileAvatar = (props: AvatarProps) => {
 						}
 					}
 				)
-				console.log(result.status)
 
 				if (result.status !== 201 && result.status !== 304) {
 
