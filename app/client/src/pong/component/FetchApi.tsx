@@ -1,4 +1,5 @@
-import { useContext, useNavigate } from 'react'
+import { useContext } from 'react'
+import { useNavigate } from "react-router-dom";
 import * as React from 'react'
 import useAuth from '/src/pong/context/useAuth'
 
@@ -7,6 +8,7 @@ export type Api = {
 		input: RequestInfo | URL,
 		option?: RequestInit,
 		dataType?: string,
+		token?: string,
 	}
 	auth: {
 		token: string,
@@ -14,6 +16,7 @@ export type Api = {
 		setId: React.Dispatch<React.SetStateAction<number>>,
 		setToken: React.Dispatch<React.SetStateAction<string>>,
 		setIntraLogin: React.Dispatch<React.SetStateAction<string>>,
+		navigate: () => "POP" | "PUSH" | "REPLACE",
 	},
 }
 
@@ -21,11 +24,13 @@ export type apiInput = {
 	input: RequestInfo | URL,
 	option?: RequestInit,
 	dataType?: string,
+	token?: string,
 }
 
 export type responseApi = {
 	response: Response,
-	data: any
+	data: any,
+	token?: string
 }
 
 export const originalRequest = async (api: apiInput) => {
@@ -35,13 +40,21 @@ export const originalRequest = async (api: apiInput) => {
 
 
 	let data;
+	let token;
+
 	if (!api.dataType)
 		data = await response.json();
 	else if (api.dataType === 'text')
 		data = await response.text();
 	else if (api.dataType === 'null')
 		data = null;
-	return {response, data};
+
+	if (api.token)
+		token = api.token;
+	else
+		token = null;
+
+	return {response, data, token};
 
 }
 
@@ -77,7 +90,7 @@ export const refreshRequest = async () => {
  * @param
  * 			fetchType: Api
  * @returns
- * 			const {response, data}
+ * 			const {response, data, token}
  */
 
 export const FetchApi = async (fetchType: Api) => {
@@ -97,7 +110,8 @@ export const FetchApi = async (fetchType: Api) => {
 
 		let newApi = {
 			...fetchType.api,
-			option: newOption
+			option: newOption,
+			token: fetchType.auth.token
 		};
 
 
@@ -112,27 +126,30 @@ export const FetchApi = async (fetchType: Api) => {
 				fetchType.auth.setUser('');
 				fetchType.auth.setId(0);
 				fetchType.auth.setIntraLogin('');
-				useNavigate()('/login');
+				fetchType.auth.navigate('/login');
+
+			} else {
+
+				fetchType.auth.setToken(refresh.data['aT']);
+
+				newHeaders = {
+					...fetchType.api.option?.headers,
+					'Authorization': `Bearer ${refresh.data['aT']}`
+				}
+
+				newOption = {
+					...fetchType.api.option,
+					headers: newHeaders,
+				};
+
+				newApi = {
+					...fetchType.api,
+					option: newOption,
+					token: refresh.data['aT']
+				};
+
+				return await originalRequest(newApi)
 			}
-
-			fetchType.auth.setToken(refresh.data['aT']);
-
-			newHeaders = {
-				...fetchType.api.option?.headers,
-				'Authorization': `Bearer ${refresh.data['aT']}`
-			}
-
-			newOption = {
-				...fetchType.api.option,
-				headers: newHeaders,
-			};
-
-			newApi = {
-				...fetchType.api,
-				option: newOption
-			};
-
-			return await originalRequest(newApi)
 		}
 		return response;
 

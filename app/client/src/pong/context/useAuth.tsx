@@ -27,6 +27,7 @@ interface AuthContextType {
 	authLogIntra: (url: URL) => void;
 	authSignupIntra: (url: URL) => void;
 	twoFA: (url: URL) => void;
+	navigate: () => "POP" | "PUSH" | "REPLACE",
 }
 
 export type fetchContext = {
@@ -332,6 +333,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			authLogIntra,
 			authSignupIntra,
 			twoFA,
+			navigate,
 		}),
 		[user, intraLogin, token, loading, error]
 	);
@@ -344,8 +346,8 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 }
 
 export function useFetchAuth() {
-	const {token, setToken, setId, setUser, setIntraLogin } = useContext(AuthContext);
-	return {token, setToken, setId, setUser, setIntraLogin};
+	const {token, setToken, setId, setUser, setIntraLogin, navigate } = useContext(AuthContext);
+	return {token, setToken, setId, setUser, setIntraLogin, navigate};
 }
 
 export default function useAuth() {

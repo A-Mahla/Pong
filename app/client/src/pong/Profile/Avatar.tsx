@@ -1,17 +1,10 @@
 import Avatar from '@mui/material/Avatar';
 import { Typography, Grid, Button, IconButton } from '@mui/material';
-import useAuth from '/src/pong/context/useAuth';
+import useAuth, {useFetchAuth} from '/src/pong/context/useAuth';
 import { FetchApi, Api, originalRequest } from '/src/pong/component/FetchApi'
 import React, { createRef, useState } from "react";
 import axios from 'axios';
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-
-//const UploadIcon = styled(MuiCloudUpload)(spacing);
-//const DeleteIcon = styled(MuiDelete)(spacing);
-
-
-
-//src="http://localhost:5500/api/users/default/default_avatar"
 
 type AvatarProps = {
 	image: URL,
@@ -23,11 +16,13 @@ const ProfileAvatar = (props: AvatarProps) => {
 	const inputFileRef = createRef(null);
 
 	const {token} = useAuth()
+	const authFetching = useFetchAuth()
 
 	const cleanup = () => {
 		URL.revokeObjectURL(props.image);
 		inputFileRef.current.value = null;
 	};
+
 
 
 	const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,6 +104,17 @@ const ProfileAvatar = (props: AvatarProps) => {
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		if (props.image) {
 			event.preventDefault();
+
+			FetchApi({
+				api: {
+					input: `http://${import.meta.env.VITE_SITE}/api/users/profile/avatar/delete`,
+					option: {
+						method: "POST",
+					},
+					dataType: 'null',
+				},
+				auth: authFetching,
+			})
 			props.setImage(null);
 		}
 	};

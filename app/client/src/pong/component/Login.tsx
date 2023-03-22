@@ -53,8 +53,6 @@ export const TFAComponent = (props: TFAProps) => {
 		setError(undefined)
 		if( e.target.value.length === 6 ) {
 
-			console.log('test')
-
 			if (!isNumber(e.target.value)) {
 				setError('Error Authentification Code')
 			} else {

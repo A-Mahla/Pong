@@ -41,6 +41,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RefreshJwtAuthGuard } from 'src/auth/refresh-jwt-auth.guard'
 import { Intra42AuthGuard } from 'src/auth/intra42.guard';
 import { numberFormat } from './User.dto'
+import * as fs from 'fs';
 
 
 @Controller('users')
@@ -78,8 +79,8 @@ export class UsersController {
 
 //	======================= Profile  ================================
 
-	@Post('profile/avatar/upload')
 	@UseGuards(JwtAuthGuard)
+	@Post('profile/avatar/upload')
 	@UseInterceptors(FileInterceptor('file', {
 		storage: diskStorage({
 			destination: './src/avatar',
@@ -93,16 +94,47 @@ export class UsersController {
 	}
 
 	@UseGuards(JwtAuthGuard)
+	@Post('profile/avatar/delete')
+	async deletePicture(@Request() req: any,) {
+		const user = await this.userService.findOneUser(req.user.login);
+		if (!user || !user.avatar) {
+			throw new BadRequestException;
+		}
+
+		await this.userService.updateUser(user.login, {avatar: ''});
+
+		// ===== to not delete our image in our repo ==== 
+		if ( user.avatar === 'alorain.jpg'
+			|| user.avatar === 'amahla.JPG'
+			|| user.avatar === 'slahlou.JPG')
+			return ;
+		//=====================
+		
+		await fs.unlink(`./src/avatar/${user.avatar}`, (err) => {
+			if (err) {
+				console.error(err);
+				return err;
+			}
+		});
+	}
+
+
+
+	@UseGuards(JwtAuthGuard)
 	@Get('profile/avatar')
 	async getFile(
 		@Res({ passthrough: true }) res: Response,
 		@Request() req: any,
 
-	): Promise<StreamableFile> {
+	): Promise<StreamableFile | undefined> {
 		try {
 			const user = await this.userService.findOneUser(req.user.login);
-			if (!user || !user.avatar) {
+			if (!user) {
 				throw new BadRequestException;
+			}
+			if (!user.avatar) {
+				res.status(204)
+				return
 			}
 			const file = createReadStream(join('./src/avatar/', user.avatar));
 			return new StreamableFile(file);
@@ -147,6 +179,7 @@ export class UsersController {
 	) {
 		await this.userService.updateUser(login, updateUserDto);
 	}
+
 
 	@UseGuards(JwtAuthGuard)
 	@Patch(':login')
