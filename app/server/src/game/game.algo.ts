@@ -31,12 +31,10 @@ export class GameAlgo {
 			this.roomID = player1.roomID;
 			this.gameData = this.initGameData(this.gameModel)
 		}
-
 	}
 
-
 	async	runGame() {
-
+		let nbInitClient = 0;
 		this.player1.playerSocket.on('login', (login: string, socket: Socket) => {
 			this.gameData.player1.login = login;
 			this.server.to(this.player1.playerID).emit('initSetup', this.gameData)
@@ -44,9 +42,6 @@ export class GameAlgo {
 		this.player2.playerSocket.on('login', (login: string, socket: Socket) =>{
 			this.gameData.player2.login = login;
 			this.server.to(this.player2.playerID).emit('initSetup', this.rotateGameData(this.gameData))
-			console.log("[ player1 --> " + this.gameData.ball.speed.x + " | " + this.gameData.ball.speed.y + " | " + this.gameData.ball.x + " | " + this.gameData.ball.y + "]\n");
-			let temp = this.rotateGameData(this.gameData)
-			console.log("[ player2 --> " + temp.ball.speed.x + " | " + temp.ball.speed.y + " | " + temp.ball.x + " | " + temp.ball.y + "]\n");
 		})
 
 		this.player1.playerSocket.on('paddlePos', (y: number, socket: Socket) => {
@@ -56,9 +51,11 @@ export class GameAlgo {
 		this.player2.playerSocket.on('paddlePos', (y: number, socket: Socket) => {
 			this.gameData.player2.y = y;
 		})
+		this.player1.playerSocket.on('isInit', (isInit) => {nbInitClient++})
+		this.player2.playerSocket.on('isInit', (isInit) => {nbInitClient++})
 
-		this.computeGame();
-
+		if (nbInitClient === this.nbPlayers)
+			this.computeGame();
 	}
 
 	private computeGame() {
@@ -100,14 +97,19 @@ export class GameAlgo {
 						clearInterval(interval);
 						clearTimeout(this.countDown);
 						this.computeGame()
+
 					}
 				}
 				this.gameData.ball.x += this.gameData.ball.speed.x;
 				this.gameData.ball.y += this.gameData.ball.speed.y;
 
-				if (++this.gameData.roomInfo.timer == 3750)
+				if (++this.gameData.roomInfo.timer == 3750) {
+					clearTimeout(this.countDown);
+					clearInterval(interval);
+					this.server.to(this.player1!.playerID).emit('gameOver', this.gameData);
+					this.server.to(this.player2!.playerID).emit('gameOver', this.rotateGameData(this.gameData));
 					return ;
-
+				}
 				this.server.to(this.player1!.playerID).emit('updateClient', this.gameData);
 				this.server.to(this.player2!.playerID).emit('updateClient', this.rotateGameData(this.gameData));
 

@@ -64,6 +64,37 @@ const drawCountDown = (canvas: any, countdown: number) => {
 	context.fillText(countdown.toString(), canvas.width / 2, canvas.height / 2);
 }
 
+
+function drawEndGame(canvas: any, gameData: GameData) {
+	const context = canvas.getContext('2d');
+	// Clear the canvas
+	context.clearRect(0, 0, canvas.width, canvas.height);
+
+	// draw background
+	context.fillStyle = '#15232f';
+	context.fillRect(0, 0, canvas.width, canvas.height);
+
+	// Set the font and alignment for the text
+	context.font = "180px 'Tr2n', sans-serif";
+	context.textAlign = "center";
+	context.fillStyle = '#2f8ca3';
+
+	// Determine the text to display based on the outcome of the game
+	let text = undefined;
+	if (gameData.player1.score > gameData.player2.score) {
+	  text = "YOU WIN!";
+	} else if (gameData.player1.score < gameData.player2.score) {
+	  text = "YOU SUCK!";
+	} else if (gameData.player1.score === gameData.player2.score) {
+		text = "EQUALITY"
+	}
+
+	if (text === undefined)
+		console.log("-------------------- PROBLEM");
+	// Draw the text in the center of the canvas
+	context.fillText(text, canvas.width / 2, canvas.height / 2);
+  }
+
 const drawTimer = (canvas: any, timer: number) => {
 	const context = canvas.getContext('2d');
 
@@ -173,29 +204,26 @@ const Canvas = ({ socket, height, width }: any) => {
 
 	const gameCanvas = React.useCallback((node: null | HTMLCanvasElement) => {
 		if (node !== null) {
-		  setGame(true);
-		  canvas.current = node;
+			setGame(true);
+			canvas.current = node;
 		}
 	  }, []);
 
-	const [connected, setConnected] = React.useState(false)
+	socket.on("updateClient", (gameData: GameData) => {
+		console.log("---------------------> ON updateClient");
+		draw(canvas.current, gameData)
+	})
 
-	const updateGame = () => {
-		socket.on("updateClient", (gameData: GameData) => {
-			console.log("---------------------> ON updateClient");
-			draw(canvas.current, gameData)
-		})
-	}
+	socket.on("initSetup", (gameData: GameData) => {
+		console.log("---------------------> ON initSetup");
+		draw(canvas.current, gameData);
+		socket.emit("isInit", true);
+	})
 
-	const initGame = () => {
-		socket.on("initSetup", (gameData: GameData) => {
-			console.log("---------------------> ON initSetup");
-			draw(canvas.current, gameData)
-			setConnected(true)
-		})
-		updateGame()
-	}
-
+	socket.on("gameOver", (gameData: GameData) => {
+		console.log("---------------------> ON gameOver");
+		drawEndGame(canvas.current, gameData);
+	})
 
 	const handleMouseMove = React.useMemo(() => {
 		const canvasElement = canvas.current
@@ -223,12 +251,10 @@ const Canvas = ({ socket, height, width }: any) => {
 
 
 	React.useEffect(() => {
-		if (game && canvas.current) {
-				console.log('TEST', user)
-				socket.emit("login", user);
-			initGame();
-		}
-	}, [game]);
+		socket.emit("login", user);
+		// if (game && canvas.current) {
+		// }
+	});
 
 	return (
 		<main role="main">
