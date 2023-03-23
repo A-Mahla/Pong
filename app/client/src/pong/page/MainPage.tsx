@@ -4,6 +4,7 @@ import { Typography, Button, Box } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import { Link } from "react-router-dom"
 import './MainPage.css'
+import useAuth from '/src/pong/context/useAuth';
 
 const titleStyle = {
 	'@media (max-width:200px)': {
@@ -35,6 +36,8 @@ const gridButton = {
 }
 
 const MainPage = () => {
+
+	const {token} = useAuth()
 
 	return <>
 		<Grid container display='flex' spacing={0}>
@@ -85,27 +88,60 @@ const MainPage = () => {
 				</Grid> 
 			</Grid>
 		</Grid>
-		<Box sx={{position: 'absolute', bottom: '4rem', right: '5rem'}}>
-			<Button
-				component={Link}
-				to="/login"
-				variant='contained'
-				color='primary'
-				className='loginButton'
+		{ !token ?
+			<Box
 				sx={{
-					'@media (max-height:215px)': {
-						display: 'none',
-					},
-					fontSize: '2vw;',
-					borderRadius: 14,
-					pt: 0.4,
-					pb: 0.2,
-					px: 'center',
+					position: 'absolute',
+					bottom: '4rem',
+					right: '5rem'
 				}}
 			>
-				LOGIN / SIGNUP
-			</Button>
-		</Box>
+				<Button
+					component={Link}
+					to="/login"
+					variant='contained'
+					color='primary'
+					className='loginButton'
+					sx={{
+						'@media (max-height:215px)': {
+							display: 'none',
+						},
+						fontSize: '2vw;',
+						borderRadius: 14,
+						pb: 0.2,
+						px: 'center',
+					}}
+				>
+					LOGIN / SIGNUP
+				</Button> 
+			</Box> :
+			<Box
+				sx={{
+					position: 'absolute',
+					bottom: '4rem',
+					right: '7rem'
+				}}
+			>
+				<Button
+					component={Link}
+					to="/login"
+					variant='contained'
+					color='primary'
+					className='loginButton'
+					sx={{
+						'@media (max-height:215px)': {
+							display: 'none',
+						},
+						fontSize: '2vw;',
+						borderRadius: 14,
+						pb: 0.2,
+						px: '4rem',
+					}}
+				>
+					PLAY
+				</Button> 
+			</Box>
+		}
 	</>
 }
 export default MainPage;

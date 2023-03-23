@@ -25,6 +25,7 @@ import { FetchApi } from '/src/pong/component/FetchApi';
 import useAuth from '/src/pong/context/useAuth';
 //import { _2fa } from "./2fa"
 import '/src/App'
+import '/src/pong/page/LeadPage'
 
 function isNumber(str) {
 	return /^\d+$/.test(str);
@@ -176,7 +177,7 @@ export const TFAComponent = (props: TFAProps) => {
 
 export const Login = () => {
 
-	const {authLogin, authSignup, error, setError} = useAuth();
+	const {authLogin, authSignup, error, setError, navigate} = useAuth();
 
 	const [open, setOpen] = useState(false)
 
@@ -189,6 +190,10 @@ export const Login = () => {
 		setError(undefined)
 	}
 
+	const handleHome = (event: React.SyntheticEvent) => {
+		event.preventDefault()
+		navigate('/')
+	};
 
 	const handleLogin = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
@@ -227,7 +232,15 @@ export const Login = () => {
 
 	return <>
 		<Box sx={{my: 'auto'}}>
-			<Typography variant='h4'>Pong</Typography>
+			<Box sx={{width: '6.5rem'}}>
+			<Typography
+				className="homeButton"
+				variant='h4'
+				onClick={handleHome}
+			>
+				Pong
+			</Typography>
+			</Box>
 		</Box>
 		<Divider variant='middle'/>
 		<Grid container justifyContent="center" sx={{height: 600, pt: 15}}>

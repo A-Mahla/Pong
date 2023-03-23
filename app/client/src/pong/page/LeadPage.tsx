@@ -66,9 +66,15 @@ const LeadPage = () => {
 
 	const [value, setValue] = React.useState(1);
 
-	const {user, id} = useAuth();
+	const {user, id, navigate} = useAuth();
+
+	const handleHome = (event: React.SyntheticEvent) => {
+		event.preventDefault()
+		navigate('/')
+	};
 
 	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+		event.preventDefault()
 		setValue(newValue);
 	};
 
@@ -76,7 +82,16 @@ const LeadPage = () => {
 	<Box sx={{height: '7rem'}}>
 			<Grid container display='flex' sx={header} columns={17}>
 				<Grid item xs={4} sx={{my: 'auto'}}>
-					<Typography variant='h1' sx={pongTitle}>Pong</Typography>
+					<Grid item md={7} xs={8}>
+					<Typography
+						variant='h1'
+						sx={pongTitle}
+						onClick={handleHome}
+						className="homeButton"
+					>
+						Pong
+					</Typography>
+					</Grid>
 				</Grid>
 				<Grid item xs={9} sx={{my: 'auto'}}>
 				<Tabs
