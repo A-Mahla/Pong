@@ -28,7 +28,6 @@ const UserPanelGrid = () => {
 		</Grid>
 		<Grid item xl={8} md={7} xs={12}
 			sx={{
-				p: '1vw;',
 				border: 1,
 				display: 'flex',
 				alignItems: 'center',

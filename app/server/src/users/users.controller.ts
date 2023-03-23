@@ -47,7 +47,7 @@ import * as fs from 'fs';
 @Controller('users')
 export class UsersController {
 
-	constructor(private userService: UsersService,) {}
+	constructor(private userService: UsersService) {}
 
 	@Get()
 	async getUsers() { // return all users
@@ -151,8 +151,6 @@ export class UsersController {
 	) {
 		return this.userService.updatePass(req.user.login, updateUserPass);
 	}
-
-
 
 	@UseGuards(JwtAuthGuard)
 	@Get('profile/auth')

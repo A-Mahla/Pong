@@ -13,6 +13,10 @@ import TFAComponent from '/src/pong/Profile/TFAComponent'
 import { FetchApi, Api } from '/src/pong/component/FetchApi'
 import useAuth, { useFetchAuth } from '/src/pong/context/useAuth'
 
+function isNumberOrString(str) {
+	return /^([0-9a-zA-Z_]){3,20}$/.test(str);
+}
+
 type InfoProps = {
 	isAccordion: boolean,
 	setIsAccordion: React.Dispatch<React.SetStateAction<boolean>>,
@@ -21,16 +25,56 @@ type InfoProps = {
 const ChangeInfo = (props: InfoProps) => {
 
 	const fetchAuth = useFetchAuth()
+	const {user} = useAuth()
 
 	const [error, setError] = useState('');
+	const [loginError, setLoginError] = useState('');
 	const isQuery950 = useMediaQuery('(max-width: 950px)')
 
+	const login = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 	const password = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 	const passwordConfirm = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault()
+		setLoginError('')
 		setError('')
+	}
+
+	const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
+		e.preventDefault()
+		if (login.current.value === ''
+			|| login.current.value === user) {
+			setLoginError('')
+		} else if (login.current.value.length < 3 || login.current.value.length > 40) {
+			setLoginError('Login must contain at least between 3 and 40 characters')
+		} else if (!isNumberOrString(login.current.value)) {
+			setLoginError('Login must contain at least just letters, numbers or underscores')
+		} else {
+			const response = await FetchApi({
+				api: {
+					input: `http://${import.meta.env.VITE_SITE}/api/auth/profile/login`,
+					option: {
+						method: 'POST',
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							login: login.current.value,
+						}),
+					}
+				},
+				auth: fetchAuth,
+			})
+			if (response.response.status === 201) {
+				fetchAuth.setUser(login.current.value)
+				fetchAuth.setToken(response.data['aT'])
+				login.current.value = null;
+				setLoginError('Login Modified')
+			} else {
+				setLoginError('Login Unvailable')
+			}
+		}
 	}
 
 	const handlePassword = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -42,7 +86,7 @@ const ChangeInfo = (props: InfoProps) => {
 		} else {
 			const response = await FetchApi({
 				api: {
-					input: `http://${import.meta.env.VITE_SITE}/api/users/profile/pass`,
+					input: `http://${import.meta.env.VITE_SITE}/api/login/profile/login`,
 					option: {
 						method: 'POST',
 						headers: {
@@ -55,7 +99,6 @@ const ChangeInfo = (props: InfoProps) => {
 				},
 				auth: fetchAuth,
 			})
-			console.log('test')
 			if (response.response.status === 201) {
 				password.current.value = null;
 				passwordConfirm.current.value = null;
@@ -65,76 +108,132 @@ const ChangeInfo = (props: InfoProps) => {
 	}
 
 	return <>
-		<FormControl>
-			<Box display={props.isAccordion && isQuery950 ? 'flex' : 'grid'}
+			<Grid container>
+			<Grid item xs={6}>
+				<FormControl>
+					<TextField
+						type="text"
+						id="outlined-password-input"
+						inputRef={login}
+						variant="outlined"
+						label="New Login"
+						size="normal"
+						onChange={handleChange}
+						inputProps={{
+							style: {
+								fontFamily: '"system-ui", sans-serif'
+							}
+						}}
+						sx={{m: 1, mt: 3.5 }}
+					></TextField>
+					<Button size="small"
+						sx={{ color: 'primary.main',
+							mt: 2.5,
+							'@media (max-width: 950px)': {
+								p: 0
+							},
+						 }}
+						onClick={handleLogin}
+					>
+						change login
+					</Button>
+				{ loginError === '' ?
+					null :
+					<>
+					{ loginError === 'Login Modified' ?
+						<Typography variant='caption' align="center" style={{color:"#229954"}}
+							sx={{
+								//				fontFamily: '"system-ui", sans-serif',
+								fontSize: [9, '!important']
+							}}
+						>
+							{loginError}
+						</Typography> :
+						<Typography variant='caption' align="center" color="tomato"
+							sx={{
+								//				fontFamily: '"system-ui", sans-serif',
+								fontSize: [9, '!important']
+							}}
+						>
+							{loginError}
+						</Typography>
+					}
+					</>
+				}
+				</FormControl>
+			</Grid>
+			<Grid item xs={6} display={props.isAccordion && isQuery950 ? 'flex' : 'grid'}
 				justifyContent='center'
 				sx={ isQuery950 && props.isAccordion ?
 					{ '@media (max-width: 950px)': { pt: 0.5 }, justifyContent:'center' } :
 					{ '@media (max-width: 950px)': { pt: 0.5 }, justifyContent:'center' }
 				}
 			>
-				<TextField
-					type='text'
-					id="outlined-password-input"
-					inputRef={password}
-					variant="outlined"
-					label="New Password"
-					size="small"
-					onChange={handleChange}
-					inputProps={{
-						style: {
-							fontFamily: '"system-ui", sans-serif'
-						}
-					}}
-					sx={{p: 1 }}
-				></TextField>
-				<TextField
-					type='text'
-					id="outlined-password-input"
-					inputRef={passwordConfirm}
-					variant="outlined"
-					label="Confirm Password"
-					size="small"
-					onChange={handleChange}
-					inputProps={{
-						style: {
-							fontFamily: '"system-ui", sans-serif'
-						}
-					}}
-					sx={{p: 1 }}
-				></TextField>
-				<Button size="small"
-					sx={{ color: 'primary.main',
-						'@media (max-width: 950px)': {
-							p: 0
-						},
-					 }}
-					onClick={handlePassword}>change password</Button>
-			</Box>
-			{ error === '' ?
-				null :
-				<>
-				{ error === 'Password Modified' ?
-					<Typography variant='caption' align="center" style={{color:"#229954"}}
-						sx={{
-							//				fontFamily: '"system-ui", sans-serif',
-							fontSize: [9, '!important']
+				<FormControl>
+					<TextField
+						type='text'
+						id="outlined-password-input"
+						inputRef={password}
+						variant="outlined"
+						label="New Password"
+						size="small"
+						onChange={handleChange}
+						inputProps={{
+							style: {
+								fontFamily: '"system-ui", sans-serif'
+							}
 						}}
-					>
-						{error}
-					</Typography> :
-					<Typography variant='caption' align="center" color="tomato"
-						sx={{
-							//				fontFamily: '"system-ui", sans-serif',
-							fontSize: [9, '!important']
+						sx={{m: 1 }}
+					></TextField>
+					<TextField
+						type='text'
+						id="outlined-password-input"
+						inputRef={passwordConfirm}
+						variant="outlined"
+						label="Confirm Password"
+						size="small"
+						onChange={handleChange}
+						inputProps={{
+							style: {
+								fontFamily: '"system-ui", sans-serif'
+							}
 						}}
-					>
-						{error}
-					</Typography>
+						sx={{m: 1 }}
+					></TextField>
+					<Button size="small"
+						sx={{ color: 'primary.main',
+							'@media (max-width: 950px)': {
+								p: 0
+							},
+						 }}
+						onClick={handlePassword}>change password
+					</Button>
+				{ error === '' ?
+					null :
+					<>
+					{ error === 'Password Modified' ?
+						<Typography variant='caption' align="center" style={{color:"#229954"}}
+							sx={{
+								//				fontFamily: '"system-ui", sans-serif',
+								fontSize: [9, '!important']
+							}}
+						>
+							{error}
+						</Typography> :
+						<Typography variant='caption' align="center" color="tomato"
+							sx={{
+								//				fontFamily: '"system-ui", sans-serif',
+								fontSize: [9, '!important']
+							}}
+						>
+							{error}
+						</Typography>
+					}
+					</>
 				}
-				</>
-			}
-		</FormControl>
+				</FormControl>
+			</Grid>
+		</Grid>
 	</>
 }
 
