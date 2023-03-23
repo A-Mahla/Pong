@@ -60,7 +60,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 	useEffect( () => {
 
-		async function auth()  {
+		async function auth() {
 
 			try {
 

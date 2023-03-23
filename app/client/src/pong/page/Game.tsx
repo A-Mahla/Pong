@@ -17,140 +17,84 @@ import Canvas from '../component/gameCanva'
 import { draw } from '../component/gameCanva'
 
 
+
 /* --- connecting to the socket.IO server*/
-const socket = io.connect(`http://${import.meta.env.VITE_SITE}/gameTransaction`, {
+
+const socket = io(`http://${import.meta.env.VITE_SITE}/gameTransaction`, {
+	extraHeaders: {
+		login: useAuth().user,
+		id: useAuth().id
+	}
 })
 
 socket.on("connect", () => {
 	console.log("connected to server");
 })
+
+
 /* ---------------- ^^^^ ---------------*/
 
 /* ---------------- type definition for matchmaking fetch informations --------- */
-type waitingGame = {
-	game_id: string,
-	played_at: string,
-	status: string
+
+type PlayerPayload = {
+	id: string,
+	login: string
 }
 
-type arrWaitingGame = waitingGame[];
-
-interface JoinGameProps {
-	joinGameList: arrWaitingGame;
-}
 /* ---------------- ^^^^ ---------------*/
 
+function JoinQueuButton({setJoinQueu, joinQueu}: any): any {
+	const {user, id} = useAuth();
 
-function JoinGame({joinGameList}: JoinGameProps): JSX.Element {
-
-	const JoinGame = (game_id: string) => {
-		socket.emit("joinGame", { roomId: game_id });
+	const playerPayload: PlayerPayload = {
+		id: id,
+		login: user
 	}
 
-	return (
-	<div style={{display: "flex", flexDirection: "column"}}>
-		{joinGameList.map((game) => (
-			<button onClick={() => JoinGame(game.game_id)} key={game.game_id} >
-				Join game {game.game_id}
-			</button>
-		))}
-	</div>
-  )
-}
-
-function CreateGameButton({setGameIscreated, gameIscreated}: any): JSX.Element {
-
-	// callback for creating a new game (in DB and in socket.IO)
-	const createGame = () => {
-		socket.emit("createGame");
+	const matchMaking = () => {
+		socket.emit("automatikMatchMaking", playerPayload);
 	}
-
-	const handleCreateGame = () => {
-		if (!gameIscreated)
+	const handleClick = () => {
+		if (!joinQueu)
 		{
-			createGame();
-			setGameIscreated(true);
+			matchMaking();
+			setJoinQueu(true);
 		}
 	}
+	return (<>
+		{
+			!joinQueu ? (<>
 
-	if (gameIscreated)
-	{
-		return (
+				<div style={{textAlign: "right"}}>
+					<button onClick={handleClick}>
+						JOIN QUEU
+					</button>
+				</div>
+
+			</>) : (
 			<>
-				<>game is created, now you wait for a competitor</>
+				<div style={{textAlign: "right"}}>
+					QUEU IS JOINED
+				</div>
 			</>
-		)
-	} else {
-		return (
-			<>
-			<div style={{textAlign: "right"}}>
-				<button onClick={handleCreateGame}>
-					NEW GAME
-				</button>
-			</div>
-			</>
-		)
-	}
+			)
+		}
+	</>)
+
 }
 
-function MatchMaker ({thereIsMatch, onClick} : any){
+function MatchMaker ({thereIsMatch, sendCanvas} : any){
 
-	const [gameIscreated, setGameIscreated] = React.useState(false);
-	const [isFetched, setIsFetched] = React.useState(false);
-	const [joinGameList, setJoinGameList] = React.useState<arrWaitingGame>();
-	let model: arrWaitingGame;
-
-	const fetchGameList: Api = {
-		api: {
-			input: `http://${import.meta.env.VITE_SITE}/api/game/gamewatinglist`,
-		},
-		auth: useFetchAuth(),
-	}
-
-	React.useEffect(() => {
-
-		// every time we fetch, we convert result as array into the 'model' variable
-		async function fetchingGameList() {
-			const gameList: responseApi = await FetchApi(fetchGameList);
-			setIsFetched(true);
-
-			model = [...gameList.data].map(e => {return {
-				game_id: e.game_id.toString(),
-				played_at: e.played_at,
-				status: e.status
-			}});
-		}
-
-		fetchingGameList().then(e => {
-			setJoinGameList(model);
-		});
-
-		socket.on("roomsUpdate", () => {
-			setIsFetched(false);
-		})
-
-		// event send to member of a room when room is lock and loaded (means two players are in the room)
-		socket.on("lockAndLoaded", () => {
-			onClick();
-		})
-
-		return () => {/* Don't know yet what to return for a clean exit */}
-	}, [gameIscreated, isFetched])
-
+	const [joinQueu, setJoinQueu] = React.useState(false);
+	socket.on("lockAndLoaded", () => {
+		sendCanvas();
+	})
 
 	return (
 		<>
 		<div style={{display: "flex", justifyContent: "space-between"}}>
-
-			{/* if game is created, we stop the user from creating another game */}
-			<div>
-				<h2>CREATE GAME</h2>
-				<CreateGameButton setGameIscreated={setGameIscreated} gameIscreated={gameIscreated}/>
-			</div>
-			<div>
-				<h2>JOIN GAME</h2>
-				{joinGameList? (<JoinGame joinGameList={joinGameList} />) : (<>PROBLEM</>) }
-			</div>
+		<h2>|  AUTOMATIK MATCHMAKING  |</h2>
+			<JoinQueuButton  socket={socket} setJoinQueu={setJoinQueu} joinQueu={joinQueu} />
 		</div>
 		</>
 	)
@@ -168,30 +112,23 @@ const Game = () => {
 			setThereIsMatch(false)
 	}
 
-	if (thereIsMatch) {
-		// able to find a match so start the game
-		console.log("je suis une game")
-		return (
-		  <>
-		  <h1 style={{ fontSize: "3em" }}>Game</h1>
-			<div style={{ clear: 'both' }}>
-			  <Canvas socket={socket} height={640} width={1200} style={canvasStyle} />
-			</div>
-		  </>
-		);
-	}
-	else
-	{
-		// no match yet so MatchMaker algo
-		return (
-			<>
-			  <h1 style={{ fontSize: "3em" }}>Game Matchmaking</h1>
-			  <div style={{ display: 'inline-block', marginLeft: '20px' }}>
-				<MatchMaker thereIsMatch={thereIsMatch} onClick={handleClick} />
-			  </div>
-			</>
-		  );
-	}
+	return (<>
+		{
+			thereIsMatch ?
+			(<>
+				<h1 style={{ fontSize: "3em" }}>Game</h1>
+				<div style={{ clear: 'both' }}>
+					<Canvas socket={socket} height={640} width={1200} style={canvasStyle} />
+				</div>
+			</>)
+			:
+			(<>
+				<h1 style={{ fontSize: "3em" }}>Game Matchmaking</h1>
+				<div style={{ display: 'inline-block', marginLeft: '20px' }}>
+					<MatchMaker thereIsMatch={thereIsMatch} sendCanvas={handleClick} />
+				</div>
+			</>)
+		}</>)
   };
 
   const canvasStyle = {

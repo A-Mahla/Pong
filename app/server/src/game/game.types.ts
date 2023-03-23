@@ -1,30 +1,5 @@
 import { Socket } from "socket.io"
 
-export type GameDataType = {
-	roomInfo: {
-		//roomId: string, // not sure yet i need it
-		timer: number
-	}
-	player1: {
-		login?: string,
-		y: number,
-		score: number
-	},
-	player2: {
-		login?: string,
-		y: number,
-		score: number
-	},
-	ball: {
-		x: number,
-		y: number,
-		r: number,
-		speed: {
-			x: number,
-			y: number
-		}
-	}
-}
 
 export interface GamePatron {
 	//roomId: string, // not sure yet i need it
@@ -49,9 +24,49 @@ export interface RoomInfo {
 	roomId: string
 }
 
-export interface playerInfo {
-	roomID: string,
-	playerID: string,
+export type Player = {
+	id: number,
+	login: string,
 	playerRole: "p1" | "p2",
-	playerSocket: Socket
+	playerSocket: Socket,
+	socketID: string
 }
+
+export type ClientPayload = {
+	id: string,
+	login: string
+}
+
+export type GameDataType = {
+	roomInfo: {
+		//roomId: string, // not sure yet i need it
+		timer: number
+	},
+	player1: {
+		login: string,
+		y: number,
+		score: number
+	},
+	player2: {
+		login: string,
+		y: number,
+		score: number
+	},
+	ball: {
+		x: number,
+		y: number,
+		r: number,
+		speed: {
+			x: number,
+			y: number
+		}
+	}
+}
+
+export enum Status {
+	EMPTY,
+	LOCKED,
+	ONE_PLAYER,
+	TWO_PLAYER,
+	RUNNING
+  }

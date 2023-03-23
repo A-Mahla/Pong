@@ -49,6 +49,15 @@ type GameData = {
 	}
 }
 
+// the idea would be to print a GIF while waiting
+const WaitingScreen = () => {
+	//<iframe src="https://giphy.com/embed/6uGhT1O4sxpi8" width="480" height="240" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/awkward-pulp-fiction-john-travolta-6uGhT1O4sxpi8">via GIPHY</a></p>
+	return (
+	  <div>
+		<img src="https://giphy.com/embed/6uGhT1O4sxpi8" width="480" height="240" alt="Chargement en cours" />
+	  </div>
+	);
+  };
 
 const drawCountDown = (canvas: any, countdown: number) => {
 	const context = canvas.getContext('2d');
@@ -196,7 +205,6 @@ export const draw = (canvas: any, game: any) => {
 const Canvas = ({ socket, height, width }: any) => {
 	// ref to the html5 canvas on wich we will draw
 	const canvas = React.useRef<HTMLCanvasElement>(null); // reference/pointer on html5 canvas element, so you can draw on it
-	console.log(canvas)
 	// getting the user login to print it on canva and transmit it to the other player
 	const { user } = useAuth();
 
@@ -217,7 +225,7 @@ const Canvas = ({ socket, height, width }: any) => {
 	socket.on("initSetup", (gameData: GameData) => {
 		console.log("---------------------> ON initSetup");
 		draw(canvas.current, gameData);
-		socket.emit("isInit", true);
+		// setWaiting(false);
 	})
 
 	socket.on("gameOver", (gameData: GameData) => {
@@ -249,18 +257,9 @@ const Canvas = ({ socket, height, width }: any) => {
 		return undefined
 	}, [game])
 
-
-	React.useEffect(() => {
-		socket.emit("login", user);
-		// if (game && canvas.current) {
-		// }
-	});
-
 	return (
 		<main role="main">
-			<div>
-				<canvas onMouseMove={handleMouseMove} ref={gameCanvas} height={height} width={width} />
-			</div>
+			<canvas onMouseMove={handleMouseMove} ref={gameCanvas} height={height} width={width} />
 		</main>
 	);
 };
