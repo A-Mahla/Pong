@@ -1,6 +1,6 @@
-import { ChatContext } from "./Chat"
+import { ChatContext, DirectMessagesContext } from "./Chat"
 import React, { useContext, useEffect, useState, useCallback, useRef } from "react" 
-import { Button, FormControl, TextField, Box} from "@mui/material"
+import { Button, TextField, FormControl, Paper, Box, InputAdornment, List, ListItem, ListItemButton, ListItemText, Dialog} from "@mui/material"
 import useAuth, { useFetchAuth } from "../context/useAuth"
 import { Api, FetchApi } from "../component/FetchApi"
 import { DirectMessage, MessageData, User } from "./Chat.types"
@@ -9,14 +9,14 @@ import { socket } from "./Chat"
 
 export function DirectMessages() {
 
-	const {setDirect} = useContext(ChatContext)
+	const {setDirect, current, setCurrent} = useContext(ChatContext)
+
+	const {directMessages, setDirectMessages, newDirectMessage, setNewDirectMessage} = useContext(DirectMessagesContext)
 
 	const [users, setUsers] = useState<User[]>([])
 
-	const [messages, setMessages] = useState<DirectMessage[]>([])
-
 	const [target, setTarget] = useState({
-		login: '',
+		login: '',	
 		id: 0
 	})
 
@@ -35,15 +35,6 @@ export function DirectMessages() {
 		auth: auth,
 	}
 
-	const getMessagesRequest: Api = {
-		api: {
-			input: `http://${import.meta.env.VITE_SITE}/api/messages/direct`,
-			option: {
-			},
-		},
-		auth: auth,
-	}
-
 	useEffect(() => {
 		async function getUsers() {
 			const {data} = await FetchApi(getUsersRequest)
@@ -54,25 +45,16 @@ export function DirectMessages() {
 	}, [])
 
 	useEffect(() => {
-		async function getMessages() {
-			const {data} = await FetchApi(getMessagesRequest)
-			console.log('messages data: ', data)
-			return data
+		if (newDirectMessage !== undefined) {
+			setDirectMessages([...directMessages, newDirectMessage])
+			setNewDirectMessage()
 		}
 
-		getMessages().then(data => setMessages(data))
-	}, [])
+	}, [newDirectMessage])
 
-	useEffect(() => {
-		socket.on("directMessage", (payload) => {
-			console.log('payload for direct message: ', payload)
-			console.log('messages before setMessages: ', messages)
-			setMessages([...messages, payload])	
-		})
-	}, [socket, messages])
+	const handleChangeTarget = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+		const value = JSON.parse(e.currentTarget.getAttribute('value'))
 
-	const changeTarget = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-		const value = JSON.parse(e.target.value)
 		setTarget(value)
 	})
 
@@ -87,22 +69,80 @@ export function DirectMessages() {
 
 		directMessage.current.value = ''
 
-		socket.emit('message', payload, (response) => {
-			console.log('message response: ', response);
-		})
-	}, [socket, target, messages])
+		socket.emit('directMessage', payload)
+	}, [socket, target])
+
+	const userList = users.map((user) => {
+
+		if (user.id === id)
+			return null
+
+		if (user.id === target.id) {
+
+			return (
+				<ListItem
+					disablePadding	
+					key={user.id}
+					sx={{borderRadius: 20,bgcolor: 'lightSkyBlue'}}
+					>
+					<ListItemButton
+						sx={{borderRadius: 10}}
+						onClick={handleChangeTarget}
+						value={JSON.stringify(user)}
+						>
+						<ListItemText
+							sx={{textAlign: 'center'}}	
+							>
+							{user.login}
+							</ListItemText>
+
+					</ListItemButton>
+
+				</ListItem>
+
+			)
+
+		} else {
+
+			return (
+				<ListItem
+					disablePadding	
+					key={user.id}
+					sx={{borderRadius: 20,bgcolor: 'lightgrey'}}
+					>
+					<ListItemButton
+						sx={{borderRadius: 10}}
+						onClick={handleChangeTarget}
+						value={JSON.stringify(user)}
+						>
+						<ListItemText
+							sx={{textAlign: 'center'}}	
+							>
+							{user.login}
+							</ListItemText>
+
+					</ListItemButton>
+
+				</ListItem>
+			)
+		}
+	})
 
 	return (
-		<FormControl>
-			{users.map((value) => (value.login !== user ? <Button key={value.id} value={JSON.stringify(value)} onClick={changeTarget}>{value.login}</Button> : null))}
+		<Box
+			sx={{display: 'flex'}}
+			>
+			<List>
+				{userList}
+			</List>
 			{target.id !== 0 ? (
 				<FormControl>
-					{messages.map((message) => {
+					{directMessages.map((message) => {
 						<div>{JSON.stringify(message)}</div>
 					})}
-					<Button>{messages !== undefined ? messages.length.toString() : lol}</Button>
-					{messages ?
-						messages.map((message) => 
+					<Button>{directMessages !== undefined ? directMessages.length.toString() : lol}</Button>
+					{directMessages ?
+						directMessages.map((message) => 
 							(target.id === message.recipient_id ) ?
 								<Box key={message.id} className='messageSent'>{message.sender_id} {message.content} {message.createdAt}</Box>
 								: target.id === message.sender_id ?
@@ -113,7 +153,7 @@ export function DirectMessages() {
 					<Button onClick={handleSubmit}>send</Button>
 				</FormControl>
 			) : null}
-			<div>{`target: ${target.login} , ${target.id}`}</div>
-		</FormControl>
+			
+		</Box>
 	)
 }

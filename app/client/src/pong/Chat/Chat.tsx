@@ -30,16 +30,28 @@ const initialChatContext = {
 	creating: false,
 	setDirect: null,
 	direct: false,
+	current: {},
+	setCurrent: null
 }
 
 const initialRoomContext = {
 	rooms: [],
-	setRooms: null
+	setRooms: null,
+	current: {}
+}
+
+const initialDirectMessagesContext = {
+	directMessages: [],
+	setDirectMessages: null,
+	newDirectMessage: {},
+	setNewDirectMessage: null
 }
 
 export const ChatContext = createContext(initialChatContext)
 
 export const RoomContext = createContext(initialRoomContext)
+
+export const DirectMessagesContext = createContext(initialDirectMessagesContext)
 
 export const socket = io.connect("http://localhost:8080/chat")
 
@@ -59,6 +71,8 @@ export function Chat() {
 
 	const [newDirectMessage, setNewDirectMessage] = useState<Message>()
 
+	const [directMessages, setDirectMessages] = useState<Message[]>([])
+
 	const [joining, isJoining] = useState(false)
 
 	const [creating, isCreating] = useState(false)
@@ -76,12 +90,21 @@ export function Chat() {
 		creating: creating,
 		setDirect: setDirect,
 		direct: direct,
+		current: current,
+		setCurrent: setCurrent
 	}
 
 	const roomContext = {
 		rooms: rooms,
 		setRooms: setRooms,
 		current: current
+	}
+
+	const directMessageContext = {
+		directMessages: directMessages,
+		setDirectMessages: setDirectMessages,
+		newDirectMessage: newDirectMessage,
+		setNewDirectMessage: setNewDirectMessage
 	}
 
 	const findRooms: Api = {
@@ -92,6 +115,25 @@ export function Chat() {
 		},
 		auth: auth,
 	}
+
+	const getMessagesRequest: Api = {
+		api: {
+			input: `http://${import.meta.env.VITE_SITE}/api/messages/direct`,
+			option: {
+			},
+		},
+		auth: auth,
+	}
+
+	useEffect(() => {
+		async function getMessages() {
+			const {data} = await FetchApi(getMessagesRequest)
+			console.log('messages data: ', data)
+			return data
+		}
+
+		getMessages().then(data => setDirectMessages(data))
+	}, [])
 
 	useEffect(() => {
 		const getRooms = async () => {
@@ -226,6 +268,8 @@ export function Chat() {
 			isCreating(false)
 		if (joining)
 			isJoining(false)
+
+		setCurrent({name: '', id: 0})
 	})
 
 	const roomList = rooms.map((room) => {
@@ -279,7 +323,6 @@ export function Chat() {
 				sx={{display: 'flex'}}
 				>
 				<List sx={{borderRadius:2, p:0,m:2,border: 1,maxHeight:800, maxWidth:200, overflow:'auto'}}>
-
 					<ListItem disablePadding>
 						<ListItemButton
 							onClick={handleDirectMessages}
@@ -340,6 +383,9 @@ export function Chat() {
 							<SearchRoom/>
 						</Dialog>
 
+					<DirectMessagesContext.Provider value={directMessageContext}>
+						{direct ? <DirectMessages/> : null}	
+					</DirectMessagesContext.Provider>
 					<Paper>
 						{current.name !== '' ? <RoomMessages/> : null}
 						{current.name !== '' ? <ChatFooter/> : null}
