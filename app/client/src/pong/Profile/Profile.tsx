@@ -111,7 +111,7 @@ const Profile = () => {
 					top: '3rem',
 					height: '12rem',
 					p: '1vw;',
-					border: 1,
+//					border: 1,
 					display: 'flex',
 					'@media (max-width: 950px)': {
 						p: 0,
@@ -132,7 +132,7 @@ const Profile = () => {
 					height: '12rem',
 					py: '1vw;',
 //					px: '2vw;',
-					border: 1,
+//					border: 1,
 					display: 'flex',
 					'@media (max-width: 950px)': {
 						py: '0.5vw;',

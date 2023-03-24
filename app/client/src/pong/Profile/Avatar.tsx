@@ -200,7 +200,7 @@ const AvatarGrid = (props: AvatarProps) => {
 		<Grid item xl={5} md={6} xs={12}
 			sx={{
 				p: '1vw;',
-				border: 1,
+//				border: 1,
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center'
@@ -211,7 +211,7 @@ const AvatarGrid = (props: AvatarProps) => {
 		<Grid item xl={7} md={6} xs={12}
 			sx={{
 				p: '1vw;',
-				border: 1,
+//				border: 1,
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center'

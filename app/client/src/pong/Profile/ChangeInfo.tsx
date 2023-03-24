@@ -203,10 +203,9 @@ const ChangeInfo = (props: InfoProps) => {
 						</>
 					}
 			</Grid>
-			<Grid item xs={6}
-				sx={ isQuery950 ?
-					{ '@media (max-width: 950px)': { display: 'none' } }:
-					{ '@media (max-width: 950px)': { pt: 0.5 }, justifyContent:'center' }
+			<Grid item md={6} xs={0}
+				sx={
+					{ '@media (max-width: 950px)': { display: 'none' }, justifyContent:'center' }
 				}
 			>
 				<FormControl>
