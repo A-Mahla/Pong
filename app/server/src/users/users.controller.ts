@@ -103,13 +103,13 @@ export class UsersController {
 
 		await this.userService.updateUser(user.login, {avatar: ''});
 
-		// ===== to not delete our image in our repo ==== 
+		// ===== to not delete our image in our repo ====
 		if ( user.avatar === 'alorain.jpg'
 			|| user.avatar === 'amahla.JPG'
 			|| user.avatar === 'slahlou.JPG')
 			return ;
 		//=====================
-		
+
 		await fs.unlink(`./src/avatar/${user.avatar}`, (err) => {
 			if (err) {
 				console.error(err);
@@ -163,6 +163,7 @@ export class UsersController {
 	@UseGuards(JwtAuthGuard)
 	@Get('profile/info')
 	async getProfileInfo(@Request() req: any) {
+
 		return this.userService.getProfileInfo(parseInt(req.user.sub))
 	}
 

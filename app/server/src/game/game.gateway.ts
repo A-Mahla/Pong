@@ -9,10 +9,13 @@ import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service'
 import { ClientPayload, RoomInfo, GamePatron, gamePatron, Status, Player } from './game.types'
 import { GameAlgo } from "./game.algo";
-import { Injectable } from "@nestjs/common";
-
+import { Injectable, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { jwtConstants } from "src/auth/constants";
+import  jwt  from 'jsonwebtoken';
 
 @Injectable()
+@UseGuards(JwtAuthGuard)
 @WebSocketGateway({ namespace: 'gameTransaction' })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
@@ -72,11 +75,16 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	}
 
 	handleConnection(client: Socket, ...args: any[]) {
-		console.log(`\n|\n|\n|\n|\n|\n|\n|Client connected: ${client.id}\n${client.handshake.headers.login}`);
+		// if (client.handshake.headers.cookie && jwtConstants.jwt_secret) {
+			// const token = client.handshake.headers.cookie.toString();
+			// const decoded = jwt.verify(token, jwtConstants.jwt_secret);
+		// }
+			console.log(`Client connected: ${client.handshake.headers.cookie}\n-->${jwtConstants.jwt_secret}`);
 	}
+
+
 
 	handleDisconnect(client: Socket) {
 		console.log(`Client disconnected: ${client.id}`);
 	}
-
 }

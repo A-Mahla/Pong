@@ -136,7 +136,7 @@ export class AuthService {
 			refreshToken
 		}
 
-	  }
+	}
 
 	async get42ApiToken(client_code: string) {
 

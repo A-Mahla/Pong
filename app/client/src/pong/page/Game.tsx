@@ -21,10 +21,7 @@ import { draw } from '../component/gameCanva'
 /* --- connecting to the socket.IO server*/
 
 const socket = io(`http://${import.meta.env.VITE_SITE}/gameTransaction`, {
-	extraHeaders: {
-		login: useAuth().user,
-		id: useAuth().id
-	}
+
 })
 
 socket.on("connect", () => {

@@ -68,5 +68,6 @@ export enum Status {
 	LOCKED,
 	ONE_PLAYER,
 	TWO_PLAYER,
-	RUNNING
+	RUNNING,
+	OVER
   }

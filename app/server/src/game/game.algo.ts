@@ -105,6 +105,7 @@ export class GameAlgo {
 					clearInterval(interval);
 					this.server.to(this.player1!.socketID).emit('gameOver', this.gameData);
 					this.server.to(this.player2!.socketID).emit('gameOver', this.rotateGameData(this.gameData));
+					this.status = Status.OVER;
 					this.gameService.endGameDBwrites(this.roomID, this.player1, this.player2, this.gameData);
 					return ;
 				}
