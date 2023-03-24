@@ -9,6 +9,8 @@ import PrivateRoute from '/src/pong/component/PrivateRoute';
 import LoggedRoute from '/src/pong/component/LoggedRoute';
 import { Chat } from '/src/pong/Chat/Chat';
 import Game from '/src/pong/page/Game';
+import { GameSocketProvider } from './services/GameSocketProvider';
+import { GamePage } from './page/Game';
 
 /**
  * ============ Entrypoint of the project =============
@@ -51,7 +53,7 @@ export const Pong = () => {
 							<Route path='/pong' element={<LeadPage/>} />
 						</Route>
 						<Route path="/redirect" element={<Redirect/>} />
-						<Route path="/game" element={<Game/>} />
+						<Route path="/game" element={<GamePage/>} />
 					</Routes>
 				</AuthProvider>
 			</BrowserRouter>

@@ -79,8 +79,9 @@ export class AuthController {
 				id: req.user.id
 			};
 		}
-
-		return await this.authService.loginWithId(req.user, response);
+		const test = (await this.authService.loginWithId(req.user, response))
+		console.log(test);
+		return test;
 	}
 
 	@Post('logout')
@@ -200,7 +201,7 @@ export class AuthController {
 
 		if (body['intraLogin'] !== intraLogin )
 			throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
-	
+
 		const ifExist = await this.userService.findIfExistUser(login)
 
 		if (ifExist)
@@ -220,6 +221,6 @@ export class AuthController {
 			id: token['id'],
 			aT: token['aT'],
 		}
-	}	
+	}
 
 }
