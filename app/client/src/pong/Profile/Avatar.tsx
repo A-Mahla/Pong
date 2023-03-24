@@ -2,7 +2,7 @@ import Avatar from '@mui/material/Avatar';
 import { Typography, Grid, Button, IconButton } from '@mui/material';
 import useAuth, {useFetchAuth} from '/src/pong/context/useAuth';
 import { FetchApi, Api, originalRequest } from '/src/pong/component/FetchApi'
-import React, { createRef, useState } from "react";
+import React, { createRef, useState, useEffect } from "react";
 import axios from 'axios';
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
@@ -178,7 +178,7 @@ const ProfileAvatar = (props: AvatarProps) => {
 const NameAvatar = () => {
 
 	const {user} = useAuth()
-	
+
 	return (
 		<Typography noWrap 
 			fontSize={{

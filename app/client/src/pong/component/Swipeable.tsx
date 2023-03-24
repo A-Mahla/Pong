@@ -10,6 +10,7 @@ import LoginIcon from '@mui/icons-material/Login'
 import LogoutIcon from '@mui/icons-material/Logout';
 import IconButton from '@mui/material/IconButton'
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import Divider from '@mui/material/Divider';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -68,14 +69,21 @@ const Swipeable = (props: propsSwip) => {
 		setState({ ...state, [anchor]: open})
 	}
 
-	const handleLogout = (e: React.MouseEvent<HTMLButtonElement>) => {
-		e.preventDefault()
-		authLogout();
-	}
+
 
 	const Swip = (props: propsSwip) => {
 
-		const {token} = useAuth()
+		const {token, authLogout, navigate} = useAuth()
+
+		const handlePlay = (e: React.MouseEvent<HTMLButtonElement>) => {
+			e.preventDefault()
+			navigate('/pong')
+		}
+
+		const handleLogout = (e: React.MouseEvent<HTMLButtonElement>) => {
+			e.preventDefault()
+			authLogout();
+		}
 
 		return (
 			<Box
@@ -112,6 +120,17 @@ const Swipeable = (props: propsSwip) => {
 								sx={listTextMenu} />
 						</ListItemButton>
 					:
+						(<>
+						<ListItemButton onClick={handlePlay} >
+						<ListItemIcon sx={listIconButton}>
+							<SportsEsportsIcon />
+						</ListItemIcon>
+							<ListItemText
+								primary="Game"
+								disableTypography={true}
+								sx={listTextMenu} />
+						</ListItemButton>
+						<Divider variant="middle" />
 						<ListItemButton onClick={handleLogout} >
 						<ListItemIcon sx={listIconButton}>
 							<LogoutIcon />
@@ -121,6 +140,7 @@ const Swipeable = (props: propsSwip) => {
 								disableTypography={true}
 								sx={listTextMenu} />
 						</ListItemButton>
+						</>)
 					}
 					<Divider variant="middle" />
 					<ListItemButton>
@@ -154,7 +174,7 @@ const Swipeable = (props: propsSwip) => {
 				<IconButton
 					onClick={toggleDrawer(anchor, true)}
 					variant="contained"
-					sx={{ pt: 0 }}
+					sx={{ py: 0.2, px: 0.8 }}
 				>
 					<MenuRoundedIcon sx={{
 						fontSize: '2rem',
