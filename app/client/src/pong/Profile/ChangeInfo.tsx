@@ -154,7 +154,7 @@ const ChangeInfo = (props: InfoProps) => {
 							>
 								{ isQuery950 && props.isAccordion ?
 									"It will be use as login and username" :
-									"It will be use as login and username, don't forget it !"
+									"It will be use as login and username"
 								}
 							</Typography>
 						}

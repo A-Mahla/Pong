@@ -182,6 +182,12 @@ const NameAvatar = () => {
 				sm: '1rem',
 				xs: '1.5rem'
 			}}
+			sx={{
+				maxWidth: '25vw;',
+				'@media (max-width: 549px)': {
+					maxWidth: '40vw;'
+				}
+			}}
 		>
 			{user}
 		</Typography>

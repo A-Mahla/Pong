@@ -105,7 +105,7 @@ const Profile = () => {
 	return <>
 	{ !fetched ? <CircularProgress/> : 
 		<ThemeProvider theme={theme}>
-			<Grid item md={5} sm={6} xs={12}
+			<Grid item mmd={5} sm={6} xs={12}
 				sx={{
 					position: 'relative',
 					top: '3rem',
@@ -125,7 +125,7 @@ const Profile = () => {
 			}>
 				<AvatarGrid image={image} setImage={setImage} />
 			</Grid>
-			<Grid item md={7} sm={6} xs={0}
+			<Grid item mmd={7} sm={6} xs={0}
 				sx={{
 					position: 'relative',
 					top: '3rem',
