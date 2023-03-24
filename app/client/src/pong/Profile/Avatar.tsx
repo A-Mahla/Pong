@@ -1,7 +1,7 @@
 import Avatar from '@mui/material/Avatar';
 import { Typography, Grid, Button, IconButton } from '@mui/material';
 import useAuth, {useFetchAuth} from '/src/pong/context/useAuth';
-import { FetchApi, Api, originalRequest } from '/src/pong/component/FetchApi'
+import { FetchApi, Api, refreshRequest } from '/src/pong/component/FetchApi'
 import React, { createRef, useState, useEffect } from "react";
 import axios from 'axios';
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -59,18 +59,18 @@ const ProfileAvatar = (props: AvatarProps) => {
 
 				try {
 
-					const refresh = await originalRequest()
+					const refresh = await refreshRequest()
 
 					if (refresh.response.status !== 200 && refresh.response.status !== 304) {
-						fetchType.auth.setToken('');
-						fetchType.auth.setUser('');
-						fetchType.auth.setId(0);
-						fetchType.auth.setIntraLogin('');
-						useNavigate()('/login');
+						authFetching.setToken('');
+						authFetching.setUser('');
+						authFetching.setId(0);
+						authFetching.setIntraLogin('');
+						authFetching.navigate('/login');
 						return
 					}
 					
-					fetchType.auth.setToken(refresh.data['aT']);
+					authFetching.setToken(refresh.data['aT']);
 
 					const result2 = await axios.post(
 

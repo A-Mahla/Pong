@@ -98,7 +98,7 @@ export const QRCodeComponent = (props: QRProps) => {
 
 	//	const {user, token, twoFA} = useAuth();
 	const {twoFA, token, error, setError} = useAuth();
-	const fetchAuth = useFetchAuth()
+	const authFetching = useFetchAuth()
 
 
 	const [fetched, setFetched] = useState(false);
@@ -177,11 +177,15 @@ export const QRCodeComponent = (props: QRProps) => {
 					const refresh = await refreshRequest()
 
 					if (refresh.response.status !== 200 && refresh.response.status !== 304) {
-						useNavigate()('/login');
+						authFetching.setToken('');
+						authFetching.setUser('');
+						authFetching.setId(0);
+						authFetching.setIntraLogin('');
+						authFetching.navigate('/login');
 						return
 					}
 
-					fetchType.auth.setToken(refresh.data['aT']);
+					authFetching.setToken(refresh.data['aT']);
 
 					const result2 = await axios.post(
 

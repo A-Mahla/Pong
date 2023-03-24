@@ -119,7 +119,7 @@ const ChangeInfo = (props: InfoProps) => {
 
 	return <>
 			<Grid container>
-			<Grid item md={6} xs={12} display='grid' justifyContent="center" alignItems="center">
+			<Grid item md={6} xs={12} display='grid' justifyContent="center">
 			<FormControl>
 			<Box display={props.isAccordion && isQuery950 ? 'flex' : 'grid'}
 				justifyContent='center'
