@@ -28,7 +28,7 @@ export class GameAlgo {
 
 	constructor (
 		private readonly gameService: GameService,
-		readonly server: Server,
+				readonly server: Server,
 		readonly roomID: string
 	) {
 		this.gameData = this.initGameData(this.gameModel);
@@ -44,10 +44,12 @@ export class GameAlgo {
 
 			this.player1.playerSocket.on('paddlePos', (y: number, socket: Socket) => {
 				this.gameData.player1.y = y;
+				this.gameData.player1.timeout = Date.now();
 			})
 
 			this.player2.playerSocket.on('paddlePos', (y: number, socket: Socket) => {
 				this.gameData.player2.y = y;
+				this.gameData.player2.timeout = Date.now();
 			})
 			this.computeGame();
 		}
@@ -100,7 +102,7 @@ export class GameAlgo {
 					}
 				}
 				// game is finish (3750ms == 1min)
-				if (++this.gameData.roomInfo.timer == 3750) {
+				if ( ++this.gameData.roomInfo.timer == 3750 || this.playersTimeout() ) {
 					clearTimeout(this.countDown);
 					clearInterval(interval);
 					this.server.to(this.player1!.socketID).emit('gameOver', this.gameData);
@@ -118,16 +120,50 @@ export class GameAlgo {
 
 	public initPlayer1(player: Player) {
 		this.player1 = player;
-		console.log(`je passe par la player1  !!! ${this.player1.id} ${this.player1.login} ${this.player1.playerRole}  ${this.player1.playerSocket} ${this.player1.socketID}`)
 		this.gameData.player1.login = this.player1.login;
 		this.status = Status.ONE_PLAYER;
 	}
 
 	public initPlayer2(player: Player) {
-		console.log("je passe par la player2  !!!")
 		this.player2 = player;
 		this.gameData.player2.login = this.player2.login;
 		this.status = Status.TWO_PLAYER;
+	}
+
+
+	public getStatus() : Status {
+		return (this.status);
+	}
+
+	public getPlayerID(player1ou2: number) : string {
+
+		if (player1ou2 === 1)
+		return this.player1.id.toString()
+		else if (player1ou2 === 2)
+		return this.player2.id.toString()
+		else
+		return "error"
+	}
+
+	public playerChangeSocket(playerSocket: Socket, socketID: string, player1ou2: number) {
+		if (player1ou2 === 1) {
+			this.player1.playerSocket = playerSocket
+			this.player1.socketID = socketID;
+			this.player1.playerSocket.on('paddlePos', (y: number, socket: Socket) => {
+				this.gameData.player1.y = y;
+				this.gameData.player1.timeout = Date.now();
+			})
+
+
+		}
+		else if (player1ou2 === 2){
+			this.player2.playerSocket = playerSocket
+			this.player2.socketID = socketID;
+			this.player2.playerSocket.on('paddlePos', (y: number, socket: Socket) => {
+				this.gameData.player2.y = y;
+				this.gameData.player2.timeout = Date.now();
+			})
+		}
 	}
 
 	// initialising the players and ball positions
@@ -139,20 +175,22 @@ export class GameAlgo {
 			player1: {
 				login: 'p1',
 				y: gamePatron.canvasHeight / 2,
-				score: 0
+				score: 0,
+				timeout: 0
 			},
 			player2: {
 				login: 'p2',
 				y: gamePatron.canvasHeight / 2,
-				score: 0
+				score: 0,
+				timeout: 0
 			},
 			ball: {
 				x: gamePatron.canvasWidth / 2,
 				y: gamePatron.canvasHeight / 2,
 				r: 5,
 				speed: {
-					x: 3,
-					y: 3
+					x: 5,
+					y: 5
 				}
 			}
 		})
@@ -174,7 +212,19 @@ export class GameAlgo {
 		return temp;
 	}
 
-	public getStatus() : Status {
-		return (this.status);
+	private playersTimeout(): boolean {
+		if ((Date.now() - this.gameData.player1.timeout) > 6500 || ((Date.now() - this.gameData.player1.timeout) > 6500 ))
+		{
+			this.gameData.player1.score = 0;
+			this.gameData.player2.score = 1;
+			return (true);
+		}
+		else if (((Date.now() - this.gameData.player1.timeout) > 6500 )) {
+			this.gameData.player1.score = 1;
+			this.gameData.player2.score = 0;
+			return (true);
+		}
+		else
+			return (false)
 	}
 }

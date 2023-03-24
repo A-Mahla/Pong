@@ -98,8 +98,6 @@ function drawEndGame(canvas: any, gameData: GameData) {
 		text = "EQUALITY"
 	}
 
-	if (text === undefined)
-		console.log("-------------------- PROBLEM");
 	// Draw the text in the center of the canvas
 	context.fillText(text, canvas.width / 2, canvas.height / 2);
   }
@@ -122,13 +120,8 @@ const drawTimer = (canvas: any, timer: number) => {
 	// Set color and thickness for countdown text
 	context.strokeStyle = '#2f8ca3';
 
-	// Center the text horizontally and place it at the bottom of the canvas
-	context.textAlign = 'center';
-	context.textBaseline = 'bottom';
-
 	// Draw timer text
-	context.strokeText(toString, canvas.width / 2, canvas.height - 50);
-	context.fillText(toString, canvas.width / 2, canvas.height - 50);
+	context.strokeText(toString, canvas.width / 2 + 350, canvas.height - 20);
 }
 
 

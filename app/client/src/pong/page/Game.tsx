@@ -15,18 +15,8 @@ import './game.css'
 import { render } from 'react-dom'
 import Canvas from '../component/gameCanva'
 import { draw } from '../component/gameCanva'
+import { GameSocketProvider, UserContext } from '../services/GameSocketProvider'
 
-
-
-/* --- connecting to the socket.IO server*/
-
-const socket = io(`http://${import.meta.env.VITE_SITE}/gameTransaction`, {
-
-})
-
-socket.on("connect", () => {
-	console.log("connected to server");
-})
 
 
 /* ---------------- ^^^^ ---------------*/
@@ -40,7 +30,7 @@ type PlayerPayload = {
 
 /* ---------------- ^^^^ ---------------*/
 
-function JoinQueuButton({setJoinQueu, joinQueu}: any): any {
+function JoinQueuButton({socket, setJoinQueu, joinQueu}: any): any {
 	const {user, id} = useAuth();
 
 	const playerPayload: PlayerPayload = {
@@ -80,7 +70,7 @@ function JoinQueuButton({setJoinQueu, joinQueu}: any): any {
 
 }
 
-function MatchMaker ({thereIsMatch, sendCanvas} : any){
+function MatchMaker ({socket, thereIsMatch, sendCanvas} : any){
 
 	const [joinQueu, setJoinQueu] = React.useState(false);
 	socket.on("lockAndLoaded", () => {
@@ -97,9 +87,18 @@ function MatchMaker ({thereIsMatch, sendCanvas} : any){
 	)
 }
 
+export const GamePage = () => {
+	return (
+		<GameSocketProvider>
+			<Game />
+		</GameSocketProvider>
+	)
+}
+
 // Main Game page, rendering either matchmaking page or Canvas if therIsMatch == true
 const Game = () => {
 
+	const socket = React.useContext(UserContext);
 	const [thereIsMatch, setThereIsMatch] = React.useState(false);
 
 	const handleClick = () => {
@@ -122,7 +121,7 @@ const Game = () => {
 			(<>
 				<h1 style={{ fontSize: "3em" }}>Game Matchmaking</h1>
 				<div style={{ display: 'inline-block', marginLeft: '20px' }}>
-					<MatchMaker thereIsMatch={thereIsMatch} sendCanvas={handleClick} />
+					<MatchMaker socket={socket} thereIsMatch={thereIsMatch} sendCanvas={handleClick} />
 				</div>
 			</>)
 		}</>)

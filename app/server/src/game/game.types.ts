@@ -45,12 +45,14 @@ export type GameDataType = {
 	player1: {
 		login: string,
 		y: number,
-		score: number
+		score: number,
+		timeout: number
 	},
 	player2: {
 		login: string,
 		y: number,
-		score: number
+		score: number,
+		timeout: number
 	},
 	ball: {
 		x: number,

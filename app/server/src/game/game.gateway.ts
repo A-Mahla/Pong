@@ -12,14 +12,16 @@ import { GameAlgo } from "./game.algo";
 import { Injectable, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { jwtConstants } from "src/auth/constants";
+import { JwtService } from '@nestjs/jwt';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
-@UseGuards(JwtAuthGuard)
 @WebSocketGateway({ namespace: 'gameTransaction' })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	constructor (
 		private readonly gameService: GameService,
+		private jwtService: JwtService
 	) {}
 
 	@WebSocketServer()
@@ -29,9 +31,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	@SubscribeMessage('automatikMatchMaking')
 	async matchMaker(client: Socket, clientPayload: ClientPayload) {
-		console.log("ici je passe !!")
 		let gameToJoin: GameAlgo | undefined;
 
+		console.log(`IN AUTOMATIK MATCHMAKING ${clientPayload.id}`);
 		this.gameMap.forEach((game) => {
 			if (game.getStatus() === Status.ONE_PLAYER) {
 				gameToJoin = game;
@@ -73,12 +75,36 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		}
 	}
 
-	handleConnection(client: Socket, ...args: any[]) {
-		// if (client.handshake.headers.cookie && jwtConstants.jwt_secret) {
-			// const token = client.handshake.headers.cookie.toString();
-			// const decoded = jwt.verify(token, jwtConstants.jwt_secret);
-		// }
-			console.log(`Client connected: ${client.handshake.headers.cookie}\n-->${jwtConstants.jwt_secret}`);
+	async handleConnection(client: Socket, ...args: any[]) {
+		if (client.handshake.auth.token && jwtConstants.jwt_secret) {
+			try {
+				const clientPayload = jwt.verify(client.handshake.auth.token, jwtConstants.jwt_secret);
+				console.log(`IN HANDLE CONNECTION ${clientPayload.sub}`);
+
+				this.gameMap.forEach((game, roomID) => {
+
+					if (game.getStatus() === Status.RUNNING) {
+						if (clientPayload.sub && clientPayload.sub == game.getPlayerID(1)) { // player1
+							client.join(roomID);
+							game.playerChangeSocket(client, client.id, 1);
+							this.server.to(client.id).emit('lockAndLoaded')
+						}
+						else if (clientPayload.sub && clientPayload.sub == game.getPlayerID(2)) { // player2
+							client.join(roomID);
+							game.playerChangeSocket(client, client.id, 2);
+							this.server.to(client.id).emit('lockAndLoaded')
+						}
+						return;
+						// console.log(`---> ICI: ${Status.RUNNING} = ${game.getStatus()} | ${clientPayload.sub} === ${game.getPlayerID(0)} | ${clientPayload.sub} === ${game.getPlayerID(1)}`);
+					}
+				})
+
+			} catch (err) {
+				console.error("laaaaaaaaaa ->" + err);
+				console.log(`Client connected, token is : ${client.handshake.auth.token}`);
+				client.disconnect(true);
+			}
+		}
 	}
 
 
@@ -87,3 +113,4 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		console.log(`Client disconnected: ${client.id}`);
 	}
 }
+
