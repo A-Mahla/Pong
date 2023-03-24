@@ -107,8 +107,8 @@ export class AuthService {
 				},
 				{
 					secret: jwtConstants.jwt_secret,
-	//				expiresIn: '10m',
-					expiresIn: '2s',
+					expiresIn: '10m',
+	//				expiresIn: '2s',
 				},
 			),
 			this.jwtService.signAsync(

@@ -55,7 +55,7 @@ export class TwofaController {
 		const user = await this.usersService.findOneUser(request.user.login);
 
 		if (!user)
-			return null;
+			throw BadRequestException;
 
 		return {
 			isTfaActivate: user.isTwoFA
