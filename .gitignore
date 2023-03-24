@@ -8,7 +8,10 @@ migrations
 *.jpeg
 *.jpg
 *.png
-!default_avatar.jpg
+!alorain.jpg
+!amahla.JPG
+!slahlou.JPG
+!pong-icon.png
 
 # Logs
 logs
