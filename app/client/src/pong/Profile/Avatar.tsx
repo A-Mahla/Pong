@@ -53,7 +53,11 @@ const ProfileAvatar = (props: AvatarProps) => {
 					}
 				)
 
-				if (result.status !== 201 && result.status !== 304) {
+				await props.setImage(URL.createObjectURL(newImage));
+
+			} catch(err) {
+
+				try {
 
 					const refresh = await originalRequest()
 
@@ -82,23 +86,12 @@ const ProfileAvatar = (props: AvatarProps) => {
 					)
 
 					await props.setImage(URL.createObjectURL(newImage));
-
-				} else {
-
-					await props.setImage(URL.createObjectURL(newImage));
-
+				} catch(err) {
+					console.log(err)
 				}
-			} catch(err) {
-				console.log(err)
 			}
-
-
-
-
-			}
-
-			//			props.setImage(URL.createObjectURL(newImage));
 		}
+	}
 
 
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {

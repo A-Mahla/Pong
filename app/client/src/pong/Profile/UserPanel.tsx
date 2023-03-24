@@ -1,16 +1,22 @@
 import {
 	Grid,
+	Divider,
 } from '@mui/material'
 import { useState } from 'react'
 import TFAComponent from '/src/pong/Profile/TFAComponent'
 import ChangeInfo from '/src/pong/Profile/ChangeInfo'
+import useMediaQuery from "/src/pong/hooks/useMediaQuery"
 
 const UserPanelGrid = () => {
 
 	const [isAccordion, setIsAccordion] = useState<boolean>(false)
+	const isQuery950 = useMediaQuery('(max-width: 950px)')
 
 	return <>
-
+		{isAccordion && isQuery950 ?
+			<Divider /> :
+			<Divider orientation="vertical" variant="middle" flexItem />
+		}
 		<Grid item xl={4} md={5} xs={12}
 			sx={{
 				mx: 0,
@@ -26,12 +32,20 @@ const UserPanelGrid = () => {
 		>
 			<TFAComponent isAccordion={isAccordion} setIsAccordion={setIsAccordion}/>
 		</Grid>
+		{isAccordion && isQuery950 ?
+			<Divider /> :
+			<Divider orientation="vertical" flexItem />
+		}
 		<Grid item xl={8} md={7} xs={12}
 			sx={{
 				border: 1,
 				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'center'
+				pt: 1,
+//				alignItems: 'center',
+				justifyContent: 'center',
+				'@media (max-width: 950px)': {
+					pt: 0
+				}
 			}}
 		>
 			<ChangeInfo isAccordion={isAccordion} setIsAccordion={setIsAccordion}/>
