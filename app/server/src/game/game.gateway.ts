@@ -12,7 +12,6 @@ import { GameAlgo } from "./game.algo";
 import { Injectable, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { jwtConstants } from "src/auth/constants";
-import  jwt  from 'jsonwebtoken';
 
 @Injectable()
 @UseGuards(JwtAuthGuard)
