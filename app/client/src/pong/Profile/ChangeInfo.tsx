@@ -143,14 +143,17 @@ const ChangeInfo = (props: InfoProps) => {
 						}}
 						sx={{m: 1 }}
 						helperText={
-							<Typography variant='caption' noWrap align="center"
-								sx={{
+							<Typography variant='caption' align="center"
+								sx={ props.isAccordion ? {
 									fontFamily: '"system-ui", sans-serif',
 									fontSize: [9, '!important'],
-									'@media (max-width: 680px)': {
+									'@media (max-width: 700px)': {
 										display: 'none'
+									}} : {
+										fontFamily: '"system-ui", sans-serif',
+										fontSize: [9, '!important'],
 									}
-								}}
+								}
 							>
 								{ isQuery950 && props.isAccordion ?
 									"It will be use as login and username" :

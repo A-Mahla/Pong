@@ -25,7 +25,7 @@ const theme = createTheme({
 			xs: 0,
 			sm: 550,
 			mmd: 700,
-			md: 950,
+			md: 951,
 			lg: 1200,
 			xl: 1536,
 		},
@@ -116,7 +116,7 @@ const Profile = () => {
 					'@media (max-width: 950px)': {
 						p: 0,
 						display: 'grid',
-						height: '14rem',
+						height: '15rem',
 						alignItems: 'center',
 						justifyContent: 'center',
 						width: '100%'
@@ -137,7 +137,7 @@ const Profile = () => {
 					'@media (max-width: 950px)': {
 						py: '0.5vw;',
 						display: 'block',
-						height: '14rem',
+						height: '15rem',
 						alignItems: 'center',
 						justifyContent: 'center',
 						width: '100%'
