@@ -6,7 +6,12 @@ import AvatarGrid from '/src/pong/Profile/Avatar'
 import UserPanelGrid from '/src/pong/Profile/UserPanel'
 import useAuth, { useFetchAuth } from '/src/pong/context/useAuth' 
 import { FetchApi, Api } from '/src/pong/component/FetchApi' 
-import { ThemeProvider, createTheme, CircularProgress } from '@mui/material';
+import {
+	ThemeProvider,
+	createTheme,
+	CircularProgress,
+	Divider
+} from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 
@@ -20,7 +25,7 @@ const theme = createTheme({
 			xs: 0,
 			sm: 550,
 			mmd: 700,
-			md: 950,
+			md: 951,
 			lg: 1200,
 			xl: 1536,
 		},
@@ -100,18 +105,18 @@ const Profile = () => {
 	return <>
 	{ !fetched ? <CircularProgress/> : 
 		<ThemeProvider theme={theme}>
-			<Grid item sm={5} xs={12}
+			<Grid item mmd={5} sm={6} xs={12}
 				sx={{
 					position: 'relative',
 					top: '3rem',
 					height: '12rem',
 					p: '1vw;',
-					border: 1,
+//					border: 1,
 					display: 'flex',
 					'@media (max-width: 950px)': {
 						p: 0,
 						display: 'grid',
-						height: '14rem',
+						height: '15rem',
 						alignItems: 'center',
 						justifyContent: 'center',
 						width: '100%'
@@ -120,19 +125,19 @@ const Profile = () => {
 			}>
 				<AvatarGrid image={image} setImage={setImage} />
 			</Grid>
-			<Grid item xs={7}
+			<Grid item mmd={7} sm={6} xs={0}
 				sx={{
 					position: 'relative',
 					top: '3rem',
 					height: '12rem',
 					py: '1vw;',
-					px: '2vw;',
-					border: 1,
+//					px: '2vw;',
+//					border: 1,
 					display: 'flex',
 					'@media (max-width: 950px)': {
 						py: '0.5vw;',
 						display: 'block',
-						height: '14rem',
+						height: '15rem',
 						alignItems: 'center',
 						justifyContent: 'center',
 						width: '100%'

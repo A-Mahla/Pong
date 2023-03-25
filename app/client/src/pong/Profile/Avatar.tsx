@@ -1,7 +1,7 @@
 import Avatar from '@mui/material/Avatar';
 import { Typography, Grid, Button, IconButton } from '@mui/material';
 import useAuth, {useFetchAuth} from '/src/pong/context/useAuth';
-import { FetchApi, Api, originalRequest } from '/src/pong/component/FetchApi'
+import { FetchApi, Api, refreshRequest } from '/src/pong/component/FetchApi'
 import React, { createRef, useState, useEffect } from "react";
 import axios from 'axios';
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -53,20 +53,24 @@ const ProfileAvatar = (props: AvatarProps) => {
 					}
 				)
 
-				if (result.status !== 201 && result.status !== 304) {
+				await props.setImage(URL.createObjectURL(newImage));
 
-					const refresh = await originalRequest()
+			} catch(err) {
+
+				try {
+
+					const refresh = await refreshRequest()
 
 					if (refresh.response.status !== 200 && refresh.response.status !== 304) {
-						fetchType.auth.setToken('');
-						fetchType.auth.setUser('');
-						fetchType.auth.setId(0);
-						fetchType.auth.setIntraLogin('');
-						useNavigate()('/login');
+						authFetching.setToken('');
+						authFetching.setUser('');
+						authFetching.setId(0);
+						authFetching.setIntraLogin('');
+						authFetching.navigate('/login');
 						return
 					}
 					
-					fetchType.auth.setToken(refresh.data['aT']);
+					authFetching.setToken(refresh.data['aT']);
 
 					const result2 = await axios.post(
 
@@ -82,23 +86,12 @@ const ProfileAvatar = (props: AvatarProps) => {
 					)
 
 					await props.setImage(URL.createObjectURL(newImage));
-
-				} else {
-
-					await props.setImage(URL.createObjectURL(newImage));
-
+				} catch(err) {
+					console.log(err)
 				}
-			} catch(err) {
-				console.log(err)
 			}
-
-
-
-
-			}
-
-			//			props.setImage(URL.createObjectURL(newImage));
 		}
+	}
 
 
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -189,6 +182,12 @@ const NameAvatar = () => {
 				sm: '1rem',
 				xs: '1.5rem'
 			}}
+			sx={{
+				maxWidth: '25vw;',
+				'@media (max-width: 549px)': {
+					maxWidth: '40vw;'
+				}
+			}}
 		>
 			{user}
 		</Typography>
@@ -201,7 +200,7 @@ const AvatarGrid = (props: AvatarProps) => {
 		<Grid item xl={5} md={6} xs={12}
 			sx={{
 				p: '1vw;',
-				border: 1,
+//				border: 1,
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center'
@@ -212,7 +211,7 @@ const AvatarGrid = (props: AvatarProps) => {
 		<Grid item xl={7} md={6} xs={12}
 			sx={{
 				p: '1vw;',
-				border: 1,
+//				border: 1,
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center'
