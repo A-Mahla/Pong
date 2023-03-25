@@ -16,17 +16,20 @@ import { render } from 'react-dom'
 
 
 
-const CANVAS_HEIGHT = 640;
 const CANVAS_WIDTH = 1200;
-
-
+const CANVAS_HEIGHT = 640;
 const PLAYER_HEIGHT = 100;
 const PLAYER_WIDTH = 5;
+const BALLRADIUS = 5;
+
 
 type GameData = {
-	roomInfo?: {
+	roomInfo: {
 		//roomId: string,
 		timer: number
+		margin?:number
+		playerheight?: number
+		playerwidth?: number
 	}
 	player1: {
 		login?: string
@@ -48,6 +51,8 @@ type GameData = {
 		}
 	}
 }
+
+
 
 // the idea would be to print a GIF while waiting
 const WaitingScreen = () => {
@@ -71,6 +76,19 @@ const drawCountDown = (canvas: any, countdown: number) => {
 	// Draw countdown text
 	context.strokeText(countdown.toString(), canvas.width / 2, canvas.height / 2);
 	context.fillText(countdown.toString(), canvas.width / 2, canvas.height / 2);
+}
+
+const scaleGame = (game: GameData, width : number, height: number) => {
+	game.roomInfo.margin = (width * 5) / CANVAS_WIDTH;
+	game.ball.r = (height * BALLRADIUS) / CANVAS_HEIGHT;
+	game.roomInfo.playerheight = (height * PLAYER_HEIGHT) / CANVAS_HEIGHT;
+	game.roomInfo.playerwidth = (width * PLAYER_WIDTH) / CANVAS_WIDTH;
+
+	game.ball.x = (game.ball.x * width) / CANVAS_WIDTH;
+	game.ball.y = (game.ball.y * height) / CANVAS_HEIGHT;
+
+	game.player1.y = (game.player1.y * height) / CANVAS_HEIGHT;
+	game.player2.y = (game.player2.y * height) / CANVAS_HEIGHT;
 }
 
 
@@ -161,19 +179,22 @@ const drawLogin = (canvas: any, loginPlayer1: string, loginPlayer2: string) => {
 	context.fillText(loginPlayer2, canvas.width - player2LoginWidth - 10, 30);
 }
 
-export const draw = (canvas: any, game: any) => {
+export const draw = (canvas: any, game: GameData) => {
+
 	const context = canvas.getContext('2d')
+	// scaling game to current height and width
+	scaleGame(game, canvas.width, canvas.height);
 	// background
 	context.fillStyle = '#15232f';
 	context.fillRect(0, 0, canvas.width, canvas.height);
 
 	// draw login
-	drawLogin(canvas, game.player1.login, game.player2.login);
+	//drawLogin(canvas, game.player1.login, game.player2.login);
 	//draw score
-	drawScore(canvas, game.player1.score, game.player2.score);
+	//drawScore(canvas, game.player1.score, game.player2.score);
 
 	// draw timer
-	drawTimer(canvas, game.roomInfo.timer);
+	//drawTimer(canvas, game.roomInfo.timer);
 
 	// dram middle line
 	context.strokeStyle = 'white';
@@ -184,8 +205,8 @@ export const draw = (canvas: any, game: any) => {
 
 	// draw players
 	context.fillStyle = 'white';
-	context.fillRect(5, game.player1.y, PLAYER_WIDTH, PLAYER_HEIGHT);
-	context.fillRect(canvas.width - (PLAYER_WIDTH + 5), game.player2.y, PLAYER_WIDTH, PLAYER_HEIGHT);
+	context.fillRect(game.roomInfo.margin, game.player1.y, game.roomInfo.playerwidth, game.roomInfo.playerheight);
+	context.fillRect(canvas.width - (game.roomInfo.playerwidth + game.roomInfo.margin), game.player2.y, game.roomInfo.playerwidth, game.roomInfo.playerheight);
 
 	// draw ball
 	context.beginPath();
@@ -232,19 +253,21 @@ const Canvas = ({ socket, height, width }: any) => {
 			const sendPos = (y: number) => {
 				socket.emit("paddlePos", y);
 			}
+			const playerHeight = (canvasElement.height * PLAYER_HEIGHT) / CANVAS_HEIGHT;
+
 			return (event: any) => {
 				const canvasLocation = canvasElement.getBoundingClientRect();
 				const mouseLocation = event.clientY - canvasLocation?.y
 				let y: number;
 
-				if (mouseLocation < PLAYER_HEIGHT / 2) {
+				if (mouseLocation < playerHeight / 2) {
 					y = 0;
-				} else if (mouseLocation > canvasElement.height - PLAYER_HEIGHT / 2) {
-					y = canvasElement.height - PLAYER_HEIGHT;
+				} else if (mouseLocation > canvasElement.height - playerHeight / 2) {
+					y = canvasElement.height - playerHeight;
 				} else {
-					y = mouseLocation - PLAYER_HEIGHT / 2;
+					y = mouseLocation - playerHeight / 2;
 				}
-				sendPos(y);
+				sendPos((y * CANVAS_HEIGHT) / canvasElement.height);
 			}
 		}
 		return undefined

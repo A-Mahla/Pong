@@ -33,7 +33,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	async matchMaker(client: Socket, clientPayload: ClientPayload) {
 		let gameToJoin: GameAlgo | undefined;
 
-		console.log(`IN AUTOMATIK MATCHMAKING ${clientPayload.id}`);
 		this.gameMap.forEach((game) => {
 			if (game.getStatus() === Status.ONE_PLAYER) {
 				gameToJoin = game;
@@ -79,7 +78,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		if (client.handshake.auth.token && jwtConstants.jwt_secret) {
 			try {
 				const clientPayload = jwt.verify(client.handshake.auth.token, jwtConstants.jwt_secret);
-				console.log(`IN HANDLE CONNECTION ${clientPayload.sub}`);
 
 				this.gameMap.forEach((game, roomID) => {
 

@@ -8,6 +8,7 @@ import Swipeable from '/src/pong/component/Swipeable'
 import Profile from '/src/pong/Profile/Profile'
 import './LeadPage.css'
 import useAuth from '/src/pong/context/useAuth'
+import  GamePage  from './Game';
 
 const header = {
 	height: '4vw;',
@@ -121,9 +122,10 @@ const LeadPage = () => {
 				<Profile/>
 			</TabPanel>
 			<TabPanel value={value} index={1}>
-				<Typography variant='h1'>{user}</Typography>
+				{/* <Typography variant='h1'>{user}</Typography>
 				<br/>
-				<Typography variant='h1'>{id}</Typography>
+				<Typography variant='h1'>{id}</Typography> */}
+						<GamePage height={320} width={600} />
 			</TabPanel>
 			<TabPanel value={value} index={2}>
 				<Typography variant='h1'>Chat</Typography>

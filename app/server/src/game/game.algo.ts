@@ -213,13 +213,13 @@ export class GameAlgo {
 	}
 
 	private playersTimeout(): boolean {
-		if ((Date.now() - this.gameData.player1.timeout) > 6500 || ((Date.now() - this.gameData.player1.timeout) > 6500 ))
+		if ((Date.now() - this.gameData.player1.timeout) > 10000 || ((Date.now() - this.gameData.player1.timeout) > 6500 ))
 		{
 			this.gameData.player1.score = 0;
 			this.gameData.player2.score = 1;
 			return (true);
 		}
-		else if (((Date.now() - this.gameData.player1.timeout) > 6500 )) {
+		else if (((Date.now() - this.gameData.player1.timeout) > 10000 )) {
 			this.gameData.player1.score = 1;
 			this.gameData.player2.score = 0;
 			return (true);

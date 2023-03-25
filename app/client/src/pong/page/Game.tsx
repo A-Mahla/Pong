@@ -87,25 +87,18 @@ function MatchMaker ({socket, thereIsMatch, sendCanvas} : any){
 	)
 }
 
-export const GamePage = () => {
-	return (
-		<GameSocketProvider>
-			<Game />
-		</GameSocketProvider>
-	)
-}
 
 // Main Game page, rendering either matchmaking page or Canvas if therIsMatch == true
-const Game = () => {
+export const Game = ({ height, width }: any) => {
 
 	const socket = React.useContext(UserContext);
 	const [thereIsMatch, setThereIsMatch] = React.useState(false);
 
 	const handleClick = () => {
 		if (!thereIsMatch)
-			setThereIsMatch(true)
+		setThereIsMatch(true)
 		else
-			setThereIsMatch(false)
+		setThereIsMatch(false)
 	}
 
 	return (<>
@@ -114,7 +107,7 @@ const Game = () => {
 			(<>
 				<h1 style={{ fontSize: "3em" }}>Game</h1>
 				<div style={{ clear: 'both' }}>
-					<Canvas socket={socket} height={640} width={1200} style={canvasStyle} />
+					<Canvas socket={socket} height={height} width={width} style={canvasStyle} />
 				</div>
 			</>)
 			:
@@ -125,20 +118,28 @@ const Game = () => {
 				</div>
 			</>)
 		}</>)
-  };
+	};
 
-  const canvasStyle = {
-	display: 'inline-block',
-	verticalAlign: 'top',
-  };
+	const canvasStyle = {
+		display: 'inline-block',
+		verticalAlign: 'top',
+	};
 
-  const buttonStyle = {
-	backgroundColor: '#15232F',
-	color: 'white',
-	border: 'none',
-	padding: '15px 30px',
-	borderRadius: '5px',
-	marginLeft: '20px',
-  };
+	const buttonStyle = {
+		backgroundColor: '#15232F',
+		color: 'white',
+		border: 'none',
+		padding: '15px 30px',
+		borderRadius: '5px',
+		marginLeft: '20px',
+	};
 
-export default Game
+	export const GamePage = ({height, width}: any) => {
+		console.log(`-------> ${height} ${width} `)
+		return (
+			<GameSocketProvider>
+				<Game height={height} width={width}/>
+			</GameSocketProvider>
+		)
+	}
+	export default GamePage;
