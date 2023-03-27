@@ -51,7 +51,7 @@ const ChangeInfo = (props: InfoProps) => {
 			|| login.current.value === user) {
 			setLoginError('')
 		} else if (login.current.value.length < 3 || login.current.value.length > 20) {
-			setLoginError('Login must contain at least between 3 and 40 characters')
+			setLoginError('Login must contain at least between 3 and 20 characters')
 		} else if (!isNumberOrString(login.current.value)) {
 			setLoginError('Login must contain just letters, numbers or underscores')
 		} else {
@@ -91,7 +91,6 @@ const ChangeInfo = (props: InfoProps) => {
 			|| password.current.value.length > 72 ) {
 			setError('Password must contain at least between 8 and 72 characters')
 		} else if (!isPassword(password.current.value)) {
-		console.log(password.current.value)
 			setError('Password must contain at least one uppercase, one lowercase, one number and one special character')
 		} else {
 			const response = await FetchApi({

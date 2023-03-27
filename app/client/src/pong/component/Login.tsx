@@ -206,22 +206,7 @@ export const Login = () => {
 	const handleSignup = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
 
-		if (username.current.value === '')
-		{
-			setError("invalid login");
-			return
-		} else if (password.current.value === '') {
-			setError('password invalid')
-			return
-		} else if (password.current.length >= 72) {
-			setError('password too long')
-			return
-		}
-
-		async function loginAsync() {
-			setError(await authSignup(username.current.value, password.current.value))
-		}
-		loginAsync();
+		navigate('/signup')
 	})
 
 	useEffect(() => {
@@ -263,8 +248,9 @@ export const Login = () => {
 					onChange={handleChange}
 				></TextField>
 
-				<Button sx={{color: 'primary.main'}} onClick={handleSignup}>signup</Button>
 				<Button sx={{color: 'primary.main'}} onClick={handleLogin}>signin</Button>
+				<Divider variant='middle'/>
+				<Button sx={{color: 'primary.main'}} onClick={handleSignup}>signup</Button>
 				<Oauth2>Login via intra</Oauth2>
 				{!error || error === '2FA' || error === 'Error Authentification Code'
 					? null

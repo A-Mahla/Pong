@@ -9,6 +9,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 type AvatarProps = {
 	image: URL,
 	setImage: React.Dispatch<React.SetStateAction<URL>>,
+
 }
 
 const ProfileAvatar = (props: AvatarProps) => {
@@ -26,6 +27,8 @@ const ProfileAvatar = (props: AvatarProps) => {
 
 
 	const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+
+		e.preventDefault()
 
 		const newImage = e.target?.files?.[0];
 
