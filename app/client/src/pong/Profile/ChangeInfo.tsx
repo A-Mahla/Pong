@@ -48,7 +48,7 @@ const ChangeInfo = (props: InfoProps) => {
 	const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
 		if (login.current.value === ''
-			|| login.current.value === user) {
+			|| login.current.value.toLowerCase() === user) {
 			setLoginError('')
 		} else if (login.current.value.length < 3 || login.current.value.length > 20) {
 			setLoginError('Login must contain at least between 3 and 20 characters')
@@ -64,14 +64,14 @@ const ChangeInfo = (props: InfoProps) => {
 							"Content-Type": "application/json",
 						},
 						body: JSON.stringify({
-							login: login.current.value,
+							login: login.current.value.toLowerCase(),
 						}),
 					}
 				},
 				auth: fetchAuth,
 			})
 			if (response.response.status === 201) {
-				fetchAuth.setUser(login.current.value)
+				fetchAuth.setUser(login.current.value.toLowerCase())
 				fetchAuth.setToken(response.data['aT'])
 				login.current.value = null;
 				setLoginError('Login Modified')
@@ -135,11 +135,11 @@ const ChangeInfo = (props: InfoProps) => {
 						label="New Login"
 						size={ isQuery950 && props.isAccordion ? "small" : "normal" }
 						onChange={handleChange}
-						inputProps={{
+/*						inputProps={{
 							style: {
 								fontFamily: '"system-ui", sans-serif'
 							}
-						}}
+						}}*/
 						sx={{m: 1 }}
 						helperText={
 							<Typography variant='caption' align="center"

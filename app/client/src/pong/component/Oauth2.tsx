@@ -57,6 +57,11 @@ const IntraSignup = () => {
 		inputFileRef.current.value = null;
 	};
 
+	const handleChangeInputLogin = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		e.preventDefault()
+		setError('')
+	}
+
 	const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault()
 
@@ -83,18 +88,18 @@ const IntraSignup = () => {
 
 		e.preventDefault()
 		if (login.current.value === '') {
-			setLoginError("Invalid login");
+			setError("Invalid login");
 			return
 		} else if (login.current.value.length < 3
 			|| login.current.value.length > 20) {
-			setLoginError('Login must contain at least between 3 and 20 characters')
+			setError('Login must contain at least between 3 and 20 characters')
 			return
 		} else if (!isNumberOrString(login.current.value)) {
-			setLoginError('Login must contain just letters, numbers or underscores')
+			setError('Login must contain just letters, numbers or underscores')
 			return
 		}
 		await setError(await authSignupIntra(
-			`http://${import.meta.env.VITE_SITE}/api/auth/intra42?login=${login.current.value}&intraLogin=${intraLogin}`,
+			`http://${import.meta.env.VITE_SITE}/api/auth/intra42?login=${login.current.value.toLowerCase()}&intraLogin=${intraLogin}`,
 			file
 		))
 	}
@@ -157,9 +162,26 @@ const IntraSignup = () => {
 			</Grid>
 			</Box>
 
-			<TextField type="text" inputRef={login} label="Login" sx={{p : 1}}/>
+			<TextField type="text" inputRef={login} label="Login"
+				sx={{
+					width: '13rem'
+				}}
+				onChange={handleChangeInputLogin}
+				helperText={error === '' ?
+					null :
+					<Typography
+						sx={{
+							p: 1,
+							fontFamily: '"system-ui", sans-serif',
+							fontSize: [9, '!important']
+						}}
+						align="center"
+						color="tomato"
+					>
+					{error}
+					</Typography> }
+			/>
 			<Button sx={{color: 'primary.main'}} onClick={handleIntraLogin}>signin</Button>
-			{error === '' ? null : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
 		</FormControl>
 		</>
 }

@@ -112,7 +112,7 @@ const SignUp = () => {
 			return
 		}
 
-		await setLoginError(await authSignup(login.current.value, password.current.value, file))
+		await setLoginError(await authSignup(login.current.value.toLowerCase(), password.current.value, file))
 	}
 
 	return <>
@@ -192,12 +192,11 @@ const SignUp = () => {
 				</Box>
 
 				<TextField
-					required
 					type='text'
 					inputRef={login}
 					label="Login / Username"
 					onChange={handleChange}
-					sx={{mb: 3}}
+					sx={{mb: 3, width: '13rem'}}
 					helperText={ loginError === '' ?
 						null :
 						<Typography variant='caption' align="center" color="tomato"
@@ -212,7 +211,6 @@ const SignUp = () => {
 				></TextField>
 
 				<TextField
-					required
 					type='text'
 					id="outlined-password-input"
 					inputRef={password}
@@ -223,11 +221,10 @@ const SignUp = () => {
 							fontFamily: '"system-ui", sans-serif'
 						}
 					}}
-					sx={{mb: 1}}
+					sx={{mb: 1, width: '13rem'}}
 				></TextField>
 
 				<TextField
-					required
 					type='text'
 					id="outlined-password-input"
 					inputRef={passwordConfirm}
@@ -238,7 +235,7 @@ const SignUp = () => {
 							fontFamily: '"system-ui", sans-serif'
 						}
 					}}
-					sx={{ mb: 3}}
+					sx={{ mb: 3, width: '13rem'}}
 					helperText={ error === '' ?
 						null :
 						<Typography variant='caption' align="center" color="tomato"
