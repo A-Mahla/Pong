@@ -28,10 +28,11 @@ import { diskStorage } from  'multer';
 import { join } from  'path';
 import { createReadStream } from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express'
-import { CreateUserDto, UpdateUserDto } from './User.dto'
+import { CreateUserDto, UpdateUserDto, UpdateUserDtoPass } from './User.dto'
 import { UsersService } from './users.service'
 import { Response } from "express";
 import { Request as ExpressRequest } from 'express'
+import { JwtPayload } from 'src/auth/auth.types'
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from '../auth/auth.service'
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
@@ -41,6 +42,7 @@ import { Intra42AuthGuard } from 'src/auth/intra42.guard';
 import { numberFormat } from './User.dto'
 import { RoomsService } from 'src/chat/rooms/rooms.service';
 import { User } from '@prisma/client';
+import * as fs from 'fs';
 
 
 @Controller('users')
@@ -74,27 +76,67 @@ export class UsersController {
 	}*/
 
 //	====================== POST AND GET AVATAR ===================
+
+//	====================== ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ===================
+
+//	======================= Profile  ================================
+
 	@UseGuards(JwtAuthGuard)
-	@Post(':login/avatar')
+	@Post('profile/avatar/upload')
 	@UseInterceptors(FileInterceptor('file', {
-	storage: diskStorage({
-		destination: './src/avatar',
-		filename: (req, file, cb) => {
-			return cb(null, req.params.login + ".jpeg");
-			},
-		}),
+		storage: diskStorage({
+			destination: './src/avatar',
+/*		filename: (req, file, cb) => {
+				return cb(null, req.params.id + ".jpeg");
+			},*/
+		})
 	}))
 	async checkAvatar(@Request() req: any, @UploadedFile() file: Express.Multer.File){
 		return this.userService.updateAvatar(req.user.login , file.filename);
 	}
 
 	@UseGuards(JwtAuthGuard)
-	@Get('avatar/:login')
-	async getFile(@Param('login') login : string, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
+	@Post('profile/avatar/delete')
+	async deletePicture(@Request() req: any,) {
+		const user = await this.userService.findOneUser(req.user.login);
+		if (!user || !user.avatar) {
+			throw new BadRequestException;
+		}
+
+		await this.userService.updateUser(user.login, {avatar: ''});
+
+		// ===== to not delete our image in our repo ====
+		if ( user.avatar === 'alorain.jpg'
+			|| user.avatar === 'amahla.JPG'
+			|| user.avatar === 'slahlou.JPG')
+			return ;
+		//=====================
+
+		await fs.unlink(`./src/avatar/${user.avatar}`, (err) => {
+			if (err) {
+				console.error(err);
+				return err;
+			}
+		});
+	}
+
+
+
+	@UseGuards(JwtAuthGuard)
+	@Get('profile/avatar')
+	async getFile(
+		@Res({ passthrough: true }) res: Response,
+		@Request() req: any,
+
+	): Promise<StreamableFile | undefined> {
 		try {
-			const user = await this.userService.findOneUser(login);
+			const user = await this.userService.findOneUser(req.user.login);
 			if (!user) {
 				throw new BadRequestException;
+			}
+			if (!user.avatar) {
+				res.status(204)
+				return
 			}
 			const file = createReadStream(join('./src/avatar/', user.avatar));
 			return new StreamableFile(file);
@@ -102,9 +144,15 @@ export class UsersController {
 			throw new BadRequestException;
 		}
 	}
-//	====================== ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ===================
 
-//	======================= Test Profile  ================================
+	@UseGuards(JwtAuthGuard)
+	@Post('profile/pass')
+	async changePassword(
+		@Request() req: any,
+		@Body() updateUserPass: UpdateUserDtoPass
+	) {
+		return this.userService.updatePass(req.user.login, updateUserPass);
+	}
 
 	@UseGuards(JwtAuthGuard)
 	@Get('profile/auth')
@@ -115,6 +163,7 @@ export class UsersController {
 	@UseGuards(JwtAuthGuard)
 	@Get('profile/info')
 	async getProfileInfo(@Request() req: any) {
+
 		return this.userService.getProfileInfo(parseInt(req.user.sub))
 	}
 
@@ -131,6 +180,7 @@ export class UsersController {
 	) {
 		await this.userService.updateUser(login, updateUserDto);
 	}
+
 
 	@UseGuards(JwtAuthGuard)
 	@Patch(':login')

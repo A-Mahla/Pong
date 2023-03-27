@@ -26,6 +26,7 @@ import { Controller,
 	HttpStatus
 } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from 'src/users/User.dto'
+import { UpdateUserParams } from 'src/users/User.types'
 import { UsersService } from 'src/users/users.service'
 import { Response } from "express";
 import { Request as ExpressRequest } from 'express'
@@ -78,8 +79,9 @@ export class AuthController {
 				id: req.user.id
 			};
 		}
-
-		return await this.authService.loginWithId(req.user, response);
+		const test = (await this.authService.loginWithId(req.user, response))
+		console.log(test);
+		return test;
 	}
 
 	@Post('logout')
@@ -98,6 +100,36 @@ export class AuthController {
 	) {
 		return await this.authService.refreshTokens(req.user, response);
 	}
+
+	// ======================== Profile ======================
+
+	@UseGuards(JwtAuthGuard)
+	@Post('profile/login')
+	async changePassword(
+		@Request() req: any,
+		@Body() updateUserParam: any,
+		@Res({ passthrough: true }) response: Response
+	) {
+
+		if (!updateUserParam.login)
+			throw new BadRequestException;
+
+		if (!await this.userService.findIfExistUser(updateUserParam.login)) {
+			await this.userService.updateUser(
+				req.user.login,
+				updateUserParam
+			)
+			return await this.authService.login({
+				id: req.user.sub,
+				login: updateUserParam.login
+			}, response)
+		} else {
+			throw new BadRequestException('unvailable'); 
+		}
+	}
+	
+
+	// =======================================================
 
 	// ========================================= 2FA ======================
 
@@ -169,7 +201,7 @@ export class AuthController {
 
 		if (body['intraLogin'] !== intraLogin )
 			throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
-	
+
 		const ifExist = await this.userService.findIfExistUser(login)
 
 		if (ifExist)
@@ -189,6 +221,6 @@ export class AuthController {
 			id: token['id'],
 			aT: token['aT'],
 		}
-	}	
+	}
 
 }

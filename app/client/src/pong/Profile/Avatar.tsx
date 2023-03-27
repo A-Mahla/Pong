@@ -1,40 +1,169 @@
 import Avatar from '@mui/material/Avatar';
-import { Typography, Grid, IconButton } from '@mui/material';
-import useAuth from '/src/pong/context/useAuth'
+import { Typography, Grid, Button, IconButton } from '@mui/material';
+import useAuth, {useFetchAuth} from '/src/pong/context/useAuth';
+import { FetchApi, Api, refreshRequest } from '/src/pong/component/FetchApi'
+import React, { createRef, useState, useEffect } from "react";
+import axios from 'axios';
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
-//src="http://localhost:5500/api/users/default/default_avatar"
+type AvatarProps = {
+	image: URL,
+	setImage: React.Dispatch<React.SetStateAction<URL>>,
+}
 
-const ProfileAvatar = () => {
+const ProfileAvatar = (props: AvatarProps) => {
+
+	const inputFileRef = createRef(null);
+
+	const {token} = useAuth()
+	const authFetching = useFetchAuth()
+
+	const cleanup = () => {
+		URL.revokeObjectURL(props.image);
+		inputFileRef.current.value = null;
+	};
+
+
+
+	const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+
+		const newImage = e.target?.files?.[0];
+
+		if (newImage) {
+
+			if (props.image) {
+				cleanup();
+			}
+
+			const file = new FormData();
+			file.append("file", newImage)
+
+			try {
+
+				const result = await axios.post(
+
+					`http://${import.meta.env.VITE_SITE}/api/users/profile/avatar/upload`,
+					file,
+					{ 
+						withCredentials: true,
+						headers: {
+							Authorization: `Bearer ${token}`,
+							'Content-Type': "multipart/form-data"
+						}
+					}
+				)
+
+				await props.setImage(URL.createObjectURL(newImage));
+
+			} catch(err) {
+
+				try {
+
+					const refresh = await refreshRequest()
+
+					if (refresh.response.status !== 200 && refresh.response.status !== 304) {
+						authFetching.setToken('');
+						authFetching.setUser('');
+						authFetching.setId(0);
+						authFetching.setIntraLogin('');
+						authFetching.navigate('/login');
+						return
+					}
+					
+					authFetching.setToken(refresh.data['aT']);
+
+					const result2 = await axios.post(
+
+						`http://${import.meta.env.VITE_SITE}/api/users/profile/avatar/upload`,
+						file,
+						{ 
+							withCredentials: true,
+							headers: {
+								Authorization: `Bearer ${refresh.data['aT']}`,
+								'Content-Type': "multipart/form-data"
+							}
+						}
+					)
+
+					await props.setImage(URL.createObjectURL(newImage));
+				} catch(err) {
+					console.log(err)
+				}
+			}
+		}
+	}
+
+
+	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+		if (props.image) {
+			event.preventDefault();
+
+			FetchApi({
+				api: {
+					input: `http://${import.meta.env.VITE_SITE}/api/users/profile/avatar/delete`,
+					option: {
+						method: "POST",
+					},
+					dataType: 'null',
+				},
+				auth: authFetching,
+			})
+			props.setImage(null);
+		}
+	};
 
 	return (
 		<>
-		<input accept="image/*" id="upload-avatar-pic" type="file" hidden />
-		<label htmlFor="upload-avatar-pic">
+		<Grid container
+			sx={{
+				width: '10rem',
+				height: '10rem',
+				alignItems: 'center',
+				justifyContent: 'center'
+			}}
+		>
+		<input
+			ref={inputFileRef}
+			accept="image/*"
+			id="avatar-image-upload"
+			type="file"
+			onChange={handleChange}
+			hidden
+		/>
+		<label htmlFor="avatar-image-upload">
 			<IconButton component="span">
 				<Avatar
+					variant="inherit"
 					alt="avatar"
-					src=""
+					src={props.image}
 					sx={{
+						display: 'flex',
 						p: 0,
 						border: 1,
 						boxShadow: 24,
-						'@media (max-width: 550px)': {
-							width: '7rem',
-							height: '7rem',
-						},
-						'@media (min-width:550px) and (max-width: 950px)': {
-							width: '6rem',
-							height: '6rem',
-						},
-						'@media (min-width: 950px)': {
-							width: '8rem',
-							height: '8rem',
-						},
-						AlignItems: 'center'
+						width: '9rem',
+						height: '9rem',
+						alignItems: 'center',
+						justifyContent: 'center'
 					}}
 				/>
 			</IconButton>
 		</label>
+		<IconButton
+			component="span"
+			variant="inherit"
+			size='small'
+			sx={{
+				position: 'relative',
+				bottom: 35,
+				right: 65,
+				"&:hover": { boxShadow: 'none', }
+			}}
+			onClick={handleClick}
+		>
+			{props.image ? <DeleteOutlineIcon/> : null}
+		</IconButton>
+		</Grid>
 		</>
 	)
 }
@@ -42,7 +171,7 @@ const ProfileAvatar = () => {
 const NameAvatar = () => {
 
 	const {user} = useAuth()
-	
+
 	return (
 		<Typography noWrap 
 			fontSize={{
@@ -53,30 +182,36 @@ const NameAvatar = () => {
 				sm: '1rem',
 				xs: '1.5rem'
 			}}
+			sx={{
+				maxWidth: '25vw;',
+				'@media (max-width: 549px)': {
+					maxWidth: '40vw;'
+				}
+			}}
 		>
 			{user}
 		</Typography>
 	)
 }
 
-const AvatarGrid = () => {
+const AvatarGrid = (props: AvatarProps) => {
 
 	return <>
 		<Grid item xl={5} md={6} xs={12}
 			sx={{
 				p: '1vw;',
-				border: 1,
+//				border: 1,
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center'
 			}
 		}>
-			<ProfileAvatar />
+			<ProfileAvatar image={props.image} setImage={props.setImage} />
 		</Grid>
 		<Grid item xl={7} md={6} xs={12}
 			sx={{
 				p: '1vw;',
-				border: 1,
+//				border: 1,
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center'

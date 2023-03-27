@@ -16,14 +16,26 @@ export class CreateUserDto {
 	@IsString()
 	@IsOptional()
 	intraLogin?:string;
+
+	@IsString()
+	@IsOptional()
+	avatar?:string;
+
+}
+
+export class UpdateUserDtoPass {
+	@IsDefined()
+	@IsNotEmpty()
+	@IsString()
+	password: string;
 }
 
 export class UpdateUserDto {
-	login: string;
-	password: string;
-	avatar: string;
-	intraLogin: string;
-	refreshToken: string
+	login?: string;
+	password?: string;
+	avatar?: string;
+	intraLogin?: string;
+	refreshToken?: string
 }
 
 export class UserDto {
@@ -32,7 +44,7 @@ export class UserDto {
 	updatedAt: Date;
 	login: string;
 	password: string;
-	avatar: string;
+	avatar?: string;
 	intraLogin?: string;
 	refreshToken?:string
 }

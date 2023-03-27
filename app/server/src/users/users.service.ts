@@ -2,9 +2,10 @@ import { BadGatewayException, BadRequestException, Injectable, UseInterceptors, 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, User, User_Game, Games, Room } from '@prisma/client';
 import { GameService } from 'src/game/game.service';
-import { CreateUserParams, UpdateUserParams, profile } from './User.types'
+import { CreateUserParams, UpdateUserParams, UpdateUserPass, profile } from './User.types'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { ok } from 'assert';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -54,9 +55,9 @@ export class UsersService {
 
 	async updateUser(login: string, updateUserDetails: UpdateUserParams) : Promise<User> {
 		return await this.prisma.user.update(
-		{
-			where: { login: login },
-			data: {...updateUserDetails}
+			{
+				where: { login: login },
+				data: {...updateUserDetails}
 			}
 		).catch((e) => {
 			throw new BadRequestException(); // maybe we will have to specifie the error later
@@ -91,9 +92,11 @@ export class UsersService {
 	}
 
 	async createUser(userDetails: CreateUserParams): Promise<User> {
+
 		const newUser = {
-			createdAt: new Date(),
 			...userDetails,
+			createdAt: new Date(),
+			password: await bcrypt.hash(userDetails.password, 12),
 		};
 		return this.prisma.user.create({
 			data: { ...newUser }
@@ -120,7 +123,6 @@ export class UsersService {
 	async turnOnTwoFA(login: string) {
 		return await this.updateUser(login, {
 			isTwoFA: true,
-			twoFA: ''
 		});
 	}
 
@@ -133,7 +135,14 @@ export class UsersService {
 
 /* ============^^^^^^^^^^^^^^^^^^^^^^^^^^^^^========================*/
 
-/* ============================ get profile ========================*/
+/* ============================ Profile ========================*/
+
+	async updatePass(login: string, updateUserPass: UpdateUserPass) {
+		return await this.updateUser(
+			login,
+			{ password: await bcrypt.hash(updateUserPass.password, 12) }
+		)
+	}
 
 	async getProfileAuth(user_id: number) {
 		const user = await this.prisma.user.findUnique({

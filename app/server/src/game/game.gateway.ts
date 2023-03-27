@@ -7,164 +7,108 @@ import { 	SubscribeMessage,
 import { stringify } from "querystring";
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service'
+import { ClientPayload, RoomInfo, GamePatron, gamePatron, Status, Player } from './game.types'
+import { GameAlgo } from "./game.algo";
+import { Injectable, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { jwtConstants } from "src/auth/constants";
+import { JwtService } from '@nestjs/jwt';
+import * as jwt from 'jsonwebtoken';
 
-type GameDataType = {
-	roomInfo: {
-		//roomId: string,
-		countDownRequired: boolean,
-		canvasHeight: number,
-		canvasWidth: number,
-		playerHeight: number
-		playerWidth: number
-	}
-	player1: {
-		login?: string,
-		y: number,
-		score: number
-	},
-	player2: {
-		login?: string,
-		y: number,
-		score: number
-	},
-	ball: {
-		x: number,
-		y: number,
-		r: number,
-		speed: {
-			x: number,
-			y: number
-		}
-	}
-}
-
-interface RoomInfo {
-	roomId: string
-}
-
-interface playerInfo {
-	roomID: string,
-	playerID: string,
-	playerRole: "p1" | "p2"
-}
-
-@WebSocketGateway({ namespace: 'gameTrans' })
+@Injectable()
+@WebSocketGateway({ namespace: 'gameTransaction' })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
-	constructor (private readonly gameService: GameService) {}
-
-
+	constructor (
+		private readonly gameService: GameService,
+		private jwtService: JwtService
+	) {}
 
 	@WebSocketServer()
 	server: Server
 
-	// so i will be able to difference both player in the game
-	players: playerInfo[] = [];
-	connectionCount = 0;
+	gameMap = new Map<string, GameAlgo>();
 
-	@SubscribeMessage('createGame')
-	async newGame(client: Socket) {
-		const newGame = await this.gameService.registerNewGame('WAIT');
-		//if (newGame)
-		//	client.join(newGame.game_id.toString());
-		console.log("----------------------> " + client.id + " created a new game");
-		this.server.emit('roomsUpdate');
-		// keeping track of the room configuration
-		this.players.push( { playerID: client.id, playerRole: "p1", roomID: newGame.game_id.toString()} );
-		return newGame;
-	}
+	@SubscribeMessage('automatikMatchMaking')
+	async matchMaker(client: Socket, clientPayload: ClientPayload) {
+		let gameToJoin: GameAlgo | undefined;
 
-	@SubscribeMessage('joinGame')
-	async joinGame(client: Socket, roomInfo: RoomInfo) {
-		const roomId: string = roomInfo.roomId;
-		// if (!this.server.sockets.adapter.rooms.get(roomId)) {
-		//   La salle n'existe pas
-		//   console.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeere")
-		//   return { error: 'La salle n\'existe pas' };
-		// }
-		// La salle existe, rejoindre la salle
-		client.join(roomId);
-		this.players.push( { playerID: client.id, playerRole: "p2", roomID: roomId} );
-		this.gameService.updateGamestatus(parseInt(roomInfo.roomId), 'FULL');
-		this.server.emit('roomsUpdate');
-		this.server.to(roomId).emit('lockAndLoaded');
-		console.log("room join attempt, roomID: " + roomId);
-		return { success: true };
-	}
+		this.gameMap.forEach((game) => {
+			if (game.getStatus() === Status.ONE_PLAYER) {
+				gameToJoin = game;
+				return;
+			}
+		});
 
-	@SubscribeMessage('move')
-	onMove(client: Socket, gameData: GameDataType){
-		const playerInfo = this.players.find(p => p.playerID === client.id);
-		// if game is paused, we make it move
-		if (gameData.ball.speed.x === 0 && gameData.ball.speed.y  === 0)
-			gameData.ball.speed.x = gameData.ball.speed.y = 2;
-		// make the ball bounce on the height limits, should be common to both players
-		if (gameData.ball.y > gameData.roomInfo.canvasHeight || gameData.ball.y < 0) {
-			gameData.ball.speed.y *= -1;
-		}
-		if (gameData.ball.x < 15) {
-			let bornInf = (gameData.player1.y - gameData.roomInfo.playerHeight)
-			let bornSup = (gameData.player1.y + gameData.roomInfo.playerHeight)
-			console.log("gameData.roomInfo.playerHeight: " + gameData.roomInfo.playerHeight + " | bornSup " + bornSup);
-			if (gameData.ball.y > bornInf && gameData.ball.y < bornSup) {
-				gameData.ball.speed.x *= -1,2;
-			} else {
-				// player1 loose, we reset the ball at the center of the field
-				gameData.player2.score = 1;
-				gameData.ball.x = gameData.roomInfo.canvasWidth / 2;
-				gameData.ball.y = gameData.roomInfo.canvasHeight / 2;
-				gameData.ball.speed.x = 0;
-				gameData.ball.speed.y = 0;
+		if (gameToJoin) {
+			// La première partie avec un statut 'ONE_PLAYER' a été trouvée et peut être utilisée ici
+			client.join(gameToJoin.roomID);
+			gameToJoin.initPlayer2({
+				id: parseInt( clientPayload.id ),
+				login: clientPayload.login,
+				socketID: client.id,
+				playerRole: "p2",
+				playerSocket: client
+			});
+			this.server.to(client.id).emit('lockAndLoaded')
+		} else {
+		  // no waiting games with one player so we create one
+		  	const newGameDB = await this.gameService.registerNewGame('WAIT');
+			if (newGameDB) {
+				client.join(newGameDB.game_id.toString());
+				const newGameAlgo: GameAlgo = new GameAlgo(this.gameService, this.server, newGameDB.game_id.toString());
+				this.gameMap.set( newGameDB.game_id.toString(), newGameAlgo);
+				newGameAlgo.initPlayer1({
+					id: parseInt( clientPayload.id ),
+					login: clientPayload.login,
+					socketID: client.id,
+					playerRole: "p1",
+					playerSocket: client
+				});
+				this.server.to(client.id).emit('lockAndLoaded')
 			}
 		}
-
-		if ( playerInfo?.playerRole === "p1" )
+		if (gameToJoin && gameToJoin.getStatus() === Status.TWO_PLAYER)
 		{
-			gameData.ball.x = (gameData.roomInfo.canvasWidth / 2) + ((gameData.ball.x - gameData.roomInfo.canvasWidth / 2) * -1)
-			gameData.ball.speed.x *= -1;
-		} else if ( playerInfo?.playerRole === "p2" ) {
-			gameData.ball.x = (gameData.roomInfo.canvasWidth / 2) + ((gameData.ball.x - gameData.roomInfo.canvasWidth / 2) * -1)
-			gameData.ball.speed.x *= -1;
+			gameToJoin.startGame()
 		}
-		client.broadcast.emit('gameUpdate', gameData);
+	}
+
+	async handleConnection(client: Socket, ...args: any[]) {
+		if (client.handshake.auth.token && jwtConstants.jwt_secret) {
+			try {
+				const clientPayload = jwt.verify(client.handshake.auth.token, jwtConstants.jwt_secret);
+
+				this.gameMap.forEach((game, roomID) => {
+
+					if (game.getStatus() === Status.RUNNING) {
+						if (clientPayload.sub && clientPayload.sub == game.getPlayerID(1)) { // player1
+							client.join(roomID);
+							game.playerChangeSocket(client, client.id, 1);
+							this.server.to(client.id).emit('lockAndLoaded')
+						}
+						else if (clientPayload.sub && clientPayload.sub == game.getPlayerID(2)) { // player2
+							client.join(roomID);
+							game.playerChangeSocket(client, client.id, 2);
+							this.server.to(client.id).emit('lockAndLoaded')
+						}
+						return;
+						// console.log(`---> ICI: ${Status.RUNNING} = ${game.getStatus()} | ${clientPayload.sub} === ${game.getPlayerID(0)} | ${clientPayload.sub} === ${game.getPlayerID(1)}`);
+					}
+				})
+
+			} catch (err) {
+				console.error("laaaaaaaaaa ->" + err);
+				console.log(`Client connected, token is : ${client.handshake.auth.token}`);
+				client.disconnect(true);
+			}
+		}
 	}
 
 
-
-	@SubscribeMessage('setupGame')
-	onInit(client: Socket, gameData: GameDataType) {
-		// setting the player paddle height 64 time smaller than the canvas height
-		gameData.roomInfo.playerHeight = gameData.roomInfo.canvasHeight / 6.4;
-
-		// setting players positions at (height / 2)
-		gameData.player1.y = gameData.roomInfo.canvasHeight / 2 - gameData.roomInfo.playerHeight / 2;
-		gameData.player1.score = 0;
-
-		gameData.player2.y = gameData.roomInfo.canvasHeight / 2 - gameData.roomInfo.playerHeight / 2;
-		gameData.player2.score = 0;
-
-		// ball is set up in the middle of the canva, 64 times smaller than the height
-		gameData.ball.x = gameData.roomInfo.canvasWidth / 2;
-		gameData.ball.y = gameData.roomInfo.canvasHeight / 2;
-		gameData.ball.r = gameData.roomInfo.canvasHeight / 128;
-		// because it is set up, speed is 0 so it stay static
-		gameData.ball.speed.x = 0;
-		gameData.ball.speed.y = 0;
-
-		console.log("login p1" + gameData.player1.login)
-		console.log("login p2" + gameData.player2.login)
-		// we emit the setup separatly so each user will be able to get the username of the other
-		client.broadcast.emit('gameIsSet', gameData);
-	}
-
-	handleConnection(client: Socket, ...args: any[]) {
-		this.connectionCount++;
-		console.log(`\n|\n|\n|\n|\n|\n|\n|Client connected: ${client.id}`);
-		console.log('number of connected client ' + this.connectionCount);
-	}
 
 	handleDisconnect(client: Socket) {
-		this.connectionCount--;
 		console.log(`Client disconnected: ${client.id}`);
 	}
 }
+

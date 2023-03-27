@@ -6,6 +6,7 @@ import { UserDto } from 'src/users/User.dto';
 import { Response } from 'express'
 import { jwtConstants} from "src/auth/constants";
 import { Prisma, User } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 
 @Injectable()
@@ -17,10 +18,12 @@ export class AuthService {
 
 	async validateUser(login: string, pass: string): Promise<any>{
 		const user = await this.usersService.findOneUser(login);
-		if (user && user.password === pass) {
+
+		if (user && await bcrypt.compare(pass, user.password)) {
 			const { password, ...result } = user;
 			return (result);
 		}
+
 		return (null);
 	}
 
@@ -105,6 +108,7 @@ export class AuthService {
 				{
 					secret: jwtConstants.jwt_secret,
 					expiresIn: '10m',
+	//				expiresIn: '2s',
 				},
 			),
 			this.jwtService.signAsync(
@@ -132,7 +136,7 @@ export class AuthService {
 			refreshToken
 		}
 
-	  }
+	}
 
 	async get42ApiToken(client_code: string) {
 

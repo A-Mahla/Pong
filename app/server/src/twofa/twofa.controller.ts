@@ -25,7 +25,7 @@ import { TwoFAJwtAuthGuard } from 'src/auth/2fa-jwt-auth.guard';
 import { jwtConstants} from "src/auth/constants";
 
 @Controller('2fa')
-@UseInterceptors(ClassSerializerInterceptor)
+//@UseInterceptors(ClassSerializerInterceptor)
 export class TwofaController {
 	constructor(
 		private readonly twoFAService: TwoFAService,
@@ -33,7 +33,7 @@ export class TwofaController {
 		private readonly authService: AuthService,
 	) {}
 
-	@UseGuards(TwoFAJwtAuthGuard)
+	@UseGuards(JwtAuthGuard)
 	@Post('generate')
 	async register(
 		@Res() response: Response, 
@@ -55,7 +55,7 @@ export class TwofaController {
 		const user = await this.usersService.findOneUser(request.user.login);
 
 		if (!user)
-			return null;
+			throw BadRequestException;
 
 		return {
 			isTfaActivate: user.isTwoFA
@@ -64,7 +64,7 @@ export class TwofaController {
 
 
 
-	@UseGuards(JwtAuthGuard)
+/*	@UseGuards(JwtAuthGuard)
 	@Get('turn-on')
 	@HttpCode(200)
 	async turnOnTFAuthentication(
@@ -72,17 +72,17 @@ export class TwofaController {
 		@Body() body : any
 	) {
 
-/*		const isCodeValid = await this.twoFAService.isTwoFACodeValid(
+		const isCodeValid = await this.twoFAService.isTwoFACodeValid(
 			body.twoFA,
 			request.user.login
 		);
 
 		if (!isCodeValid) {
 			throw new UnauthorizedException('Wrong authentication code');
-		} */
+		}
 
 		return await this.usersService.turnOnTwoFA(request.user.login);
-	}
+	}*/
 
 	@UseGuards(JwtAuthGuard)
 	@Get('turn-off')
@@ -114,7 +114,6 @@ export class TwofaController {
 			user,
 		);
 
-
 		if (!isCodeValid) {
 			throw new UnauthorizedException('Wrong authentication code');
 		}
@@ -132,6 +131,33 @@ export class TwofaController {
 
 		return await this.authService.login(user, response);
 
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Post('authenticate-first')
+	@HttpCode(200)
+	async authenticateFirst(
+		@Req() req: any,
+		@Query() { twoFA }: any,
+		@Res({ passthrough: true }) response: Response
+	) {
+
+		const user = await this.usersService.findOneUser(req.user.login);
+
+		if (!user)
+			throw new BadRequestException();
+
+		const isCodeValid = await this.twoFAService.isTwoFACodeValid(
+			twoFA,
+			user,
+		);
+
+
+		if (!isCodeValid) {
+			throw new UnauthorizedException('Wrong authentication code');
+		}
+
+		return await this.usersService.turnOnTwoFA(user.login);
 	}
 
 	@UseGuards(TwoFAJwtAuthGuard)

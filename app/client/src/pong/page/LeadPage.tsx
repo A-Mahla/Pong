@@ -8,6 +8,7 @@ import Swipeable from '/src/pong/component/Swipeable'
 import Profile from '/src/pong/Profile/Profile'
 import './LeadPage.css'
 import useAuth from '/src/pong/context/useAuth'
+import  GamePage  from './Game';
 
 const header = {
 	height: '4vw;',
@@ -46,14 +47,14 @@ function TabPanel(props: TabPanelProps) {
 					sx={{
 						all: 'initial',
 						ml: '3rem',
-						mt: '3rem',
-						mb: '3rem',
 						mr: '3rem',
 						height: '39rem',
 						widht:  '30rem',
 						display: 'flex',
 						flexDirection: 'row',
-						flexWrap: 'wrap'
+						flexWrap: 'wrap',
+						alignItems: 'center',
+						justifyContent: 'center'
 					}}>
 					{props.children}
 				</Grid>
@@ -66,9 +67,15 @@ const LeadPage = () => {
 
 	const [value, setValue] = React.useState(1);
 
-	const {user, id} = useAuth();
+	const {user, id, navigate} = useAuth();
+
+	const handleHome = (event: React.SyntheticEvent) => {
+		event.preventDefault()
+		navigate('/')
+	};
 
 	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+		event.preventDefault()
 		setValue(newValue);
 	};
 
@@ -76,7 +83,16 @@ const LeadPage = () => {
 	<Box sx={{height: '7rem'}}>
 			<Grid container display='flex' sx={header} columns={17}>
 				<Grid item xs={4} sx={{my: 'auto'}}>
-					<Typography variant='h1' sx={pongTitle}>Pong</Typography>
+					<Grid item md={7} xs={8}>
+					<Typography
+						variant='h1'
+						sx={pongTitle}
+						onClick={handleHome}
+						className="homeButton"
+					>
+						Pong
+					</Typography>
+					</Grid>
 				</Grid>
 				<Grid item xs={9} sx={{my: 'auto'}}>
 				<Tabs
@@ -106,9 +122,10 @@ const LeadPage = () => {
 				<Profile/>
 			</TabPanel>
 			<TabPanel value={value} index={1}>
-				<Typography variant='h1'>{user}</Typography>
+				{/* <Typography variant='h1'>{user}</Typography>
 				<br/>
-				<Typography variant='h1'>{id}</Typography>
+				<Typography variant='h1'>{id}</Typography> */}
+						<GamePage height={320} width={600} />
 			</TabPanel>
 			<TabPanel value={value} index={2}>
 				<Typography variant='h1'>Chat</Typography>

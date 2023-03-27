@@ -1,0 +1,8 @@
+
+tutorial sur nestJS socket io dans le constext d'un jeu
+https://francois-steinel.fr/articles/build-lobby-based-online-multiplayer-browser-games-with-react-and-nodejs
+
+
+instanciate gameAlgo class when game is created,
+add a methode to the game Algo class to set the JoinerPlayer,
+it will avoid undefined player behaviour
