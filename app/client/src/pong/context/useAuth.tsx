@@ -90,7 +90,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 						setToken('');
 						setIntraLogin('')
 						if ( location.pathname === '/login'
-							|| location.pathname === '/pong' || location.pathname === '/gameTest' )
+							|| location.pathname === '/pong' )
 							navigate('/login')
 						else if (location.pathname === '/signup')
 							navigate('/signup')
@@ -113,10 +113,17 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 						setUser(response2.data['login']);
 						setId(response2.data['id'])
 
+						if ( location.pathname !== '/pong'
+							&& location.pathname !== '/')
+							navigate('/');
+
 					}
 				} else {
 					setUser(response1.data['login']);
 					setId(response1.data['id'])
+					if ( location.pathname !== '/pong'
+						&& location.pathname !== '/')
+						navigate('/');
 				}
 
 			} catch (err) {
