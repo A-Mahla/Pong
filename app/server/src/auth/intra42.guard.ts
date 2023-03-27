@@ -58,10 +58,8 @@ export class Intra42AuthGuard implements CanActivate {
 
 		const intraResponse = await this.authService.get42ApiToken(code)
 
-
 		if (intraResponse.statusCode != 200)
 			return false
-
 
 		const intraUserInfo = await this.getIntraUserInfo(intraResponse['body']['access_token'])
 

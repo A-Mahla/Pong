@@ -29,7 +29,7 @@ type InfoProps = {
 const ChangeInfo = (props: InfoProps) => {
 
 	const fetchAuth = useFetchAuth()
-	const {user} = useAuth()
+	const {user, intraLogin} = useAuth()
 
 	const [error, setError] = useState('');
 	const [loginError, setLoginError] = useState('');
@@ -130,7 +130,7 @@ const ChangeInfo = (props: InfoProps) => {
 			>
 					<TextField
 						type="text"
-						id="outlined-password-input"
+						id="outlined-login-input"
 						inputRef={login}
 						variant="outlined"
 						label="New Login"
@@ -213,7 +213,8 @@ const ChangeInfo = (props: InfoProps) => {
 						type='text'
 						id="outlined-password-input"
 						inputRef={password}
-						variant="outlined"
+						disabled={intraLogin ? true : false}
+						variant="outlined" 
 						label="New Password"
 						size="small"
 						onChange={handleChange}
@@ -228,6 +229,7 @@ const ChangeInfo = (props: InfoProps) => {
 						type='text'
 						id="outlined-password-input"
 						inputRef={passwordConfirm}
+						disabled={intraLogin ? true : false}
 						variant="outlined"
 						label="Confirm Password"
 						size="small"
@@ -240,6 +242,7 @@ const ChangeInfo = (props: InfoProps) => {
 						sx={{m: 1 }}
 					></TextField>
 					<Button size="small"
+						disabled={intraLogin ? true : false}
 						sx={{ color: 'primary.main',
 							'@media (max-width: 950px)': {
 								p: 0
