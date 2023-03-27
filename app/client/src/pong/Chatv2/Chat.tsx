@@ -1,7 +1,11 @@
 import { useContext, useState, useEffect, createContext} from 'react'
+import { Box } from '@mui/material'
 import { Api, FetchApi } from '../component/FetchApi'
 import { useFetchAuth } from '../context/useAuth'
 import { Message, Room } from './Chat.types'
+import { DirectMessageBar } from './DirectMessageBar'
+import { MessagesBox } from './MessagesBox'
+import { RoomBar } from './RoomBar'
 import { socket, UpdatesContext } from './Socket'
 
 const initialChatContext = {
@@ -9,6 +13,16 @@ const initialChatContext = {
 	setRooms: null,
 	directMessages: [],
 	setDirectMessages: null,
+	current: {},
+	setCurrent: null,
+	target: {},
+	setTarget: null,
+	isJoining: false,
+	setIsJoining: null,
+	isCreating: false,
+	setIsCreating: null,
+	isInDirect: false,
+	setIsInDirect: null
 }
 
 export const ChatContext = createContext(initialChatContext)
@@ -27,13 +41,34 @@ export function Chat() {
 
 	const [directMessages, setDirectMessages] = useState<Message[]>([])
 
-	const [rooms, setRooms] = useState<Room[]>()
+	const [rooms, setRooms] = useState<Room[]>([])
+
+	const [current, setCurrent] = useState({name: '', id: 0})
+	
+	const [target, setTarget] = useState({login: '', id: 0})
+
+	const [isJoining, setIsJoining] = useState(false)
+
+	const [isCreating, setIsCreating] = useState(false)
+
+	const [isInDirect, setIsInDirect] = useState(false)
+
 
 	const chatContext = {
 		rooms: rooms,
 		setRooms: setRooms,
 		directMessages: directMessages,
-		setDirectMessages: setDirectMessages
+		setDirectMessages: setDirectMessages,
+		current: current,
+		setCurrent: setCurrent,
+		target: target,
+		setTarget: setTarget,
+		isJoining: isJoining,
+		setIsJoining: setIsJoining,
+		isCreating: isCreating,
+		setIsCreating: setIsCreating,
+		isInDirect: isInDirect,
+		setIsInDirect: setIsInDirect,
 	}
 
 	const auth = useFetchAuth()
@@ -117,9 +152,14 @@ export function Chat() {
 
 	return (
 		<ChatContext.Provider value={chatContext}>
-			<RoomBar />
-			<DirectMessageBar />
-			<MessagesBox />
+			<Box
+				sx={{display: 'flex'}}
+				>
+				<RoomBar />
+				<DirectMessageBar />
+				<MessagesBox />
+
+			</Box>
 		</ChatContext.Provider>
 	)
 }
