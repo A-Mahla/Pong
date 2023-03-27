@@ -1,11 +1,25 @@
-import { Divider, Box, Button, Grid, Typography } from '@mui/material'
+import {
+	Divider,
+	Box,
+	Button,
+	Grid,
+	Typography,
+	IconButton,
+	Avatar,
+	TextField,
+	FormControl,
+	CircularProgress,
+} from '@mui/material'
 import { useLocation } from 'react-router-dom'
-import React, { useCallback, useRef, useState, useEffect } from 'react'
-import { TextField, FormControl, CircularProgress } from "@mui/material"
+import React, { useCallback, useRef, createRef, useState, useEffect } from 'react'
 import Cookies from 'js-cookie'
 import useAuth from '/src/pong/context/useAuth'
 import { TFAComponent } from '/src/pong/component/Login'
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
 
+function isNumberOrString(str) {
+	return /^([0-9a-zA-Z_]){3,20}$/.test(str);
+}
 
 type Props = {
 	children?: string
@@ -32,42 +46,131 @@ export const Oauth2 = (props: Props) => {
 const IntraSignup = () => {
 
 	const {intraLogin, authSignupIntra, loading} = useAuth()
-
 	const [error, setError] = useState('')
-
+	const [file, setFile] = useState<any>(null);
+	const [image, setImage] = useState<URL>(null);
+	const inputFileRef = createRef(null);
 	const login = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>
 
-	const handleIntraLogin = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+	const cleanup = () => {
+		URL.revokeObjectURL(image);
+		inputFileRef.current.value = null;
+	};
+
+	const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		e.preventDefault()
+
+		await setFile(e.target?.files?.[0])
+
+		if (e.target?.files?.[0]) {
+
+			if (image) {
+				cleanup();
+			}
+			await setImage(URL.createObjectURL(e.target?.files?.[0]));
+		}
+	}
+
+	const handleAvatarDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
+		if (image) {
+			event.preventDefault();
+			setImage(null);
+			setFile(null)
+		}
+	}
+
+	const handleIntraLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
 
 		e.preventDefault()
-		async function signAsync() {
-			setError(await authSignupIntra(`http://${import.meta.env.VITE_SITE}/api/auth/intra42?login=${login.current.value}&intraLogin=${intraLogin}`))
+		if (login.current.value === '') {
+			setLoginError("Invalid login");
+			return
+		} else if (login.current.value.length < 3
+			|| login.current.value.length > 20) {
+			setLoginError('Login must contain at least between 3 and 20 characters')
+			return
+		} else if (!isNumberOrString(login.current.value)) {
+			setLoginError('Login must contain just letters, numbers or underscores')
+			return
 		}
-		signAsync();
-	})
+		await setError(await authSignupIntra(
+			`http://${import.meta.env.VITE_SITE}/api/auth/intra42?login=${login.current.value}&intraLogin=${intraLogin}`,
+			file
+		))
+	}
 
 
-	return	<FormControl>
-		<TextField type="text" inputRef={login} label="Login" sx={{p : 1}}/>	
-		<Button sx={{color: 'primary.main'}} onClick={handleIntraLogin}>signin</Button>
-		{error === '' ? null : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
-	</FormControl>
+	return	<>
+		<FormControl>
+			<Box display="flex" justifyContent="center" alignItems="center"
+				sx={{mb: 6}}
+			>
+			<Grid container
+				sx={{
+					width: '11rem',
+					height: '11rem',
+					alignItems: 'center',
+					justifyContent: 'center'
+				}}
+			>
+			<input
+				ref={inputFileRef}
+				accept="image/*"
+				id="avatar-image-upload"
+				type="file"
+				onChange={handleAvatarChange}
+				hidden
+			/>
+			<label htmlFor="avatar-image-upload">
+				<IconButton component="span">
+					<Avatar
+						variant="inherit"
+						alt="avatar"
+						src={image}
+						sx={{
+							display: 'flex',
+							p: 0,
+							border: 1,
+							boxShadow: 24,
+							width: '11rem',
+							height: '11rem',
+							alignItems: 'center',
+							justifyContent: 'center'
+						}}
+					/>
+				</IconButton>
+			</label>
+			<IconButton
+				component="span"
+				variant="inherit"
+				size='small'
+				sx={{
+					position: 'relative',
+					bottom: 35,
+					right: 80,
+					"&:hover": { boxShadow: 'none', }
+				}}
+				onClick={handleAvatarDelete}
+			>
+				{image ? <DeleteOutlineIcon/> : null}
+			</IconButton>
+			</Grid>
+			</Box>
+
+			<TextField type="text" inputRef={login} label="Login" sx={{p : 1}}/>
+			<Button sx={{color: 'primary.main'}} onClick={handleIntraLogin}>signin</Button>
+			{error === '' ? null : <Typography sx={{p:1}} align="center" color="tomato">{error}</Typography> }
+		</FormControl>
+		</>
 }
 
 export const Redirect = () => {
 
 	const url = useLocation()
-
-	const {authLogIntra, error, setError} = useAuth()
-
+	const {authLogIntra, setIntraLogin, error, setError, navigate} = useAuth()
 	const [status, setStatus] = useState('')
-
 	const [fetched, setFetched] = useState(false)
-
-	const [intraLogin, setIntraLogin] = useState('')
-
 	const [open, setOpen] = useState(true)
-
 	const [isSignup, setIsSignup] = useState(false)
 
 	useEffect(() => {
@@ -79,11 +182,24 @@ export const Redirect = () => {
 		return undefined
 	}, [])
 
+	const handleHome = (event: React.SyntheticEvent) => {
+		event.preventDefault()
+		setIntraLogin('')
+		navigate('/')
+	};
 
 	return (
 		<>
 		<Box sx={{ my: 'auto' }}>
-			<Typography variant='h4'>Pong</Typography>
+			<Box sx={{width: '6.5rem'}}>
+			<Typography
+				className="homeButton"
+				variant='h4'
+				onClick={handleHome}
+			>
+				Pong
+			</Typography>
+			</Box>
 		</Box>
 		<Divider variant='middle'/>
 		<Grid container justifyContent="center" sx={{pt: 10}}>

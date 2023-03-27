@@ -9,6 +9,7 @@ import React, {
 import { useNavigate, useLocation, createSearchParams } from "react-router-dom";
 import { originalRequest, refreshRequest, responseApi } from "/src/pong/component/FetchApi"
 import { FetchApi, Api } from '/src/pong/component/FetchApi'
+import axios from 'axios'
 
 interface AuthContextType {
 	user: string;
@@ -165,7 +166,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 		}
 	}
 
-	async function authSignupIntra(url: URL) {
+	async function authSignupIntra(url: URL, avatar: any) {
 
 
 		const requestOptions = {
@@ -185,17 +186,47 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				setUser(data['login'])
 				setId(data['id'])
 				setToken(data['aT']);
+
+				if (avatar) {
+
+					try {
+
+						const file = new FormData();
+						file.append("file", avatar)
+
+						const result = await axios.post(
+
+							`http://${import.meta.env.VITE_SITE}/api/users/profile/avatar/upload`,
+							file,
+							{ 
+								withCredentials: true,
+								headers: {
+									Authorization: `Bearer ${data['aT']}`,
+									'Content-Type': "multipart/form-data"
+								}
+							}
+						)
+
+					} catch(err) {
+						console.log(err)
+					}
+				}
+
 				navigate('/pong')
 				return ''
-			} else if ( data['message'] === 'login unavailable'){
+
+			} else if ( data['message'] === 'login unavailable') {
 				return data['message']
 			} else {
+
 				setUser('');
 				setId(0);
 				setToken('');
 				setIntraLogin('')
 				navigate('/login')
+
 			}
+
 		} catch(err) {
 			console.log(err);
 		} finally {
@@ -203,7 +234,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 		}
 	}
 
-	async function authSignup(login: string, password: string) {
+	async function authSignup(login: string, password: string, avatar: any) {
 
 		const requestOptions = {
 			method: "POST",
@@ -226,6 +257,32 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				setUser(login);
 				setId(data['id'])
 				setToken(data['aT']);
+
+				if (avatar) {
+
+					try {
+
+						const file = new FormData();
+						file.append("file", avatar)
+
+						const result = await axios.post(
+
+							`http://${import.meta.env.VITE_SITE}/api/users/profile/avatar/upload`,
+							file,
+							{ 
+								withCredentials: true,
+								headers: {
+									Authorization: `Bearer ${data['aT']}`,
+									'Content-Type': "multipart/form-data"
+								}
+							}
+						)
+
+					} catch(err) {
+						console.log(err)
+					}
+				}
+
 				navigate('/pong')
 				return ''
 			}
@@ -300,6 +357,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				setId(0);
 				setIntraLogin('')
 				navigate('/')
+				return ;
 			}
 
 		} catch (err) {

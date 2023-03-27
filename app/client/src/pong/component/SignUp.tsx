@@ -31,7 +31,7 @@ function isPassword(str) {
 
 const SignUp = () => {
 
-	const {navigate, token} = useAuth();
+	const {navigate, token, authSignup} = useAuth();
 	const authFetching = useFetchAuth()
 
 	const [error, setError] = useState('');
@@ -86,6 +86,7 @@ const SignUp = () => {
 	const handleSignup = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
 
+
 		if (login.current.value === '') {
 			setLoginError("Invalid login");
 			return
@@ -111,7 +112,7 @@ const SignUp = () => {
 			return
 		}
 
-		await setLoginError(await authSignup(username.current.value, password.current.value))
+		await setLoginError(await authSignup(login.current.value, password.current.value, file))
 	}
 
 	return <>
@@ -132,11 +133,11 @@ const SignUp = () => {
 		<Divider variant='middle'/>
 
 
-		<Grid container justifyContent="center" sx={{height: 600, pt: 15}}>
+		<Grid container justifyContent="center" sx={{height: 600, pt: 10}}>
 			<FormControl>
 
 				<Box display="flex" justifyContent="center" alignItems="center"
-					sx={{mb: 4}}
+					sx={{mb: 6}}
 				>
 				<Grid container
 					sx={{
