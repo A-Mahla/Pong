@@ -1,15 +1,17 @@
-import {useContext, useState, useEffect} from 'react'
+import { useContext, useState, useEffect, createContext} from 'react'
 import { Api, FetchApi } from '../component/FetchApi'
 import { useFetchAuth } from '../context/useAuth'
 import { Message, Room } from './Chat.types'
 import { socket, UpdatesContext } from './Socket'
 
-const initialDirectMessageContext = {
+const initialChatContext = {
+	rooms: [],
+	setRooms: null,
 	directMessages: [],
 	setDirectMessages: null,
 }
 
-export 
+export const ChatContext = createContext(initialChatContext)
 
 export function Chat() {
 	const {
@@ -27,8 +29,15 @@ export function Chat() {
 
 	const [rooms, setRooms] = useState<Room[]>()
 
+	const chatContext = {
+		rooms: rooms,
+		setRooms: setRooms,
+		directMessages: directMessages,
+		setDirectMessages: setDirectMessages
+	}
+
 	const auth = useFetchAuth()
-	
+
 	const findRooms: Api = {
 		api: {
 			input: `http://${import.meta.env.VITE_SITE}/api/users/rooms`,
@@ -49,7 +58,7 @@ export function Chat() {
 
 	useEffect(() => {
 		async function getMessages() {
-			const {data} = await FetchApi(getMessagesRequest)
+			const { data } = await FetchApi(getMessagesRequest)
 			console.log('messages data: ', data)
 			return data
 		}
@@ -98,7 +107,7 @@ export function Chat() {
 			console.log('leave a room')
 			setRooms(rooms.filter((room) => {
 				if (room.id !== leavedRoom) {
-					return rooms 
+					return rooms
 				}
 			}))
 			setLeavedRoom()
@@ -107,10 +116,10 @@ export function Chat() {
 	}, [newRoomMessage, newDirectMessage, newRoom, leavedRoom])
 
 	return (
-		<ChatContext.Provider >
-			<RoomBar/>
-			<DirectMessageBar/>
-			<MessagesBox/>
+		<ChatContext.Provider value={chatContext}>
+			<RoomBar />
+			<DirectMessageBar />
+			<MessagesBox />
 		</ChatContext.Provider>
 	)
 }
