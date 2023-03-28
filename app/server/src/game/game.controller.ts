@@ -59,13 +59,21 @@ export class GameController {
 	}
 
 //	======================== ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ================
-//	======================== Getting Game inforation ==================
+//	======================== Getting Game information ==================
 	@Get('gamewatinglist')
 	async getGameWaitingList() {
 		return (
 			this.gameService.gamesbyStatus('WAIT')
 		);
 	}
+
+	//@UseGuards(JwtAuthGuard)
+	@Get('gamehistory/:id')
+	async getGameHistory(@Param('id') user_id: number) {
+		const test = await this.gameService.gameHistory(user_id);
+		console.log(test);
+	}
+
 //	======================== Getting raw stats about a player game ================
 
 	//@UseGuards(JwtAuthGuard)
@@ -85,5 +93,6 @@ export class GameController {
 	async getnbLoss(@Param('id') user_id: number) {
 		return (this.gameService.getVictoryLossCountForUser(user_id, false));
 	}
+
 
 }
