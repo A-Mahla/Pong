@@ -56,7 +56,15 @@ export class MessageService {
 	async getUserDirectMessages(userId: number) {
 		return await this.prisma.direct_Message.findMany({
 			where: {
-				recipient_id: userId
+				OR: [
+					{
+						recipient_id: userId
+					},
+					{
+						sender_id: userId
+					},
+
+				]
 			}
 		}).catch((e) => {
 			throw new BadRequestException(e);

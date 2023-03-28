@@ -131,6 +131,8 @@ export function Chat() {
 			setNewRoomMessage()
 		}
 		if (newDirectMessage !== undefined) {
+			console.log('oueee', newDirectMessage)
+			console.log('directMessages: ', directMessages)
 			setDirectMessages([...directMessages, newDirectMessage])
 			setNewDirectMessage()
 		}
@@ -153,7 +155,7 @@ export function Chat() {
 	return (
 		<ChatContext.Provider value={chatContext}>
 			<Box
-				sx={{display: 'flex'}}
+				sx={{display: 'flex', borderRadius:2, p:0,m:2,border: 1,maxHeight:500, overflow:'auto'}}
 				>
 				<RoomBar />
 				<DirectMessageBar />
@@ -163,4 +165,3 @@ export function Chat() {
 		</ChatContext.Provider>
 	)
 }
-

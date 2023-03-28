@@ -74,6 +74,7 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 		socket.on('roomMessage', onRoomMessageEvent)
 
 		function onDirectMessageEvent(newMessage) {
+			console.log(`receive message: "${newMessage.content}" send by n:${newMessage.sender_id}`)
 			setNewDirectMessage(newMessage)
 		}
 

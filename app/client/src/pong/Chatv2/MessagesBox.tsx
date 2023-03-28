@@ -24,11 +24,10 @@ export function MessagesBox() {
 								<ListItem key={message.id}>
 									<ListItemText  className='messageSent'>{message.sender_id} {message.content} {message.createdAt}</ListItemText>
 								</ListItem>
-								: target.id === message.sender_id ?
+								:
 								<ListItem key={message.id}>
-									<ListItemText  className='messageReceive'>{message.sender_id} {message.content} {message.createdAt}</ListItemText>
-								</ListItem>
-									: null)
+									<ListItemText  className='messageReceived'>{message.sender_id} {message.content} {message.createdAt}</ListItemText>
+								</ListItem>)
 									)
 		}
 		else if (current.id !== 0) {
@@ -37,19 +36,19 @@ export function MessagesBox() {
 			})
 
 			if (room === undefined) {
-				setMessageList()
+				setMessageList([])
 			}
 			else {
 				setMessageList(room.messages.map((message) => {
 						return (
 									<ListItem key={message.id}>
-										<ListItemText  className='messageReceive'>{message.sender_id} {message.content} {message.createdAt}</ListItemText>/
+										<ListItemText  className='messageReceived'>{message.sender_id} {message.content} {message.createdAt}</ListItemText>/
 									</ListItem>
 						)
 					}))
 				}	
 		}
-	}, [target, current])
+	}, [target, current, directMessages, rooms])
 
 	const message = useRef('')
 
@@ -91,8 +90,14 @@ export function MessagesBox() {
 			<List>
 				{messageList}
 			</List>
-			<TextField inputRef={message} placeholder={target.id !== 0 ? target.login : current.name}/>
-			<Button onClick={handleSubmit}>send</Button>
+			{
+				target.id !== 0 || current.id !== 0 ?
+				(<Box>
+					<TextField inputRef={message} placeholder={target.id !== 0 ? target.login : current.name}/>
+					<Button onClick={handleSubmit}>send</Button>
+				</Box>) : null
+			}
+
 		</Box>	
 	)
 }
