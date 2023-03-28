@@ -22,7 +22,9 @@ const initialChatContext = {
 	isCreating: false,
 	setIsCreating: null,
 	isInDirect: false,
-	setIsInDirect: null
+	setIsInDirect: null,
+	isSearching: false,
+	setIsSearching: null
 }
 
 export const ChatContext = createContext(initialChatContext)
@@ -49,6 +51,8 @@ export function Chat() {
 
 	const [isJoining, setIsJoining] = useState(false)
 
+	const [isSearching, setIsSearching] = useState(false)
+
 	const [isCreating, setIsCreating] = useState(false)
 
 	const [isInDirect, setIsInDirect] = useState(false)
@@ -69,6 +73,8 @@ export function Chat() {
 		setIsCreating: setIsCreating,
 		isInDirect: isInDirect,
 		setIsInDirect: setIsInDirect,
+		isSearching: isSearching,
+		setIsSearching: setIsSearching
 	}
 
 	const auth = useFetchAuth()

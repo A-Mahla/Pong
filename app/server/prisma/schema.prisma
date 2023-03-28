@@ -3,7 +3,7 @@
 
 generator client {
 	provider = "prisma-client-js"
-	 previewFeatures = ["filteredRelationCount"]
+	 previewFeatures = ["filteredRelationCount", "fullTextSearch"]
 }
 
 datasource db {
@@ -28,7 +28,17 @@ model User {
   sendMessages            Message[]
   directMessageSend       Direct_Message[] @relation("Sender")
   directMessageReceived   Direct_Message[] @relation("Recipient")
+  user1Friends                 Friend[] @relation("User1Friends")
+  user2Friends                 Friend[] @relation("User2Friends")
+}
 
+model Friend {
+  id         Int     @id @default(autoincrement())
+  user1Id    Int
+  user2Id    Int
+  user1      User    @relation("User1Friends", fields: [user1Id], references: [id])
+  user2      User    @relation("User2Friends", fields: [user2Id], references: [id])
+  createdAt  DateTime @default(now())
 }
 
 model Room {

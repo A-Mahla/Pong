@@ -67,6 +67,12 @@ export class UsersController {
 		return this.userService.findOneIntraUser(query.intraLogin)
 	}
 
+	@UseGuards(JwtAuthGuard)
+	@Get('search/:login')
+	async handleSearchLogin(@Param('login') login: string) {
+		return await this.userService.searchManyUsers(login)
+	}
+
 	/*@UseGuards(JwtAuthGuard)
 	@Get(':login')
 	async getUsersbyId(

@@ -4,6 +4,7 @@ import { ChatContext } from "./Chat"
 import useAuth, { useFetchAuth } from "../context/useAuth"
 import { Api, FetchApi } from "../component/FetchApi"
 import { User } from "./Chat.types"
+import { AddFriend } from "./AddFriend"
 
 export function DirectMessageBar() {
 
@@ -13,7 +14,7 @@ export function DirectMessageBar() {
 
 	const [users, setUsers] = useState<User[]>([])
 
-	const {target, setTarget, setCurrent} = useContext(ChatContext)
+	const {target, setTarget, setCurrent, isSearching, setIsSearching} = useContext(ChatContext)
 
 	const getUsersRequest: Api = {
 		api: {
@@ -96,9 +97,38 @@ export function DirectMessageBar() {
 		}
 	})
 
+	const handleAddFriend = useCallback(() => {
+		isSearching ? setIsSearching(false) : setIsSearching(true)
+
+	}, [isSearching])
+
 	return (
 			<List sx={{borderRadius:2, p:0,m:2,border: 1,maxHeight:800, maxWidth:200, overflow:'auto'}}>
 				{userList}
+				<ListItem
+					disablePadding	
+					sx={{borderRadius: 20,bgcolor: 'lightgrey'}}
+					>
+					<ListItemButton
+						sx={{borderRadius: 10}}
+						onClick={handleAddFriend}
+						>
+						<ListItemText
+							sx={{textAlign: 'center'}}	
+							>
+							addFriend
+							</ListItemText>
+
+					</ListItemButton>
+
+				</ListItem>
+
+			<Dialog
+				open={isSearching}
+				onClose={() => setIsSearching(false) }
+				>
+					<AddFriend/>
+				</Dialog>
 			</List>
 	)
 }
