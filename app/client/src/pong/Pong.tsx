@@ -47,7 +47,6 @@ export const Pong = () => {
 				<AuthProvider >
 					<Routes>
 						<Route path='/' element={<MainPage/>} />
-<<<<<<< HEAD
 						<Route path='/chat' element={<ChatSocketProvider/>} />
 						<Route element= { <LoggedRoute /> }>
 							<Route path='/login' element={<Login/>}/>
@@ -55,12 +54,7 @@ export const Pong = () => {
 						<Route element= { <PrivateRoute /> }>
 							<Route path='/pong' element={<LeadPage/>} />
 						</Route>
-=======
-						<Route path='/chat' element={<Chat/>} />
-						<Route path='/login' element={<Login/>}/>
 						<Route path='/signup' element={<SignUp/>}/>
-						<Route path='/pong' element={<LeadPage/>} />
->>>>>>> origin/work
 						<Route path="/redirect" element={<Redirect/>} />
 					</Routes>
 				</AuthProvider>
