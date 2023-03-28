@@ -12,6 +12,7 @@ import Game from '/src/pong/page/Game';
 import { GameSocketProvider } from './services/GameSocketProvider';
 import { GamePage } from './page/Game';
 import { ChatSocketProvider } from './Chatv2/Socket';
+import SignUp from './component/SignUp';
 
 /**
  * ============ Entrypoint of the project =============
@@ -46,6 +47,7 @@ export const Pong = () => {
 				<AuthProvider >
 					<Routes>
 						<Route path='/' element={<MainPage/>} />
+<<<<<<< HEAD
 						<Route path='/chat' element={<ChatSocketProvider/>} />
 						<Route element= { <LoggedRoute /> }>
 							<Route path='/login' element={<Login/>}/>
@@ -53,8 +55,13 @@ export const Pong = () => {
 						<Route element= { <PrivateRoute /> }>
 							<Route path='/pong' element={<LeadPage/>} />
 						</Route>
+=======
+						<Route path='/chat' element={<Chat/>} />
+						<Route path='/login' element={<Login/>}/>
+						<Route path='/signup' element={<SignUp/>}/>
+						<Route path='/pong' element={<LeadPage/>} />
+>>>>>>> origin/work
 						<Route path="/redirect" element={<Redirect/>} />
-						<Route path="/game" element={<GamePage/>} />
 					</Routes>
 				</AuthProvider>
 			</BrowserRouter>

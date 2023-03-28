@@ -38,7 +38,6 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RefreshJwtAuthGuard } from 'src/auth/refresh-jwt-auth.guard'
 import { Intra42AuthGuard } from 'src/auth/intra42.guard'
 
-
 @Controller('auth')
 export class AuthController {
 
@@ -154,7 +153,6 @@ export class AuthController {
 	) {
 
 		const {signedIn, intraLogin, user} = req.intraUserInfo;
-		console.log(signedIn, intraLogin, user);
 
 		if (req.intraUserInfo.signedIn) {
 

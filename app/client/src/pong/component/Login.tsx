@@ -31,6 +31,14 @@ function isNumber(str) {
 	return /^\d+$/.test(str);
 }
 
+function isNumberOrString(str) {
+	return /^([0-9a-zA-Z_]){3,20}$/.test(str);
+}
+
+function isPassword(str) {
+	return /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])/.test(str);
+}
+
 type TFAProps = {
 	open: boolean,
 	setOpen: React.Dispatch<React.SetStateAction<boolean>>,
@@ -178,11 +186,8 @@ export const TFAComponent = (props: TFAProps) => {
 export const Login = () => {
 
 	const {authLogin, authSignup, error, setError, navigate} = useAuth();
-
 	const [open, setOpen] = useState(false)
-
 	const username = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
-
 	const password = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 
 	const handleChange = (e: React.ChangeEvent<HTMLButtonElement>) => {
@@ -195,36 +200,28 @@ export const Login = () => {
 		navigate('/')
 	};
 
-	const handleLogin = (e: React.MouseEvent<HTMLButtonElement>) => {
+	const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
-		async function loginAsync() {
-			await authLogin(username.current.value, password.current.value)
-		}
-		loginAsync();
+		if (!username.current.value
+			|| !password.current.value
+			|| !(username.current.value.length > 3 && username.current.value.length < 20)
+			|| !isNumberOrString(username.current.value)
+//			|| !(password.current.value.length > 8 || password.current.value.length < 72) 
+//			|| !isPassword(password.current.value)
+		)
+			await setError('invalid login or password')
+		else
+			await authLogin(username.current.value.toLowerCase(), password.current.value)
 	}
 
 	const handleSignup = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
 
-		if (username.current.value === '')
-		{
-			setError("invalid login");
-			return
-		} else if (password.current.value === '') {
-			setError('password invalid')
-			return
-		} else if (password.current.length >= 72) {
-			setError('password too long')
-			return
-		}
-
-		async function loginAsync() {
-			setError(await authSignup(username.current.value, password.current.value))
-		}
-		loginAsync();
+		navigate('/signup')
 	})
 
 	useEffect(() => {
+		console.log('test')
 		if (error === '2FA') {
 			setOpen(true)
 		}
@@ -263,8 +260,9 @@ export const Login = () => {
 					onChange={handleChange}
 				></TextField>
 
-				<Button sx={{color: 'primary.main'}} onClick={handleSignup}>signup</Button>
 				<Button sx={{color: 'primary.main'}} onClick={handleLogin}>signin</Button>
+				<Divider variant='middle'/>
+				<Button sx={{color: 'primary.main'}} onClick={handleSignup}>signup</Button>
 				<Oauth2>Login via intra</Oauth2>
 				{!error || error === '2FA' || error === 'Error Authentification Code'
 					? null
