@@ -115,6 +115,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 						setId(response2.data['id'])
 
 						if ( location.pathname !== '/pong'
+							&& location.pathname !== '/chat'
 							&& location.pathname !== '/')
 							navigate('/');
 
@@ -123,6 +124,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 					setUser(response1.data['login']);
 					setId(response1.data['id'])
 					if ( location.pathname !== '/pong'
+						&& location.pathname !== '/chat'
 						&& location.pathname !== '/')
 						navigate('/');
 				}

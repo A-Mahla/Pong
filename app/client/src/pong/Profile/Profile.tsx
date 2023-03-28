@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+import MatchInfo from '/src/pong/Profile/MatchInfo'
 
 
 const theme = createTheme({
@@ -39,12 +40,12 @@ const theme = createTheme({
 
 const Profile = () => {
 
-	const navigate = useNavigate()
-
+	const navigate = useNavigate();
 	const {token} = useAuth();
-
 	const [image, setImage] = useState<URL>(null);
 	const [fetched, setFetched] = useState(false);
+	const [victory, setVictory] = useState(0);
+	const [defeat, setDefeat] = useState(0);
 
 
 	const fetchType: Api = {
@@ -85,6 +86,9 @@ const Profile = () => {
 							await setImage(await URL.createObjectURL(result.data))
 						}
 					}
+
+					setVictory(response.data['nbWin'])
+					setDefeat(response.data['nbLoss'])
 
 				} else {
 					navigate('/login')
@@ -149,39 +153,7 @@ const Profile = () => {
 			}>
 				<UserPanelGrid />
 			</Grid>
-			<Grid item xs={4}
-				sx={{
-					position: 'relative',
-					top: '3rem',
-					height: '20rem',
-					py: '1vw;',
-					px: '2vw;',
-					border: 1
-				}
-			}>
-			</Grid>
-			<Grid item xs={4}
-				sx={{
-					position: 'relative',
-					top: '3rem',
-					height: '20rem',
-					py: '1vw;',
-					px: '2vw;',
-					border: 1
-				}
-			}>
-			</Grid>
-			<Grid item xs={4}
-				sx={{
-					position: 'relative',
-					top: '3rem',
-					height: '20rem',
-					py: '1vw;',
-					px: '2vw;',
-					border: 1
-				}
-			}>
-			</Grid>
+			<MatchInfo defeat={defeat} victory={victory}/>
 		</ThemeProvider>
 		}
 	</>
