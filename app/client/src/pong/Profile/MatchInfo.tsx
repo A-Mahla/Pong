@@ -28,7 +28,7 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
 	},
 	[`& .${linearProgressClasses.bar}`]: {
 		borderRadius: 5,
-		backgroundColor: theme.palette.mode === 'light' ? '#1a90ff' : '#308fe8',
+		backgroundColor: theme.palette.mode === 'light' ? '#1d5fa9' : '#308fe8',
 		},
 	})
 );
@@ -67,6 +67,17 @@ const MatchInfo = (props: MatchInfoProps) => {
 					border: 1
 				}
 			}>
+				<Grid item xs={12} sx={{height: "50%"}}>
+					<Grid xs={12} sx={{height: "60%"}}>
+						<Typography align="center" variant='h2'>
+						</Typography>
+					</Grid>
+					<Grid xs={12}>
+						<BorderLinearProgress variant="determinate" value={50} />
+					</Grid>
+				</Grid>
+				<Grid item xs={12}>
+				</Grid>
 			</Grid>
 			<Grid item display="grid" justifyContent="center" xs={4}
 				sx={{
