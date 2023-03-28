@@ -38,10 +38,9 @@ export class GameAlgo {
 	async	startGame() {
 		if (this.player1 && this.player2)
 		{
-			this.status = Status.RUNNING;
 			this.server.to(this.player1!.socketID).emit('initSetup', this.gameData);
 			this.server.to(this.player2!.socketID).emit('initSetup', this.rotateGameData(this.gameData));
-
+			this.status = Status.RUNNING;
 			this.player1.playerSocket.on('paddlePos', (y: number, socket: Socket) => {
 				this.gameData.player1.y = y;
 				this.gameData.player1.timeout = Date.now();
@@ -67,8 +66,8 @@ export class GameAlgo {
 				}
 				// player 1 kill zone
 				if (this.gameData.ball.x < 15) {
-					let bornInfP1 = (this.gameData.player1.y - this.gameModel.playerHeight)
-					let bornSupP1 = (this.gameData.player1.y + this.gameModel.playerHeight)
+					let bornInfP1 = (this.gameData.player1.y - this.gameModel.playerHeight / 2)
+					let bornSupP1 = (this.gameData.player1.y + this.gameModel.playerHeight / 2)
 
 					if (this.gameData.ball.y > bornInfP1 && this.gameData.ball.y < bornSupP1) {
 						this.gameData.ball.speed.x *= -1,2;
@@ -85,8 +84,8 @@ export class GameAlgo {
 				}
 				// player 2 kill zone
 				if (this.gameData.ball.x > (this.gameModel.canvasWidth - 15)) {
-					let bornInfP2 = (this.gameData.player2.y - this.gameModel.playerHeight)
-					let bornSupP2 = (this.gameData.player2.y + this.gameModel.playerHeight)
+					let bornInfP2 = (this.gameData.player2.y - (this.gameModel.playerHeight / 2))
+					let bornSupP2 = (this.gameData.player2.y + (this.gameModel.playerHeight / 2))
 
 					if (this.gameData.ball.y > bornInfP2 && this.gameData.ball.y < bornSupP2) {
 						this.gameData.ball.speed.x *= -1,2;
@@ -115,7 +114,7 @@ export class GameAlgo {
 				this.server.to(this.player2!.socketID).emit('updateClient', this.rotateGameData(this.gameData));
 
 			}, 16);
-		}, 5000)
+		}, 5000);
 	}
 
 	public initPlayer1(player: Player) {
@@ -213,13 +212,13 @@ export class GameAlgo {
 	}
 
 	private playersTimeout(): boolean {
-		if ((Date.now() - this.gameData.player1.timeout) > 10000 || ((Date.now() - this.gameData.player1.timeout) > 6500 ))
+		if ((Date.now() - this.gameData.player1.timeout) > 10000)
 		{
 			this.gameData.player1.score = 0;
 			this.gameData.player2.score = 1;
 			return (true);
 		}
-		else if (((Date.now() - this.gameData.player1.timeout) > 10000 )) {
+		else if (((Date.now() - this.gameData.player2.timeout) > 10000 )) {
 			this.gameData.player1.score = 1;
 			this.gameData.player2.score = 0;
 			return (true);

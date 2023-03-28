@@ -22,6 +22,10 @@ const PLAYER_HEIGHT = 100;
 const PLAYER_WIDTH = 5;
 const BALLRADIUS = 5;
 
+const LOGIN_FONT = 30;
+const SCORE_FONT = 75;
+const TIMER_FONT = 70;
+const ENDGAMEFONT = 180;
 
 type GameData = {
 	roomInfo: {
@@ -79,21 +83,23 @@ const drawCountDown = (canvas: any, countdown: number) => {
 }
 
 const scaleGame = (game: GameData, width : number, height: number) => {
-	game.roomInfo.margin = (width * 5) / CANVAS_WIDTH;
-	game.ball.r = (height * BALLRADIUS) / CANVAS_HEIGHT;
-	game.roomInfo.playerheight = (height * PLAYER_HEIGHT) / CANVAS_HEIGHT;
-	game.roomInfo.playerwidth = (width * PLAYER_WIDTH) / CANVAS_WIDTH;
+		game.roomInfo.margin = Math.floor((width * 5) / CANVAS_WIDTH);
+		game.ball.r = Math.floor((height * BALLRADIUS) / CANVAS_HEIGHT);
+		game.roomInfo.playerheight = Math.floor((height * PLAYER_HEIGHT) / CANVAS_HEIGHT);
+		game.roomInfo.playerwidth = Math.floor((width * PLAYER_WIDTH) / CANVAS_WIDTH);
 
-	game.ball.x = (game.ball.x * width) / CANVAS_WIDTH;
-	game.ball.y = (game.ball.y * height) / CANVAS_HEIGHT;
-
-	game.player1.y = (game.player1.y * height) / CANVAS_HEIGHT;
-	game.player2.y = (game.player2.y * height) / CANVAS_HEIGHT;
+		game.ball.x = Math.floor((game.ball.x * width) / CANVAS_WIDTH);
+		game.ball.y = Math.floor((game.ball.y * height) / CANVAS_HEIGHT);
+		console.log(`IN SCALE GAME --> game.ball.x ${game.ball.x} | game.ball.y ${game.ball.y}`)
+		game.player1.y = Math.floor((game.player1.y * height) / CANVAS_HEIGHT);
+		game.player2.y = Math.floor((game.player2.y * height) / CANVAS_HEIGHT);
 }
 
 
 function drawEndGame(canvas: any, gameData: GameData) {
 	const context = canvas.getContext('2d');
+
+	const scaledFont = Math.floor((ENDGAMEFONT * canvas.height) / CANVAS_HEIGHT);
 	// Clear the canvas
 	context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -102,7 +108,7 @@ function drawEndGame(canvas: any, gameData: GameData) {
 	context.fillRect(0, 0, canvas.width, canvas.height);
 
 	// Set the font and alignment for the text
-	context.font = "180px 'Tr2n', sans-serif";
+	context.font = `${scaledFont}px 'Tr2n', sans-serif`;
 	context.textAlign = "center";
 	context.fillStyle = '#2f8ca3';
 
@@ -123,78 +129,96 @@ function drawEndGame(canvas: any, gameData: GameData) {
 const drawTimer = (canvas: any, timer: number) => {
 	const context = canvas.getContext('2d');
 
+	// scaling the print
+	const scaledFont = Math.floor((TIMER_FONT * canvas.height) / CANVAS_HEIGHT);
+	const widthMargin = Math.floor( (350 * canvas.width) / CANVAS_WIDTH );
+	const heightMargin = Math.floor((20 * canvas.height) / CANVAS_HEIGHT);
+
+
 	const minute = Math.floor((((3750 - timer) * 16) / 1000) / 60);
 	const seconde = Math.floor((((3750 - timer) * 16) / 1000) % 60);
 
 	const toString = minute.toString() + ':' + seconde.toString().padStart(2, '0');
-	// if (minute != 0)
-
-	// else
-		// toString = seconde.toString().padStart(2, '0');
 
 	// Set font to futuristic style and increase size by 50%
-	context.font = "70px 'Tr2n', sans-serif";
+	context.font = `${scaledFont}px 'Tr2n', sans-serif`;
 
 	// Set color and thickness for countdown text
 	context.strokeStyle = '#2f8ca3';
 
 	// Draw timer text
-	context.strokeText(toString, canvas.width / 2 + 350, canvas.height - 20);
+	context.strokeText(toString, canvas.width / 2 + widthMargin, canvas.height - heightMargin);
 }
 
 
 const drawScore = (canvas: any, scorePlayer1: number, scorePlayer2: number) => {
 	const context = canvas.getContext('2d');
 
+	const scorePlayer1str = scorePlayer1.toString()
+	const scorePlayer2str = scorePlayer2.toString()
+	//scaling
+	const scaledFont = Math.floor((SCORE_FONT * canvas.height) / CANVAS_HEIGHT);
+	const heightMargin = Math.floor((85 * canvas.height) / CANVAS_HEIGHT);
+	const widthMargin = Math.floor( (40 * canvas.width) / CANVAS_WIDTH );
+
 	// Set font to futuristic style
-	context.font = "75px 'Tr2n', sans-serif";
+	context.font = `${scaledFont}px 'Tr2n', sans-serif`;
+
+
+	// Measure the width of players login text
+	const player1LoginWidth = context.measureText(scorePlayer1str).width;
+	const player2LoginWidth = context.measureText(scorePlayer2str).width;
 
 	// Draw player 1 score
 	context.fillStyle = '#2f8ca3';
-	context.fillText(scorePlayer1, canvas.width / 2 - 62, 85);
+	context.fillText(scorePlayer1str, canvas.width / 2 - (player1LoginWidth + widthMargin), heightMargin);
 
 	// Draw player 2 score
 	context.fillStyle = '#2f8ca3';
-	context.fillText(scorePlayer2, canvas.width / 2 + 20, 85);
+	context.fillText(scorePlayer2str, canvas.width / 2 + player2LoginWidth, heightMargin);
 }
 
 const drawLogin = (canvas: any, loginPlayer1: string, loginPlayer2: string) => {
 	const context = canvas.getContext('2d');
 
+	// some scaling
+	const scaleFont = Math.floor( (LOGIN_FONT * canvas.height) / CANVAS_HEIGHT );
+	const widthMargin = Math.floor( (10 * canvas.width) / CANVAS_WIDTH );
+	const heightMargin = Math.floor( (30 * canvas.height) / CANVAS_HEIGHT );
+
 	// Set font to futuristic style
-	context.font = "37px 'Tr2n', sans-serif";
+	context.font = `${scaleFont}px180px 'Tr2n', sans-serif`;
 
 	// Measure the width of the player 1 login text
 	//const player1LoginWidth = context.measureText(loginPlayer1).width;
 
 	// Draw player1 login at the top left of the canvas
 	context.fillStyle = '#2f8ca3';
-	context.fillText(loginPlayer1, 10, 30);
+	context.fillText(loginPlayer1, widthMargin, heightMargin);
 
 	// Measure the width of the player 2 login text
 	const player2LoginWidth = context.measureText(loginPlayer2).width;
 
 	// Draw player2 login at the top right of the canvas, aligned with player1 login
 	context.fillStyle = '#2f8ca3';
-	context.fillText(loginPlayer2, canvas.width - player2LoginWidth - 10, 30);
+	context.fillText(loginPlayer2, canvas.width - player2LoginWidth - widthMargin, heightMargin);
 }
 
 export const draw = (canvas: any, game: GameData) => {
 
-	const context = canvas.getContext('2d')
 	// scaling game to current height and width
 	scaleGame(game, canvas.width, canvas.height);
+
+	const context = canvas.getContext('2d')
+
 	// background
 	context.fillStyle = '#15232f';
 	context.fillRect(0, 0, canvas.width, canvas.height);
 
-	// draw login
-	//drawLogin(canvas, game.player1.login, game.player2.login);
-	//draw score
-	//drawScore(canvas, game.player1.score, game.player2.score);
-
-	// draw timer
-	//drawTimer(canvas, game.roomInfo.timer);
+	if (game.player1.login && game.player2.login)
+		drawLogin(canvas, game.player1.login, game.player2.login);
+	drawScore(canvas, game.player1.score, game.player2.score);
+	drawTimer(canvas, game.roomInfo.timer);
 
 	// dram middle line
 	context.strokeStyle = 'white';
@@ -205,8 +229,10 @@ export const draw = (canvas: any, game: GameData) => {
 
 	// draw players
 	context.fillStyle = 'white';
-	context.fillRect(game.roomInfo.margin, game.player1.y, game.roomInfo.playerwidth, game.roomInfo.playerheight);
-	context.fillRect(canvas.width - (game.roomInfo.playerwidth + game.roomInfo.margin), game.player2.y, game.roomInfo.playerwidth, game.roomInfo.playerheight);
+	if (game.roomInfo.playerwidth && game.roomInfo.margin && game.roomInfo.playerheight) {
+		context.fillRect(game.roomInfo.margin, game.player1.y - (game.roomInfo.playerheight / 2), game.roomInfo.playerwidth, game.roomInfo.playerheight);
+		context.fillRect(canvas.width - (game.roomInfo.playerwidth + game.roomInfo.margin), game.player2.y - (game.roomInfo.playerheight / 2), game.roomInfo.playerwidth, game.roomInfo.playerheight);
+	}
 
 	// draw ball
 	context.beginPath();
@@ -226,26 +252,31 @@ const Canvas = ({ socket, height, width }: any) => {
 
 	const gameCanvas = React.useCallback((node: null | HTMLCanvasElement) => {
 		if (node !== null) {
-			setGame(true);
 			canvas.current = node;
+			setGame(true)
 		}
 	  }, []);
 
-	socket.on("updateClient", (gameData: GameData) => {
-		console.log("---------------------> ON updateClient");
-		draw(canvas.current, gameData)
-	})
+	React.useEffect(() => {
 
-	socket.on("initSetup", (gameData: GameData) => {
-		console.log("---------------------> ON initSetup");
-		draw(canvas.current, gameData);
-		// setWaiting(false);
-	})
+		socket.on("updateClient", (gameData: GameData) => {
+			console.log("---------------------> ON updateClient");
+			draw(canvas.current, gameData)
+		})
 
-	socket.on("gameOver", (gameData: GameData) => {
-		console.log("---------------------> ON gameOver");
-		drawEndGame(canvas.current, gameData);
-	})
+		socket.on("initSetup", (gameData: GameData) => {
+			console.log("---------------------> ON initSetup");
+			console.log(`game.ball.x ${gameData.ball.x} | game.ball.y ${gameData.ball.y}`)
+
+			draw(canvas.current, gameData);
+			// setWaiting(false);
+		})
+
+		socket.on("gameOver", (gameData: GameData) => {
+			console.log("---------------------> ON gameOver");
+			drawEndGame(canvas.current, gameData);
+		})
+	}, [])
 
 	const handleMouseMove = React.useMemo(() => {
 		const canvasElement = canvas.current
@@ -253,7 +284,7 @@ const Canvas = ({ socket, height, width }: any) => {
 			const sendPos = (y: number) => {
 				socket.emit("paddlePos", y);
 			}
-			const playerHeight = (canvasElement.height * PLAYER_HEIGHT) / CANVAS_HEIGHT;
+			const playerHeight = Math.floor((canvasElement.height * PLAYER_HEIGHT) / CANVAS_HEIGHT);
 
 			return (event: any) => {
 				const canvasLocation = canvasElement.getBoundingClientRect();
@@ -261,13 +292,13 @@ const Canvas = ({ socket, height, width }: any) => {
 				let y: number;
 
 				if (mouseLocation < playerHeight / 2) {
-					y = 0;
+					y = playerHeight / 2;
 				} else if (mouseLocation > canvasElement.height - playerHeight / 2) {
-					y = canvasElement.height - playerHeight;
+					y = canvasElement.height - playerHeight / 2;
 				} else {
-					y = mouseLocation - playerHeight / 2;
+					y = mouseLocation;
 				}
-				sendPos((y * CANVAS_HEIGHT) / canvasElement.height);
+				sendPos(Math.floor((y * CANVAS_HEIGHT) / canvasElement.height));
 			}
 		}
 		return undefined

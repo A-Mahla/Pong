@@ -96,11 +96,11 @@ export const Game = ({ height, width }: any) => {
 
 	const handleClick = () => {
 		if (!thereIsMatch)
-		setThereIsMatch(true)
+			setThereIsMatch(true)
 		else
-		setThereIsMatch(false)
+			setThereIsMatch(false)
 	}
-
+	console.log(`IN GAME COMPONENT --> height = ${height} | width = ${width}`);
 	return (<>
 		{
 			thereIsMatch ?

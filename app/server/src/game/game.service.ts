@@ -68,6 +68,10 @@ export class GameService {
 	}
 //	================ GET SOME STATS ABOUT GAME AND USERGAME ===========
 
+	async gameHistory() {
+		
+	}
+
 	async getVictoryLossCountForUser(userId: number, InfSup: boolean) {
 		const games = await this.prisma.user_Game.findMany({
 		  where: {
