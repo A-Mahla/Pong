@@ -24,11 +24,11 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
 	height: 10,
 	borderRadius: 5,
 	[`&.${linearProgressClasses.colorPrimary}`]: {
-		backgroundColor: theme.palette.grey[theme.palette.mode === 'light' ? 200 : 800],
+		backgroundColor: theme.palette.mode === 'light' ?  '#fef6dd' : 800,
 	},
 	[`& .${linearProgressClasses.bar}`]: {
 		borderRadius: 5,
-		backgroundColor: theme.palette.mode === 'light' ? '#1d5fa9' : '#308fe8',
+		backgroundColor: theme.palette.mode === 'light' ? '#f7d46f' : '#308fe8',
 		},
 	})
 );
@@ -48,7 +48,7 @@ const MatchInfo = (props: MatchInfoProps) => {
 				}
 			}>
 				<Grid item xs={12}>
-					<GppGoodIcon style={{color: '#213547'}} sx={{height: '10rem', width: '10rem'}}/>
+					<GppGoodIcon style={{color: '#293241'}} sx={{height: '10rem', width: '10rem'}}/>
 				</Grid>
 				<Grid item xs={12}>
 					<Typography align="center" variant='h2'>
@@ -68,15 +68,43 @@ const MatchInfo = (props: MatchInfoProps) => {
 				}
 			}>
 				<Grid item xs={12} sx={{height: "50%"}}>
-					<Grid xs={12} sx={{height: "60%"}}>
-						<Typography align="center" variant='h2'>
+					<Grid display="flex"
+						justifyContent="center"
+						alignItems="center"
+						xs={12}
+						sx={{height: "80%"}}
+					>
+						<Typography align="center"
+							variant='h2'
+							style={{color: '#213547'}}
+						>
+							lvl 10
 						</Typography>
 					</Grid>
 					<Grid xs={12}>
 						<BorderLinearProgress variant="determinate" value={50} />
 					</Grid>
 				</Grid>
-				<Grid item xs={12}>
+				<Grid item display="flex"
+					xs={12}
+					justifyContent="center"
+					alignItems="center"
+					sx={{height: "50%"}}
+				>
+					<Button
+						variant='contained'
+						color='primary'
+						className='loginButton'
+						style={{background: '#213547'}}
+						sx={{
+							fontSize: '2vw;',
+							borderRadius: 14,
+							pb: 0.2,
+							px: 'center',
+						}}
+					>
+						Match History
+					</Button> 
 				</Grid>
 			</Grid>
 			<Grid item display="grid" justifyContent="center" xs={4}

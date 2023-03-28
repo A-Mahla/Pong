@@ -27,7 +27,6 @@ const buttonContactStyle = {
 	borderRadius: 14,
 	flexWrap: 'wrap',
 	px: 0,
-
 }
 
 const gridButton = {
