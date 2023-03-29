@@ -115,9 +115,9 @@ function drawEndGame(canvas: any, gameData: GameData) {
 	// Determine the text to display based on the outcome of the game
 	let text = undefined;
 	if (gameData.player1.score > gameData.player2.score) {
-	  text = "YOU WIN!";
+	  text = "YOU WIN !";
 	} else if (gameData.player1.score < gameData.player2.score) {
-	  text = "YOU SUCK!";
+	  text = "YOU SUCK !";
 	} else if (gameData.player1.score === gameData.player2.score) {
 		text = "EQUALITY"
 	}
@@ -250,6 +250,18 @@ const Canvas = ({ socket, height, width }: any) => {
 
 	const [game, setGame] = React.useState<boolean>(false);
 
+	const canvaResize = async () => {
+		const testTimeout = setTimeout(() => {
+			if (canvas.current) {
+				canvas.current.width = document.documentElement.clientWidth * 0.50;
+				canvas.current.height = canvas.current.width * 0.533333;
+			}
+		}, 100)
+		return () => {
+			clearTimeout(testTimeout);
+		}
+	}
+
 	const gameCanvas = React.useCallback((node: null | HTMLCanvasElement) => {
 		if (node !== null) {
 			canvas.current = node;
@@ -276,6 +288,12 @@ const Canvas = ({ socket, height, width }: any) => {
 			console.log("---------------------> ON gameOver");
 			drawEndGame(canvas.current, gameData);
 		})
+
+		window.addEventListener("resize", canvaResize);
+
+		return (() => {
+			window.removeEventListener("resize", canvaResize);
+		})
 	}, [])
 
 	const handleMouseMove = React.useMemo(() => {
@@ -286,7 +304,7 @@ const Canvas = ({ socket, height, width }: any) => {
 			}
 			const playerHeight = Math.floor((canvasElement.height * PLAYER_HEIGHT) / CANVAS_HEIGHT);
 
-			return (event: any) => {
+			return ((event: any) => {
 				const canvasLocation = canvasElement.getBoundingClientRect();
 				const mouseLocation = event.clientY - canvasLocation?.y
 				let y: number;
@@ -299,14 +317,14 @@ const Canvas = ({ socket, height, width }: any) => {
 					y = mouseLocation;
 				}
 				sendPos(Math.floor((y * CANVAS_HEIGHT) / canvasElement.height));
-			}
+			});
 		}
-		return undefined
+		return (undefined);
 	}, [game])
 
 	return (
 		<main role="main">
-			<canvas onMouseMove={handleMouseMove} ref={gameCanvas} height={height} width={width} />
+			<canvas onMouseMove={handleMouseMove} ref={gameCanvas} height={(document.documentElement.clientWidth * 0.50) * 0.533333} width={document.documentElement.clientWidth * 0.50} />
 		</main>
 	);
 };

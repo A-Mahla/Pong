@@ -70,9 +70,40 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		}
 		if (gameToJoin && gameToJoin.getStatus() === Status.TWO_PLAYER)
 		{
-			gameToJoin.startGame()
+			gameToJoin.startGame();
+			this.runingGamesList();
 		}
 	}
+
+	@SubscribeMessage('getRuningGames')
+	async runingGamesList() {
+		const keysTable: string[] = [];
+
+		const assignKeysToTable = () => {
+			// Parcours de chaque noeud de la Map
+			for (let [key, value] of this.gameMap) {
+			  keysTable.push(key);
+			}
+		}
+
+		assignKeysToTable();
+		this.server.emit('updateRunningGames', keysTable);
+	}
+
+	@SubscribeMessage('watchGame')
+	async addWatcherToGame(client: Socket, gameId: string) {
+		const temp = this.gameMap.get(gameId);
+
+		if (temp)
+		{
+			// add to watching list, but what ?
+		}
+	}
+
+
+
+
+
 
 	async handleConnection(client: Socket, ...args: any[]) {
 		if (client.handshake.auth.token && jwtConstants.jwt_secret) {
@@ -98,7 +129,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				})
 
 			} catch (err) {
-				console.error("laaaaaaaaaa ->" + err);
+				console.error("IN HANDLE CONNECTION: token is broke ->" + err);
 				console.log(`Client connected, token is : ${client.handshake.auth.token}`);
 				client.disconnect(true);
 			}
@@ -111,4 +142,3 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		console.log(`Client disconnected: ${client.id}`);
 	}
 }
-
