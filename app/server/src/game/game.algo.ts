@@ -26,6 +26,8 @@ export class GameAlgo {
 	private player2: Player;
 	private gameData: GameDataType;
 
+	private watchers: string[] = [];
+
 	constructor (
 		private readonly gameService: GameService,
 				readonly server: Server,
@@ -101,7 +103,7 @@ export class GameAlgo {
 					}
 				}
 				// game is finish (3750ms == 1min)
-				if ( ++this.gameData.roomInfo.timer == 3750 || this.playersTimeout() ) {
+				if ( ++this.gameData.roomInfo.timer == 3750 /*|| this.playersTimeout()*/ ) {
 					clearTimeout(this.countDown);
 					clearInterval(interval);
 					this.server.to(this.player1!.socketID).emit('gameOver', this.gameData);
@@ -112,7 +114,9 @@ export class GameAlgo {
 				}
 				this.server.to(this.player1!.socketID).emit('updateClient', this.gameData);
 				this.server.to(this.player2!.socketID).emit('updateClient', this.rotateGameData(this.gameData));
-
+				this.watchers.forEach((socketID: string) => {
+					this.server.to(this.player2!.socketID).emit('updateClient', this.gameData);
+				})
 			}, 16);
 		}, 5000);
 	}
@@ -163,6 +167,11 @@ export class GameAlgo {
 				this.gameData.player2.timeout = Date.now();
 			})
 		}
+	}
+
+	public addWatcherSocketID(newWatcherSocketId: string) {
+		this.watchers.push(newWatcherSocketId);
+		this.server.to(newWatcherSocketId).emit('initSetup', this.gameData);
 	}
 
 	// initialising the players and ball positions

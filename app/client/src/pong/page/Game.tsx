@@ -17,8 +17,12 @@ import { render } from 'react-dom'
 import Canvas from '../component/gameCanva'
 import { draw } from '../component/gameCanva'
 import { GameSocketProvider, UserContext } from '../services/GameSocketProvider'
+import { Spectator } from '../component/Spectator'
 
 
+const pongTitle = {
+	fontSize: '2vw;',
+}
 
 /* ---------------- ^^^^ ---------------*/
 
@@ -69,19 +73,16 @@ function JoinQueuButton({socket, setJoinQueu, joinQueu}: any): any {
 
 }
 
-function MatchMaker ({socket, thereIsMatch, sendCanvas} : any){
+function MatchMaker ({socket, thereIsMatch, launchCanvas} : any){
 
 	const [joinQueu, setJoinQueu] = React.useState(false);
 	socket.on("lockAndLoaded", () => {
-		sendCanvas();
+		launchCanvas();
 	})
 
 	return (
 		<>
 		<Grid container spacing={2}>
-			<Grid item xs={12}>
-				AUTOMATIK MATCHMAKING
-			</Grid>
 			<Grid item xs={12} sm={6}>
 				<JoinQueuButton  socket={socket} setJoinQueu={setJoinQueu} joinQueu={joinQueu} />
 			</Grid>
@@ -108,25 +109,32 @@ export const Game = ({ height, width }: any) => {
 		{
 			thereIsMatch ?
 			(<>
-				<Typography variant='h1'>Game</Typography>
-				<div style={{ clear: 'both' }}>
-					<Canvas socket={socket} height={height} width={width} style={canvasStyle} />
-				</div>
+				<Grid container justifyContent="space-between" alignItems="flex-start">
+					<Typography sx={pongTitle} variant='h2'>Game</Typography>
+						<Canvas socket={socket} height={height} width={width} style={canvasStyle} />
+				</Grid>
 			</>)
 			:
 			(<>
-			<Grid>
-
-				<Grid item xs={12}>
-					<Typography variant='h1'>Matchmaking</Typography>
+				<Grid container justifyContent="space-between" alignItems="flex-start">
+					<Grid item xs={12} sm={4}>
+						<Grid container justifyContent="flex-start" alignItems="center">
+							<Grid item>
+								<Typography sx={pongTitle} variant='h2'>Matchmaking</Typography>
+							</Grid>
+							<MatchMaker socket={socket} thereIsMatch={thereIsMatch} launchCanvas={handleClick} />
+						</Grid>
+					</Grid>
+					<Grid item xs={12} sm={4}>
+						<Typography sx={pongTitle} variant='h2'>Invite friend</Typography>
+						{/* Ajoutez ici le contenu pour "Invite friend" */}
+					</Grid>
+					<Grid item xs={12} sm={4}>
+						<Typography sx={pongTitle} variant='h2'>Watch game</Typography>
+							<Spectator socket={socket} thereIsMatch={thereIsMatch} handleThereIsMatch={handleClick}/>
+						{/* Ajoutez ici le contenu pour "Watch game" */}
+					</Grid>
 				</Grid>
-					<div style={{ display: 'inline-block', marginLeft: '20px' }}>
-						<MatchMaker socket={socket} thereIsMatch={thereIsMatch} sendCanvas={handleClick} />
-					</div>
-				<Grid>
-
-				</Grid>
-			</Grid>
 			</>)
 		}</>)
 	};

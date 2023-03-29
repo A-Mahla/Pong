@@ -164,7 +164,7 @@ const LeadPage = () => {
 				{/* <Typography variant='h1'>{user}</Typography>
 				<br/>
 				<Typography variant='h1'>{id}</Typography> */}
-						<GamePage height={408} width={800} />
+						<GamePage height={640} width={1200} />
 			</TabPanel>
 			<TabPanel value={value} index={2}>
 				<Typography variant='h1'>Chat</Typography>
