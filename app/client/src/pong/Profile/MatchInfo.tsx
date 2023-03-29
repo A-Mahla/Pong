@@ -36,15 +36,17 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
 const MatchInfo = (props: MatchInfoProps) => {
 
 
+	const isQuery950 = useMediaQuery('(max-width: 950px) and (min-width: 550px)')
+
 	return <>
-			<Grid item display="grid" justifyContent="center" xs={4}
+			<Grid item display="grid" justifyContent="center" sm={4} xs={6}
+				order={{sm: 1, xs: 2}}
 				sx={{
 					position: 'relative',
-					top: '3rem',
 					height: '20rem',
 					py: '1vw;',
 					px: '2vw;',
-					border: 1
+//					border: 1
 				}
 			}>
 				<Grid item xs={12}>
@@ -57,14 +59,16 @@ const MatchInfo = (props: MatchInfoProps) => {
 				</Grid>
 			</Grid>
 
-			<Grid item xs={4}
+			<Grid item sm={4} xs={12} order={{sm: 2, xs: 1}}
 				sx={{
 					position: 'relative',
-					top: '3rem',
 					height: '20rem',
 					py: '1vw;',
 					px: '2vw;',
-					border: 1
+//					border: 1,
+					'@media (max-width: 550px)': {
+						top: '1rem',
+					}
 				}
 			}>
 				<Grid item xs={12} sx={{height: "50%"}}>
@@ -74,11 +78,12 @@ const MatchInfo = (props: MatchInfoProps) => {
 						xs={12}
 						sx={{height: "80%"}}
 					>
+						
 						<Typography align="center"
 							variant='h2'
 							style={{color: '#213547'}}
 						>
-							lvl 10
+							{isQuery950 ? "10" : "lvl 10"}
 						</Typography>
 					</Grid>
 					<Grid xs={12}>
@@ -101,20 +106,23 @@ const MatchInfo = (props: MatchInfoProps) => {
 							borderRadius: 14,
 							pb: 0.2,
 							px: 'center',
+							'@media (max-width: 550px)': {
+								fontSize: '1rem',
+							}
 						}}
 					>
 						Match History
 					</Button> 
 				</Grid>
 			</Grid>
-			<Grid item display="grid" justifyContent="center" xs={4}
+			<Grid item display="grid" justifyContent="center" sm={4} xs={6}
+				order={{sm: 3, xs: 3}}
 				sx={{
 					position: 'relative',
-					top: '3rem',
 					height: '20rem',
 					py: '1vw;',
 					px: '2vw;',
-					border: 1
+//					border: 1
 				}
 			}>
 				<Grid item xs={12}>

@@ -112,7 +112,7 @@ const Profile = () => {
 			<Grid item mmd={5} sm={6} xs={12}
 				sx={{
 					position: 'relative',
-					top: '3rem',
+					top: '1rem',
 					height: '12rem',
 					p: '1vw;',
 //					border: 1,
@@ -132,7 +132,7 @@ const Profile = () => {
 			<Grid item mmd={7} sm={6} xs={0}
 				sx={{
 					position: 'relative',
-					top: '3rem',
+					top: '1rem',
 					height: '12rem',
 					py: '1vw;',
 //					px: '2vw;',

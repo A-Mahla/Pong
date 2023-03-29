@@ -30,6 +30,18 @@ const centralBoxStyle = {
 	}
 }
 
+const centralProfileBoxReduce550 = {
+	height: '45rem',
+	p: 1,
+	borderRadius: '32px',
+	'&.MuiPaper-root': {
+		backgroundColor: 'primary'
+	},
+	'@media (max-width: 550px)': {
+		height: '60rem',
+	}
+}
+
 type TabPanelProps = {
 	value: number,
 	index: number,
@@ -41,21 +53,48 @@ function TabPanel(props: TabPanelProps) {
 
   return <>
 		{props.value === props.index &&
-			(<Paper elevation={24} sx={centralBoxStyle}>
+			(<Paper elevation={24}
+				sx={
+					props.index === 0 ?
+					centralProfileBoxReduce550 :
+					centralBoxStyle
+				}
+			>
 				<Grid container
 					className='test'
-					sx={{
-						all: 'initial',
-						ml: '3rem',
-						mr: '3rem',
-						height: '39rem',
-						widht:  '30rem',
-						display: 'flex',
-						flexDirection: 'row',
-						flexWrap: 'wrap',
-						alignItems: 'center',
-						justifyContent: 'center'
-					}}>
+					sx={props.index === 0 ?
+						{
+							all: 'initial',
+							ml: '3rem',
+							mr: '3rem',
+							mt: '1rem',
+							mb: '1rem',
+							height: '43rem',
+							widht:  '30rem',
+							display: 'flex',
+							flexDirection: 'row',
+							flexWrap: 'wrap',
+							alignItems: 'center',
+							justifyContent: 'center',
+							'@media (max-width: 550px)': {
+								height: '58rem',
+							}
+						} :
+						{
+							all: 'initial',
+							ml: '3rem',
+							mr: '3rem',
+							mt: '1rem',
+							mb: '1rem',
+							height: '43rem',
+							widht:  '30rem',
+							display: 'flex',
+							flexDirection: 'row',
+							flexWrap: 'wrap',
+							alignItems: 'center',
+							justifyContent: 'center'
+						}
+					}>
 					{props.children}
 				</Grid>
 			</Paper>)
