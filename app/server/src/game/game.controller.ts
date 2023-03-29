@@ -75,7 +75,7 @@ export class GameController {
 		if (!req.user.sub)
 			throw BadRequestException;
 		const test = await this.gameService.gameHistory(req.user.sub);
-		test.forEach(function(value) {console.log(value)});
+		test.forEach(function(value) { console.log(value) });
 	}
 
 //	======================== Getting raw stats about a player game ================
