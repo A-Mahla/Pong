@@ -95,4 +95,16 @@ export class GameController {
 	}
 
 
+// ======================= tests ==========================================
+
+	@Post('test/createFullGame')
+	async createNewGameFull(@Body() players: any){
+		const newGame = await this.gameService.registerNewGame("--");
+
+
+		this.gameService.registerNewPlayer(parseInt(newGame.game_id.toString()), parseInt(players.player1.id), players.player1.score);
+
+		this.gameService.registerNewPlayer(parseInt(newGame.game_id.toString()), parseInt(players.player2.id), players.player2.score);
+
+	}
 }
