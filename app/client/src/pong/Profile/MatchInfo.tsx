@@ -37,6 +37,7 @@ const MatchInfo = (props: MatchInfoProps) => {
 
 
 	const isQuery950 = useMediaQuery('(max-width: 950px) and (min-width: 550px)')
+	const [open, setOpen] = useState(false)
 
 	return <>
 			<Grid item display="grid" justifyContent="center" sm={4} xs={6}
