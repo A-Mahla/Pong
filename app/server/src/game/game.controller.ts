@@ -67,11 +67,15 @@ export class GameController {
 		);
 	}
 
-	//@UseGuards(JwtAuthGuard)
-	@Get('gamehistory/:id')
-	async getGameHistory(@Param('id') user_id: number) {
-		const test = await this.gameService.gameHistory(user_id);
-		console.log(test);
+	@UseGuards(JwtAuthGuard)
+	@Get('gamehistory')
+	async getGameHistory(
+		@Request() req: any,
+	) {
+		if (!req.user.sub)
+			throw BadRequestException;
+		const test = await this.gameService.gameHistory(req.user.sub);
+		test.forEach(function(value) {console.log(value)});
 	}
 
 //	======================== Getting raw stats about a player game ================
@@ -109,5 +113,5 @@ export class GameController {
 	}
 
 	// the curl commande to use it :
-	// curl -X POST -H "Content-Type: application/json" -d '{"player1": {"id": "3", "score": 10}, "player2": {"id": "1", "score": 15}}' http://10.11.6.6:8080/api/game/test/createFullGame
+	// c/api/game/test/createFullGameurl -X POST -H "Content-Type: application/json" -d '{"player1": {"id": "3", "score": 10}, "player2": {"id": "1", "score": 15}}' http://10.11.6.6:8080/api/game/test/createFullGame
 }
