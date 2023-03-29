@@ -1,12 +1,33 @@
+import { 
+	Box,
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	Typography,
+} from '@mui/material'
+import useAuth, { useFetchAuth } from '/src/pong/context/useAuth'
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import { TableVirtuoso, TableComponents } from 'react-virtuoso';
 
 interface Data {
-	calories: number;
-	carbs: number;
-	dessert: string;
-	fat: number;
-	id: number;
-	protein: number;
+	you: string;
+	score : number;
+	rival: number;
 }
+
+function createData(
+	you: string;
+	score : number;
+	rival: number;
+): Data {
+	return { you, score, rival };
+}
+
 
 type MatchHistoryProps = {
 	open: boolean,
