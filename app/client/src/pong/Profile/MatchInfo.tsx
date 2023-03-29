@@ -108,6 +108,9 @@ const MatchInfo = (props: MatchInfoProps) => {
 							px: 'center',
 							'@media (max-width: 550px)': {
 								fontSize: '1rem',
+							},
+							'@media (min-width: 1200px)': {
+								fontSize: '1.7rem',
 							}
 						}}
 					>
