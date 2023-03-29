@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useEffect } from 'react'
 import { Typography, Box, Paper } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Tabs from '@mui/material/Tabs'
@@ -7,7 +8,8 @@ import Tab from '@mui/material/Tab'
 import Swipeable from '/src/pong/component/Swipeable'
 import Profile from '/src/pong/Profile/Profile'
 import './LeadPage.css'
-import useAuth from '/src/pong/context/useAuth'
+import useAuth, {useFetchAuth} from '/src/pong/context/useAuth'
+import { FetchApi, Api } from '/src/pong/component/FetchApi'
 import  GamePage  from './Game';
 
 const header = {
@@ -105,8 +107,18 @@ function TabPanel(props: TabPanelProps) {
 const LeadPage = () => {
 
 	const [value, setValue] = React.useState(1);
-
 	const {user, id, navigate} = useAuth();
+	const auth = useFetchAuth()
+
+	useEffect(() => {
+		FetchApi({
+			api: {
+				input: `http://${import.meta.env.VITE_SITE}/api/users/profile/pong`,
+				dataType: 'null'
+			},
+			auth: auth,
+		})
+	}, [])
 
 	const handleHome = (event: React.SyntheticEvent) => {
 		event.preventDefault()

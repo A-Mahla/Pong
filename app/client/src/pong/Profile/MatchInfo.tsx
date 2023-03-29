@@ -35,6 +35,22 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
 
 const MatchInfo = (props: MatchInfoProps) => {
 
+	const auth = useFetchAuth();
+
+	const handleClick = async () => {
+
+		await FetchApi({
+			api: {
+				input: `http://${import.meta.env.VITE_SITE}/api/game/gamehistory`,
+				option: {
+					method: "GET",
+				},
+				dataType: 'null'
+			},
+			auth: auth,
+		});
+
+	}
 
 	const isQuery950 = useMediaQuery('(max-width: 950px) and (min-width: 550px)')
 	const [open, setOpen] = useState(false)
@@ -73,7 +89,7 @@ const MatchInfo = (props: MatchInfoProps) => {
 				}
 			}>
 				<Grid item xs={12} sx={{height: "50%"}}>
-					<Grid display="flex"
+					<Grid item display="flex"
 						justifyContent="center"
 						alignItems="center"
 						xs={12}
@@ -87,7 +103,7 @@ const MatchInfo = (props: MatchInfoProps) => {
 							{isQuery950 ? "10" : "lvl 10"}
 						</Typography>
 					</Grid>
-					<Grid xs={12}>
+					<Grid item xs={12}>
 						<BorderLinearProgress variant="determinate" value={50} />
 					</Grid>
 				</Grid>
@@ -98,9 +114,10 @@ const MatchInfo = (props: MatchInfoProps) => {
 					sx={{height: "50%"}}
 				>
 					<Button
-						variant='contained'
-						color='primary'
-						className='loginButton'
+						variant="contained"
+						color="primary"
+						onClick={handleClick}
+						className="loginButton"
 						style={{background: '#213547'}}
 						sx={{
 							fontSize: '2vw;',

@@ -47,7 +47,6 @@ const Profile = () => {
 	const [victory, setVictory] = useState(0);
 	const [defeat, setDefeat] = useState(0);
 
-	const auth = useFetchAuth();
 
 	const fetchType: Api = {
 		api: {
@@ -56,7 +55,7 @@ const Profile = () => {
 				method: "GET",
 			},
 		},
-		auth: auth,
+		auth: useFetchAuth(),
 	}
 
 	
@@ -66,17 +65,6 @@ const Profile = () => {
 		async function fetching() {
 
 			try {
-
-				await FetchApi({
-					api: {
-						input: `http://${import.meta.env.VITE_SITE}/api/game/gamehistory`,
-						option: {
-							method: "GET",
-						},
-						dataType: 'null'
-					},
-					auth: auth,
-				});
 
 				const response = await FetchApi(fetchType);
 				if (response.response.status === 200 || response.response.status === 304) {
