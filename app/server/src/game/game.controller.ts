@@ -40,6 +40,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RefreshJwtAuthGuard } from 'src/auth/refresh-jwt-auth.guard'
 import { Intra42AuthGuard } from 'src/auth/intra42.guard';
 import { GameService } from './game.service';
+import { matchHistoryPayload } from './game.types';
 
 @Controller('game')
 export class GameController {
@@ -67,13 +68,26 @@ export class GameController {
 		);
 	}
 
-	//@UseGuards(JwtAuthGuard)
-	@Get('gamehistory/:id')
-	async getGameHistory(@Param('id') user_id: number) {
-		const test = await this.gameService.gameHistory(user_id);
-		console.log(test);
-
+	@UseGuards(JwtAuthGuard)
+	@Get('gamehistory')
+	async getGameHistory(
+		@Request() req: any,
+	) {
+		if (!req.user.sub)
+			throw BadRequestException;
+		const raw = await this.gameService.gameHistory(req.user.sub);
+		return this.gameService.parseGameHistory(raw);
 	}
+/*
+	 --> l1 is player that made the request, l2 is the competitor and s* is score
+[
+	{ l1: 'amir', s1: 14, l2: 'sacha', s2: 15 },
+	{ l1: 'amir', s1: 19, l2: 'sacha', s2: 9 },
+	{ l1: 'amir', s1: 10, l2: 'sacha', s2: 23 },
+	{ l1: 'amir', s1: 12, l2: 'sacha', s2: 6 },
+	{ l1: 'amir', s1: 10, l2: 'sacha', s2: 15 }
+]
+*/
 
 //	======================== Getting raw stats about a player game ================
 
@@ -103,12 +117,14 @@ export class GameController {
 		const newGame = await this.gameService.registerNewGame("--");
 
 
-		this.gameService.registerNewPlayer(parseInt(newGame.game_id.toString()), parseInt(players.player1.id), players.player1.score);
+		await this.gameService.registerNewPlayer(parseInt(newGame.game_id.toString()), parseInt(players.player1.id), players.player1.score);
 
-		this.gameService.registerNewPlayer(parseInt(newGame.game_id.toString()), parseInt(players.player2.id), players.player2.score);
+		await this.gameService.registerNewPlayer(parseInt(newGame.game_id.toString()), parseInt(players.player2.id), players.player2.score);
 
 	}
 
 	// the curl commande to use it :
 	// curl -X POST -H "Content-Type: application/json" -d '{"player1": {"id": "3", "score": 10}, "player2": {"id": "1", "score": 15}}' http://10.11.6.6:8080/api/game/test/createFullGame
 }
+
+

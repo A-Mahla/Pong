@@ -65,6 +65,7 @@ const Profile = () => {
 		async function fetching() {
 
 			try {
+
 				const response = await FetchApi(fetchType);
 				if (response.response.status === 200 || response.response.status === 304) {
 

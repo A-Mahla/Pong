@@ -31,8 +31,6 @@ services:
     env_file:
       - .env
     container_name: server
-    env_file:
-      - .env
     build: ./app/server/.
     image: nestjs
 #    expose:
