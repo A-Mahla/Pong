@@ -67,11 +67,19 @@ export class GameController {
 		);
 	}
 
-	//@UseGuards(JwtAuthGuard)
-	@Get('gamehistory/:id')
-	async getGameHistory(@Param('id') user_id: number) {
-		const test = await this.gameService.gameHistory(user_id);
-		console.log(test);
+	@UseGuards(JwtAuthGuard)
+	@Get('gamehistory')
+	async getGameHistory(
+		@Request() req: any,
+	) {
+		if (!req.user.sub)
+			throw BadRequestException;
+		const test = await this.gameService.gameHistory(req.user.sub);
+
+//		to view in object
+//		test.forEach(function(value) { console.log(value.game.players) });
+//		
+		console.log(test)
 	}
 
 //	======================== Getting raw stats about a player game ================
@@ -102,9 +110,9 @@ export class GameController {
 		const newGame = await this.gameService.registerNewGame("--");
 
 
-		this.gameService.registerNewPlayer(parseInt(newGame.game_id.toString()), parseInt(players.player1.id), players.player1.score);
+		await this.gameService.registerNewPlayer(parseInt(newGame.game_id.toString()), parseInt(players.player1.id), players.player1.score);
 
-		this.gameService.registerNewPlayer(parseInt(newGame.game_id.toString()), parseInt(players.player2.id), players.player2.score);
+		await this.gameService.registerNewPlayer(parseInt(newGame.game_id.toString()), parseInt(players.player2.id), players.player2.score);
 
 	}
 

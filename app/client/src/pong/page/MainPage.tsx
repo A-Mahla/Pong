@@ -2,7 +2,7 @@ import * as React from 'react'
 import Swipeable from '/src/pong/component/Swipeable'
 import { Typography, Button, Box } from '@mui/material'
 import Grid from '@mui/material/Grid'
-import { Link } from "react-router-dom"
+import { Link, Route } from "react-router-dom"
 import './MainPage.css'
 import useAuth from '/src/pong/context/useAuth';
 
@@ -123,7 +123,7 @@ const MainPage = () => {
 			>
 				<Button
 					component={Link}
-					to="/login"
+					to="/pong"
 					variant='contained'
 					color='primary'
 					className='loginButton'

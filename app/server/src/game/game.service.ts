@@ -6,15 +6,12 @@ import { GameDataType, Status, gamePatron, GamePatron, Player } from './game.typ
 export class GameService {
 	constructor( private prisma: PrismaService,) {}
 
-
 /* ============================ POST game related information ========================*/
 
 	async endGameDBwrites(gameID: string, player1: Player, player2: Player, gameData: GameDataType) {
 		this.registerNewPlayer(parseInt(gameID), player1.id, gameData.player1.score);
 		this.registerNewPlayer(parseInt(gameID), player2.id, gameData.player2.score);
 	}
-
-
 
 	async registerNewGame(status: string) {
 		return this.prisma.games.create({
@@ -57,7 +54,6 @@ export class GameService {
 			  },
 		}).catch((e) => {throw e})
 	}
-
 
 	async gamesbyStatus(statusTofind: string) {
 		return (this.prisma.games.findMany({
@@ -117,7 +113,7 @@ export class GameService {
 		});
 
 		return victories;
-	  }
+	}
 
 	async getNbGames(user_id: number) {
 		const nbGames = await this.prisma.user_Game.count({
@@ -127,7 +123,6 @@ export class GameService {
 				}
 			}
 		}).catch((e) => {throw e})
-		console.log(nbGames);
 		return nbGames;
 	}
 
@@ -147,7 +142,4 @@ export class GameService {
 	}
 }
 
-
 //	================ ^^^^^^^^^^^^^^^^^^ ===========
-
-
