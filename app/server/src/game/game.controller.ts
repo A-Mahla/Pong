@@ -72,6 +72,7 @@ export class GameController {
 	async getGameHistory(@Param('id') user_id: number) {
 		const test = await this.gameService.gameHistory(user_id);
 		console.log(test);
+
 	}
 
 //	======================== Getting raw stats about a player game ================
