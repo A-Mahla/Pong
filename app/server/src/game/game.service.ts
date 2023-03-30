@@ -1,6 +1,6 @@
 import { BadGatewayException, BadRequestException, Injectable, UseInterceptors, UploadedFile, Param } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { GameDataType, Status, gamePatron, GamePatron, Player } from './game.types'
+import { GameDataType, Status, gamePatron, GamePatron, Player, matchHistoryPayload } from './game.types'
 
 @Injectable()
 export class GameService {
@@ -64,7 +64,7 @@ export class GameService {
 	}
 //	================ GET SOME STATS ABOUT GAME AND USERGAME ===========
 
-	async gameHistory(userId: number) {
+	async gameHistory(userId: number){
 		const games = await this.prisma.user_Game.findMany({
 			where: {
 			  user_id: userId,
@@ -72,7 +72,11 @@ export class GameService {
 			include: {
 			  game: {
 				include: {
-				  players: true,
+					players: {
+						include: {
+							player: true,
+						},
+					}
 				},
 			  },
 			},
@@ -84,6 +88,27 @@ export class GameService {
 		  });
 
 		return games;
+	}
+	parseGameHistory(raw: any): matchHistoryPayload[] {
+		let parsedData: matchHistoryPayload[] = [];
+		raw.forEach((userGame: any, index: number) => {
+			let temp: matchHistoryPayload = {l1: '', s1:0, l2:'', s2:0 }
+			if (userGame.user_id == userGame.game.players[0].player.id) {
+				temp.l1 = userGame.game.players[0].player.login;
+				temp.s1 = userGame.game.players[0].score,
+				temp.l2 = userGame.game.players[1].player.login,
+				temp.s2 = userGame.game.players[1].score
+			} else {
+				temp.l1 = userGame.game.players[1].player.login;
+				temp.s1 = userGame.game.players[1].score,
+				temp.l2 = userGame.game.players[0].player.login,
+				temp.s2 = userGame.game.players[0].score
+			}
+			parsedData.push(temp);
+
+		})
+		console.log(parsedData)
+		return parsedData;
 	}
 
 	async getVictoryLossCountForUser(userId: number, InfSup: boolean) {
