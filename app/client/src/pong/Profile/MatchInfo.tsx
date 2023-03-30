@@ -17,9 +17,16 @@ import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgr
 import { styled } from '@mui/material/styles';
 import MatchHistory from '/src/pong/Profile/MatchHistory'
 
+
+export type Level = {
+	level: number,
+	xp: number,
+}
+
 type MatchInfoProps = {
 	defeat: number,
 	victory: number,
+	level: Level,
 }
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
@@ -95,12 +102,12 @@ const MatchInfo = (props: MatchInfoProps) => {
 						variant='h2'
 						style={{color: '#213547'}}
 					>
-						{isQuery950 ? "10" : "lvl 10"}
+						{isQuery950 ? props.level.level : `lvl ${props.level.level}`}
 					</Typography>
 				</Grid>
 
 				<Grid item xs={12}>
-					<BorderLinearProgress variant="determinate" value={50} />
+					<BorderLinearProgress variant="determinate" value={props.level.xp} />
 				</Grid>
 
 			</Grid>

@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
-import MatchInfo from '/src/pong/Profile/MatchInfo'
+import MatchInfo, {Level} from '/src/pong/Profile/MatchInfo'
 
 
 const theme = createTheme({
@@ -38,6 +38,30 @@ const theme = createTheme({
 	}
 })
 
+function findLevel(xpMax: number) {
+
+	let level = 0;
+	let xp = 0;
+
+	while (xp < xpMax) {
+		xp += level * 50;
+		level++;
+	}
+
+	if (xp == xpMax) {
+		xp = 0;
+	} else {
+		level--;
+		xp = ((xpMax - xp) / level) + 100 
+	}
+	
+	return {
+		level: level,
+		xp: xp,
+	}
+
+}
+
 const Profile = () => {
 
 	const navigate = useNavigate();
@@ -46,6 +70,7 @@ const Profile = () => {
 	const [fetched, setFetched] = useState(false);
 	const [victory, setVictory] = useState(0);
 	const [defeat, setDefeat] = useState(0);
+	const [level, setLevel] = useState<Level>({} as Level)
 
 
 	const fetchType: Api = {
@@ -88,6 +113,10 @@ const Profile = () => {
 						}
 					}
 
+					
+
+				
+					setLevel(findLevel(response.data['nbWin'] * 100 + response.data['nbLoss'] * 25))
 					setVictory(response.data['nbWin'])
 					setDefeat(response.data['nbLoss'])
 
@@ -154,7 +183,7 @@ const Profile = () => {
 			}>
 				<UserPanelGrid />
 			</Grid>
-			<MatchInfo defeat={defeat} victory={victory}/>
+			<MatchInfo defeat={defeat} victory={victory} level={level}/>
 		</ThemeProvider>
 		}
 	</>
