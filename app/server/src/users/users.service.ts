@@ -7,6 +7,7 @@ import { FileInterceptor } from '@nestjs/platform-express'
 import { ok } from 'assert';
 import * as bcrypt from 'bcrypt';
 import { AddFriendData } from 'src/chat/Chat.types';
+import e from 'express';
 
 @Injectable()
 export class UsersService {
@@ -242,6 +243,42 @@ export class UsersService {
 			throw new BadRequestException(e);
 		})
 
+	}
+
+	async getFriends(userId: number) {
+		const friendTab = await this.prisma.friend.findMany({
+			where: {
+				OR: [
+					{
+						user1Id: userId
+					},
+					{
+						user2Id: userId
+					}
+				]
+			},
+			include: {
+				user1: true,
+				user2: true
+			}
+		})
+
+		const relationFriendTab = friendTab.map((elem) => {
+			return {
+				id: elem.id,
+				user1Login: elem.user1.login,
+				user1Id: elem.user1Id,
+				user2Login: elem.user2.login,
+				user2Id: elem.user2Id,
+				status: elem.status,
+				createdAt: elem.createdAt,
+
+			}
+		})
+
+		console.log(relationFriendTab)
+
+		return relationFriendTab
 	}
 }
 /* ============================ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ========================*/

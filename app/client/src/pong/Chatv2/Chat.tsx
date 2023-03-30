@@ -2,7 +2,7 @@ import { useContext, useState, useEffect, createContext} from 'react'
 import { Box } from '@mui/material'
 import { Api, FetchApi } from '../component/FetchApi'
 import { useFetchAuth } from '../context/useAuth'
-import { Message, Room } from './Chat.types'
+import { Friend, Message, Room } from './Chat.types'
 import { DirectMessageBar } from './DirectMessageBar'
 import { MessagesBox } from './MessagesBox'
 import { RoomBar } from './RoomBar'
@@ -13,6 +13,8 @@ const initialChatContext = {
 	setRooms: null,
 	directMessages: [],
 	setDirectMessages: null,
+	friends: [],
+	setFriends: null,
 	current: {},
 	setCurrent: null,
 	target: {},
@@ -45,6 +47,8 @@ export function Chat() {
 
 	const [rooms, setRooms] = useState<Room[]>([])
 
+	const [friends, setFriends] = useState<Friend[]>([])
+
 	const [current, setCurrent] = useState({name: '', id: 0})
 	
 	const [target, setTarget] = useState({login: '', id: 0})
@@ -63,6 +67,8 @@ export function Chat() {
 		setRooms: setRooms,
 		directMessages: directMessages,
 		setDirectMessages: setDirectMessages,
+		friends: friends,
+		setFriends: setFriends,
 		current: current,
 		setCurrent: setCurrent,
 		target: target,
@@ -78,6 +84,21 @@ export function Chat() {
 	}
 
 	const auth = useFetchAuth()
+
+	const getFriendsRequest: Api = {
+		api: {
+			input: `http://${import.meta.env.VITE_SITE}/api/users/friends`,
+		},
+		auth: auth
+	}
+
+	useEffect(() => {
+		async function getFriends() {
+			const {data} = await FetchApi(getFriendsRequest)
+			return data
+		}
+		getFriends().then(data => console.log('friends data: ', data))
+	}, [])
 
 	const findRooms: Api = {
 		api: {
