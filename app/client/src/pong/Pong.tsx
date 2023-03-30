@@ -48,9 +48,11 @@ export const Pong = () => {
 					<Routes>
 						<Route path='/' element={<MainPage/>} />
 						<Route path='/chat' element={<ChatSocketProvider/>} />
-						<Route path='/login' element={<Login/>}/>
+						<Route element={<LoggedRoute/>}>
+							<Route path='/login' element={<Login/>}/>
+							<Route path='/signup' element={<SignUp/>}/>
+						</Route>
 						<Route path='/pong' element={<LeadPage/>} />
-						<Route path='/signup' element={<SignUp/>}/>
 						<Route path="/redirect" element={<Redirect/>} />
 					</Routes>
 				</AuthProvider>
