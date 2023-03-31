@@ -13,6 +13,7 @@ import { GameSocketProvider } from './services/GameSocketProvider';
 import { GamePage } from './page/Game';
 import { ChatSocketProvider } from './Chatv2/Socket';
 import SignUp from './component/SignUp';
+import Particles from 'particlesjs'
 
 /**
  * ============ Entrypoint of the project =============
@@ -39,6 +40,14 @@ const theme = createTheme({
 })
 
 export const Pong = () => {
+
+	const particles =	Particles.init({
+			selector: '.background',
+			maxParticles: 150,
+			connectParticles: true,
+			sizeVariations: 1
+			
+		});
 
 	return (
 		<>

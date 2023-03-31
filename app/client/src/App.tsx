@@ -5,20 +5,10 @@ import Particles from 'particlesjs'
 
 function App() {
 
-	window.onload = function() {
-		Particles.init({
-			selector: '.background',
-			maxParticles: 150,
-			connectParticles: true,
-			sizeVariations: 1
-			
-		});
-	};
-
 	return (
 		<>
 			<Pong />
-			<canvas className="background"></canvas>
+			<canvas className="background"/>
 		</>
 	);
 }
