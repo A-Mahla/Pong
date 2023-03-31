@@ -33,7 +33,7 @@ const theme = createTheme({
 	},
 	palette: {
 		primary: {
-			main: 'rgba(21, 35, 47, 0.87)'
+			main: '#213547'
 		}
 	}
 })

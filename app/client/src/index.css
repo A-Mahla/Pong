@@ -14,7 +14,7 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(21, 35, 47, 0.87);
+  color: #213547;
   background-color: #F5F5FF;
 
   font-synthesis: none;
@@ -39,6 +39,14 @@ a:hover {
   min-width: 320px;
   min-height: 100vh;
 }*/
+
+.background {
+	position: absolute;
+	display: block;
+	top: 0;
+	left: 0;
+	 z-index: -3;
+}
 
 h1 {
   font-size: 3.2em;
