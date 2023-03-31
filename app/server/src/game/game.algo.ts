@@ -57,6 +57,8 @@ export class GameAlgo {
 	}
 
 	private computeGame() {
+		this.server.to(this.player1!.socketID).emit('countDown', this.gameData);
+		this.server.to(this.player2!.socketID).emit('countDown', this.rotateGameData(this.gameData));
 		this.countDown = setTimeout(()=> {
 			const interval = setInterval(() => {
 

@@ -87,7 +87,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		}
 
 		assignKeysToTable();
-		this.server.emit('updateRunningGames', keysTable);
+		this.server.emit('updateRuningGames', keysTable);
+		console.log("LOOOOOOOOOOOOO");
 	}
 
 	@SubscribeMessage('watchGame')

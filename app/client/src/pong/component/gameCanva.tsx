@@ -81,7 +81,7 @@ const drawCountDown = (canvas: any, countdown: number) => {
 	context.strokeText(countdown.toString(), canvas.width / 2, canvas.height / 2);
 	context.fillText(countdown.toString(), canvas.width / 2, canvas.height / 2);
 }
-
+/*
 const scaleGame = (game: GameData, width : number, height: number) => {
 		game.roomInfo.margin = Math.floor((width * 5) / CANVAS_WIDTH);
 		game.ball.r = Math.floor((height * BALLRADIUS) / CANVAS_HEIGHT);
@@ -93,6 +93,33 @@ const scaleGame = (game: GameData, width : number, height: number) => {
 		console.log(`IN SCALE GAME --> game.ball.x ${game.ball.x} | game.ball.y ${game.ball.y}`)
 		game.player1.y = Math.floor((game.player1.y * height) / CANVAS_HEIGHT);
 		game.player2.y = Math.floor((game.player2.y * height) / CANVAS_HEIGHT);
+}
+*/
+const scaleGame = (game: GameData, width : number, height: number): GameData => {
+
+	return {
+		roomInfo:{
+			timer: game.roomInfo.timer,
+			margin: Math.floor((width * 5) / CANVAS_WIDTH),
+			playerheight: Math.floor((height * PLAYER_HEIGHT) / CANVAS_HEIGHT),
+			playerwidth: Math.floor((width * PLAYER_WIDTH) / CANVAS_WIDTH)
+		},
+		player1:{
+			login: game.player1.login,
+			y: Math.floor((game.player1.y * height) / CANVAS_HEIGHT),
+			score: game.player1.score
+		},
+		player2:{
+			login: game.player2.login,
+			y: Math.floor((game.player2.y * height) / CANVAS_HEIGHT),
+			score: game.player2.score
+		},
+		ball: {
+			x: Math.floor((game.ball.x * width) / CANVAS_WIDTH),
+			y: Math.floor((game.ball.y * height) / CANVAS_HEIGHT),
+			r: Math.floor((height * BALLRADIUS) / CANVAS_HEIGHT)
+		}
+	}
 }
 
 
@@ -184,7 +211,7 @@ const drawLogin = (canvas: any, loginPlayer1: string, loginPlayer2: string) => {
 	// some scaling
 	const scaleFont = Math.floor( (LOGIN_FONT * canvas.height) / CANVAS_HEIGHT );
 	const widthMargin = Math.floor( (10 * canvas.width) / CANVAS_WIDTH );
-	const heightMargin = Math.floor( (30 * canvas.height) / CANVAS_HEIGHT );
+	const heightMargin = Math.floor( (50 * canvas.height) / CANVAS_HEIGHT );
 
 	// Set font to futuristic style
 	context.font = `${scaleFont}px180px 'Tr2n', sans-serif`;
@@ -207,7 +234,7 @@ const drawLogin = (canvas: any, loginPlayer1: string, loginPlayer2: string) => {
 export const draw = (canvas: any, game: GameData) => {
 
 	// scaling game to current height and width
-	scaleGame(game, canvas.width, canvas.height);
+	const scaled = scaleGame(game, canvas.width, canvas.height);
 
 	const context = canvas.getContext('2d')
 
@@ -215,10 +242,10 @@ export const draw = (canvas: any, game: GameData) => {
 	context.fillStyle = '#15232f';
 	context.fillRect(0, 0, canvas.width, canvas.height);
 
-	if (game.player1.login && game.player2.login)
-		drawLogin(canvas, game.player1.login, game.player2.login);
-	drawScore(canvas, game.player1.score, game.player2.score);
-	drawTimer(canvas, game.roomInfo.timer);
+	if (scaled.player1.login && scaled.player2.login)
+		drawLogin(canvas, scaled.player1.login, scaled.player2.login);
+	drawScore(canvas, scaled.player1.score, scaled.player2.score);
+	drawTimer(canvas, scaled.roomInfo.timer);
 
 	// dram middle line
 	context.strokeStyle = 'white';
@@ -229,20 +256,20 @@ export const draw = (canvas: any, game: GameData) => {
 
 	// draw players
 	context.fillStyle = 'white';
-	if (game.roomInfo.playerwidth && game.roomInfo.margin && game.roomInfo.playerheight) {
-		context.fillRect(game.roomInfo.margin, game.player1.y - (game.roomInfo.playerheight / 2), game.roomInfo.playerwidth, game.roomInfo.playerheight);
-		context.fillRect(canvas.width - (game.roomInfo.playerwidth + game.roomInfo.margin), game.player2.y - (game.roomInfo.playerheight / 2), game.roomInfo.playerwidth, game.roomInfo.playerheight);
+	if (scaled.roomInfo.playerwidth && scaled.roomInfo.margin && scaled.roomInfo.playerheight) {
+		context.fillRect(scaled.roomInfo.margin, scaled.player1.y - (scaled.roomInfo.playerheight / 2), scaled.roomInfo.playerwidth, scaled.roomInfo.playerheight);
+		context.fillRect(canvas.width - (scaled.roomInfo.playerwidth + scaled.roomInfo.margin), scaled.player2.y - (scaled.roomInfo.playerheight / 2), scaled.roomInfo.playerwidth, scaled.roomInfo.playerheight);
 	}
 
 	// draw ball
 	context.beginPath();
 	context.fillStyle = 'white';
-	context.arc(game.ball.x, game.ball.y, game.ball.r, 0, Math.PI * 2, false)
+	context.arc(scaled.ball.x, scaled.ball.y, scaled.ball.r, 0, Math.PI * 2, false)
 	context.fill();
 };
 
 
-const Canvas = ({ socket, height, width }: any) => {
+const Canvas = ({ socket }: any) => {
 	// ref to the html5 canvas on wich we will draw
 	const canvas = React.useRef<HTMLCanvasElement>(null); // reference/pointer on html5 canvas element, so you can draw on it
 	// getting the user login to print it on canva and transmit it to the other player
@@ -253,7 +280,7 @@ const Canvas = ({ socket, height, width }: any) => {
 	const canvaResize = async () => {
 		const testTimeout = setTimeout(() => {
 			if (canvas.current) {
-				canvas.current.width = document.documentElement.clientWidth * 0.50;
+				canvas.current.width = document.documentElement.clientWidth * 0.70;
 				canvas.current.height = canvas.current.width * 0.533333;
 			}
 		}, 100)
@@ -282,6 +309,16 @@ const Canvas = ({ socket, height, width }: any) => {
 
 			draw(canvas.current, gameData);
 			// setWaiting(false);
+		})
+
+		socket.on("countDown", (gameData: GameData) => {
+			let count = 4;
+			const interval: NodeJS.Timer = setInterval(() => {
+				draw(canvas.current, gameData);
+				drawCountDown(canvas.current, count)
+				if (count-- < 0)
+					return (clearInterval(interval));
+			}, 1000)
 		})
 
 		socket.on("gameOver", (gameData: GameData) => {
@@ -324,7 +361,7 @@ const Canvas = ({ socket, height, width }: any) => {
 
 	return (
 		<main role="main">
-			<canvas onMouseMove={handleMouseMove} ref={gameCanvas} height={(document.documentElement.clientWidth * 0.50) * 0.533333} width={document.documentElement.clientWidth * 0.50} />
+			<canvas onMouseMove={handleMouseMove} ref={gameCanvas} height={(document.documentElement.clientWidth * 0.70) * 0.533333} width={document.documentElement.clientWidth * 0.70} />
 		</main>
 	);
 };

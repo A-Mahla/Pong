@@ -153,11 +153,10 @@ export const Game = ({ height, width }: any) => {
 		marginLeft: '20px',
 	};
 
-	export const GamePage = ({height, width}: any) => {
-		console.log(`-------> ${height} ${width} `)
+	export const GamePage = () => {
 		return (
 			<GameSocketProvider>
-				<Game height={height} width={width}/>
+				<Game/>
 			</GameSocketProvider>
 		)
 	}
