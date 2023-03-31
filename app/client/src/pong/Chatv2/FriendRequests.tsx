@@ -4,16 +4,11 @@ import { ChatContext } from './Chat'
 
 export function FriendRequests() {
 
-	const { friends } = useContext(ChatContext)
-
-	const [requests, setRequests] = useState()
+	const { friendRequests, setFriendRequests } = useContext(ChatContext)
 
 	useEffect(() => {
-		setRequests(friends.map((friendRelation) => {
-			return()
-		}))
-
-	}, [friends])
+		console.log(friendRequests)
+	}, [friendRequests])
 
 	return (
 		<Box>Lol</Box>

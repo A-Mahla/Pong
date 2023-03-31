@@ -17,10 +17,11 @@ import { MessageService } from './chat/messages/messages.service';
 import { ChatService } from './chat/chat.service';
 import { TwofaModule } from './twofa/twofa.module';
 import { GameAlgo } from './game/game.algo';
+import { FriendsService } from './chat/friends/friends.service';
 
 @Module({
   imports: [UsersModule, AuthModule, JwtModule, ChatModule, GameModule, TwofaModule],
   controllers: [AppController],
-  providers: [AppService, PrismaService, RoomsService, MessageService, ChatService, ChatGateway, GameService, GameService, GameGateway, GameAlgo],
+  providers: [AppService, PrismaService, RoomsService, MessageService, ChatService, ChatGateway, GameService, GameService, GameGateway, GameAlgo, FriendsService],
 })
 export class AppModule {}

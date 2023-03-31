@@ -3,15 +3,17 @@ import { Room, User } from "@prisma/client";
 import { ServerStreamFileResponseOptions } from "http2";
 import { Server, Socket } from "socket.io";
 import { UsersService } from "src/users/users.service";
-import { CreateRoomData, MessageData, LeaveRoomData, JoinRoomData, AddFriendData } from "./Chat.types";
+import { CreateRoomData, MessageData, LeaveRoomData, JoinRoomData, AddFriendData, FriendRequestData } from "./Chat.types";
 import { MessageService } from "./messages/messages.service";
 import { RoomsService } from "./rooms/rooms.service";
+import { FriendsService } from "./friends/friends.service";
 
 @Injectable()
 export class ChatService {
 	constructor(private readonly roomService: RoomsService,
 		private readonly userService: UsersService,
-		private readonly messageService: MessageService) { }
+		private readonly messageService: MessageService,
+		private readonly friendService: FriendsService) { }
 
 	async createRoom(server: Server, client: Socket, payload: CreateRoomData) {
 		console.log('payload in CREATE ROOM: ', payload);
@@ -101,14 +103,22 @@ export class ChatService {
 
 		console.log('room in JOIN: ', room)
 
-		//server.to(client.id).emit('roomJoined', {name: payload.room_name, id: payload.room_id})
-		//console.log('JOIN ROOM \n\n\n\n\n\n', {id: (room as Room).room_id, name: (room as Room).name, messages: (room as Room).messages})
 		server.to(client.id).emit('roomJoined', room)
 
 		return this.userService.joinRoom(payload.user_id, payload.room_id)
 	}
 
-	async addFriend(server: Server, client: Socket, payload: AddFriendData) {
-		return this.userService.addFriend(payload)
+	async acceptFriend(server: Server, client: Socket, payload: AddFriendData) {
+		return this.friendService.acceptFriend(payload)
+	}
+
+	async sendFriendRequest(server: Server, payload: FriendRequestData) {
+		const newFriendRequest = await this.friendService.createFriendRequest(payload)
+
+		console.log('dans sendFriendRequest\n\n\n\n\n\n\n\n\n\nn\n\n\n\n\n\n\n')
+
+		server.to(payload.user2_id.toString()).emit('friendRequest', newFriendRequest)
+
+		return newFriendRequest
 	}
 }

@@ -2,7 +2,7 @@ import { useContext, useState, useEffect, createContext} from 'react'
 import { Box } from '@mui/material'
 import { Api, FetchApi } from '../component/FetchApi'
 import { useFetchAuth } from '../context/useAuth'
-import { Friend, Message, Room } from './Chat.types'
+import { Friend, FriendRequest, Message, Room, User } from './Chat.types'
 import { DirectMessageBar } from './DirectMessageBar'
 import { MessagesBox } from './MessagesBox'
 import { RoomBar } from './RoomBar'
@@ -15,6 +15,8 @@ const initialChatContext = {
 	setDirectMessages: null,
 	friends: [],
 	setFriends: null,
+	friendRequests: [],
+	setFriendRequests: null,
 	current: {},
 	setCurrent: null,
 	target: {},
@@ -40,14 +42,18 @@ export function Chat() {
 		newRoom,
 		setNewRoom,
 		leavedRoom,
-		setLeavedRoom
+		setLeavedRoom,
+		newFriendRequest,
+		setNewFriendRequest,
 	} = useContext(UpdatesContext)
 
 	const [directMessages, setDirectMessages] = useState<Message[]>([])
 
 	const [rooms, setRooms] = useState<Room[]>([])
 
-	const [friends, setFriends] = useState<Friend[]>([])
+	const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([])
+
+	const [friends, setFriends] = useState<User[]>([])
 
 	const [current, setCurrent] = useState({name: '', id: 0})
 	
@@ -61,7 +67,6 @@ export function Chat() {
 
 	const [isInDirect, setIsInDirect] = useState(false)
 
-
 	const chatContext = {
 		rooms: rooms,
 		setRooms: setRooms,
@@ -69,6 +74,8 @@ export function Chat() {
 		setDirectMessages: setDirectMessages,
 		friends: friends,
 		setFriends: setFriends,
+		friendRequests: friendRequests,
+		setFriendRequests: setFriendRequests,
 		current: current,
 		setCurrent: setCurrent,
 		target: target,
@@ -84,6 +91,21 @@ export function Chat() {
 	}
 
 	const auth = useFetchAuth()
+
+	const getFriendsRequestsRequest: Api = {
+		api: {
+			input: `http://${import.meta.env.VITE_SITE}/api/friends`,
+		},
+		auth: auth
+	}
+
+	useEffect(() => {
+		async function getFriends() {
+			const {data} = await FetchApi(getFriendsRequestsRequest)
+			return data
+		}
+		getFriends().then(data => console.log('friend Requests data: ', data))
+	}, [])
 
 	const getFriendsRequest: Api = {
 		api: {
@@ -176,8 +198,13 @@ export function Chat() {
 			}))
 			setLeavedRoom()
 		}
+		if (newFriendRequest != undefined) {
+			console.log('newFriendRequest: ', newFriendRequest)
+			setFriendRequests([...friendRequests, newFriendRequest])
+			setNewFriendRequest()
+		}
 
-	}, [newRoomMessage, newDirectMessage, newRoom, leavedRoom])
+	}, [newRoomMessage, newDirectMessage, newRoom, leavedRoom, newFriendRequest])
 
 	return (
 		<ChatContext.Provider value={chatContext}>

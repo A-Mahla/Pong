@@ -81,3 +81,13 @@ export type Friend = {
 	user2Id: number,
 	status: string
 }
+
+export type FriendRequest = {
+	id: number,
+	createdAt: string,
+	user1Login: string,
+	user1Id: number,
+	user2Login: string,
+	user2Id: number,
+	status: string
+}

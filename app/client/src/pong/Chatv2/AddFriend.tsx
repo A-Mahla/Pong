@@ -56,7 +56,7 @@ export function AddFriend() {
 
 		console.log('value: ', payload)
 
-		socket.emit('addFriend',  payload)
+		socket.emit('friendRequest',  payload)
 
 		setIsSearching(false)
 	}, [socket])

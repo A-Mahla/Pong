@@ -43,13 +43,15 @@ import { numberFormat } from './User.dto'
 import { RoomsService } from 'src/chat/rooms/rooms.service';
 import { User } from '@prisma/client';
 import * as fs from 'fs';
+import { FriendsService } from 'src/chat/friends/friends.service';
 
 
 @Controller('users')
 export class UsersController {
 
 	constructor(private userService: UsersService,
-		private roomService : RoomsService) {}
+		private roomService : RoomsService,
+		private readonly friendService: FriendsService) {}
 
 	@Get()
 	async getUsers() { // return all users
@@ -76,7 +78,7 @@ export class UsersController {
 	@UseGuards(JwtAuthGuard)
 	@Get('friends')
 	async handleGetFriends(@Request() req: any) {
-		return await this.userService.getFriends(req.user.sub)
+		return await this.friendService.getFriends(req.user.sub)
 	}
 
 	/*@UseGuards(JwtAuthGuard)

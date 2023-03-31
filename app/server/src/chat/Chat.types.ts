@@ -32,3 +32,8 @@ export type AddFriendData = {
 	user1_id: number,
 	user2_id: number
 }
+
+export type FriendRequestData = {
+	user1_id: number,
+	user2_id: number
+}
