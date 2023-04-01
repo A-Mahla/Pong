@@ -45,6 +45,7 @@ a:hover {
 	display: block;
 	top: 0;
 	left: 0;
+	height: 1000px;
 	z-index: -3;
 }
 

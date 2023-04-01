@@ -12,7 +12,7 @@ function App() {
 			maxParticles: 150,
 			color: '#aeb6bf',
 			connectParticles: true,
-			speed: 0.02,
+			speed: 0.1,
 			minDistance: 120,
 			sizeVariations: 1,
 			responsive: [
@@ -61,8 +61,6 @@ function App() {
 			]
 		});
 	}, [])
-
-//	useEffect
 
 	return (
 		<>
