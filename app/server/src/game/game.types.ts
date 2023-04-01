@@ -73,3 +73,12 @@ export enum Status {
 	RUNNING,
 	OVER
   }
+
+
+export type matchHistoryPayload = {
+	index: number,
+	l1: string,
+	s1: number,
+	l2: string,
+	s2: number
+}

@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
-import MatchInfo from '/src/pong/Profile/MatchInfo'
+import MatchInfo, {Level} from '/src/pong/Profile/MatchInfo'
 
 
 const theme = createTheme({
@@ -38,6 +38,30 @@ const theme = createTheme({
 	}
 })
 
+function findLevel(xpMax: number) {
+
+	let level = 0;
+	let xp = 0;
+
+	while (xp < xpMax) {
+		xp += level * 50;
+		level++;
+	}
+
+	if (xp == xpMax) {
+		xp = 0;
+	} else {
+		level--;
+		xp = ((xpMax - xp) / level) + 100 
+	}
+	
+	return {
+		level: level,
+		xp: xp,
+	}
+
+}
+
 const Profile = () => {
 
 	const navigate = useNavigate();
@@ -46,6 +70,7 @@ const Profile = () => {
 	const [fetched, setFetched] = useState(false);
 	const [victory, setVictory] = useState(0);
 	const [defeat, setDefeat] = useState(0);
+	const [level, setLevel] = useState<Level>({} as Level)
 
 
 	const fetchType: Api = {
@@ -65,6 +90,7 @@ const Profile = () => {
 		async function fetching() {
 
 			try {
+
 				const response = await FetchApi(fetchType);
 				if (response.response.status === 200 || response.response.status === 304) {
 
@@ -87,6 +113,10 @@ const Profile = () => {
 						}
 					}
 
+					
+
+				
+					setLevel(findLevel(response.data['nbWin'] * 100 + response.data['nbLoss'] * 25))
 					setVictory(response.data['nbWin'])
 					setDefeat(response.data['nbLoss'])
 
@@ -112,7 +142,7 @@ const Profile = () => {
 			<Grid item mmd={5} sm={6} xs={12}
 				sx={{
 					position: 'relative',
-					top: '3rem',
+					top: '1rem',
 					height: '12rem',
 					p: '1vw;',
 //					border: 1,
@@ -132,7 +162,7 @@ const Profile = () => {
 			<Grid item mmd={7} sm={6} xs={0}
 				sx={{
 					position: 'relative',
-					top: '3rem',
+					top: '1rem',
 					height: '12rem',
 					py: '1vw;',
 //					px: '2vw;',
@@ -153,7 +183,7 @@ const Profile = () => {
 			}>
 				<UserPanelGrid />
 			</Grid>
-			<MatchInfo defeat={defeat} victory={victory}/>
+			<MatchInfo defeat={defeat} victory={victory} level={level}/>
 		</ThemeProvider>
 		}
 	</>

@@ -185,6 +185,7 @@ const NameAvatar = () => {
 				sm: '1rem',
 				xs: '1.5rem'
 			}}
+			style={{color: '#213547'}}
 			sx={{
 				maxWidth: '25vw;',
 				'@media (max-width: 549px)': {

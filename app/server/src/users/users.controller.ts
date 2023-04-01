@@ -8,6 +8,7 @@ import { Controller,
 	Patch,
 	Param,
 	Res,
+	HttpCode,
 	UseInterceptors,
 	NestInterceptor,
 	UploadedFile,
@@ -94,6 +95,15 @@ export class UsersController {
 //	====================== ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ===================
 
 //	======================= Profile  ================================
+	
+//  On sait jamais....
+	@UseGuards(JwtAuthGuard)
+	@HttpCode(200)
+	@Get('profile/pong')
+	async pong() {
+		return;
+	}
+// =========================
 
 	@UseGuards(JwtAuthGuard)
 	@Post('profile/avatar/upload')

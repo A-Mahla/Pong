@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Typography, Box, Paper } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Tabs from '@mui/material/Tabs'
+import Button from "@mui/material/Button";
 import TabList from '@mui/lab/TabList'
 import Tab from '@mui/material/Tab'
 import Swipeable from '/src/pong/component/Swipeable'
@@ -16,8 +17,12 @@ import { render } from 'react-dom'
 import Canvas from '../component/gameCanva'
 import { draw } from '../component/gameCanva'
 import { GameSocketProvider, UserContext } from '../services/GameSocketProvider'
+import { Spectator } from '../component/Spectator'
 
 
+const pongTitle = {
+	fontSize: '2vw;',
+}
 
 /* ---------------- ^^^^ ---------------*/
 
@@ -52,17 +57,15 @@ function JoinQueuButton({socket, setJoinQueu, joinQueu}: any): any {
 		{
 			!joinQueu ? (<>
 
-				<div style={{textAlign: "right"}}>
-					<button onClick={handleClick}>
+					<Button onClick={handleClick}>
 						JOIN QUEU
-					</button>
-				</div>
+					</Button>
 
 			</>) : (
 			<>
-				<div style={{textAlign: "right"}}>
-					QUEU IS JOINED
-				</div>
+					<Button>
+							QUEU IS JOINED
+					</Button>
 			</>
 			)
 		}
@@ -70,19 +73,20 @@ function JoinQueuButton({socket, setJoinQueu, joinQueu}: any): any {
 
 }
 
-function MatchMaker ({socket, thereIsMatch, sendCanvas} : any){
+function MatchMaker ({socket, thereIsMatch, launchCanvas} : any){
 
 	const [joinQueu, setJoinQueu] = React.useState(false);
 	socket.on("lockAndLoaded", () => {
-		sendCanvas();
+		launchCanvas();
 	})
 
 	return (
 		<>
-		<div style={{display: "flex", justifyContent: "space-between"}}>
-		<h2>|  AUTOMATIK MATCHMAKING  |</h2>
-			<JoinQueuButton  socket={socket} setJoinQueu={setJoinQueu} joinQueu={joinQueu} />
-		</div>
+		<Grid container spacing={2}>
+			<Grid item xs={12} sm={6}>
+				<JoinQueuButton  socket={socket} setJoinQueu={setJoinQueu} joinQueu={joinQueu} />
+			</Grid>
+		</Grid>
 		</>
 	)
 }
@@ -96,26 +100,41 @@ export const Game = ({ height, width }: any) => {
 
 	const handleClick = () => {
 		if (!thereIsMatch)
-		setThereIsMatch(true)
+			setThereIsMatch(true)
 		else
-		setThereIsMatch(false)
+			setThereIsMatch(false)
 	}
-
+	console.log(`IN GAME COMPONENT --> height = ${height} | width = ${width}`);
 	return (<>
 		{
 			thereIsMatch ?
 			(<>
-				<h1 style={{ fontSize: "3em" }}>Game</h1>
-				<div style={{ clear: 'both' }}>
-					<Canvas socket={socket} height={height} width={width} style={canvasStyle} />
-				</div>
+				<Grid container justifyContent="space-between" alignItems="flex-start">
+					<Typography sx={pongTitle} variant='h2'>Game</Typography>
+						<Canvas socket={socket} height={height} width={width} style={canvasStyle} />
+				</Grid>
 			</>)
 			:
 			(<>
-				<h1 style={{ fontSize: "3em" }}>Game Matchmaking</h1>
-				<div style={{ display: 'inline-block', marginLeft: '20px' }}>
-					<MatchMaker socket={socket} thereIsMatch={thereIsMatch} sendCanvas={handleClick} />
-				</div>
+				<Grid container justifyContent="space-between" alignItems="flex-start">
+					<Grid item xs={12} sm={4}>
+						<Grid container justifyContent="flex-start" alignItems="center">
+							<Grid item>
+								<Typography sx={pongTitle} variant='h2'>Matchmaking</Typography>
+							</Grid>
+							<MatchMaker socket={socket} thereIsMatch={thereIsMatch} launchCanvas={handleClick} />
+						</Grid>
+					</Grid>
+					<Grid item xs={12} sm={4}>
+						<Typography sx={pongTitle} variant='h2'>Invite friend</Typography>
+						{/* Ajoutez ici le contenu pour "Invite friend" */}
+					</Grid>
+					<Grid item xs={12} sm={4}>
+						<Typography sx={pongTitle} variant='h2'>Watch game</Typography>
+							<Spectator socket={socket} thereIsMatch={thereIsMatch} handleThereIsMatch={handleClick}/>
+						{/* Ajoutez ici le contenu pour "Watch game" */}
+					</Grid>
+				</Grid>
 			</>)
 		}</>)
 	};

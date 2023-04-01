@@ -23,7 +23,6 @@ export class Intra42AuthGuard implements CanActivate {
 
 	async getIntraUserInfo (accessToken: string) : Promise<IntraUserInfo> {
 
-		console.log('acces_token', accessToken)
 
 		const requestOptions = {
 			method: 'GET',

@@ -17,11 +17,11 @@ model User {
   updatedAt               DateTime    @updatedAt
   login                   String      @unique
   password                String
-  avatar                  String      @default("default_avatar.jpg")
+  avatar                  String?
   intraLogin              String?     @unique
   refreshToken            String?
   twoFA                   String?
-  isTwoFA	                Boolean     @default(false)
+  isTwoFA                 Boolean     @default(false)
   games                   User_Game[]
   ownedRooms              Room[]      @relation("RoomOwner")
   member                  User_Room[] @relation("RoomMember")

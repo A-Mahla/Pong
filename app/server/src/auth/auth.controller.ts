@@ -58,6 +58,7 @@ export class AuthController {
 		);
 	}
 
+
 	@UseGuards(LocalAuthGuard)
 	@Post('signin')
 	async login(
@@ -79,7 +80,6 @@ export class AuthController {
 			};
 		}
 		const test = (await this.authService.loginWithId(req.user, response))
-		console.log(test);
 		return test;
 	}
 

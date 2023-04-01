@@ -13,6 +13,8 @@ import { GameSocketProvider } from './services/GameSocketProvider';
 import { GamePage } from './page/Game';
 import { ChatSocketProvider } from './Chatv2/Socket';
 import SignUp from './component/SignUp';
+import Particles from 'particlesjs'
+import '/src/index.css';
 
 /**
  * ============ Entrypoint of the project =============
@@ -33,7 +35,7 @@ const theme = createTheme({
 	},
 	palette: {
 		primary: {
-			main: 'rgba(21, 35, 47, 0.87)'
+			main: '#213547'
 		}
 	}
 })
@@ -48,9 +50,11 @@ export const Pong = () => {
 					<Routes>
 						<Route path='/' element={<MainPage/>} />
 						<Route path='/chat' element={<ChatSocketProvider/>} />
-						<Route path='/login' element={<Login/>}/>
+						<Route element={<LoggedRoute/>}>
+							<Route path='/login' element={<Login/>}/>
+							<Route path='/signup' element={<SignUp/>}/>
+						</Route>
 						<Route path='/pong' element={<LeadPage/>} />
-						<Route path='/signup' element={<SignUp/>}/>
 						<Route path="/redirect" element={<Redirect/>} />
 					</Routes>
 				</AuthProvider>

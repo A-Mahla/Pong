@@ -34,6 +34,7 @@ const AuthInstruction = () => {
 	return <>
 		<Box display='flex'
 			justifyContent='center'
+			sx={{pt: 1}}
 		>
 			<List>
 				<ListItem
@@ -43,11 +44,12 @@ const AuthInstruction = () => {
 					}}
 				>
 					<ListItemText
-						primary='Install Google Authenticator (IOS - Android)
-							or Authy (IOS - Android).'
+						primary="Install Google Authenticator (IOS - Android)
+							or Authy (IOS - Android).'"
 						disableTypography
+						style={{color: '#213547'}}
 						sx={{
-							//				fontFamily: '"system-ui", sans-serif',
+							fontFamily: '"system-ui", sans-serif',
 							fontSize: 12
 						}}
 					/>
@@ -61,7 +63,9 @@ const AuthInstruction = () => {
 					<ListItemText
 						primary="In the authenticator app, select '+' icon"
 						disableTypography
+						style={{color: '#213547'}}
 						sx={{
+							fontFamily: '"system-ui", sans-serif',
 							fontSize: 12
 						}}
 					/>
@@ -76,7 +80,9 @@ const AuthInstruction = () => {
 						primary="Select 'Scan a barcode (or QR code)' and use the phone's camera
 								to scan this barcode."
 						disableTypography
+						style={{color: '#213547'}}
 						sx={{
+							fontFamily: '"system-ui", sans-serif',
 							fontSize: 12
 						}}
 					/>
@@ -237,7 +243,12 @@ export const QRCodeComponent = (props: QRProps) => {
 								alignItems="center"
 								sx={{mt: 4}}
 							>
-								<Typography component={'span'} variant='subtitle2' align="center">
+								<Typography
+									component={'span'}
+									variant='subtitle2'
+									align="center"
+									style={{color: '#213547'}}
+								>
 									Two-Factor Authentication
 								</Typography>
 							</Box>
@@ -382,12 +393,14 @@ const TFAComponent = (props: TFAProps) => {
 
 
 	return <>
-			<Accordion elevation={0} onChange={(e,expanded) => {
-				if(expanded) {
-					props.setIsAccordion(true)
-				} else {
-					props.setIsAccordion(false)
-				}
+			<Accordion elevation={0}
+				style={{background: "rgb(240,240,240, 0.10)"}}
+				onChange={(e,expanded) => {
+					if(expanded) {
+						props.setIsAccordion(true)
+					} else {
+						props.setIsAccordion(false)
+					}
 			}}>
 				 <AccordionSummary
 					expandIcon={<ExpandMoreIcon />}
