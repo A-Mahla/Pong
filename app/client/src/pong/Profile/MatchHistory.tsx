@@ -4,8 +4,12 @@ import {
 	DialogTitle,
 	DialogContent,
 	Typography,
+	Paper,
+	Divider,
+	Stack,
 } from '@mui/material'
 import useAuth, { useFetchAuth } from '/src/pong/context/useAuth'
+import { FetchApi, Api } from '/src/pong/component/FetchApi'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -13,7 +17,13 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { TableVirtuoso, TableComponents } from 'react-virtuoso';
+import { useState, useEffect } from 'react'
+import GppGoodIcon from '@mui/icons-material/GppGood';
+import GppBadIcon from '@mui/icons-material/GppBad';
+import GppMaybeIcon from '@mui/icons-material/GppMaybe';
+import * as React from 'react';
 
+/*
 interface Data {
 	you: string;
 	score : number;
@@ -21,11 +31,79 @@ interface Data {
 }
 
 function createData(
-	you: string;
-	score : number;
-	rival: number;
+	id: number,
+	player1: string;
+	scores1 : number;
+	scores2 : number;
+	player2: number;
 ): Data {
-	return { you, score, rival };
+	return { player1, scores1, scores2, player2 };
+}
+*/
+
+type matchHistoryPayload = {
+	index: number,
+	l1: string;
+	s1 : number;
+	l2 : string;
+	s2: number;
+}
+
+const TableHistory = ({rows}: {rows: matchHistoryPayload[]}) => {
+
+
+  return (
+		<TableContainer component={Box}>
+			<Table sx={{ width: '30rem' }} aria-label="simple table">
+				<TableHead>
+				</TableHead>
+				<TableBody>
+					{rows.map((row) => (
+						<TableRow
+							key={row.index}
+							sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+						>
+							<TableCell align="left">
+								<Stack direction="row" alignItems="center" gap={1}>
+									{row.s1 === row.s2 ? <GppMaybeIcon style={{color: '#95bc4b'}}/> :
+										(<>
+											{row.s1 > row.s2 ? 
+												<GppGoodIcon style={{color: '#293241'}}/> :
+												<GppBadIcon style={{color: '#cd384a'}}/>
+											}
+										</>)
+									}
+									<Typography variant="body1">{row.l1}</Typography>
+								</Stack>
+							</TableCell>
+							
+							<TableCell align="center">
+								{row.s1}
+							</TableCell>
+
+							<TableCell align="center">
+								{row.s2}
+							</TableCell>
+
+							<TableCell align="right">
+								<Stack direction="row" justifyContent="flex-end" alignItems="center" gap={1}>
+									<Typography variant="body1">{row.l2}</Typography>
+									{row.s1 === row.s2 ? <GppMaybeIcon style={{color: '#95bc4b'}}/> :
+										(<>
+											{row.s1 > row.s2 ?
+												<GppBadIcon style={{color: '#cd384a'}}/> :
+												<GppGoodIcon style={{color: '#293241'}}/>
+											}
+										</>)
+									}
+								</Stack>
+							</TableCell>
+						</TableRow>
+					))}
+				</TableBody>
+			</Table>
+		</TableContainer>
+	 );
 }
 
 
@@ -35,6 +113,52 @@ type MatchHistoryProps = {
 }
 
 const MatchHistory = (props: MatchInfoProps) => {
+
+	const [fetched, setFetched] = useState(false)
+	const [rows, setRows] = useState<matchHistoryPayload[]>({} as matchHistoryPayload[])
+	const auth = useFetchAuth();
+	const user = useAuth()
+
+	useEffect(()=> {
+
+		async function fetching() {
+
+			const response = await FetchApi({
+				api: {
+					input: `http://${import.meta.env.VITE_SITE}/api/game/gamehistory`,
+					option: {
+						method: "GET",
+					},
+				},
+				auth: auth,
+			});
+
+			await setRows(response.data['history'])
+
+			setFetched(true)
+
+		}
+		fetching()
+
+	}, [])
+
+	useEffect(() => {
+
+		async function fetching() {
+			const response = await FetchApi({
+				api: {
+					input: `http://${import.meta.env.VITE_SITE}/api/game/gamehistory`,
+					option: {
+						method: "GET",
+					},
+				},
+				auth: auth,
+			});
+			await setRows(response.data['history'])
+		}
+		fetching()
+
+	}, [user])
 
 	const handleClose = () => {
 		props.setOpen(false);
@@ -50,7 +174,7 @@ const MatchHistory = (props: MatchInfoProps) => {
 						 PaperProps={{
 							style: {
 								borderRadius: '32px',
-								height: '28rem',
+								height: '30rem',
 							}
 						}}
 					>
@@ -59,24 +183,26 @@ const MatchHistory = (props: MatchInfoProps) => {
 								display="flex"
 								justifyContent="center"
 								alignItems="center"
-								sx={{mt: 4}}
+								sx={{mt: 4, mb: 1}}
 							>
 								<Typography
 									component={'span'}
-									variant='subtitle2'
+									variant='h6'
 									align="center"
 									style={{color: '#213547'}}
 								>
-									Two-Factor Authentication
+									History Match
 								</Typography>
 							</Box>
-							<Divider variant='middle'/>
 						</DialogTitle>
 						<DialogContent>
+							<TableHistory rows={rows} />
 						</DialogContent>
 					</Dialog>
 				</>
 			)}
-			</>
+		</>
+	)
 
 }
+export default MatchHistory;

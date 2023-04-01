@@ -169,7 +169,8 @@ const Swipeable = (props: propsSwip) => {
 	//		<Box sx={{justifyContent: 'center', px: 2}}>
 
 	return (
-			<Box sx={props.sx}>
+			<Box sx={props.sx}
+			>
 			<React.Fragment key={anchor}>
 				<IconButton
 					onClick={toggleDrawer(anchor, true)}

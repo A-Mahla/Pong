@@ -393,12 +393,14 @@ const TFAComponent = (props: TFAProps) => {
 
 
 	return <>
-			<Accordion elevation={0} onChange={(e,expanded) => {
-				if(expanded) {
-					props.setIsAccordion(true)
-				} else {
-					props.setIsAccordion(false)
-				}
+			<Accordion elevation={0}
+				style={{background: "rgb(240,240,240, 0.10)"}}
+				onChange={(e,expanded) => {
+					if(expanded) {
+						props.setIsAccordion(true)
+					} else {
+						props.setIsAccordion(false)
+					}
 			}}>
 				 <AccordionSummary
 					expandIcon={<ExpandMoreIcon />}

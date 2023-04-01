@@ -56,6 +56,7 @@ function TabPanel(props: TabPanelProps) {
   return <>
 		{props.value === props.index &&
 			(<Paper elevation={24}
+				style={{background: "rgb(240,240,240, 0.80)"}}
 				sx={
 					props.index === 0 ?
 					centralProfileBoxReduce550 :

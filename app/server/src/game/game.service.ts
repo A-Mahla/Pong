@@ -89,10 +89,12 @@ export class GameService {
 
 		return games;
 	}
-	parseGameHistory(raw: any): matchHistoryPayload[] {
+
+	parseGameHistory(raw: any): { history: matchHistoryPayload[] } {
 		let parsedData: matchHistoryPayload[] = [];
 		raw.forEach((userGame: any, index: number) => {
-			let temp: matchHistoryPayload = {l1: '', s1:0, l2:'', s2:0 }
+			let temp: matchHistoryPayload = {index:0, l1: '', s1:0, l2:'', s2:0 }
+			temp.index = userGame.game_id;
 			if (userGame.user_id == userGame.game.players[0].player.id) {
 				temp.l1 = userGame.game.players[0].player.login;
 				temp.s1 = userGame.game.players[0].score,
@@ -107,8 +109,10 @@ export class GameService {
 			parsedData.push(temp);
 
 		})
-		console.log(parsedData)
-		return parsedData;
+//		console.log(parsedData)
+		return {
+			history: parsedData
+		}
 	}
 
 	async getVictoryLossCountForUser(userId: number, InfSup: boolean) {
