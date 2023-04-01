@@ -52,6 +52,8 @@ const MainPage = () => {
 							className="contactButton"
 							size='small'
 							variant="text"
+							component={Link}
+							to="/aboutus"
 							fullWidth
 						>
 							<Typography
