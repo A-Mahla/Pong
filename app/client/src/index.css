@@ -17,6 +17,9 @@
   color: #213547;
  /* background-color: #F5F5FF;*/
   background-image: url("/public/background-pong.jpg");
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
