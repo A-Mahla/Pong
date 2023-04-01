@@ -104,14 +104,13 @@ export const Game = ({ height, width }: any) => {
 		else
 			setThereIsMatch(false)
 	}
-	console.log(`IN GAME COMPONENT --> height = ${height} | width = ${width}`);
 	return (<>
 		{
 			thereIsMatch ?
 			(<>
 				<Grid container justifyContent="space-between" alignItems="flex-start">
 					<Typography sx={pongTitle} variant='h2'>Game</Typography>
-						<Canvas socket={socket} height={height} width={width} style={canvasStyle} />
+						<Canvas socket={socket} handleThereIsMatch={handleClick}/>
 				</Grid>
 			</>)
 			:

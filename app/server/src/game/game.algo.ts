@@ -57,8 +57,11 @@ export class GameAlgo {
 	}
 
 	private computeGame() {
-		this.server.to(this.player1!.socketID).emit('countDown', this.gameData);
-		this.server.to(this.player2!.socketID).emit('countDown', this.rotateGameData(this.gameData));
+		this.server.to(this.player1!.socketID).emit('pause', this.gameData);
+		this.server.to(this.player2!.socketID).emit('pause', this.rotateGameData(this.gameData));
+		this.watchers.forEach((socketID: string) => {
+			this.server.to(socketID).emit('pause', this.gameData);
+		})
 		this.countDown = setTimeout(()=> {
 			const interval = setInterval(() => {
 
@@ -117,7 +120,7 @@ export class GameAlgo {
 				this.server.to(this.player1!.socketID).emit('updateClient', this.gameData);
 				this.server.to(this.player2!.socketID).emit('updateClient', this.rotateGameData(this.gameData));
 				this.watchers.forEach((socketID: string) => {
-					this.server.to(this.player2!.socketID).emit('updateClient', this.gameData);
+					this.server.to(socketID).emit('updateClient', this.gameData);
 				})
 			}, 16);
 		}, 5000);

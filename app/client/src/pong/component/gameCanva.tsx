@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Typography, Box, Paper } from '@mui/material'
+import { Typography, Box, Paper, Button } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Tabs from '@mui/material/Tabs'
 import TabList from '@mui/lab/TabList'
@@ -69,18 +69,27 @@ const WaitingScreen = () => {
   };
 
 const drawCountDown = (canvas: any, countdown: number) => {
-	const context = canvas.getContext('2d');
 
 	// Set font to futuristic style and increase size by 50%
+	const context = canvas.getContext('2d');
+
+	context.beginPath();
+	context.fillStyle =  '#15232f';
+	context.arc(Math.floor(canvas.width / 2), Math.floor(canvas.heigth / 2), Math.floor(canvas.heigth / 4), 0, Math.PI * 2, false)
+	context.fill();
+
+
 	context.font = "112.5px 'Tr2n', sans-serif";
 
 	// Set color and thickness for countdown text
 	context.strokeStyle = '#2f8ca3';
-
+	// context.textAlign = "center";
 	// Draw countdown text
 	context.strokeText(countdown.toString(), canvas.width / 2, canvas.height / 2);
 	context.fillText(countdown.toString(), canvas.width / 2, canvas.height / 2);
 }
+
+
 /*
 const scaleGame = (game: GameData, width : number, height: number) => {
 		game.roomInfo.margin = Math.floor((width * 5) / CANVAS_WIDTH);
@@ -96,7 +105,6 @@ const scaleGame = (game: GameData, width : number, height: number) => {
 }
 */
 const scaleGame = (game: GameData, width : number, height: number): GameData => {
-
 	return {
 		roomInfo:{
 			timer: game.roomInfo.timer,
@@ -151,7 +159,22 @@ function drawEndGame(canvas: any, gameData: GameData) {
 
 	// Draw the text in the center of the canvas
 	context.fillText(text, canvas.width / 2, canvas.height / 2);
-  }
+}
+
+function drawEndGameWatchers(canvas: any, gameData: GameData) {
+	const context = canvas.getContext('2d');
+
+	const scaledFont = Math.floor((ENDGAMEFONT * canvas.height) / CANVAS_HEIGHT);
+	context.clearRect(0, 0, canvas.width, canvas.height);
+	context.fillStyle = '#15232f';
+	context.fillRect(0, 0, canvas.width, canvas.height);
+
+	context.font = `${scaledFont}px 'Tr2n', sans-serif`;
+	context.textAlign = "center";
+	context.fillStyle = '#2f8ca3';
+
+	context.fillText(`Game Over\n${gameData.player1.login}: ${gameData.player1.score}\n${gameData.player2.login}: ${gameData.player2.score}`, canvas.width / 2, canvas.height / 2)
+}
 
 const drawTimer = (canvas: any, timer: number) => {
 	const context = canvas.getContext('2d');
@@ -211,7 +234,7 @@ const drawLogin = (canvas: any, loginPlayer1: string, loginPlayer2: string) => {
 	// some scaling
 	const scaleFont = Math.floor( (LOGIN_FONT * canvas.height) / CANVAS_HEIGHT );
 	const widthMargin = Math.floor( (10 * canvas.width) / CANVAS_WIDTH );
-	const heightMargin = Math.floor( (50 * canvas.height) / CANVAS_HEIGHT );
+	const heightMargin = Math.floor( (60 * canvas.height) / CANVAS_HEIGHT );
 
 	// Set font to futuristic style
 	context.font = `${scaleFont}px180px 'Tr2n', sans-serif`;
@@ -269,13 +292,13 @@ export const draw = (canvas: any, game: GameData) => {
 };
 
 
-const Canvas = ({ socket }: any) => {
+const Canvas = ({ socket, handleThereIsMatch }: any) => {
 	// ref to the html5 canvas on wich we will draw
 	const canvas = React.useRef<HTMLCanvasElement>(null); // reference/pointer on html5 canvas element, so you can draw on it
-	// getting the user login to print it on canva and transmit it to the other player
-	const { user } = useAuth();
 
 	const [game, setGame] = React.useState<boolean>(false);
+
+	let interval: NodeJS.Timeout;
 
 	const canvaResize = async () => {
 		const testTimeout = setTimeout(() => {
@@ -300,7 +323,8 @@ const Canvas = ({ socket }: any) => {
 
 		socket.on("updateClient", (gameData: GameData) => {
 			console.log("---------------------> ON updateClient");
-			draw(canvas.current, gameData)
+			clearInterval(interval);
+			draw(canvas.current, gameData);
 		})
 
 		socket.on("initSetup", (gameData: GameData) => {
@@ -311,20 +335,21 @@ const Canvas = ({ socket }: any) => {
 			// setWaiting(false);
 		})
 
-		socket.on("countDown", (gameData: GameData) => {
-			let count = 4;
-			const interval: NodeJS.Timer = setInterval(() => {
-				draw(canvas.current, gameData);
-				drawCountDown(canvas.current, count)
-				if (count-- < 0)
-					return (clearInterval(interval));
-			}, 1000)
+		socket.on("pause", (gameData: GameData) => {
+			console.log("---------------------> ON gameOver");
+			drawEndGame(canvas.current, gameData);
 		})
 
 		socket.on("gameOver", (gameData: GameData) => {
 			console.log("---------------------> ON gameOver");
 			drawEndGame(canvas.current, gameData);
 		})
+
+		socket.on("gameOverWatcher", (gameData: GameData) => {
+			console.log("---------------------> ON gameOverWatchers");
+			drawEndGameWatchers(canvas.current, gameData);
+		})
+
 
 		window.addEventListener("resize", canvaResize);
 
@@ -362,6 +387,9 @@ const Canvas = ({ socket }: any) => {
 	return (
 		<main role="main">
 			<canvas onMouseMove={handleMouseMove} ref={gameCanvas} height={(document.documentElement.clientWidth * 0.70) * 0.533333} width={document.documentElement.clientWidth * 0.70} />
+			<Button onClick={handleThereIsMatch}>
+					QUIT GAME
+			</Button>
 		</main>
 	);
 };
