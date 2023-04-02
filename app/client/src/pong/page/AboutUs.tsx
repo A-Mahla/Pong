@@ -42,7 +42,7 @@ const AboutUs = () => {
 					<Avatar
 						variant="inherit"
 						alt="sacha"
-						src="/public/slahlou.jpg"
+						src="/public/slahlou.JPG"
 						sx={avatarSx}
 					/>
 				</Grid>
@@ -50,7 +50,7 @@ const AboutUs = () => {
 					<Avatar
 						variant="inherit"
 						alt="augustin"
-						src="/public/alorain.jpg"
+						src="/public/alorain.jpeg"
 						sx={avatarSx}
 					/>
 				</Grid>
@@ -58,7 +58,7 @@ const AboutUs = () => {
 					<Avatar
 						variant="inherit"
 						alt="amir"
-						src="/public/amahla.jpg"
+						src="/public/amahla.JPG"
 						sx={avatarSx}
 					/>
 				</Grid>
