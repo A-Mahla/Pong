@@ -5,6 +5,7 @@ import Grid from '@mui/material/Grid'
 import { Link, Route } from "react-router-dom"
 import './MainPage.css'
 import useAuth from '/src/pong/context/useAuth';
+import '/src/App.css';
 
 const titleStyle = {
 	'@media (max-width:200px)': {
