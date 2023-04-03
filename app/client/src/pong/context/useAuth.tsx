@@ -66,7 +66,8 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			try {
 
 
-				if ( location.pathname === '/redirect' && location.search ) {
+				if ( (location.pathname === '/redirect' && location.search)
+					|| location.pathname === '/aboutus' ) {
 					navigate(location)
 					return ;
 				}

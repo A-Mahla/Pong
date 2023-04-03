@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Typography, Box, Paper } from '@mui/material'
+import { Typography, Box, Paper, Button } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Tabs from '@mui/material/Tabs'
 import TabList from '@mui/lab/TabList'
@@ -69,19 +69,28 @@ const WaitingScreen = () => {
   };
 
 const drawCountDown = (canvas: any, countdown: number) => {
-	const context = canvas.getContext('2d');
 
 	// Set font to futuristic style and increase size by 50%
+	const context = canvas.getContext('2d');
+
+	context.beginPath();
+	context.fillStyle =  '#15232f';
+	context.arc(Math.floor(canvas.width / 2), Math.floor(canvas.heigth / 2), Math.floor(canvas.heigth / 4), 0, Math.PI * 2, false)
+	context.fill();
+
+
 	context.font = "112.5px 'Tr2n', sans-serif";
 
 	// Set color and thickness for countdown text
 	context.strokeStyle = '#2f8ca3';
-
+	// context.textAlign = "center";
 	// Draw countdown text
 	context.strokeText(countdown.toString(), canvas.width / 2, canvas.height / 2);
 	context.fillText(countdown.toString(), canvas.width / 2, canvas.height / 2);
 }
 
+
+/*
 const scaleGame = (game: GameData, width : number, height: number) => {
 		game.roomInfo.margin = Math.floor((width * 5) / CANVAS_WIDTH);
 		game.ball.r = Math.floor((height * BALLRADIUS) / CANVAS_HEIGHT);
@@ -93,6 +102,32 @@ const scaleGame = (game: GameData, width : number, height: number) => {
 		console.log(`IN SCALE GAME --> game.ball.x ${game.ball.x} | game.ball.y ${game.ball.y}`)
 		game.player1.y = Math.floor((game.player1.y * height) / CANVAS_HEIGHT);
 		game.player2.y = Math.floor((game.player2.y * height) / CANVAS_HEIGHT);
+}
+*/
+const scaleGame = (game: GameData, width : number, height: number): GameData => {
+	return {
+		roomInfo:{
+			timer: game.roomInfo.timer,
+			margin: Math.floor((width * 5) / CANVAS_WIDTH),
+			playerheight: Math.floor((height * PLAYER_HEIGHT) / CANVAS_HEIGHT),
+			playerwidth: Math.floor((width * PLAYER_WIDTH) / CANVAS_WIDTH)
+		},
+		player1:{
+			login: game.player1.login,
+			y: Math.floor((game.player1.y * height) / CANVAS_HEIGHT),
+			score: game.player1.score
+		},
+		player2:{
+			login: game.player2.login,
+			y: Math.floor((game.player2.y * height) / CANVAS_HEIGHT),
+			score: game.player2.score
+		},
+		ball: {
+			x: Math.floor((game.ball.x * width) / CANVAS_WIDTH),
+			y: Math.floor((game.ball.y * height) / CANVAS_HEIGHT),
+			r: Math.floor((height * BALLRADIUS) / CANVAS_HEIGHT)
+		}
+	}
 }
 
 
@@ -124,7 +159,22 @@ function drawEndGame(canvas: any, gameData: GameData) {
 
 	// Draw the text in the center of the canvas
 	context.fillText(text, canvas.width / 2, canvas.height / 2);
-  }
+}
+
+function drawEndGameWatchers(canvas: any, gameData: GameData) {
+	const context = canvas.getContext('2d');
+
+	const scaledFont = Math.floor((ENDGAMEFONT * canvas.height) / CANVAS_HEIGHT);
+	context.clearRect(0, 0, canvas.width, canvas.height);
+	context.fillStyle = '#15232f';
+	context.fillRect(0, 0, canvas.width, canvas.height);
+
+	context.font = `${scaledFont}px 'Tr2n', sans-serif`;
+	context.textAlign = "center";
+	context.fillStyle = '#2f8ca3';
+
+	context.fillText(`Game Over\n${gameData.player1.login}: ${gameData.player1.score}\n${gameData.player2.login}: ${gameData.player2.score}`, canvas.width / 2, canvas.height / 2)
+}
 
 const drawTimer = (canvas: any, timer: number) => {
 	const context = canvas.getContext('2d');
@@ -184,7 +234,7 @@ const drawLogin = (canvas: any, loginPlayer1: string, loginPlayer2: string) => {
 	// some scaling
 	const scaleFont = Math.floor( (LOGIN_FONT * canvas.height) / CANVAS_HEIGHT );
 	const widthMargin = Math.floor( (10 * canvas.width) / CANVAS_WIDTH );
-	const heightMargin = Math.floor( (30 * canvas.height) / CANVAS_HEIGHT );
+	const heightMargin = Math.floor( (60 * canvas.height) / CANVAS_HEIGHT );
 
 	// Set font to futuristic style
 	context.font = `${scaleFont}px180px 'Tr2n', sans-serif`;
@@ -207,7 +257,7 @@ const drawLogin = (canvas: any, loginPlayer1: string, loginPlayer2: string) => {
 export const draw = (canvas: any, game: GameData) => {
 
 	// scaling game to current height and width
-	scaleGame(game, canvas.width, canvas.height);
+	const scaled = scaleGame(game, canvas.width, canvas.height);
 
 	const context = canvas.getContext('2d')
 
@@ -215,10 +265,10 @@ export const draw = (canvas: any, game: GameData) => {
 	context.fillStyle = '#15232f';
 	context.fillRect(0, 0, canvas.width, canvas.height);
 
-	if (game.player1.login && game.player2.login)
-		drawLogin(canvas, game.player1.login, game.player2.login);
-	drawScore(canvas, game.player1.score, game.player2.score);
-	drawTimer(canvas, game.roomInfo.timer);
+	if (scaled.player1.login && scaled.player2.login)
+		drawLogin(canvas, scaled.player1.login, scaled.player2.login);
+	drawScore(canvas, scaled.player1.score, scaled.player2.score);
+	drawTimer(canvas, scaled.roomInfo.timer);
 
 	// dram middle line
 	context.strokeStyle = 'white';
@@ -229,31 +279,31 @@ export const draw = (canvas: any, game: GameData) => {
 
 	// draw players
 	context.fillStyle = 'white';
-	if (game.roomInfo.playerwidth && game.roomInfo.margin && game.roomInfo.playerheight) {
-		context.fillRect(game.roomInfo.margin, game.player1.y - (game.roomInfo.playerheight / 2), game.roomInfo.playerwidth, game.roomInfo.playerheight);
-		context.fillRect(canvas.width - (game.roomInfo.playerwidth + game.roomInfo.margin), game.player2.y - (game.roomInfo.playerheight / 2), game.roomInfo.playerwidth, game.roomInfo.playerheight);
+	if (scaled.roomInfo.playerwidth && scaled.roomInfo.margin && scaled.roomInfo.playerheight) {
+		context.fillRect(scaled.roomInfo.margin, scaled.player1.y - (scaled.roomInfo.playerheight / 2), scaled.roomInfo.playerwidth, scaled.roomInfo.playerheight);
+		context.fillRect(canvas.width - (scaled.roomInfo.playerwidth + scaled.roomInfo.margin), scaled.player2.y - (scaled.roomInfo.playerheight / 2), scaled.roomInfo.playerwidth, scaled.roomInfo.playerheight);
 	}
 
 	// draw ball
 	context.beginPath();
 	context.fillStyle = 'white';
-	context.arc(game.ball.x, game.ball.y, game.ball.r, 0, Math.PI * 2, false)
+	context.arc(scaled.ball.x, scaled.ball.y, scaled.ball.r, 0, Math.PI * 2, false)
 	context.fill();
 };
 
 
-const Canvas = ({ socket, height, width }: any) => {
+const Canvas = ({ socket, handleThereIsMatch }: any) => {
 	// ref to the html5 canvas on wich we will draw
 	const canvas = React.useRef<HTMLCanvasElement>(null); // reference/pointer on html5 canvas element, so you can draw on it
-	// getting the user login to print it on canva and transmit it to the other player
-	const { user } = useAuth();
 
 	const [game, setGame] = React.useState<boolean>(false);
+
+	let interval: NodeJS.Timeout;
 
 	const canvaResize = async () => {
 		const testTimeout = setTimeout(() => {
 			if (canvas.current) {
-				canvas.current.width = document.documentElement.clientWidth * 0.50;
+				canvas.current.width = document.documentElement.clientWidth * 0.70;
 				canvas.current.height = canvas.current.width * 0.533333;
 			}
 		}, 100)
@@ -273,7 +323,8 @@ const Canvas = ({ socket, height, width }: any) => {
 
 		socket.on("updateClient", (gameData: GameData) => {
 			console.log("---------------------> ON updateClient");
-			draw(canvas.current, gameData)
+			clearInterval(interval);
+			draw(canvas.current, gameData);
 		})
 
 		socket.on("initSetup", (gameData: GameData) => {
@@ -284,10 +335,21 @@ const Canvas = ({ socket, height, width }: any) => {
 			// setWaiting(false);
 		})
 
+		socket.on("pause", (gameData: GameData) => {
+			console.log("---------------------> ON gameOver");
+			drawEndGame(canvas.current, gameData);
+		})
+
 		socket.on("gameOver", (gameData: GameData) => {
 			console.log("---------------------> ON gameOver");
 			drawEndGame(canvas.current, gameData);
 		})
+
+		socket.on("gameOverWatcher", (gameData: GameData) => {
+			console.log("---------------------> ON gameOverWatchers");
+			drawEndGameWatchers(canvas.current, gameData);
+		})
+
 
 		window.addEventListener("resize", canvaResize);
 
@@ -324,7 +386,10 @@ const Canvas = ({ socket, height, width }: any) => {
 
 	return (
 		<main role="main">
-			<canvas onMouseMove={handleMouseMove} ref={gameCanvas} height={(document.documentElement.clientWidth * 0.50) * 0.533333} width={document.documentElement.clientWidth * 0.50} />
+			<canvas onMouseMove={handleMouseMove} ref={gameCanvas} height={(document.documentElement.clientWidth * 0.70) * 0.533333} width={document.documentElement.clientWidth * 0.70} />
+			<Button onClick={handleThereIsMatch}>
+					QUIT GAME
+			</Button>
 		</main>
 	);
 };

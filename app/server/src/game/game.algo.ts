@@ -115,7 +115,7 @@ export class GameAlgo {
 				this.server.to(this.player1!.socketID).emit('updateClient', this.gameData);
 				this.server.to(this.player2!.socketID).emit('updateClient', this.rotateGameData(this.gameData));
 				this.watchers.forEach((socketID: string) => {
-					this.server.to(this.player2!.socketID).emit('updateClient', this.gameData);
+					this.server.to(socketID).emit('updateClient', this.gameData);
 				})
 			}, 16);
 		}, 5000);

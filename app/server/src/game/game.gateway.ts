@@ -82,22 +82,25 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		const assignKeysToTable = () => {
 			// Parcours de chaque noeud de la Map
 			for (let [key, value] of this.gameMap) {
-			  keysTable.push(key);
+				if (value.getStatus() === Status.RUNNING)
+					keysTable.push(key);
 			}
 		}
 
 		assignKeysToTable();
-		this.server.emit('updateRunningGames', keysTable);
+		this.server.emit('updateRuningGames', keysTable);
 	}
 
 	@SubscribeMessage('watchGame')
 	async addWatcherToGame(client: Socket, gameId: string) {
 		const temp = this.gameMap.get(gameId);
 
-		if (temp)
-		{
-			// add to watching list, but what ?
-		}
+		if (temp && temp.getStatus() === Status.RUNNING)
+			temp.addWatcherSocketID(client.id)
+		/**
+		 * here the client send the gameID (button on wich he clicked) we check if the game existe and is RUNNING
+		 * if yes, we add the clientid to the watcher list so gameAlgo class will send him the gameData stuff too
+		 */
 	}
 
 

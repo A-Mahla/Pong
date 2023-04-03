@@ -104,14 +104,13 @@ export const Game = ({ height, width }: any) => {
 		else
 			setThereIsMatch(false)
 	}
-	console.log(`IN GAME COMPONENT --> height = ${height} | width = ${width}`);
 	return (<>
 		{
 			thereIsMatch ?
 			(<>
 				<Grid container justifyContent="space-between" alignItems="flex-start">
 					<Typography sx={pongTitle} variant='h2'>Game</Typography>
-						<Canvas socket={socket} height={height} width={width} style={canvasStyle} />
+						<Canvas socket={socket} handleThereIsMatch={handleClick}/>
 				</Grid>
 			</>)
 			:
@@ -153,11 +152,10 @@ export const Game = ({ height, width }: any) => {
 		marginLeft: '20px',
 	};
 
-	export const GamePage = ({height, width}: any) => {
-		console.log(`-------> ${height} ${width} `)
+	export const GamePage = () => {
 		return (
 			<GameSocketProvider>
-				<Game height={height} width={width}/>
+				<Game/>
 			</GameSocketProvider>
 		)
 	}

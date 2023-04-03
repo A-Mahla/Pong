@@ -11,6 +11,7 @@ import './LeadPage.css'
 import useAuth, {useFetchAuth} from '/src/pong/context/useAuth'
 import { FetchApi, Api } from '/src/pong/component/FetchApi'
 import  GamePage  from './Game';
+import '/src/App.css';
 
 const header = {
 	height: '4vw;',
@@ -177,7 +178,7 @@ const LeadPage = () => {
 				{/* <Typography variant='h1'>{user}</Typography>
 				<br/>
 				<Typography variant='h1'>{id}</Typography> */}
-						<GamePage height={640} width={1200} />
+						<GamePage />
 			</TabPanel>
 			<TabPanel value={value} index={2}>
 				<Typography variant='h1'>Chat</Typography>

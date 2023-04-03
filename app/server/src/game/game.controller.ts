@@ -68,15 +68,6 @@ export class GameController {
 		);
 	}
 
-	/**
-	 * 
-	 *  export type matchHistoryPayload = {
-		l1: string,
-		s1: number,
-		l2: string,
-		s2: number
-}
-	 */
 	@UseGuards(JwtAuthGuard)
 	@Get('gamehistory')
 	async getGameHistory(

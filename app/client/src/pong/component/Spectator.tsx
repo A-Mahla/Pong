@@ -30,6 +30,7 @@ export const Spectator = ({socket, thereIsMatch, handleThereIsMatch}: any) => {
 	}
 
 	socket.on('updateRuningGames', (runningGameList: any) => {
+		console.log("LOOOOOOOOOOOOO");
 		setGameList(runningGameList);
 	})
 
@@ -48,7 +49,7 @@ export const Spectator = ({socket, thereIsMatch, handleThereIsMatch}: any) => {
 			</div>
 		);
 		} else {
-			return <div>Loading...</div>;
+			return <Grid> Loading...</Grid>
 		}
 }
 // export default Spectator;
