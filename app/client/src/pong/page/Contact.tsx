@@ -51,7 +51,12 @@ const Contact = () => {
 			} else if (text.current.value === '') {
 				setTextError('Please, complete your request')
 				}*/
-			emailjs.sendForm("service_vvz12ux", "template_wpxvown", form.current, "FbnVeYr9ksHRLt_Tx").then(
+			emailjs.sendForm(
+				import.meta.env.VITE_EMAILJS_ID,
+				import.meta.env.VITE_EMAILJS_TEMPLATE,
+				form.current,
+				import.meta.env.VITE_EMAILJS_PUB_KEY
+			).then(
 				(result) => {
 					console.log(result.text);
 				},
