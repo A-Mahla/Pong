@@ -110,6 +110,11 @@ export class FriendsService {
 	}
 
 	async createFriendRequest(friendRequestData: FriendRequestData) {
+
+		const isExisting = this.isExisting({user1_id: friendRequestData.user2_id, user2_id: friendRequestData.user1_id})
+		if (isExisting)
+			return isExisting
+
 		const newFriendRequest = await this.prisma.friend.create({
 			data: {
 				user1Id: friendRequestData.user1_id,
