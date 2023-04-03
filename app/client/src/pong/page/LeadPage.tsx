@@ -11,6 +11,7 @@ import './LeadPage.css'
 import useAuth, {useFetchAuth} from '/src/pong/context/useAuth'
 import { FetchApi, Api } from '/src/pong/component/FetchApi'
 import  GamePage  from './Game';
+import '/src/App.css';
 
 const header = {
 	height: '4vw;',

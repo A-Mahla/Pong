@@ -152,7 +152,7 @@ const Swipeable = (props: propsSwip) => {
 							disableTypography={true}
 							sx={listTextMenu} />
 					</ListItemButton>
-					<ListItemButton>
+					<ListItemButton component={Link} to="/aboutus">
 						<ListItemIcon sx={listIconButton}>
 							<InfoIcon />
 						</ListItemIcon>
