@@ -196,7 +196,7 @@ const SignUp = () => {
 					inputRef={login}
 					label="Login / Username"
 					onChange={handleChange}
-					sx={{mb: 3, width: '13rem'}}
+					sx={{mb: 4, width: '13rem'}}
 					helperText={ loginError === '' ?
 						null :
 						<Typography variant='caption' align="center" color="tomato"
@@ -221,7 +221,7 @@ const SignUp = () => {
 							fontFamily: '"system-ui", sans-serif'
 						}
 					}}
-					sx={{mb: 1, width: '13rem'}}
+					sx={{mb: 2, width: '13rem'}}
 				></TextField>
 
 				<TextField
