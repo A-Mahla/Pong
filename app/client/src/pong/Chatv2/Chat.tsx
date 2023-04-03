@@ -45,6 +45,8 @@ export function Chat() {
 		setLeavedRoom,
 		newFriendRequest,
 		setNewFriendRequest,
+		newFriend,
+		setNewFriend
 	} = useContext(UpdatesContext)
 
 	const [directMessages, setDirectMessages] = useState<Message[]>([])
@@ -203,8 +205,12 @@ export function Chat() {
 			setFriendRequests([...friendRequests, newFriendRequest])
 			setNewFriendRequest()
 		}
+		if (newFriend != undefined) {
+			console.log(`newFriend: `, newFriend)
+			setNewFriend()
+		}
 
-	}, [newRoomMessage, newDirectMessage, newRoom, leavedRoom, newFriendRequest])
+	}, [newRoomMessage, newDirectMessage, newRoom, leavedRoom, newFriendRequest, newFriend])
 
 	return (
 		<ChatContext.Provider value={chatContext}>

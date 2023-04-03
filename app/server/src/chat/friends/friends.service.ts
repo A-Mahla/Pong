@@ -10,16 +10,8 @@ export class FriendsService {
 	async acceptFriend(payload: AddFriendData) {
 		return await this.prisma.friend.updateMany({
 			where: {
-				OR: [
-					{
 						user1Id: payload.user1_id,
-						user2Id: payload.user2_id
-					},
-					{
-						user1Id: payload.user2_id,
-						user2Id: payload.user1_id
-					}
-				]
+						user2Id: payload.user2_id,
 			},
 			data: {
 				status: 'accepted'
@@ -73,18 +65,23 @@ export class FriendsService {
 	}
 
 	async getFriendRequests(userId: number) {
+
+		console.log('userId: ', userId)
+
 		const friendRequestsTab = await this.prisma.friend.findMany({
 			where: {
-				OR: [
-					{
-						user1Id: userId,
-						status: 'pending'
-					},
-					{
-						user2Id: userId,
-						status: 'pending'
-					}
-				]
+					user2Id: userId,
+					status: 'pending'
+				//OR: [
+				//	{
+				//		user1Id: userId,
+				//		status: 'pending'
+				//	},
+				//	{
+				//		user2Id: userId,
+				//		status: 'pending'
+				//	}
+				//]
 			},
 			include: {
 				user1: true,
@@ -107,7 +104,7 @@ export class FriendsService {
 			}
 		})
 
-		console.log(relationFriendRequestsTab)
+		console.log('relationFriendRequests: ', relationFriendRequestsTab)
 
 		return relationFriendRequestsTab
 	}
@@ -137,4 +134,20 @@ export class FriendsService {
 				createdAt: newFriendRequest.createdAt,
 			}
 	}  
+
+	async isExisting(friendRequestData: FriendRequestData) {
+		const friendRequest = await this.prisma.friend.findMany({
+			where: 
+				{
+					user1Id : friendRequestData.user1_id,
+					user2Id: friendRequestData.user2_id
+				}
+		})
+
+		console.log('isExistrong : ', friendRequest)
+
+		if (friendRequest.length !== 0)
+			return true
+		return false
+	} 
 }

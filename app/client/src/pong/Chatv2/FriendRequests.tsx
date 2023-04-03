@@ -1,6 +1,7 @@
 import { Box, List, ListItem, ListItemButton, ListItemText, Button } from '@mui/material'
 import { useContext, useState, useEffect, useCallback } from 'react'
 import { ChatContext } from './Chat'
+import { socket } from './Socket'
 
 export function FriendRequests() {
 
@@ -9,8 +10,19 @@ export function FriendRequests() {
 	const [friendRequestsList, setFriendRequestsList] = useState([])
 
 	const handleAccept = useCallback((e) => {
-		console.log(e.currentTarget.getAttribute('value'))
-	}, [])
+		const value = JSON.parse(e.currentTarget.getAttribute('value'))
+		console.log(value)
+
+		const payload = {
+			user1_id: value.user1Id,
+			user2_id: value.user2Id
+		}
+
+		console.log('payload: ', payload)
+		
+		socket.emit('acceptFriend', payload)
+
+	}, [socket])
 
 	const handleDeny = useCallback((e) => {
 		console.log(e.currentTarget.getAttribute('value'))
@@ -26,8 +38,8 @@ export function FriendRequests() {
 					key={elem.id}
 					>
 						<ListItemText>{elem.user1Login}</ListItemText>
-						<ListItemButton value={elem.user1Id} onClick={handleAccept}>Accept</ListItemButton>
-						<ListItemButton value={elem.user1Id} onClick={handleDeny}>Deny</ListItemButton>
+						<ListItemButton value={JSON.stringify(elem)} onClick={handleAccept}>Accept</ListItemButton>
+						<ListItemButton value={JSON.stringify(elem)} onClick={handleDeny}>Deny</ListItemButton>
 				</ListItem>)
 		}))
 	}, [friendRequests])

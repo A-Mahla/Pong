@@ -2,7 +2,7 @@ import { useEffect, useState, createContext } from 'react'
 import io from 'socket.io-client'
 import useAuth from '../context/useAuth'
 import { Chat } from './Chat'
-import { FriendRequest, Message, Room } from './Chat.types'
+import { Friend, FriendRequest, Message, Room } from './Chat.types'
 
 export const socket = io.connect(`http://${import.meta.env.VITE_SITE}/chat`)
 
@@ -16,7 +16,9 @@ const initialUpdatesContext = {
 	leavedRoom: {},
 	setLeavedRoom: null,
 	newFriendRequest: {},
-	setNewFriendRequest: null
+	setNewFriendRequest: null,
+	newFriend: {},
+	setNewFriend: null
 }
 
 export const UpdatesContext = createContext(initialUpdatesContext)
@@ -35,6 +37,8 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 
 	const [newFriendRequest, setNewFriendRequest] = useState<FriendRequest>()
 
+	const [newFriend, setNewFriend] = useState()
+
 	const updatesContext = {
 		newDirectMessage: newDirectMessage,
 		setNewDirectMessage: setNewDirectMessage,
@@ -45,7 +49,9 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 		leavedRoom: leavedRoom,
 		setLeavedRoom: setLeavedRoom,
 		newFriendRequest: newFriendRequest,
-		setNewFriendRequest: setNewFriendRequest
+		setNewFriendRequest: setNewFriendRequest,
+		newFriend: newFriend,
+		setNewFriend: setNewFriend
 	}
 
 	useEffect(() => {		//---ROOMS & MESSAGES--//
@@ -93,12 +99,20 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 
 		socket.on('friendRequest', onFriendRequestEvent)
 
+		function onNewFriendEvent(newFriend) {
+			console.log(`new friend : ${JSON.stringify(newFriend)}`)
+			setNewFriend(newFriend)
+		}
+
+		socket.on('newFriend', onNewFriendEvent)
+
 		return () => {
 			socket.off('roomCreated', onRoomCreatedEvent)
 			socket.off('roomJoined', onRoomJoinedEvent)
 			socket.off('roomLeaved', onRoomLeavedEvent)
 			socket.off('roomMessage', onRoomMessageEvent)
 			socket.off('friendRequest', onFriendRequestEvent)
+			socket.off('newFriend', onNewFriendEvent)
 		}
 
 	}, [socket])

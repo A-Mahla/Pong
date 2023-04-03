@@ -54,8 +54,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     return this.chatService.joinRoom(this.server, client, payload)
   }
 
-  @SubscribeMessage('addFriend') // TODO changer par accept request
+  @SubscribeMessage('acceptFriend') // TODO changer par accept request
   async handleAddFriend(client: Socket, payload: AddFriendData) {
+
+    console.log('payload: ', payload)
     return this.chatService.acceptFriend(this.server, client, payload)
   }
 
