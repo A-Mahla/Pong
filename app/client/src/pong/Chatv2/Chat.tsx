@@ -100,11 +100,11 @@ export function Chat() {
 	}
 
 	useEffect(() => {
-		async function getFriends() {
+		async function getFriendRequests() {
 			const {data} = await FetchApi(getFriendsRequestsRequest)
 			return data
 		}
-		getFriends().then(data => console.log('friend Requests data: ', data))
+		getFriendRequests().then(data => setFriendRequests(data))
 	}, [])
 
 	const getFriendsRequest: Api = {
