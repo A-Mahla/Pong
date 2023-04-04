@@ -16,6 +16,7 @@ import TFAComponent from '/src/pong/Profile/TFAComponent'
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
 import { styled } from '@mui/material/styles';
 import MatchHistory from '/src/pong/Profile/MatchHistory'
+import SearchPlayers from '/src/pong/Profile/SearchPlayers'
 
 
 export type Level = {
@@ -46,10 +47,15 @@ const GameInfo = (props: MatchInfoProps) => {
 
 	const auth = useFetchAuth();
 	const isQuery950 = useMediaQuery('(max-width: 950px) and (min-width: 550px)')
-	const [open, setOpen] = useState(false)
+	const [openHistory, setOpenHistory] = useState(false)
+	const [openPlayers, setOpenPlayers] = useState(false)
 
-	const handleClick = () => {
-		setOpen(true)
+	const handleClickHistory = () => {
+		setOpenHistory(true)
+	}
+
+	const handleClickPlayers = () => {
+		setOpenPlayers(true)
 	}
 
 	return <>
@@ -89,7 +95,7 @@ const GameInfo = (props: MatchInfoProps) => {
 			}
 		}>
 
-			<Grid item xs={12} sx={{height: "50%"}}>
+			<Grid item xs={12} sx={{height: "40%"}}>
 
 				<Grid item display="flex"
 					justifyContent="center"
@@ -116,15 +122,16 @@ const GameInfo = (props: MatchInfoProps) => {
 				xs={12}
 				justifyContent="center"
 				alignItems="center"
-				sx={{height: "50%"}}
+				sx={{height: "30%"}}
 			>
 				<Button
 					variant="contained"
 					color="primary"
-					onClick={handleClick}
+					onClick={handleClickHistory}
 					className="loginButton"
-					style={{background: '#213547'}}
+					style={{background: '#34495e'}}
 					sx={{
+						mt: 4,
 						fontSize: '2vw;',
 						borderRadius: 14,
 						pb: 0.2,
@@ -140,6 +147,36 @@ const GameInfo = (props: MatchInfoProps) => {
 					Match History
 				</Button> 
 			</Grid>
+
+			<Grid item display="flex"
+				xs={12}
+				justifyContent="center"
+				alignItems="center"
+				sx={{height: "30%"}}
+			>
+				<Button
+					variant="contained"
+					color="primary"
+					onClick={handleClickPlayers}
+					className="loginButton"
+					style={{background: '#34495e'}}
+					sx={{
+						fontSize: '2vw;',
+						borderRadius: 14,
+						pb: 0.2,
+						px: 'center',
+						'@media (max-width: 550px)': {
+							fontSize: '1rem',
+						},
+						'@media (min-width: 1200px)': {
+							fontSize: '1.7rem',
+						}
+					}}
+				>
+					Search Players
+				</Button> 
+			</Grid>
+
 		</Grid>
 		<Grid item display="grid" justifyContent="center" sm={4} xs={6}
 			order={{sm: 3, xs: 3}}
@@ -159,8 +196,9 @@ const GameInfo = (props: MatchInfoProps) => {
 					{props.defeat}
 				</Typography>
 			</Grid>
-			<MatchHistory open={open} setOpen={setOpen}/>
 		</Grid>
+		<MatchHistory open={openHistory} setOpen={setOpenHistory}/>
+		<SearchPlayers open={openPlayers} setOpen={setOpenPlayers}/>
 	</>
 
 }
