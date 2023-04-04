@@ -3,6 +3,7 @@ import { Redirect } from '/src/pong/component/Oauth2';
 import  MainPage  from '/src/pong/page/MainPage';
 import LeadPage from '/src/pong/page/LeadPage';
 import AboutUs from '/src/pong/page/AboutUs';
+import Contact from '/src/pong/page/Contact';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Login } from '/src/pong/component/Login';
 import { AuthProvider } from '/src/pong/context/useAuth';
@@ -51,6 +52,7 @@ export const Pong = () => {
 					<Routes>
 						<Route path='/' element={<MainPage/>} />
 						<Route path='/aboutus' element={<AboutUs/>} />
+						<Route path='/contact' element={<Contact/>} />
 						<Route path='/chat' element={<ChatSocketProvider/>} />
 						<Route path='/login' element={<Login/>}/>
 						<Route path='/signup' element={<SignUp/>}/>

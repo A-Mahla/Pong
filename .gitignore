@@ -9,10 +9,12 @@ migrations
 *.jpg
 *.png
 !alorain.jpg
+!alorain.jpeg
 !amahla.JPG
 !slahlou.JPG
 !pong-icon.png
 !background-pong.jpg
+!background-pong.jpeg
 
 # Logs
 logs
@@ -118,3 +120,7 @@ dist
 
 # TernJS port file
 .tern-port
+
+# MAC OS cache
+.DS_Store
+
