@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect, createContext} from 'react'
-import { Box } from '@mui/material'
+import { Box, Grid } from '@mui/material'
 import { Api, FetchApi } from '../component/FetchApi'
 import { useFetchAuth } from '../context/useAuth'
 import { Friend, FriendRequest, Message, Room, User } from './Chat.types'
@@ -214,14 +214,32 @@ export function Chat() {
 
 	return (
 		<ChatContext.Provider value={chatContext}>
-			<Box
+			{
+
+/* 			<Box
 				sx={{display: 'flex', borderRadius:2, p:0,m:2,border: 1,maxHeight:500, overflow:'auto'}}
 				>
 				<RoomBar />
 				<DirectMessageBar />
 				<MessagesBox />
 
-			</Box>
+			</Box> */
+			}
+			<Grid container
+				sx={{border:1}}
+				>
+				<Grid item>
+					<RoomBar />
+				</Grid>
+
+				<Grid item>
+					<DirectMessageBar />
+				</Grid>
+
+				<Grid item>
+					<MessagesBox />
+				</Grid>
+			</Grid>
 		</ChatContext.Provider>
 	)
 }
