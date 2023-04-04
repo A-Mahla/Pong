@@ -42,7 +42,7 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
 	})
 );
 
-const MatchInfo = (props: MatchInfoProps) => {
+const GameInfo = (props: MatchInfoProps) => {
 
 	const auth = useFetchAuth();
 	const isQuery950 = useMediaQuery('(max-width: 950px) and (min-width: 550px)')
@@ -164,4 +164,4 @@ const MatchInfo = (props: MatchInfoProps) => {
 	</>
 
 }
-export default MatchInfo
+export default GameInfo

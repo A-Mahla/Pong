@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
-import MatchInfo, {Level} from '/src/pong/Profile/MatchInfo'
+import GameInfo, {Level} from '/src/pong/Profile/GameInfo'
 
 
 const theme = createTheme({
@@ -183,7 +183,7 @@ const Profile = () => {
 			}>
 				<UserPanelGrid />
 			</Grid>
-			<MatchInfo defeat={defeat} victory={victory} level={level}/>
+			<GameInfo defeat={defeat} victory={victory} level={level}/>
 		</ThemeProvider>
 		}
 	</>
