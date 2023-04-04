@@ -65,14 +65,13 @@ export class GameAlgo {
 		})
 
 		gamePromise.then(sets => {
-			if (sets)
+			if (sets === 'true')
 				this.startGame().then(test => {
-					console.log('OUIIIIIIIIIIIIIIIIIIIIIIIIIIII')
 				});
 		})
 		.catch(timeIsOut => {
-			if (timeIsOut)
-				throw timeIsOut;
+			// if (timeIsOut)
+				// throw timeIsOut;
 		})
 	}
 
