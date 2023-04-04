@@ -52,8 +52,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			});
 			this.server.to(client.id).emit('lockAndLoaded')
 		} else {
-		  // no waiting games with one player so we create one
-		  	const newGameDB = await this.gameService.registerNewGame('WAIT');
+			// no waiting games with one player so we create one
+			const newGameDB = await this.gameService.registerNewGame('WAIT');
 			if (newGameDB) {
 				client.join(newGameDB.game_id.toString());
 				const newGameAlgo: GameAlgo = new GameAlgo(this.gameService, this.server, newGameDB.game_id.toString());
@@ -69,10 +69,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			}
 		}
 		if (gameToJoin && gameToJoin.getStatus() === Status.TWO_PLAYER)
-		{
-			gameToJoin.startGame();
 			this.runingGamesList();
-		}
 	}
 
 	@SubscribeMessage('getRuningGames')
@@ -102,10 +99,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		 * if yes, we add the clientid to the watcher list so gameAlgo class will send him the gameData stuff too
 		 */
 	}
-
-
-
-
 
 
 	async handleConnection(client: Socket, ...args: any[]) {
@@ -138,8 +131,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			}
 		}
 	}
-
-
 
 	handleDisconnect(client: Socket) {
 		console.log(`Client disconnected: ${client.id}`);
