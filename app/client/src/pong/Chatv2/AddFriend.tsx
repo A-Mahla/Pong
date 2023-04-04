@@ -54,8 +54,6 @@ export function AddFriend() {
 			user2_id: value.id
 		}
 
-		console.log('value: ', payload)
-
 		//socket.emit('friendRequest',  payload)
 		const sendfriendRequest = async () => {
 
@@ -74,7 +72,7 @@ export function AddFriend() {
 
 		}
 
-		sendfriendRequest().then(data => console.log(data))
+		sendfriendRequest().then(data => console.log('friend Data: ', data))
 
 		setIsSearching(false)
 	}, [socket])
@@ -90,7 +88,6 @@ export function AddFriend() {
 			matchingUsers.map((tmpUser) => {
 				//let isIn = false
 				const isIn = false
-				console.log('matchingUsers: ', matchingUsers)
 
 				if (!isIn) {
 					return (<ListItem

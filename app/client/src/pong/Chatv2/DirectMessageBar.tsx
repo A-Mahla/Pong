@@ -23,67 +23,77 @@ export function DirectMessageBar() {
 		setCurrent({name: '', id: 0})
 	}, [])
 
-	const friendList = friends.map((friendRelation) => {
-		let friend: {login: string, id: number}
 
-		if (friendRelation.user1Id == id) {
-			friend.id = friendRelation.user2Id
-			friend.login = friendRelation.user2Login
-		} 
-		else {
-			friend.id = friendRelation.user1Id
-			friend.login = friendRelation.user1Login
-		}
-		if (friendRelation.status === 'accepted') {
-			if (target.id === friend.id) {
-				return (
-					<ListItem
-						disablePadding	
-						key={friend.id}
-						sx={{borderRadius: 20,bgcolor: 'lightSkyBlue'}}
-						>
-						<ListItemButton
-							sx={{borderRadius: 10}}
-							onClick={handleChangeTarget}
-							value={JSON.stringify(friend)}
-							>
-							<ListItemText
-								sx={{textAlign: 'center'}}	
-								>
-								{friend.login}
-								</ListItemText>
+	const [friendList, setFriendList] = useState([])
 
-						</ListItemButton>
+	useEffect(() => {
+		
+		setFriendList(friends.map((friendRelation) => {
+			const friend: {login: string, id: number} = {login: "",id: 0}
 
-					</ListItem>
-				)
-			}
+			if (friendRelation.user1Id === id) {
+				friend.id = friendRelation.user2Id
+				friend.login = friendRelation.user2Login
+			} 
 			else {
-				return (
-					<ListItem
-						disablePadding	
-						key={friend.id}
-						sx={{borderRadius: 20,bgcolor: 'lightgrey'}}
-						>
-						<ListItemButton
-							sx={{borderRadius: 10}}
-							onClick={handleChangeTarget}
-							value={JSON.stringify(friend)}
-							>
-							<ListItemText
-								sx={{textAlign: 'center'}}	
-								>
-								{friend.login}
-								</ListItemText>
-
-						</ListItemButton>
-
-					</ListItem>
-				)
-
+				friend.id = friendRelation.user1Id
+				friend.login = friendRelation.user1Login
 			}
-		}
-	})
+			if (friendRelation.status === 'accepted') {
+				if (target.id === friend.id) {
+					return (
+						<ListItem
+							disablePadding	
+							key={friend.id}
+							sx={{borderRadius: 20,bgcolor: 'lightSkyBlue'}}
+							>
+							<ListItemButton
+								sx={{borderRadius: 10}}
+								onClick={handleChangeTarget}
+								value={JSON.stringify(friend)}
+								>
+								<ListItemText
+									sx={{textAlign: 'center'}}	
+									>
+									{friend.login}
+									</ListItemText>
+
+							</ListItemButton>
+
+						</ListItem>
+					)
+				}
+				else {
+					return (
+						<ListItem
+							disablePadding	
+							key={friend.id}
+							sx={{borderRadius: 20,bgcolor: 'lightgrey'}}
+							>
+							<ListItemButton
+								sx={{borderRadius: 10}}
+								onClick={handleChangeTarget}
+								value={JSON.stringify(friend)}
+								>
+								<ListItemText
+									sx={{textAlign: 'center'}}	
+									>
+									{friend.login}
+									</ListItemText>
+
+							</ListItemButton>
+
+						</ListItem>
+					)
+
+				}
+			}
+				return null
+		})
+		)
+
+	}, [friends, target])
+
 
 	const handleAddFriend = useCallback(() => {
 		isSearching ? setIsSearching(false) : setIsSearching(true)

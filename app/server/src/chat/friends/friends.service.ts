@@ -111,7 +111,7 @@ export class FriendsService {
 
 	async createFriendRequest(friendRequestData: FriendRequestData) {
 
-		const isExisting = this.isExisting({user1_id: friendRequestData.user2_id, user2_id: friendRequestData.user1_id})
+		const isExisting = await this.isExisting({user1_id: friendRequestData.user2_id, user2_id: friendRequestData.user1_id})
 		if (isExisting)
 			return isExisting
 

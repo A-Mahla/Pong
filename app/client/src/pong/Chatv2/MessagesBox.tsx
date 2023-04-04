@@ -135,7 +135,7 @@ const ChatInputField = styled(TextField)(({ theme }) => ({
 function ChatInput({ onSubmit }) {
 	const [inputValue, setInputValue] = useState('');
 
-	const {id} = useAuth()
+	const { id } = useAuth()
 
 	const handleInputChange = (event) => {
 		setInputValue(event.target.value);
@@ -144,7 +144,7 @@ function ChatInput({ onSubmit }) {
 	const {
 		current,
 		target,
-			} = useContext(ChatContext)
+	} = useContext(ChatContext)
 
 	const handleSubmit = useCallback((e) => {
 		if (target.id !== 0) {
@@ -155,7 +155,7 @@ function ChatInput({ onSubmit }) {
 				//content: message.current.value,
 				content: e.target.value,
 				sender_id: id,
-				recipient_id: target.id	
+				recipient_id: target.id
 			}
 
 			//message.current.value = ''
@@ -164,7 +164,7 @@ function ChatInput({ onSubmit }) {
 			socket.emit('directMessage', payload)
 		}
 		else if (current.id !== 0) {
-			const messageData : MessageData = {
+			const messageData: MessageData = {
 				//content: message.current.value,
 				content: e.target.value,
 				sender_id: id,
@@ -181,27 +181,27 @@ function ChatInput({ onSubmit }) {
 		}
 	}, [socket, target, current])
 
-				//multiline #I delete it from ChatInputField because when my imput is too long the behavior is horrible
+	//multiline #I delete it from ChatInputField because when my imput is too long the behavior is horrible
 	return (
-			<ChatInputField
-				fullWidth
-				placeholder="Type your message here..."
-				value={inputValue}
-				onChange={handleInputChange}
-				onKeyDown={(e) => {
-					//console.log(e)
-					if (e.key === 'Enter'/*  && onSubmit */) {
-						handleSubmit(e);
-						setInputValue('');
-						e.preventDefault();
-					}
-				} }
+		<ChatInputField
+			fullWidth
+			placeholder="Type your message here..."
+			value={inputValue}
+			onChange={handleInputChange}
+			onKeyDown={(e) => {
+				//console.log(e)
+				if (e.key === 'Enter'/*  && onSubmit */) {
+					handleSubmit(e);
+					setInputValue('');
+					e.preventDefault();
+				}
+			}}
 
-				InputProps={{
-					autoComplete: 'off',
-					autoCorrect: 'off',
-				}}
-			/>
+			InputProps={{
+				autoComplete: 'off',
+				autoCorrect: 'off',
+			}}
+		/>
 	);
 }
 
@@ -254,32 +254,37 @@ const ChatFooter = styled(Box)(({ theme }) => ({
 export const MessagesBox = () => {
 	const chatBodyRef = useRef()
 
-	const {id} = useAuth()
+	const { id } = useAuth()
 
 	const {
 		rooms, directMessages,
 		current,
 		target,
-			} = useContext(ChatContext)
+	} = useContext(ChatContext)
 
 	const [messageList, setMessageList] = useState([])
 
 	useEffect(() => {
 		if (target.id !== 0) {
-			console.log(directMessages)
-			setMessageList(directMessages.map((message, index) => 
-							//(target.id === message.recipient_id ) ?
-					<Box key={index} style={{ display: 'flex', justifyContent: message.sender_id === id ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
+			console.log('directMessages: ', directMessages)
+			setMessageList(directMessages.map((message, index) => {
+				//(target.id === message.recipient_id ) ?
+				if (message.sender_id === id || message.recipient_id === id) {
+
+					return (<Box key={index} style={{ display: 'flex', justifyContent: message.sender_id === id ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
 						<Box style={{ maxWidth: '80%', backgroundColor: message.sender_id === id ? '#DCF8C6' : '#fff', padding: '8px 12px', borderRadius: '12px', wordWrap: 'break-word' }}>{message.content}</Box>
 					</Box>)
-								//<ListItem key={message.id}>
-								//	<ListItemText  className='messageSent'>{message.sender_id} {message.content} {message.createdAt}</ListItemText>
-								//</ListItem>
-								//:
-								//<ListItem key={message.id}>
-								//	<ListItemText  className='messageReceived'>{message.sender_id} {message.content} {message.createdAt}</ListItemText>
-								//</ListItem>)
-									)
+				}
+				return null
+				//<ListItem key={message.id}>
+				//	<ListItemText  className='messageSent'>{message.sender_id} {message.content} {message.createdAt}</ListItemText>
+				//</ListItem>
+				//:
+				//<ListItem key={message.id}>
+				//	<ListItemText  className='messageReceived'>{message.sender_id} {message.content} {message.createdAt}</ListItemText>
+				//</ListItem>)
+			}))
+
 		}
 		else if (current.id !== 0) {
 			const room = rooms.find((room) => {
@@ -291,13 +296,13 @@ export const MessagesBox = () => {
 			}
 			else {
 				setMessageList(room.messages.map((message, index) => {
-						return (
-							<Box key={index} style={{ display: 'flex', justifyContent: message.sender_id === id ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
-								<Box style={{ maxWidth: '80%', backgroundColor: message.sender_id === id ? '#DCF8C6' : '#fff', padding: '8px 12px', borderRadius: '12px', wordWrap: 'break-word' }}>{message.content}</Box>
-							</Box>
-						)
-					}))
-				}	
+					return (
+						<Box key={index} style={{ display: 'flex', justifyContent: message.sender_id === id ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
+							<Box style={{ maxWidth: '80%', backgroundColor: message.sender_id === id ? '#DCF8C6' : '#fff', padding: '8px 12px', borderRadius: '12px', wordWrap: 'break-word' }}>{message.content}</Box>
+						</Box>
+					)
+				}))
+			}
 		}
 	}, [target, current, directMessages, rooms])
 
@@ -316,7 +321,7 @@ export const MessagesBox = () => {
 				{messageList}
 			</ChatBody>
 			<ChatFooter>
-				<ChatInput/>
+				<ChatInput />
 			</ChatFooter>
 		</ChatBox>
 	);

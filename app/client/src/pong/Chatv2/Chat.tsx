@@ -7,6 +7,7 @@ import { DirectMessageBar } from './DirectMessageBar'
 import { RoomBar } from './RoomBar'
 import { socket, UpdatesContext } from './Socket'
 import { MessagesBox } from './MessagesBox'
+import { FriendList } from './test'
 
 const initialChatContext = {
 	rooms: [],
@@ -121,7 +122,7 @@ export function Chat() {
 			const {data} = await FetchApi(getFriendsRequest)
 			return data
 		}
-		getFriends().then(data => console.log('friends data: ', data))
+		getFriends().then(data => setFriends(data))
 	}, [])
 
 	const findRooms: Api = {
@@ -233,7 +234,8 @@ export function Chat() {
 				</Grid>
 
 				<Grid item xs={6} md={2}>
-					<DirectMessageBar />
+					<FriendList/>
+					{/* <DirectMessageBar />} */}
 				</Grid>
 
 				<Grid item xs={12} md={8}>
