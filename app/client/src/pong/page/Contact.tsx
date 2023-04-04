@@ -11,6 +11,7 @@ import {
 import useAuth from '/src/pong/context/useAuth';
 import React, {
 	useRef,
+	useEffect,
 	useState,
 } from 'react'
 import emailjs from "@emailjs/browser";
@@ -23,10 +24,9 @@ const Contact = () => {
 
 	const [error, setError] = useState('');
 	const [textError, setTextError] = useState('');
+	const [subError, setSubError] = useState('');
+	const [validate, setValidate] = useState(false)
 	const {navigate} = useAuth();
-	const email = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
-	const subject = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
-	const text = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 	const form = useRef();
 
 		const handleHome = (event: React.SyntheticEvent) => {
@@ -38,19 +38,25 @@ const Contact = () => {
 		e.preventDefault()
 		setError('')
 		setTextError('')
+		setSubError('')
+		setValidate(false)
 	}
 
 
 	const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
-		/*
-		if (email.current.value === ''
-			|| !isEmail(email.current.value) ) {
+		
+		if (!form.current.email.value
+			|| !isEmail(form.current.email.value) ) {
 				setError("Invalid email");
 				return;
-			} else if (text.current.value === '') {
+			} else if (!form.current.subject.value) {
+				setSubError('Please, enter a subject')
+				return;
+			} else if (!form.current.message.value) {
 				setTextError('Please, complete your request')
-				}*/
+				return;
+			}
 			emailjs.sendForm(
 				import.meta.env.VITE_EMAILJS_ID,
 				import.meta.env.VITE_EMAILJS_TEMPLATE,
@@ -58,12 +64,15 @@ const Contact = () => {
 				import.meta.env.VITE_EMAILJS_PUB_KEY
 			).then(
 				(result) => {
-					console.log(result.text);
+					setValidate(true)
 				},
-				(error) => {
+				/*(error) => {
 					console.log(error.text);
-				}
+				}*/
 			);
+			form.current.email.value = null;
+			form.current.subject.value = null;
+			form.current.message.value = null;
 	}
 
 	return <>
@@ -132,6 +141,17 @@ const Contact = () => {
 							fontFamily: '"system-ui", sans-serif'
 						}
 					}}
+					helperText={ subError === '' ?
+						null :
+						<Typography variant='caption' align="center" color="tomato"
+							sx={{
+								fontFamily: '"system-ui", sans-serif',
+								fontSize: [10, '!important']
+							}}
+						>
+							{subError}
+						</Typography>
+					}
 				></TextField>
 
 				<TextField
@@ -164,7 +184,18 @@ const Contact = () => {
 				<Button sx={{color: 'primary.main'}} onClick={handleSubmit}>
 					submit
 				</Button>
-
+				
+				{validate ?
+					<Typography variant='caption' align="center" style={{color:"#229954"}}
+						sx={{
+							//				fontFamily: '"system-ui", sans-serif',
+							fontSize: [10, '!important']
+						}}
+					>
+						Request sent !
+					</Typography>
+					: null
+				}
 			</FormControl>
 			</form>
 		</Grid>	
