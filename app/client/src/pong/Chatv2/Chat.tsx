@@ -4,9 +4,9 @@ import { Api, FetchApi } from '../component/FetchApi'
 import { useFetchAuth } from '../context/useAuth'
 import { Friend, FriendRequest, Message, Room, User } from './Chat.types'
 import { DirectMessageBar } from './DirectMessageBar'
-import { MessagesBox } from './MessagesBox'
 import { RoomBar } from './RoomBar'
 import { socket, UpdatesContext } from './Socket'
+import { MessagesBox } from './MessagesBox'
 
 const initialChatContext = {
 	rooms: [],
@@ -228,15 +228,15 @@ export function Chat() {
 			<Grid container
 				sx={{border:1}}
 				>
-				<Grid item>
+				<Grid item xs={6} md={2}>
 					<RoomBar />
 				</Grid>
 
-				<Grid item>
+				<Grid item xs={6} md={2}>
 					<DirectMessageBar />
 				</Grid>
 
-				<Grid item>
+				<Grid item xs={12} md={8}>
 					<MessagesBox />
 				</Grid>
 			</Grid>

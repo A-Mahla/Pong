@@ -24,7 +24,7 @@ export type CreateRoomData = {
 
 export type MessageData = {
 	content: string,
-	sender_id: string,
+	sender_id: number,
 	time?: string,
 	room?: {
 		name: string,
