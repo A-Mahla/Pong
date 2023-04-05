@@ -2,7 +2,7 @@ import { useEffect, useState, createContext } from 'react'
 import io from 'socket.io-client'
 import useAuth from '../context/useAuth'
 import { Chat } from './Chat'
-import { Message, Room } from './Chat.types'
+import { Friend, FriendRequest, Message, Room } from './Chat.types'
 
 export const socket = io.connect(`http://${import.meta.env.VITE_SITE}/chat`)
 
@@ -14,7 +14,11 @@ const initialUpdatesContext = {
 	newRoom: {},
 	setNewRoom: null,
 	leavedRoom: {},
-	setLeavedRoom: null
+	setLeavedRoom: null,
+	newFriendRequest: {},
+	setNewFriendRequest: null,
+	newFriend: {},
+	setNewFriend: null
 }
 
 export const UpdatesContext = createContext(initialUpdatesContext)
@@ -31,6 +35,10 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 
 	const [newDirectMessage, setNewDirectMessage] = useState<Message>()
 
+	const [newFriendRequest, setNewFriendRequest] = useState<FriendRequest>()
+
+	const [newFriend, setNewFriend] = useState()
+
 	const updatesContext = {
 		newDirectMessage: newDirectMessage,
 		setNewDirectMessage: setNewDirectMessage,
@@ -39,7 +47,11 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 		newRoom: newRoom,
 		setNewRoom: setNewRoom,
 		leavedRoom: leavedRoom,
-		setLeavedRoom: setLeavedRoom
+		setLeavedRoom: setLeavedRoom,
+		newFriendRequest: newFriendRequest,
+		setNewFriendRequest: setNewFriendRequest,
+		newFriend: newFriend,
+		setNewFriend: setNewFriend
 	}
 
 	useEffect(() => {		//---ROOMS & MESSAGES--//
@@ -80,11 +92,27 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 
 		socket.on('directMessage', onDirectMessageEvent)
 
+		function onFriendRequestEvent(newFriendRequest) {
+			console.log(`receive friend request: ${JSON.stringify(newFriendRequest)}`)
+			setNewFriendRequest(newFriendRequest)
+		}
+
+		socket.on('friendRequest', onFriendRequestEvent)
+
+		function onNewFriendEvent(newFriend) {
+			console.log(`new friend : ${JSON.stringify(newFriend)}`)
+			setNewFriend(newFriend)
+		}
+
+		socket.on('newFriend', onNewFriendEvent)
+
 		return () => {
 			socket.off('roomCreated', onRoomCreatedEvent)
 			socket.off('roomJoined', onRoomJoinedEvent)
 			socket.off('roomLeaved', onRoomLeavedEvent)
 			socket.off('roomMessage', onRoomMessageEvent)
+			socket.off('friendRequest', onFriendRequestEvent)
+			socket.off('newFriend', onNewFriendEvent)
 		}
 
 	}, [socket])

@@ -4,6 +4,8 @@ import { ChatContext } from "./Chat"
 import useAuth, { useFetchAuth } from "../context/useAuth"
 import { Api, FetchApi } from "../component/FetchApi"
 import { User } from "./Chat.types"
+import { AddFriend } from "./AddFriend"
+import { FriendRequests } from "./FriendRequests"
 
 export function DirectMessageBar() {
 
@@ -11,27 +13,8 @@ export function DirectMessageBar() {
 
 	const {id} = useAuth()
 
-	const [users, setUsers] = useState<User[]>([])
 
-	const {target, setTarget, setCurrent} = useContext(ChatContext)
-
-	const getUsersRequest: Api = {
-		api: {
-			input: `http://${import.meta.env.VITE_SITE}/api/users`,
-			option: {
-			},
-		},
-		auth: auth,
-	}
-
-	useEffect(() => {
-		async function getUsers() {
-			const {data} = await FetchApi(getUsersRequest)
-			console.log('users data: ', data)
-			return data
-		} 
-		getUsers().then(data => setUsers(data))
-	}, [])
+	const {target, setTarget, setCurrent, isSearching, setIsSearching, friends, setFriends} = useContext(ChatContext)
 
 	const handleChangeTarget = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 		const value = JSON.parse(e.currentTarget.getAttribute('value'))
@@ -40,65 +23,142 @@ export function DirectMessageBar() {
 		setCurrent({name: '', id: 0})
 	}, [])
 
-	const userList = users.map((user) => {
 
-		if (user.id === id)
-			return null
+	const [friendList, setFriendList] = useState([])
 
-		if (user.id === target.id) {
+	useEffect(() => {
+		
+		setFriendList(friends.map((friendRelation) => {
+			const friend: {login: string, id: number} = {login: "",id: 0}
 
-			return (
-				<ListItem
-					disablePadding	
-					key={user.id}
-					sx={{borderRadius: 20,bgcolor: 'lightSkyBlue'}}
-					>
-					<ListItemButton
-						sx={{borderRadius: 10}}
-						onClick={handleChangeTarget}
-						value={JSON.stringify(user)}
-						>
-						<ListItemText
-							sx={{textAlign: 'center'}}	
+			if (friendRelation.user1Id === id) {
+				friend.id = friendRelation.user2Id
+				friend.login = friendRelation.user2Login
+			} 
+			else {
+				friend.id = friendRelation.user1Id
+				friend.login = friendRelation.user1Login
+			}
+			if (friendRelation.status === 'accepted') {
+				if (target.id === friend.id) {
+					return (
+						<ListItem
+							disablePadding	
+							key={friend.id}
+							sx={{borderRadius: 20,bgcolor: 'lightSkyBlue'}}
 							>
-							{user.login}
-							</ListItemText>
+							<ListItemButton
+								sx={{borderRadius: 10}}
+								onClick={handleChangeTarget}
+								value={JSON.stringify(friend)}
+								>
+								<ListItemText
+									sx={{textAlign: 'center'}}	
+									>
+									{friend.login}
+									</ListItemText>
 
-					</ListItemButton>
+							</ListItemButton>
 
-				</ListItem>
+						</ListItem>
+					)
+				}
+				else {
+					return (
+						<ListItem
+							disablePadding	
+							key={friend.id}
+							sx={{borderRadius: 20,bgcolor: 'lightgrey'}}
+							>
+							<ListItemButton
+								sx={{borderRadius: 10}}
+								onClick={handleChangeTarget}
+								value={JSON.stringify(friend)}
+								>
+								<ListItemText
+									sx={{textAlign: 'center'}}	
+									>
+									{friend.login}
+									</ListItemText>
 
-			)
+							</ListItemButton>
 
-		} else {
+						</ListItem>
+					)
 
-			return (
+				}
+			}
+				return null
+		})
+		)
+
+	}, [friends, target])
+
+
+	const handleAddFriend = useCallback(() => {
+		isSearching ? setIsSearching(false) : setIsSearching(true)
+
+	}, [isSearching])
+
+	const [isInFriendRequests, setIsInFriendRequests] = useState(false)
+
+	const handleCheckFriendRequests = useCallback(() => {
+		isInFriendRequests ? setIsInFriendRequests(false) : setIsInFriendRequests(true)
+
+	}, [isInFriendRequests])
+
+	return (
+			<List sx={{borderRadius:2, p:0,m:2,border: 1,maxHeight:800, maxWidth:200, overflow:'auto'}}>
+				{friendList}
 				<ListItem
 					disablePadding	
-					key={user.id}
 					sx={{borderRadius: 20,bgcolor: 'lightgrey'}}
 					>
 					<ListItemButton
 						sx={{borderRadius: 10}}
-						onClick={handleChangeTarget}
-						value={JSON.stringify(user)}
+						onClick={handleAddFriend}
 						>
 						<ListItemText
 							sx={{textAlign: 'center'}}	
 							>
-							{user.login}
+							addFriend
 							</ListItemText>
 
 					</ListItemButton>
 
 				</ListItem>
-			)
-		}
-	})
 
-	return (
-			<List sx={{borderRadius:2, p:0,m:2,border: 1,maxHeight:800, maxWidth:200, overflow:'auto'}}>
-				{userList}
+				<ListItem
+					disablePadding	
+					sx={{borderRadius: 20,bgcolor: 'lightgrey'}}
+					>
+					<ListItemButton
+						sx={{borderRadius: 10}}
+						onClick={handleCheckFriendRequests}
+						>
+						<ListItemText
+							sx={{textAlign: 'center'}}	
+							>
+							Friend Requests
+							</ListItemText>
+
+					</ListItemButton>
+
+				</ListItem>
+
+			<Dialog
+				open={isSearching}
+				onClose={() => setIsSearching(false) }
+				>
+					<AddFriend/>
+				</Dialog>
+
+			<Dialog
+				open={isInFriendRequests}
+				onClose={() => setIsInFriendRequests(false) }
+				>
+					<FriendRequests/>
+				</Dialog>
 			</List>
 	)
 }

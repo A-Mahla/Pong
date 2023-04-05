@@ -11,7 +11,7 @@ export function CreateRoom() {
 
 	const password = useRef('')
 	
-	const {setIsCreating} = useContext(ChatContext) 
+	const {isCreating, setIsCreating} = useContext(ChatContext) 
 
 	const [secured, isSecured] = useState(false)
 
@@ -41,7 +41,7 @@ export function CreateRoom() {
 
 	return (
 		<FormControl>
-			<Button onClick={() => (isCreating(false))}>x</Button>
+			<Button onClick={() => (setIsCreating(false))}>x</Button>
 			{secured ? 'secured' : 'not secured'} 
 			<FormControlLabel control={<Switch onChange={handleSwitch}/>} label="Protected" />
 			<TextField placeholder="room name" inputRef={name}/>

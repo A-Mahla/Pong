@@ -5,7 +5,7 @@ import { Server, Socket } from 'socket.io';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { UsersService } from 'src/users/users.service';
 import { RoomsService } from './rooms/rooms.service';
-import { CreateRoomData, JoinRoomData, MessageData } from './Chat.types';
+import { AddFriendData, CreateRoomData, FriendRequestData, JoinRoomData, MessageData } from './Chat.types';
 import { WsGuard } from './ws.guard';
 import { MessageService } from './messages/messages.service';
 import { ChatService } from './chat.service';
@@ -52,6 +52,18 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('joinRoom')
   async handleJoinRoom(client : Socket, payload : JoinRoomData) {
     return this.chatService.joinRoom(this.server, client, payload)
+  }
+
+  @SubscribeMessage('acceptFriend') // TODO changer par accept request
+  async handleAddFriend(client: Socket, payload: AddFriendData) {
+
+    console.log('payload: ', payload)
+    return this.chatService.acceptFriend(this.server, client, payload)
+  }
+
+  @SubscribeMessage('friendRequest')
+  async handleFriendRequest(client: Socket, payload: FriendRequestData) {
+    return this.chatService.sendFriendRequest(this.server, payload);
   }
     
   afterInit(server : Server): any {

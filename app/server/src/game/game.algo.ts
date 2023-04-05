@@ -191,6 +191,7 @@ export class GameAlgo {
 				y: gamePatron.canvasHeight / 2,
 				score: 0,
 				timeout: 0
+
 			},
 			ball: {
 				x: gamePatron.canvasWidth / 2,

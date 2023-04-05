@@ -65,7 +65,6 @@ export class AuthController {
 		@Request() req: any,
 		@Res({ passthrough: true }) response: Response
 	) {
-
 		if (req.user.isTwoFA) {
 			await this.authService.getTwoFAToken(
 				{
@@ -123,10 +122,10 @@ export class AuthController {
 				login: updateUserParam.login
 			}, response)
 		} else {
-			throw new BadRequestException('unvailable'); 
+			throw new BadRequestException('unvailable');
 		}
 	}
-	
+
 
 	// =======================================================
 

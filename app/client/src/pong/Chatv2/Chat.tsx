@@ -1,18 +1,23 @@
 import { useContext, useState, useEffect, createContext} from 'react'
-import { Box } from '@mui/material'
+import { Box, Grid } from '@mui/material'
 import { Api, FetchApi } from '../component/FetchApi'
 import { useFetchAuth } from '../context/useAuth'
-import { Message, Room } from './Chat.types'
+import { Friend, FriendRequest, Message, Room, User } from './Chat.types'
 import { DirectMessageBar } from './DirectMessageBar'
-import { MessagesBox } from './MessagesBox'
 import { RoomBar } from './RoomBar'
 import { socket, UpdatesContext } from './Socket'
+import { MessagesBox } from './MessagesBox'
+import { FriendList } from './test'
 
 const initialChatContext = {
 	rooms: [],
 	setRooms: null,
 	directMessages: [],
 	setDirectMessages: null,
+	friends: [],
+	setFriends: null,
+	friendRequests: [],
+	setFriendRequests: null,
 	current: {},
 	setCurrent: null,
 	target: {},
@@ -22,7 +27,9 @@ const initialChatContext = {
 	isCreating: false,
 	setIsCreating: null,
 	isInDirect: false,
-	setIsInDirect: null
+	setIsInDirect: null,
+	isSearching: false,
+	setIsSearching: null
 }
 
 export const ChatContext = createContext(initialChatContext)
@@ -36,12 +43,20 @@ export function Chat() {
 		newRoom,
 		setNewRoom,
 		leavedRoom,
-		setLeavedRoom
+		setLeavedRoom,
+		newFriendRequest,
+		setNewFriendRequest,
+		newFriend,
+		setNewFriend
 	} = useContext(UpdatesContext)
 
 	const [directMessages, setDirectMessages] = useState<Message[]>([])
 
 	const [rooms, setRooms] = useState<Room[]>([])
+
+	const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([])
+
+	const [friends, setFriends] = useState<User[]>([])
 
 	const [current, setCurrent] = useState({name: '', id: 0})
 	
@@ -49,16 +64,21 @@ export function Chat() {
 
 	const [isJoining, setIsJoining] = useState(false)
 
+	const [isSearching, setIsSearching] = useState(false)
+
 	const [isCreating, setIsCreating] = useState(false)
 
 	const [isInDirect, setIsInDirect] = useState(false)
-
 
 	const chatContext = {
 		rooms: rooms,
 		setRooms: setRooms,
 		directMessages: directMessages,
 		setDirectMessages: setDirectMessages,
+		friends: friends,
+		setFriends: setFriends,
+		friendRequests: friendRequests,
+		setFriendRequests: setFriendRequests,
 		current: current,
 		setCurrent: setCurrent,
 		target: target,
@@ -69,9 +89,41 @@ export function Chat() {
 		setIsCreating: setIsCreating,
 		isInDirect: isInDirect,
 		setIsInDirect: setIsInDirect,
+		isSearching: isSearching,
+		setIsSearching: setIsSearching
 	}
 
 	const auth = useFetchAuth()
+
+	const getFriendsRequestsRequest: Api = {
+		api: {
+			input: `http://${import.meta.env.VITE_SITE}/api/friends`,
+		},
+		auth: auth
+	}
+
+	useEffect(() => {
+		async function getFriendRequests() {
+			const {data} = await FetchApi(getFriendsRequestsRequest)
+			return data
+		}
+		getFriendRequests().then(data => setFriendRequests(data))
+	}, [])
+
+	const getFriendsRequest: Api = {
+		api: {
+			input: `http://${import.meta.env.VITE_SITE}/api/users/friends`,
+		},
+		auth: auth
+	}
+
+	useEffect(() => {
+		async function getFriends() {
+			const {data} = await FetchApi(getFriendsRequest)
+			return data
+		}
+		getFriends().then(data => setFriends(data))
+	}, [])
 
 	const findRooms: Api = {
 		api: {
@@ -149,19 +201,47 @@ export function Chat() {
 			}))
 			setLeavedRoom()
 		}
+		if (newFriendRequest != undefined) {
+			console.log('newFriendRequest: ', newFriendRequest)
+			setFriendRequests([...friendRequests, newFriendRequest])
+			setNewFriendRequest()
+		}
+		if (newFriend != undefined) {
+			console.log(`newFriend: `, newFriend)
+			setNewFriend()
+		}
 
-	}, [newRoomMessage, newDirectMessage, newRoom, leavedRoom])
+	}, [newRoomMessage, newDirectMessage, newRoom, leavedRoom, newFriendRequest, newFriend])
 
 	return (
 		<ChatContext.Provider value={chatContext}>
-			<Box
+			{
+
+/* 			<Box
 				sx={{display: 'flex', borderRadius:2, p:0,m:2,border: 1,maxHeight:500, overflow:'auto'}}
 				>
 				<RoomBar />
 				<DirectMessageBar />
 				<MessagesBox />
 
-			</Box>
+			</Box> */
+			}
+			<Grid container
+				sx={{border:1}}
+				>
+				<Grid item xs={6} md={2}>
+					<RoomBar />
+				</Grid>
+
+				<Grid item xs={6} md={2}>
+					<FriendList/>
+					{/* <DirectMessageBar />} */}
+				</Grid>
+
+				<Grid item xs={12} md={8}>
+					<MessagesBox />
+				</Grid>
+			</Grid>
 		</ChatContext.Provider>
 	)
 }
