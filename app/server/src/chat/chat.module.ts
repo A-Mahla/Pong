@@ -7,11 +7,15 @@ import { GameService } from "src/game/game.service";
 import { ChatGateway } from "./chat.gateway";
 import { MessageService } from "./messages/messages.service";
 import { MessageController } from "./messages/messages.controller";
+import { FriendsController } from "./friends/friends.controller";
+import { FriendsService } from "./friends/friends.service";
+import { AdminController } from "src/admin/admin.controller";
+import { BlockService } from "src/admin/block.service";
 
 @Module({
 	imports: [PrismaModule],
-	controllers: [RoomsController, MessageController],
-	providers: [UsersService, RoomsService, GameService, MessageService]
+	controllers: [RoomsController, MessageController, FriendsController, AdminController],
+	providers: [UsersService, RoomsService, GameService, MessageService, FriendsService, BlockService]
 })
 export class ChatModule {}
 
