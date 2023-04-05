@@ -23,10 +23,13 @@ export class UsersService {
 		return await this.prisma.user.findMany({
 			where: {
 				login: {
-					contains: login
+					startsWith: login
 				},
 			},
 			select: {
+				id: true,
+				login: true,
+				avatar: true,
 				password: false,
 				isTwoFA: false,
 				twoFA: false,

@@ -54,10 +54,10 @@ export class UsersController {
 		private roomService : RoomsService,
 		private readonly friendService: FriendsService) {}
 
-	@Get()
+/*	@Get()
 	async getUsers() { // return all users
 		return await this.userService.findUsers();
-	}
+	}*/
 
 	@UseGuards(LocalAuthGuard)
 	@Get('login')
@@ -67,7 +67,7 @@ export class UsersController {
 
 	@Get('intra')
 	async getIntraUser(@Query() query: {intraLogin : string}) {
-		return this.userService.findOneIntraUser(query.intraLogin)
+		return await this.userService.findOneIntraUser(query.intraLogin)
 	}
 
 	@UseGuards(JwtAuthGuard)

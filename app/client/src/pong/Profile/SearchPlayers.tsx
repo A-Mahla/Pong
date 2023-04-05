@@ -38,18 +38,27 @@ function timeout(delay: number) {
 }
 
 function isNumberOrString(str) {
-	return /^([0-9a-zA-Z_]){3,20}$/.test(str);
+	return /^([0-9a-zA-Z_]){1,20}$/.test(str);
 }
 
 
 const GridPlayers = ({rows}: {rows: matchHistoryPayload[]}) => {
 
+	const auth = useFetchAuth()
+
 	const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault()
-		await timeout(1000)
-		if (e.target.value && isNumberOrString(e.target.value)) {
-			console.log('goood')
+		const timer = await timeout(1000)
+		if (isNumberOrString(e.target.value)) {
+			const response = await FetchApi({
+				api: {
+					input: `http://${import.meta.env.VITE_SITE}/api/users/search/${e.target.value}`,
+				},
+				auth: auth,
+			})
+			console.log(response.data)
 		}
+		return () => clearTimeout(timer)
 	}
 
 	return (
