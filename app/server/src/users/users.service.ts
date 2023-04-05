@@ -25,6 +25,15 @@ export class UsersService {
 				login: {
 					contains: login
 				},
+			},
+			select: {
+				password: false,
+				isTwoFA: false,
+				twoFA: false,
+				refreshToken: false,
+				intraLogin: false,
+				updatedAt: false,
+				createdAt: false,
 			}
 		})
 	}
