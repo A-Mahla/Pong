@@ -191,6 +191,12 @@ export class UsersController {
 		return this.userService.getProfileInfo(parseInt(req.user.sub))
 	}
 
+	@UseGuards(JwtAuthGuard)
+	@Get('profile/info/:id')
+	async getProfileOtherInfo(@Param('id') id: string) {
+		return await this.userService.getProfileInfo(+id);
+	}
+
 //	=========================^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^===============
 
 //	=========================================OAuth2=======================
