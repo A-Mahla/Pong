@@ -54,25 +54,25 @@ export function AddFriend() {
 			user2_id: value.id
 		}
 
-		//socket.emit('friendRequest',  payload)
-		const sendfriendRequest = async () => {
+		socket.emit('friendRequest',  payload)
+		//const sendfriendRequest = async () => {
 
-			const { data } = await FetchApi({
-				api: {
-					input: `http://${import.meta.env.VITE_SITE}/api/friends/${value.id}`,
-					//input: `http://${import.meta.env.VITE_SITE}/api/admin/block/${value.id}`,
-					option: {
-						method: "POST"
-					}
-				},
-				auth: useContextAuth
-			})
+		//	const { data } = await FetchApi({
+		//		api: {
+		//			input: `http://${import.meta.env.VITE_SITE}/api/friends/${value.id}`,
+		//			//input: `http://${import.meta.env.VITE_SITE}/api/admin/block/${value.id}`,
+		//			option: {
+		//				method: "POST"
+		//			}
+		//		},
+		//		auth: useContextAuth
+		//	})
 
-			return data
+		//	return data
 
-		}
+		//}
 
-		sendfriendRequest().then(data => console.log('friend Data: ', data))
+		//sendfriendRequest().then(data => console.log('friend Data: ', data))
 
 		setIsSearching(false)
 	}, [socket])

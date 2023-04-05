@@ -218,6 +218,7 @@ const ChatBox = styled(Paper)(({ theme }) => ({
 	boxShadow: 'none',
 	border: `1px solid ${theme.palette.grey[300]}`,
 	position: 'relative', /* add position relative */
+	height: '600px',
 	width: '100%',
 	maxWidth: '100%'
 }));
