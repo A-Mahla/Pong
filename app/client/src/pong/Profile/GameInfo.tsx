@@ -161,6 +161,7 @@ const GameInfo = (props: MatchInfoProps) => {
 					className="loginButton"
 					style={{background: '#34495e'}}
 					sx={{
+						mx: -2,
 						fontSize: '2vw;',
 						borderRadius: 14,
 						pb: 0.2,

@@ -60,8 +60,6 @@ const TableHistory = ({rows}: {rows: matchHistoryPayload[]}) => {
 			(<>
 			<TableContainer component={Box}>
 				<Table sx={{ width: '30rem' }} aria-label="simple table">
-					<TableHead>
-					</TableHead>
 					<TableBody>
 						{rows.map((row) => (
 							<TableRow
