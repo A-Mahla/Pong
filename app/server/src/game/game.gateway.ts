@@ -12,7 +12,6 @@ import { GameAlgo } from "./game.algo";
 import { Injectable, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { jwtConstants } from "src/auth/constants";
-import { JwtService } from '@nestjs/jwt';
 import * as jwt from 'jsonwebtoken';
 
 @Injectable()
@@ -21,7 +20,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	constructor (
 		private readonly gameService: GameService,
-		private jwtService: JwtService
 	) {}
 
 	@WebSocketServer()

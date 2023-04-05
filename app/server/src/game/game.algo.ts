@@ -45,7 +45,6 @@ export class GameAlgo {
 		this.internalEvents = new EventEmitter()
 
 		const gamePromise = new Promise<string>((resolve, rejects) => {
-			console.log('LAAAAAAAAAAAAAAAAAAAAA')
 			const checkPlayer = (count: number) => {
 				if (this.player1 && this.player2 && this.player2.id != this.player1.id)
 				{
@@ -54,11 +53,11 @@ export class GameAlgo {
 					resolve('true');
 				}
 				else if (count > 600)
-					rejects('warning, its been a minute since you wait, wou will be disconnected from the queu');
+				rejects('warning, its been a minute since you wait, wou will be disconnected from the queu');
 				else
-					setTimeout(() => {
-						checkPlayer(++count)
-					}, 100)
+				setTimeout(() => {
+					checkPlayer(++count)
+				}, 100)
 			}
 			let count = 0;
 			checkPlayer(count);
@@ -66,26 +65,24 @@ export class GameAlgo {
 
 		gamePromise.then(sets => {
 			if (sets === 'true')
-				this.startGame().then(test => {
-				});
+				this.startGame()
 		})
 		.catch(timeIsOut => {
+			console.log(timeIsOut);
 			// if (timeIsOut)
 				// throw timeIsOut;
 		})
 	}
 
 	private async	startGame() {
-		if (this.player1 && this.player2)
-		{
 			return new Promise((resolve, rejects) => {
 
 				this.internalEvents.on('start', () => {
 					clearInterval(this.interval);
-					this.interval = setInterval(this.computeGame, 10)
+					this.interval = setInterval(this.computeGame.bind(this), 16)
 				});
 
-				this.internalEvents.on('pause', (countDown) => {
+				this.internalEvents.on('pause', (countDown: number) => {
 					clearInterval(this.interval);
 					this.interval = setInterval(() => {
 						this.countDown(countDown);
@@ -101,28 +98,11 @@ export class GameAlgo {
 				this.status = Status.RUNNING;
 
 			})
-			// this.server.to(this.player1!.socketID).emit('initSetup', this.gameData);
-			// this.server.to(this.player2!.socketID).emit('initSetup', this.rotateGameData(this.gameData));
-			// this.player1.playerSocket.on('paddlePos', (y: number, socket: Socket) => {
-				// this.gameData.player1.y = y;
-				// this.gameData.player1.timeout = Date.now();
-				// })
-				//
-				// this.player2.playerSocket.on('paddlePos', (y: number, socket: Socket) => {
-				// this.gameData.player2.y = y;
-				// this.gameData.player2.timeout = Date.now();
-				// })
-				//this.computeGame();
-
-		}
 	}
 
 	private computeGame() {
-		// this.countDown = setTimeout(()=> {
-			// this.interval = setInterval(() => {
-
-				this.gameData.ball.x += this.gameData.ball.speed.x;
-				this.gameData.ball.y += this.gameData.ball.speed.y;
+		this.gameData.ball.x += this.gameData.ball.speed.x;
+		this.gameData.ball.y += this.gameData.ball.speed.y;
 
 				if (this.gameData.ball.y > this.gameModel.canvasHeight || this.gameData.ball.y < 0) {
 					this.gameData.ball.speed.y *= -1;
@@ -135,14 +115,10 @@ export class GameAlgo {
 					if (this.gameData.ball.y > bornInfP1 && this.gameData.ball.y < bornSupP1) {
 						this.gameData.ball.speed.x *= -1,2;
 					} else {
-						// player1 loose, we reset the ball at the center of the field
 						this.gameData.player2.score += 1;
 						this.gameData.ball.x = this.gameModel.canvasWidth / 2;
 						this.gameData.ball.y = this.gameModel.canvasHeight / 2;
-						// clearInterval(this.interval);
-						// clearTimeout(this.countDown);
-						// this.computeGame()
-						this.internalEvents.emit('pause')
+						this.internalEvents.emit('pause', 3)
 					}
 
 				}
@@ -154,42 +130,38 @@ export class GameAlgo {
 					if (this.gameData.ball.y > bornInfP2 && this.gameData.ball.y < bornSupP2) {
 						this.gameData.ball.speed.x *= -1,2;
 					} else {
-						// player2 loose, we reset the ball at the center of the field
 						this.gameData.player1.score += 1;
 						this.gameData.ball.x = this.gameModel.canvasWidth / 2;
 						this.gameData.ball.y = this.gameModel.canvasHeight / 2;
-						// clearInterval(this.interval);
-						// clearTimeout(this.countDown);
-						// this.computeGame()
-						this.internalEvents.emit('pause');
+						this.internalEvents.emit('pause', 3);
 					}
 				}
 				// game is finish (3750ms == 1min)
 				if ( ++this.gameData.roomInfo.timer == 3750 /*|| this.playersTimeout()*/ ) {
-					// clearTimeout(this.countDown);
-					// clearInterval(this.interval);
-					this.server.to(this.player1!.socketID).emit('gameOver', this.gameData);
-					this.server.to(this.player2!.socketID).emit('gameOver', this.rotateGameData(this.gameData));
+					this.server.to(this.player1!.socketID).volatile.emit('gameOver', this.gameData);
+					this.server.to(this.player2!.socketID).volatile.emit('gameOver', this.rotateGameData(this.gameData));
 					this.status = Status.OVER;
 					this.gameService.endGameDBwrites(this.roomID, this.player1!, this.player2!, this.gameData);
 					this.internalEvents.emit('stop');
 					return ;
 				}
-				this.server.to(this.player1!.socketID).emit('updateClient', this.gameData);
-				this.server.to(this.player2!.socketID).emit('updateClient', this.rotateGameData(this.gameData));
+				this.server.to(this.player1!.socketID).volatile.emit('updateClient', this.gameData);
+				this.server.to(this.player2!.socketID).volatile.emit('updateClient', this.rotateGameData(this.gameData));
 				this.watchers.forEach((socketID: string) => {
 					this.server.to(socketID).emit('updateClient', this.gameData);
 				})
-			// }, 16);
-		// }, 5000);
 	}
 
 	private countDown(countDown: number) {
 		this.gameData.roomInfo.countDown = countDown;
-		this.server.to(this.player1!.socketID).emit('updateClient', this.gameData);
-		this.server.to(this.player2!.socketID).emit('updateClient', this.rotateGameData(this.gameData));
-		if (!countDown) { this.gameData.roomInfo.countDown = -1; }
-		this.internalEvents.emit('start')
+		this.server.to(this.player1!.socketID).volatile.emit('updateClient', this.gameData);
+		this.server.to(this.player2!.socketID).volatile.emit('updateClient', this.rotateGameData(this.gameData));
+		if (!countDown) {
+			this.gameData.roomInfo.countDown = -1;
+			this.internalEvents.emit('start')
+		}
+		else
+		this.internalEvents.emit('pause', (--countDown));
 	}
 
 	public initPlayer1(player: Player) {
@@ -282,8 +254,8 @@ export class GameAlgo {
 				y: gamePatron.canvasHeight / 2,
 				r: 5,
 				speed: {
-					x: 5,
-					y: 5
+					x: 10,
+					y: 10
 				}
 			}
 		})

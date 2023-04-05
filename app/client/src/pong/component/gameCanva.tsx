@@ -31,6 +31,7 @@ type GameData = {
 	roomInfo: {
 		//roomId: string,
 		timer: number
+		countDown: number
 		margin?:number
 		playerheight?: number
 		playerwidth?: number
@@ -108,6 +109,7 @@ const scaleGame = (game: GameData, width : number, height: number): GameData => 
 	return {
 		roomInfo:{
 			timer: game.roomInfo.timer,
+			countDown: game.roomInfo.countDown,
 			margin: Math.floor((width * 5) / CANVAS_WIDTH),
 			playerheight: Math.floor((height * PLAYER_HEIGHT) / CANVAS_HEIGHT),
 			playerwidth: Math.floor((width * PLAYER_WIDTH) / CANVAS_WIDTH)
@@ -257,7 +259,7 @@ const drawLogin = (canvas: any, loginPlayer1: string, loginPlayer2: string) => {
 export const draw = (canvas: any, game: GameData) => {
 
 	// scaling game to current height and width
-	const scaled = scaleGame(game, canvas.width, canvas.height);
+	const scaled: GameData = scaleGame(game, canvas.width, canvas.height);
 
 	const context = canvas.getContext('2d')
 
@@ -269,6 +271,9 @@ export const draw = (canvas: any, game: GameData) => {
 		drawLogin(canvas, scaled.player1.login, scaled.player2.login);
 	drawScore(canvas, scaled.player1.score, scaled.player2.score);
 	drawTimer(canvas, scaled.roomInfo.timer);
+
+	if (scaled.roomInfo.countDown > 0)
+		drawCountDown(canvas, scaled.roomInfo.countDown);
 
 	// dram middle line
 	context.strokeStyle = 'white';
@@ -299,6 +304,11 @@ const Canvas = ({ socket, handleThereIsMatch }: any) => {
 	const [game, setGame] = React.useState<boolean>(false);
 
 	let interval: NodeJS.Timeout;
+
+	const quitGame = async () => {
+		
+		handleThereIsMatch()
+	}
 
 	const canvaResize = async () => {
 		const testTimeout = setTimeout(() => {
@@ -362,7 +372,7 @@ const Canvas = ({ socket, handleThereIsMatch }: any) => {
 		const canvasElement = canvas.current
 		if (game && canvasElement) {
 			const sendPos = (y: number) => {
-				socket.emit("paddlePos", y);
+				socket.volatile.emit("paddlePos", y);
 			}
 			const playerHeight = Math.floor((canvasElement.height * PLAYER_HEIGHT) / CANVAS_HEIGHT);
 
@@ -387,7 +397,7 @@ const Canvas = ({ socket, handleThereIsMatch }: any) => {
 	return (
 		<main role="main">
 			<canvas onMouseMove={handleMouseMove} ref={gameCanvas} height={(document.documentElement.clientWidth * 0.70) * 0.533333} width={document.documentElement.clientWidth * 0.70} />
-			<Button onClick={handleThereIsMatch}>
+			<Button onClick={quitGame}>
 					QUIT GAME
 			</Button>
 		</main>
