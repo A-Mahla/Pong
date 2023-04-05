@@ -63,7 +63,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   @SubscribeMessage('friendRequest')
   async handleFriendRequest(client: Socket, payload: FriendRequestData) {
-    return this.chatService.sendFriendRequest(this.server, payload);
+    return this.chatService.sendFriendRequest(this.server, client, payload);
   }
     
   afterInit(server : Server): any {

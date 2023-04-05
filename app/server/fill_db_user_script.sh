@@ -6,5 +6,3 @@ curl -i -X POST http://localhost:3500/api/auth/signup -H "Content-Type: applicat
 
 
 curl -i -X POST http://localhost:3500/api/auth/signup -H "Content-Type: application/json" -d '{"login":"random", "password":"user"}'
-
-

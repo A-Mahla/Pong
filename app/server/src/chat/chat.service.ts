@@ -119,7 +119,7 @@ export class ChatService {
 		return friendAcceptedRelation
 	}
 
-	async sendFriendRequest(server: Server, payload: FriendRequestData) {
+	async sendFriendRequest(server: Server, client: Socket, payload: FriendRequestData) {
 
 		const existingRequest = await this.friendService.isExisting({user1_id: payload.user2_id, user2_id: payload.user1_id})
 
@@ -132,7 +132,7 @@ export class ChatService {
 
 		console.log('dans sendFriendRequest\n\n\n\n\n\n\n\n\n\nn\n\n\n\n\n\n\n')
 
-		server.to(payload.user2_id.toString()).emit('friendRequest', newFriendRequest)
+		server.to(payload.user2_id.toString()).to(client.id).emit('friendRequest', newFriendRequest)
 
 		return newFriendRequest
 	}

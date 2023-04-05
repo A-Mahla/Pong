@@ -70,18 +70,18 @@ export class FriendsService {
 
 		const friendRequestsTab = await this.prisma.friend.findMany({
 			where: {
-					user2Id: userId,
-					status: 'pending'
-				//OR: [
-				//	{
-				//		user1Id: userId,
-				//		status: 'pending'
-				//	},
-				//	{
-				//		user2Id: userId,
-				//		status: 'pending'
-				//	}
-				//]
+					//user2Id: userId,
+					//status: 'pending'
+				OR: [
+					{
+						user1Id: userId,
+						status: 'pending'
+					},
+					{
+						user2Id: userId,
+						status: 'pending'
+					}
+				]
 			},
 			include: {
 				user1: true,

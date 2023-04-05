@@ -7,7 +7,7 @@ import { DirectMessageBar } from './DirectMessageBar'
 import { RoomBar } from './RoomBar'
 import { socket, UpdatesContext } from './Socket'
 import { MessagesBox } from './MessagesBox'
-import { FriendList } from './test'
+import { FriendBar} from './FriendBar'
 
 const initialChatContext = {
 	rooms: [],
@@ -234,7 +234,7 @@ export function Chat() {
 				</Grid>
 
 				<Grid item xs={6} md={2}>
-					<FriendList/>
+					<FriendBar/>
 					{/* <DirectMessageBar />} */}
 				</Grid>
 
