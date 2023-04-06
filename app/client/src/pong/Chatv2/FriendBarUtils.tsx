@@ -137,9 +137,9 @@ export const FriendRequestItem = ({ friendRequest, onAccept, onDecline, id }) =>
 	return (
 		<FriendRequestItemWrapper>
 			<FriendRequestAvatar>
-				<Avatar>{friendRequest.user2Login.charAt(0)}</Avatar>
+				<Avatar>{friendRequest.user1Login.charAt(0)}</Avatar>
 			</FriendRequestAvatar>
-			<FriendRequestListItemText primary={friendRequest.user2Login} />
+			<FriendRequestListItemText primary={friendRequest.user1Login} />
 			<FriendRequestButtonWrapper>
 				<FriendRequestButton className="accept" onClick={() => onAccept(friendRequest.id)}>
 					Accept

@@ -47,15 +47,19 @@ export class FriendsService {
 
 
 		const relationFriendTab = friendTab.map((elem) => {
-			return {
-				id: elem.id,
-				user1Login: elem.user1.login,
-				user1Id: elem.user1Id,
-				user2Login: elem.user2.login,
-				user2Id: elem.user2Id,
-				status: elem.status,
-				createdAt: elem.createdAt,
-
+			if (userId === elem.user1Id) {
+				return {
+					id: elem.user2Id,
+					login: elem.user2.login,
+					avatar: elem.user2.avatar
+				}
+			}
+			else {
+				return {
+					id: elem.user1Id,
+					login: elem.user1.login,
+					avatar: elem.user1.avatar
+				}
 			}
 		})
 

@@ -97,7 +97,7 @@ export function Chat() {
 
 	const getFriendsRequestsRequest: Api = {
 		api: {
-			input: `http://${import.meta.env.VITE_SITE}/api/friends`,
+			input: `http://${import.meta.env.VITE_SITE}/api/friends/requests`,
 		},
 		auth: auth
 	}
@@ -112,7 +112,7 @@ export function Chat() {
 
 	const getFriendsRequest: Api = {
 		api: {
-			input: `http://${import.meta.env.VITE_SITE}/api/users/friends`,
+			input: `http://${import.meta.env.VITE_SITE}/api/friends`,
 		},
 		auth: auth
 	}
@@ -120,6 +120,7 @@ export function Chat() {
 	useEffect(() => {
 		async function getFriends() {
 			const {data} = await FetchApi(getFriendsRequest)
+			console.log('friends: ', data)
 			return data
 		}
 		getFriends().then(data => setFriends(data))

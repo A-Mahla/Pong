@@ -76,11 +76,6 @@ export class UsersController {
 		return await this.userService.searchManyUsers(login)
 	}
 
-	@UseGuards(JwtAuthGuard)
-	@Get('friends')
-	async handleGetFriends(@Request() req: any) {
-		return await this.friendService.getFriends(req.user.sub)
-	}
 
 	/*@UseGuards(JwtAuthGuard)
 	@Get(':login')

@@ -36,7 +36,7 @@ export const FriendBar = () => {
   //  { id: 20, login: 'Stephen Strange' }
   //];
   const { friends, friendRequests } = useContext(ChatContext)
-  const [activeFriendId, setActiveFriendId] = React.useState(null);
+  const [activeFriendId, setActiveFriendId] = React.useState(0);
   //const [friendRequests, setFriendRequests] = React.useState([]);
   const [addFriendDialogOpen, setAddFriendDialogOpen] = React.useState(false);
   const [friendRequestsDialogOpen, setFriendRequestsDialogOpen] = React.useState(false);
@@ -45,6 +45,7 @@ export const FriendBar = () => {
   const { id } = useAuth()
 
   const handleFriendClick = (friendId) => {
+    console.log('friendId: ', friendId)
     setActiveFriendId(friendId);
   };
 

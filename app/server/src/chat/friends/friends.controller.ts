@@ -9,6 +9,12 @@ export class FriendsController {
 
 	@UseGuards(JwtAuthGuard)
 	@Get()
+	async handleGetFriends(@Request() req: any) {
+		return await this.friendService.getFriends(req.user.sub)
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Get('requests')
 	async getFriendsRequests(
 		@Request() req: any
 	) {
