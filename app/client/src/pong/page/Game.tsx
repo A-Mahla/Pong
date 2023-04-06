@@ -83,7 +83,7 @@ function MatchMaker ({socket, thereIsMatch, launchCanvas} : any){
 	socket.on('timeOut', () => {
 		setJoinQueu(false);
 		/**
-		 * here i will have to make some user interface to print the fact that the guy has been disconnected
+		 * here i will have to make some user interface stuff to print the fact that the guy has been disconnected
 		 */
 	})
 
