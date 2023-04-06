@@ -202,12 +202,12 @@ export function Chat() {
 			}))
 			setLeavedRoom()
 		}
-		if (newFriendRequest != undefined) {
+		if (newFriendRequest !== undefined) {
 			console.log('newFriendRequest: ', newFriendRequest)
 			setFriendRequests([...friendRequests, newFriendRequest])
 			setNewFriendRequest()
 		}
-		if (newFriend != undefined) {
+		if (newFriend !== undefined) {
 			console.log(`newFriend: `, newFriend)
 			setNewFriend()
 		}

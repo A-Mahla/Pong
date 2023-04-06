@@ -5,6 +5,7 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import PropTypes from 'prop-types';
 import { styled } from '@mui/system'
 import React from 'react';
+import { socket } from './Socket';
 
 export const FriendListWrapper = styled('div')({
 	display: 'flex',
@@ -132,6 +133,7 @@ export const FriendRequestButton = styled('div')(({ isActive }) => ({
 }));
 
 export const FriendRequestItem = ({ friendRequest, onAccept, onDecline, id }) => {
+
 	if (id === friendRequest.user1Id)
 		return null
 	return (

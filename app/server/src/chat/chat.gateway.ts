@@ -55,10 +55,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   @SubscribeMessage('acceptFriend') // TODO changer par accept request
-  async handleAddFriend(client: Socket, payload: AddFriendData) {
+  async handleAddFriend(client: Socket, friendRequestId: number) {
 
-    console.log('payload: ', payload)
-    return this.chatService.acceptFriend(this.server, client, payload)
+    console.log('friendRequestId: ', friendRequestId)
+    return this.chatService.acceptFriendRequest(this.server, client, friendRequestId)
   }
 
   @SubscribeMessage('friendRequest')

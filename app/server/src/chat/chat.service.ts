@@ -108,13 +108,13 @@ export class ChatService {
 		return this.userService.joinRoom(payload.user_id, payload.room_id)
 	}
 
-	async acceptFriend(server: Server, client: Socket, payload: AddFriendData) {
+	async acceptFriendRequest(server: Server, client: Socket, friendRequestId: number) {
 		
-		const friendAcceptedRelation = await this.friendService.acceptFriend(payload)
+		const friendAcceptedRelation = await this.friendService.acceptFriend(friendRequestId)
 
-		console.log('payload: ', payload)
+		console.log('friendAcceptedRelation: ', friendAcceptedRelation)
 
-		server.to(client.id).emit('newFriend', payload)
+		server.to(friendAcceptedRelation.user2_id.toString()).to(friendAcceptedRelation.user1_id.toString()).emit('newFriend', friendAcceptedRelation)
 
 		return friendAcceptedRelation
 	}
