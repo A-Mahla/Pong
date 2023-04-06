@@ -111,10 +111,12 @@ export class ChatService {
 	async acceptFriendRequest(server: Server, client: Socket, friendRequestId: number) {
 		
 		const friendAcceptedRelation = await this.friendService.acceptFriend(friendRequestId)
+		if (friendAcceptedRelation === null)
+			return
 
 		console.log('friendAcceptedRelation: ', friendAcceptedRelation)
 
-		server.to(friendAcceptedRelation.user2_id.toString()).to(friendAcceptedRelation.user1_id.toString()).emit('newFriend', friendAcceptedRelation)
+		server.to(friendAcceptedRelation.user2.id.toString()).to(friendAcceptedRelation.user1.id.toString()).emit('newFriend', friendAcceptedRelation)
 
 		return friendAcceptedRelation
 	}
