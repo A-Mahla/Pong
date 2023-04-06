@@ -17,6 +17,7 @@ import { MessageService } from './chat/messages/messages.service';
 import { ChatService } from './chat/chat.service';
 import { TwofaModule } from './twofa/twofa.module';
 import { GameAlgo } from './game/game.algo';
+import { FriendsService } from './chat/friends/friends.service';
 
 @Module({
   imports: [
@@ -38,7 +39,8 @@ import { GameAlgo } from './game/game.algo';
 	  GameService,
 	  GameService,
 	  GameGateway,
-	  GameAlgo
+	  GameAlgo,
+	  FriendsService,
   ],
 })
 export class AppModule {}

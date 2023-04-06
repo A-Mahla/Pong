@@ -6,24 +6,48 @@ import { CreateUserParams, UpdateUserParams, UpdateUserPass, profile } from './U
 import { FileInterceptor } from '@nestjs/platform-express'
 import { ok } from 'assert';
 import * as bcrypt from 'bcrypt';
+import { AddFriendData } from 'src/chat/Chat.types';
+import e from 'express';
 
 @Injectable()
 export class UsersService {
 
-	constructor( private prisma: PrismaService,
-				 private readonly gameService: GameService) {}
+	constructor(private prisma: PrismaService,
+		private readonly gameService: GameService) { }
 
 	async findUsers(): Promise<User[]> {
 		return this.prisma.user.findMany()
 	}
 
-	async findIfExistUser(login: string) : Promise<number> {
+	async searchManyUsers(login: string) {
+		return await this.prisma.user.findMany({
+			where: {
+				login: {
+					startsWith: login
+				},
+			},
+			select: {
+				id: true,
+				login: true,
+				avatar: true,
+				password: false,
+				isTwoFA: false,
+				twoFA: false,
+				refreshToken: false,
+				intraLogin: false,
+				updatedAt: false,
+				createdAt: false,
+			}
+		})
+	}
+
+	async findIfExistUser(login: string): Promise<number> {
 		return await this.prisma.user.count({
 			where: { login: login }
 		})
 	}
 
-	async findOneUser(login: string) : Promise<User | null> {
+	async findOneUser(login: string): Promise<User | null> {
 		return await this.prisma.user.findUnique({
 			where: { login: login }
 		}).catch((e) => {
@@ -31,10 +55,10 @@ export class UsersService {
 		})
 	}
 
-	async findUserById(id : number) : Promise<User | null> {
+	async findUserById(id: number): Promise<User | null> {
 		return await this.prisma.user.findUnique({
 			where: {
-				id: id 
+				id: id
 			},
 			include: {
 				ownedRooms: true,
@@ -45,7 +69,7 @@ export class UsersService {
 		});
 	}
 
-	async findOneIntraUser(intraLogin: string) : Promise<User | null> {
+	async findOneIntraUser(intraLogin: string): Promise<User | null> {
 		return this.prisma.user.findUnique({
 			where: { intraLogin: intraLogin }
 		}).catch((e) => {
@@ -53,11 +77,11 @@ export class UsersService {
 		});
 	}
 
-	async updateUser(login: string, updateUserDetails: UpdateUserParams) : Promise<User> {
+	async updateUser(login: string, updateUserDetails: UpdateUserParams): Promise<User> {
 		return await this.prisma.user.update(
 			{
 				where: { login: login },
-				data: {...updateUserDetails}
+				data: { ...updateUserDetails }
 			}
 		).catch((e) => {
 			throw new BadRequestException(); // maybe we will have to specifie the error later
@@ -67,7 +91,7 @@ export class UsersService {
 	async updateRefreshToken(login: string, refreshToken: string) {
 		return await this.prisma.user.update({
 			where: { login: login },
-			data : { refreshToken: refreshToken }
+			data: { refreshToken: refreshToken }
 		}).catch((e) => {
 			throw new BadRequestException(); // maybe we will have to specifie the error later
 		});
@@ -77,13 +101,13 @@ export class UsersService {
 	async updateAvatar(login: string, avatar: string) {
 		return await this.prisma.user.update({
 			where: { login: login },
-			data : { avatar: avatar }
+			data: { avatar: avatar }
 		}).catch((e) => {
 			throw new BadRequestException(); // maybe we will have to specifie the error later
 		});
 	}
 
-	async deleteUser(login: string) : Promise<User> {
+	async deleteUser(login: string): Promise<User> {
 		return this.prisma.user.delete({
 			where: { login: login }
 		}).catch((e) => {
@@ -103,20 +127,20 @@ export class UsersService {
 		}).catch((e) => {
 			if (e instanceof Prisma.PrismaClientKnownRequestError) {
 				if (e.code === 'P2002') {
-				  console.log('unique constraint violation')
-				  throw new BadRequestException('login unavailable'); 
+					console.log('unique constraint violation')
+					throw new BadRequestException('login unavailable');
 				}
-			  }
-			  throw new BadRequestException(''); 
+			}
+			throw new BadRequestException('');
 		});
 	}
 
-/* =========================== 2FA ====================================*/
+	/* =========================== 2FA ====================================*/
 
 	async setTwoFASecret(secret: string, login: string) {
-		return await this.updateUser( login, {
-				twoFA: secret
-			}
+		return await this.updateUser(login, {
+			twoFA: secret
+		}
 		);
 	}
 
@@ -133,9 +157,9 @@ export class UsersService {
 		});
 	}
 
-/* ============^^^^^^^^^^^^^^^^^^^^^^^^^^^^^========================*/
+	/* ============^^^^^^^^^^^^^^^^^^^^^^^^^^^^^========================*/
 
-/* ============================ Profile ========================*/
+	/* ============================ Profile ========================*/
 
 	async updatePass(login: string, updateUserPass: UpdateUserPass) {
 		return await this.updateUser(
@@ -182,8 +206,8 @@ export class UsersService {
 
 	async findAllUserRooms(id: number) /* : Promise<Room> */ {
 		const userRooms = await this.prisma.user_Room.findMany({
-			where : {
-				member_id : id
+			where: {
+				member_id: id
 			}
 		}).catch((e) => {
 			throw new BadRequestException(e);
@@ -193,7 +217,7 @@ export class UsersService {
 
 		const rooms = await this.prisma.room.findMany({
 			where: {
-				room_id : { in : userRoomsId}
+				room_id: { in: userRoomsId }
 			},
 			include: {
 				messages: true
@@ -206,20 +230,19 @@ export class UsersService {
 		return rooms
 	}
 
-	async joinRoom(userId : number, roomId : number) {
+	async joinRoom(userId: number, roomId: number) {
 		const room_id = +roomId
 
 		return this.prisma.user_Room.create({
 			data: {
 				member_id: userId,
-				room_id : room_id
-			} 
+				room_id: room_id
+			}
 		}).catch((e) => {
 			throw new BadRequestException(e);
 		})
 
 	}
-
 }
 /* ============================ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ========================*/
 

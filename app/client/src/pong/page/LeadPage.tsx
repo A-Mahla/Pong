@@ -12,6 +12,7 @@ import useAuth, {useFetchAuth} from '/src/pong/context/useAuth'
 import { FetchApi, Api } from '/src/pong/component/FetchApi'
 import  GamePage  from './Game';
 import '/src/App.css';
+import { ChatSocketProvider } from '../Chatv2/Socket'
 
 const header = {
 	height: '4vw;',
@@ -181,7 +182,10 @@ const LeadPage = () => {
 						<GamePage />
 			</TabPanel>
 			<TabPanel value={value} index={2}>
-				<Typography variant='h1'>Chat</Typography>
+				{
+
+				}
+				<ChatSocketProvider/>
 			</TabPanel>
 		</Box>
 	</>

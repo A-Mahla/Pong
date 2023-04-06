@@ -1,5 +1,6 @@
 import { 
 	Box,
+	Grid,
 	Dialog,
 	DialogTitle,
 	DialogContent,
@@ -7,6 +8,7 @@ import {
 	Paper,
 	Divider,
 	Stack,
+	CircularProgress,
 } from '@mui/material'
 import useAuth, { useFetchAuth } from '/src/pong/context/useAuth'
 import { FetchApi, Api } from '/src/pong/component/FetchApi'
@@ -23,86 +25,123 @@ import GppBadIcon from '@mui/icons-material/GppBad';
 import GppMaybeIcon from '@mui/icons-material/GppMaybe';
 import * as React from 'react';
 
-/*
-interface Data {
-	you: string;
-	score : number;
-	rival: number;
-}
-
-function createData(
-	id: number,
-	player1: string;
-	scores1 : number;
-	scores2 : number;
-	player2: number;
-): Data {
-	return { player1, scores1, scores2, player2 };
-}
-*/
+import { styled } from '@mui/system';
+import {PlayersListItemAvatar} from '/src/pong/Profile/SearchPlayers'
+import FetchAvatar from '/src/pong/component/FetchAvatar'
 
 type matchHistoryPayload = {
 	index: number,
 	l1: string;
+	a1: string,
 	s1 : number;
 	l2 : string;
+	a2: string,
 	s2: number;
 }
+
+export const PlayersListItemAvatarLeft = styled(PlayersListItemAvatar)({
+	marginRight: '0px',
+	marginLeft: '16px',
+})
 
 const TableHistory = ({rows}: {rows: matchHistoryPayload[]}) => {
 
 
-  return (
-		<TableContainer component={Box}>
-			<Table sx={{ width: '30rem' }} aria-label="simple table">
-				<TableHead>
-				</TableHead>
-				<TableBody>
-					{rows.map((row) => (
-						<TableRow
-							key={row.index}
-							sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-						>
-							<TableCell align="left">
-								<Stack direction="row" alignItems="center" gap={1}>
-									{row.s1 === row.s2 ? <GppMaybeIcon style={{color: '#95bc4b'}}/> :
-										(<>
-											{row.s1 > row.s2 ? 
-												<GppGoodIcon style={{color: '#293241'}}/> :
-												<GppBadIcon style={{color: '#cd384a'}}/>
-											}
-										</>)
-									}
-									<Typography variant="body1">{row.l1}</Typography>
-								</Stack>
-							</TableCell>
-							
-							<TableCell align="center">
-								{row.s1}
-							</TableCell>
+	return (
+		<>
+		{rows.length === 0 ?
+			(<>
+			<Divider variant="middle"/>
+			<Grid
+				display="flex"
+				direction="column"
+				justifyContent="center"
+				alignItems="center"
+				sx={{ width: '100%', height: '95%' }}
+			>
+				<Typography
+					align="center"
+					style={{color: '#aab7b8'}}
+				>
+					No Match Found
+				</Typography>
+				<CircularProgress size={20} sx={{mt: 3, color:"#aab7b8"}}/>
+			</Grid>
+			</>) :
+			(<>
+			<TableContainer component={Box}>
+				<Table sx={{ width: '100%' }} aria-label="simple table">
+					<TableBody>
+						{rows.map((row) => (
+							<TableRow
+								key={row.index}
+								sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+							>
+								<TableCell align="left">
+									<Stack direction="row" alignItems="center" gap={1}>
+										{row.s1 === row.s2 ? <GppMaybeIcon style={{color: '#95bc4b'}}/> :
+											(<>
+												{row.s1 > row.s2 ? 
+													<GppGoodIcon style={{color: '#293241'}}/> :
+													<GppBadIcon style={{color: '#cd384a'}}/>
+												}
+											</>)
+										}
 
-							<TableCell align="center">
-								{row.s2}
-							</TableCell>
+											<PlayersListItemAvatar>
+											<FetchAvatar
+												avatar={row.a1}
+												sx={{
+													height: '100%',
+													width: '100%'
+												}}
+											/>
+											</PlayersListItemAvatar>
 
-							<TableCell align="right">
-								<Stack direction="row" justifyContent="flex-end" alignItems="center" gap={1}>
-									<Typography variant="body1">{row.l2}</Typography>
-									{row.s1 === row.s2 ? <GppMaybeIcon style={{color: '#95bc4b'}}/> :
-										(<>
-											{row.s1 > row.s2 ?
-												<GppBadIcon style={{color: '#cd384a'}}/> :
-												<GppGoodIcon style={{color: '#293241'}}/>
-											}
-										</>)
-									}
-								</Stack>
-							</TableCell>
-						</TableRow>
-					))}
-				</TableBody>
-			</Table>
-		</TableContainer>
+										<Typography variant="body1">{row.l1}</Typography>
+									</Stack>
+								</TableCell>
+								
+								<TableCell align="center">
+									{row.s1}
+								</TableCell>
+
+								<TableCell align="center">
+									{row.s2}
+								</TableCell>
+
+								<TableCell align="right">
+									<Stack direction="row" justifyContent="flex-end" alignItems="center" gap={1}>
+										<Typography variant="body1">{row.l2}</Typography>
+
+										<PlayersListItemAvatarLeft>
+											<FetchAvatar
+												avatar={row.a2}
+												sx={{
+													height: '100%',
+													width: '100%'
+												}}
+											/>
+										</PlayersListItemAvatarLeft>
+
+										{row.s1 === row.s2 ? <GppMaybeIcon style={{color: '#95bc4b'}}/> :
+											(<>
+												{row.s1 > row.s2 ?
+													<GppBadIcon style={{color: '#cd384a'}}/> :
+													<GppGoodIcon style={{color: '#293241'}}/>
+												}
+											</>)
+										}
+									</Stack>
+								</TableCell>
+							</TableRow>
+						))}
+					</TableBody>
+				</Table>
+			</TableContainer>
+			</>)
+		}
+		</>
 	 );
 }
 
@@ -117,7 +156,7 @@ const MatchHistory = (props: MatchInfoProps) => {
 	const [fetched, setFetched] = useState(false)
 	const [rows, setRows] = useState<matchHistoryPayload[]>({} as matchHistoryPayload[])
 	const auth = useFetchAuth();
-	const user = useAuth()
+	const {user} = useAuth()
 
 	useEffect(()=> {
 
@@ -171,10 +210,13 @@ const MatchHistory = (props: MatchInfoProps) => {
 			: (
 				<>
 					<Dialog open={props.open} onClose={handleClose}
-						 PaperProps={{
+						fullWidth
+						maxWidth="md"
+						PaperProps={{
 							style: {
 								borderRadius: '32px',
 								height: '30rem',
+								width: '50rem'
 							}
 						}}
 					>

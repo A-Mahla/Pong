@@ -79,7 +79,9 @@ export enum Status {
 export type matchHistoryPayload = {
 	index: number,
 	l1: string,
+	a1: string,
 	s1: number,
 	l2: string,
+	a2: string,
 	s2: number
 }

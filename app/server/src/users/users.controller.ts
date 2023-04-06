@@ -44,18 +44,20 @@ import { numberFormat } from './User.dto'
 import { RoomsService } from 'src/chat/rooms/rooms.service';
 import { User } from '@prisma/client';
 import * as fs from 'fs';
+import { FriendsService } from 'src/chat/friends/friends.service';
 
 
 @Controller('users')
 export class UsersController {
 
 	constructor(private userService: UsersService,
-		private roomService : RoomsService) {}
+		private roomService : RoomsService,
+		private readonly friendService: FriendsService) {}
 
-	@Get()
+/*	@Get()
 	async getUsers() { // return all users
 		return await this.userService.findUsers();
-	}
+	}*/
 
 	@UseGuards(LocalAuthGuard)
 	@Get('login')
@@ -65,7 +67,19 @@ export class UsersController {
 
 	@Get('intra')
 	async getIntraUser(@Query() query: {intraLogin : string}) {
-		return this.userService.findOneIntraUser(query.intraLogin)
+		return await this.userService.findOneIntraUser(query.intraLogin)
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Get('search/:login')
+	async handleSearchLogin(@Param('login') login: string) {
+		return await this.userService.searchManyUsers(login)
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Get('friends')
+	async handleGetFriends(@Request() req: any) {
+		return await this.friendService.getFriends(req.user.sub)
 	}
 
 	/*@UseGuards(JwtAuthGuard)
@@ -96,9 +110,6 @@ export class UsersController {
 	@UseInterceptors(FileInterceptor('file', {
 		storage: diskStorage({
 			destination: './src/avatar',
-/*		filename: (req, file, cb) => {
-				return cb(null, req.params.id + ".jpeg");
-			},*/
 		})
 	}))
 	async checkAvatar(@Request() req: any, @UploadedFile() file: Express.Multer.File){
@@ -156,6 +167,16 @@ export class UsersController {
 	}
 
 	@UseGuards(JwtAuthGuard)
+	@Get('profile/avatar/download/:avatar')
+	async getFileOther(
+		@Res({ passthrough: true }) res: Response,
+		@Param('avatar') avatar: string,
+	) {
+		const file = createReadStream(join('./src/avatar/', avatar));
+		return new StreamableFile(file);
+	}
+
+	@UseGuards(JwtAuthGuard)
 	@Post('profile/pass')
 	async changePassword(
 		@Request() req: any,
@@ -175,6 +196,12 @@ export class UsersController {
 	async getProfileInfo(@Request() req: any) {
 
 		return this.userService.getProfileInfo(parseInt(req.user.sub))
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Get('profile/info/:id')
+	async getProfileOtherInfo(@Param('id') id: string) {
+		return await this.userService.getProfileInfo(+id);
 	}
 
 //	=========================^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^===============

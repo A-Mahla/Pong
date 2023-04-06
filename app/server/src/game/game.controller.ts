@@ -42,6 +42,7 @@ import { Intra42AuthGuard } from 'src/auth/intra42.guard';
 import { GameService } from './game.service';
 import { matchHistoryPayload } from './game.types';
 
+
 @Controller('game')
 export class GameController {
 	constructor(private readonly gameService: GameService) {}
