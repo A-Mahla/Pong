@@ -64,7 +64,7 @@ function JoinQueuButton({socket, setJoinQueu, joinQueu}: any): any {
 			</>) : (
 			<>
 					<Button>
-							QUEU IS JOINED
+							WAITING FOR A MATCH
 					</Button>
 			</>
 			)
@@ -80,11 +80,18 @@ function MatchMaker ({socket, thereIsMatch, launchCanvas} : any){
 		launchCanvas();
 	})
 
+	socket.on('timeOut', () => {
+		setJoinQueu(false);
+		/**
+		 * here i will have to make some user interface to print the fact that the guy has been disconnected
+		 */
+	})
+
 	return (
 		<>
 		<Grid container spacing={2}>
 			<Grid item xs={12} sm={6}>
-				<JoinQueuButton  socket={socket} setJoinQueu={setJoinQueu} joinQueu={joinQueu} />
+				<JoinQueuButton socket={socket} setJoinQueu={setJoinQueu} joinQueu={joinQueu} />
 			</Grid>
 		</Grid>
 		</>

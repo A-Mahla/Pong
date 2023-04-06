@@ -230,32 +230,6 @@ const drawScore = (canvas: any, scorePlayer1: number, scorePlayer2: number) => {
 	context.fillText(scorePlayer2str, canvas.width / 2 + player2LoginWidth, heightMargin);
 }
 
-const drawLogin = (canvas: any, loginPlayer1: string, loginPlayer2: string) => {
-	const context = canvas.getContext('2d');
-
-	// some scaling
-	const scaleFont = Math.floor( (LOGIN_FONT * canvas.height) / CANVAS_HEIGHT );
-	const widthMargin = Math.floor( (10 * canvas.width) / CANVAS_WIDTH );
-	const heightMargin = Math.floor( (60 * canvas.height) / CANVAS_HEIGHT );
-
-	// Set font to futuristic style
-	context.font = `${scaleFont}px180px 'Tr2n', sans-serif`;
-
-	// Measure the width of the player 1 login text
-	//const player1LoginWidth = context.measureText(loginPlayer1).width;
-
-	// Draw player1 login at the top left of the canvas
-	context.fillStyle = '#2f8ca3';
-	context.fillText(loginPlayer1, widthMargin, heightMargin);
-
-	// Measure the width of the player 2 login text
-	const player2LoginWidth = context.measureText(loginPlayer2).width;
-
-	// Draw player2 login at the top right of the canvas, aligned with player1 login
-	context.fillStyle = '#2f8ca3';
-	context.fillText(loginPlayer2, canvas.width - player2LoginWidth - widthMargin, heightMargin);
-}
-
 export const draw = (canvas: any, game: GameData) => {
 
 	// scaling game to current height and width
@@ -267,8 +241,6 @@ export const draw = (canvas: any, game: GameData) => {
 	context.fillStyle = '#15232f';
 	context.fillRect(0, 0, canvas.width, canvas.height);
 
-	if (scaled.player1.login && scaled.player2.login)
-		drawLogin(canvas, scaled.player1.login, scaled.player2.login);
 	drawScore(canvas, scaled.player1.score, scaled.player2.score);
 	drawTimer(canvas, scaled.roomInfo.timer);
 
@@ -303,10 +275,8 @@ const Canvas = ({ socket, handleThereIsMatch }: any) => {
 
 	const [game, setGame] = React.useState<boolean>(false);
 
-	let interval: NodeJS.Timeout;
-
 	const quitGame = async () => {
-		
+		socket.emit('quitGame', )
 		handleThereIsMatch()
 	}
 
@@ -333,7 +303,6 @@ const Canvas = ({ socket, handleThereIsMatch }: any) => {
 
 		socket.on("updateClient", (gameData: GameData) => {
 			console.log("---------------------> ON updateClient");
-			clearInterval(interval);
 			draw(canvas.current, gameData);
 		})
 

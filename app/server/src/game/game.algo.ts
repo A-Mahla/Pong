@@ -44,38 +44,52 @@ export class GameAlgo {
 		this.status = Status.EMPTY;
 		this.internalEvents = new EventEmitter()
 
-		const gamePromise = new Promise<string>((resolve, rejects) => {
-			const checkPlayer = (count: number) => {
-				if (this.player1 && this.player2 && this.player2.id != this.player1.id)
-				{
-					this.server.to(this.player1.socketID).emit('initSetup', this.gameData);
-					this.server.to(this.player2.socketID).emit('initSetup', this.rotateGameData(this.gameData));
-					resolve('true');
-				}
-				else if (count > 600)
-				rejects('warning, its been a minute since you wait, wou will be disconnected from the queu');
-				else
-				setTimeout(() => {
-					checkPlayer(++count)
-				}, 100)
-			}
-			let count = 0;
-			checkPlayer(count);
-		})
 
-		gamePromise.then(sets => {
-			if (sets === 'true')
-				this.startGame()
-		})
-		.catch(timeIsOut => {
-			console.log(timeIsOut);
-			// if (timeIsOut)
-				// throw timeIsOut;
-		})
+	}
+
+	public async launchGame() {
+		return (
+			new Promise<string>((resolve, rejects) => {
+				const checkPlayer = (count: number, timeout: NodeJS.Timeout) => {
+					if (this.player1 && this.player2 && this.player2.id != this.player1.id)
+					{
+						this.server.to(this.player1.socketID).emit('lockAndLoaded');
+						this.server.to(this.player2.socketID).emit('lockAndLoaded');
+						this.server.to(this.player1.socketID).emit('initSetup', this.gameData);
+						this.server.to(this.player2.socketID).emit('initSetup', this.rotateGameData(this.gameData));
+						this.startGame().then(solved => {
+								this.gameService.endGameDBwrites(this.roomID, this.player1!, this.player2!, this.gameData);
+								this.status = Status.OVER;
+								resolve(solved);
+						})
+						.catch(rejected => {
+							this.status = Status.OVER;
+							rejects(rejected);
+						});
+					}
+					else if (count > 600)
+					{
+						clearTimeout(timeout);
+						this.status = Status.OVER;
+						return rejects('TIME');
+					}
+					else
+					{
+						clearTimeout(timeout);
+						timeout = setTimeout(() => {
+							checkPlayer(++count, timeout)
+						}, 100)
+					}
+				}
+				let count = 0;
+				let timeout: any = 0 ;
+				checkPlayer(count, timeout);
+			})
+		)
 	}
 
 	private async	startGame() {
-			return new Promise((resolve, rejects) => {
+			return new Promise<string>((resolve, rejects) => {
 
 				this.internalEvents.on('start', () => {
 					clearInterval(this.interval);
@@ -89,12 +103,15 @@ export class GameAlgo {
 					}, 1000)
 				});
 
-				this.internalEvents.on('stop', () => {
+				this.internalEvents.on('stop', (endofgame) => {
 					clearInterval(this.interval);
-					resolve(true);
+					if (endofgame === '0')
+						resolve(endofgame);
+					else
+						rejects(endofgame);
 				});
 
-				this.internalEvents.emit('pause', (3));
+				this.internalEvents.emit('pause', (10));
 				this.status = Status.RUNNING;
 
 			})
@@ -137,12 +154,11 @@ export class GameAlgo {
 					}
 				}
 				// game is finish (3750ms == 1min)
-				if ( ++this.gameData.roomInfo.timer == 3750 /*|| this.playersTimeout()*/ ) {
+				if ( ++this.gameData.roomInfo.timer == 1875 /*|| this.playersTimeout()*/ ) {
 					this.server.to(this.player1!.socketID).volatile.emit('gameOver', this.gameData);
 					this.server.to(this.player2!.socketID).volatile.emit('gameOver', this.rotateGameData(this.gameData));
 					this.status = Status.OVER;
-					this.gameService.endGameDBwrites(this.roomID, this.player1!, this.player2!, this.gameData);
-					this.internalEvents.emit('stop');
+					this.internalEvents.emit('stop', '0');
 					return ;
 				}
 				this.server.to(this.player1!.socketID).volatile.emit('updateClient', this.gameData);
@@ -169,7 +185,11 @@ export class GameAlgo {
 		this.gameData.player1.login = this.player1.login;
 		this.status = Status.ONE_PLAYER;
 
-		// registering player1 y listener
+		// registering player1 y listeners
+		this.player1.playerSocket.once('quitGame', (socket: Socket) => {
+			this.internalEvents.emit('stop', '1');
+		})
+
 		this.player1.playerSocket.on('paddlePos', (y: number, socket: Socket) => {
 			this.gameData.player1.y = y;
 			this.gameData.player1.timeout = Date.now();
@@ -181,12 +201,16 @@ export class GameAlgo {
 		this.gameData.player2.login = this.player2.login;
 		this.status = Status.TWO_PLAYER;
 
-		// registering player2 y listener
+		// registering player2 y listeners
+
+		this.player2.playerSocket.once('quitGame', (socket: Socket) => {
+			this.internalEvents.emit('stop', '2');
+		})
+
 		this.player2.playerSocket.on('paddlePos', (y: number, socket: Socket) => {
 			this.gameData.player2.y = y;
 			this.gameData.player2.timeout = Date.now();
 		})
-
 	}
 
 
@@ -197,11 +221,11 @@ export class GameAlgo {
 	public getPlayerID(player1ou2: number) : string {
 
 		if (player1ou2 === 1)
-		return this.player1!.id.toString()
+			return this.player1!.id.toString()
 		else if (player1ou2 === 2)
-		return this.player2!.id.toString()
+			return this.player2!.id.toString()
 		else
-		return "error"
+			return "error"
 	}
 
 	public playerChangeSocket(playerSocket: Socket, socketID: string, player1ou2: number) {
@@ -254,8 +278,8 @@ export class GameAlgo {
 				y: gamePatron.canvasHeight / 2,
 				r: 5,
 				speed: {
-					x: 10,
-					y: 10
+					x: 7,
+					y: 7
 				}
 			}
 		})
@@ -281,11 +305,11 @@ export class GameAlgo {
 		if ((Date.now() - this.gameData.player1.timeout) > 10000)
 		{
 			this.gameData.player1.score = 0;
-			this.gameData.player2.score = 1;
+			this.gameData.player2.score += 1;
 			return (true);
 		}
 		else if (((Date.now() - this.gameData.player2.timeout) > 10000 )) {
-			this.gameData.player1.score = 1;
+			this.gameData.player1.score += 1;
 			this.gameData.player2.score = 0;
 			return (true);
 		}

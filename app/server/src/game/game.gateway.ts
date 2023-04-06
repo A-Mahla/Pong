@@ -13,6 +13,7 @@ import { Injectable, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { jwtConstants } from "src/auth/constants";
 import * as jwt from 'jsonwebtoken';
+import { EventEmitter } from 'events';
 
 @Injectable()
 @WebSocketGateway({ namespace: 'gameTransaction' })
@@ -37,7 +38,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				return;
 			}
 		});
-
 		if (gameToJoin) {
 			// La première partie avec un statut 'ONE_PLAYER' a été trouvée et peut être utilisée ici
 			client.join(gameToJoin.roomID);
@@ -48,26 +48,31 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				playerRole: "p2",
 				playerSocket: client
 			});
-			this.server.to(client.id).emit('lockAndLoaded')
 		} else {
 			// no waiting games with one player so we create one
-			const newGameDB = await this.gameService.registerNewGame('WAIT');
-			if (newGameDB) {
-				client.join(newGameDB.game_id.toString());
-				const newGameAlgo: GameAlgo = new GameAlgo(this.gameService, this.server, newGameDB.game_id.toString());
-				this.gameMap.set( newGameDB.game_id.toString(), newGameAlgo);
-				newGameAlgo.initPlayer1({
-					id: parseInt( clientPayload.id ),
-					login: clientPayload.login,
-					socketID: client.id,
-					playerRole: "p1",
-					playerSocket: client
-				});
-				this.server.to(client.id).emit('lockAndLoaded')
+				const newGameDB = await this.gameService.registerNewGame('WAIT');
+				if (newGameDB) {
+						const newGameAlgo = new GameAlgo(this.gameService, this.server, newGameDB.game_id.toString())
+						this.gameMap.set( newGameDB.game_id.toString(), newGameAlgo);
+						newGameAlgo.initPlayer1({
+						  id: parseInt( clientPayload.id ),
+						  login: clientPayload.login,
+						  socketID: client.id,
+						  playerRole: "p1",
+						  playerSocket: client
+						});
+						await newGameAlgo.launchGame().then( value => {
+							console.log("OUI OUI OUI" + value)
+						}).catch(onrejected => {
+							console.log("NON NON NON" + onrejected)
+							if (onrejected === 'TIME')
+								this.server.to(client.id).emit('timeOut');
+						})
+				}
 			}
-		}
-		if (gameToJoin && gameToJoin.getStatus() === Status.TWO_PLAYER)
-			this.runingGamesList();
+			if (gameToJoin && gameToJoin.getStatus() === Status.RUNNING)
+				this.runingGamesList();
+
 	}
 
 	@SubscribeMessage('getRuningGames')
