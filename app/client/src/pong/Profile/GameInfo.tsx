@@ -30,7 +30,7 @@ type MatchInfoProps = {
 	level: Level,
 }
 
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
+export const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
 	height: 10,
 	borderRadius: 5,
 	[`&.${linearProgressClasses.colorPrimary}`]: {
@@ -161,6 +161,7 @@ const GameInfo = (props: MatchInfoProps) => {
 					className="loginButton"
 					style={{background: '#34495e'}}
 					sx={{
+						mx: -2,
 						fontSize: '2vw;',
 						borderRadius: 14,
 						pb: 0.2,

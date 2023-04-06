@@ -204,7 +204,7 @@ export const Login = () => {
 		e.preventDefault()
 		if (!username.current.value
 			|| !password.current.value
-			|| !(username.current.value.length > 3 && username.current.value.length < 20)
+			|| !(username.current.value.length >= 3 && username.current.value.length <= 20)
 			|| !isNumberOrString(username.current.value)
 //			|| !(password.current.value.length > 8 || password.current.value.length < 72) 
 //			|| !isPassword(password.current.value)

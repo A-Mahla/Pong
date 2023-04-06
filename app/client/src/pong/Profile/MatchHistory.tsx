@@ -25,13 +25,24 @@ import GppBadIcon from '@mui/icons-material/GppBad';
 import GppMaybeIcon from '@mui/icons-material/GppMaybe';
 import * as React from 'react';
 
+import { styled } from '@mui/system';
+import {PlayersListItemAvatar} from '/src/pong/Profile/SearchPlayers'
+import FetchAvatar from '/src/pong/component/FetchAvatar'
+
 type matchHistoryPayload = {
 	index: number,
 	l1: string;
+	a1: string,
 	s1 : number;
 	l2 : string;
+	a2: string,
 	s2: number;
 }
+
+export const PlayersListItemAvatarLeft = styled(PlayersListItemAvatar)({
+	marginRight: '0px',
+	marginLeft: '16px',
+})
 
 const TableHistory = ({rows}: {rows: matchHistoryPayload[]}) => {
 
@@ -46,7 +57,7 @@ const TableHistory = ({rows}: {rows: matchHistoryPayload[]}) => {
 				direction="column"
 				justifyContent="center"
 				alignItems="center"
-				sx={{ width: '30rem', height: '95%' }}
+				sx={{ width: '100%', height: '95%' }}
 			>
 				<Typography
 					align="center"
@@ -59,9 +70,7 @@ const TableHistory = ({rows}: {rows: matchHistoryPayload[]}) => {
 			</>) :
 			(<>
 			<TableContainer component={Box}>
-				<Table sx={{ width: '30rem' }} aria-label="simple table">
-					<TableHead>
-					</TableHead>
+				<Table sx={{ width: '100%' }} aria-label="simple table">
 					<TableBody>
 						{rows.map((row) => (
 							<TableRow
@@ -78,6 +87,17 @@ const TableHistory = ({rows}: {rows: matchHistoryPayload[]}) => {
 												}
 											</>)
 										}
+
+											<PlayersListItemAvatar>
+											<FetchAvatar
+												avatar={row.a1}
+												sx={{
+													height: '100%',
+													width: '100%'
+												}}
+											/>
+											</PlayersListItemAvatar>
+
 										<Typography variant="body1">{row.l1}</Typography>
 									</Stack>
 								</TableCell>
@@ -93,6 +113,17 @@ const TableHistory = ({rows}: {rows: matchHistoryPayload[]}) => {
 								<TableCell align="right">
 									<Stack direction="row" justifyContent="flex-end" alignItems="center" gap={1}>
 										<Typography variant="body1">{row.l2}</Typography>
+
+										<PlayersListItemAvatarLeft>
+											<FetchAvatar
+												avatar={row.a2}
+												sx={{
+													height: '100%',
+													width: '100%'
+												}}
+											/>
+										</PlayersListItemAvatarLeft>
+
 										{row.s1 === row.s2 ? <GppMaybeIcon style={{color: '#95bc4b'}}/> :
 											(<>
 												{row.s1 > row.s2 ?
@@ -179,10 +210,13 @@ const MatchHistory = (props: MatchInfoProps) => {
 			: (
 				<>
 					<Dialog open={props.open} onClose={handleClose}
-						 PaperProps={{
+						fullWidth
+						maxWidth="md"
+						PaperProps={{
 							style: {
 								borderRadius: '32px',
 								height: '30rem',
+								width: '50rem'
 							}
 						}}
 					>

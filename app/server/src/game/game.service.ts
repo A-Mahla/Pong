@@ -93,18 +93,30 @@ export class GameService {
 	parseGameHistory(raw: any): { history: matchHistoryPayload[] } {
 		let parsedData: matchHistoryPayload[] = [];
 		raw.forEach((userGame: any, index: number) => {
-			let temp: matchHistoryPayload = {index:0, l1: '', s1:0, l2:'', s2:0 }
+			let temp: matchHistoryPayload = {
+				index:0,
+				l1: '',
+				a1: '',
+				s1:0,
+				l2:'',
+				s2:0,
+				a2: '',
+			}
 			temp.index = userGame.game_id;
 			if (userGame.user_id == userGame.game.players[0].player.id) {
 				temp.l1 = userGame.game.players[0].player.login;
-				temp.s1 = userGame.game.players[0].score,
-				temp.l2 = userGame.game.players[1].player.login,
-				temp.s2 = userGame.game.players[1].score
+				temp.a1 = userGame.game.players[0].player.avatar;
+				temp.s1 = userGame.game.players[0].score;
+				temp.l2 = userGame.game.players[1].player.login;
+				temp.a2 = userGame.game.players[1].player.avatar;
+				temp.s2 = userGame.game.players[1].score;
 			} else {
 				temp.l1 = userGame.game.players[1].player.login;
+				temp.a1 = userGame.game.players[1].player.avatar;
 				temp.s1 = userGame.game.players[1].score,
 				temp.l2 = userGame.game.players[0].player.login,
 				temp.s2 = userGame.game.players[0].score
+				temp.a2 = userGame.game.players[0].player.avatar;
 			}
 			parsedData.push(temp);
 
