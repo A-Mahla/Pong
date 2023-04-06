@@ -110,9 +110,6 @@ export class UsersController {
 	@UseInterceptors(FileInterceptor('file', {
 		storage: diskStorage({
 			destination: './src/avatar',
-/*		filename: (req, file, cb) => {
-				return cb(null, req.params.id + ".jpeg");
-			},*/
 		})
 	}))
 	async checkAvatar(@Request() req: any, @UploadedFile() file: Express.Multer.File){
@@ -167,6 +164,16 @@ export class UsersController {
 		} catch (error){
 			throw new BadRequestException;
 		}
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Get('profile/avatar/download/:avatar')
+	async getFileOther(
+		@Res({ passthrough: true }) res: Response,
+		@Param('avatar') avatar: string,
+	) {
+		const file = createReadStream(join('./src/avatar/', avatar));
+		return new StreamableFile(file);
 	}
 
 	@UseGuards(JwtAuthGuard)

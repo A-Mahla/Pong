@@ -38,7 +38,7 @@ const theme = createTheme({
 	}
 })
 
-function findLevel(xpMax: number) {
+export function findLevel(xpMax: number) {
 
 	let level = 0;
 	let xp = 0;

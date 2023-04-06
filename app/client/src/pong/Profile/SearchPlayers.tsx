@@ -28,6 +28,10 @@ import { useState, useEffect } from 'react'
 import SearchIcon from '@mui/icons-material/Search';
 import CircularProgress from '@mui/material/CircularProgress';
 import * as React from 'react';
+import {Level, BorderLinearProgress} from '/src/pong/Profile/GameInfo';
+import {findLevel} from '/src/pong/Profile/Profile'
+import useMediaQuery from "/src/pong/hooks/useMediaQuery"
+import FetchAvatar from '/src/pong/component/FetchAvatar'
 
 
 function timeout(delay: number) {
@@ -44,12 +48,20 @@ type Players = {
 	avatar: string,
 }
 
+export type Level = {
+	level: number,
+	xp: number,
+}
+
 const GridProfile = (props: {player: Players}) => {
 
 	const auth = useFetchAuth()
+	const isQuery550 = useMediaQuery('(max-width: 550px)')
 	const [win, setWin] = useState<number>(0)
 	const [loss, setLoss] = useState<number>(0)
 	const [fetched, setFetched] = useState(false)
+	const [avatarFetched, setAvatarFetched] = useState(false)
+	const [level, setLevel] = useState<Level>({} as Level)
 
 	useEffect(() => {
 		async function fetching() {
@@ -60,34 +72,51 @@ const GridProfile = (props: {player: Players}) => {
 				},
 				auth: auth,
 			})
-			console.log(response.data)
 			setWin(response.data['nbWin'])
 			setLoss(response.data['nbLoss'])
+			setLevel(findLevel(response.data['nbWin'] * 100 + response.data['nbLoss'] * 25))
 			setFetched(true)
 		}
 		fetching()
 
-	}, [])
+	}, [props.player])
 
 	return <>
 		{ fetched ?
-			<Grid sx={{width: '100%', height: '100%', border: 1}}>
-				<Grid display="flex" sx={{width: '100%', height: '50%', border: 1}}>
-					<Grid item xs={6} sx={{height: '100%', border: 1}}>
+			<Grid sx={{width: '100%', height: '21rem', minheight: '20rem'}}>
+				<Grid sx={{width: '100%', height: '50%'}}>
+					<Grid item xs={12}
+						display="flex"
+						sx={{
+							height: '100%',
+							justifyContent:"center",
+							alignItems:"center"
+						}}
+					>
+						<FetchAvatar
+							avatar={props.player.avatar}
+							sx={{
+								height: '9rem',
+								width: '9rem',
+								boxShadow: 15,
+							}}
+						/>
 					</Grid>
-					<Grid display='flex' item xs={6} sx={{
+				</Grid>
+				<Grid sx={{width: '100%', height: '10%'}}>
+					<Grid display='flex' item xs={12} sx={{
 						height: '100%',
-						border: 1,
 						justifyContent: 'center',
 						alignItems: 'center',
+						mx: 1,
 					}}>
-						<Typography align="center" variant="h5">
+						<Typography noWrap align="center" variant="h5">
 							{props.player.login}
 						</Typography>
 					</Grid>
 				</Grid>
-				<Grid display="flex" sx={{width: '100%', height: '50%', border: 1}}>
-					<Grid item xs={4} sx={{height: '100%', border: 1}}>
+				<Grid display="flex" sx={{width: '100%', height: '40%'}}>
+					<Grid item xs={4} sx={{height: '100%'}}>
 
 						<Grid item xs={12}
 							display="flex"
@@ -113,9 +142,29 @@ const GridProfile = (props: {player: Players}) => {
 						</Grid>
 			
 					</Grid>
-					<Grid item xs={4} sx={{height: '100%', border: 1}}>
+					<Grid item xs={4} sx={{height: '100%'}}>
+
+						<Grid item display="flex"
+							justifyContent="center"
+							alignItems="center"
+							xs={12}
+							sx={{height: "80%"}}
+						>
+							
+							<Typography align="center"
+								variant='h4'
+								style={{color: '#213547'}}
+							>
+								{isQuery550 ? level.level : `lvl ${level.level}`}
+							</Typography>
+						</Grid>
+
+						<Grid item xs={12} sx={{mx: 1}}>
+							<BorderLinearProgress variant="determinate" value={level.xp} />
+						</Grid>
+
 					</Grid>
-					<Grid item xs={4} sx={{height: '100%', border: 1}}>
+					<Grid item xs={4} sx={{height: '100%'}}>
 
 						<Grid item xs={12}
 							display="flex"
@@ -188,7 +237,7 @@ const PlayersListItem = styled('div')(({ isActive }) => ({
 	},
 }));
 
-const PlayersListItemAvatar = styled('div')({
+export const PlayersListItemAvatar = styled('div')({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
@@ -243,7 +292,7 @@ const GridPlayers = () => {
 			<Divider variant="middle"/>
 			<Grid
 				display="flex"
-				sx={{ height: '95%' }}
+				sx={{ height: '21rem' }}
 			>
 				<Grid item xs={5} sx={{mt: 1.5, mr: 1}}>
 					
@@ -271,7 +320,7 @@ const GridPlayers = () => {
 							  onClick={() => setSelectedRow(row)}
 							>
 							  <PlayersListItemAvatar>
-								<span>{row.login.charAt(0)}</span>
+								<FetchAvatar avatar={row.avatar} sx={{height: '100%', width: '100%'}}/>
 							  </PlayersListItemAvatar>
 							  <PlayersListItemText>{row.login}</PlayersListItemText>
 							</PlayersListItem>
@@ -340,11 +389,14 @@ const SearchPlayers = (props: MatchInfoProps) => {
 	return (
 		<>
 			<Dialog open={props.open} onClose={handleClose}
-				 PaperProps={{
+				fullWidth
+				maxWidth="md"
+				PaperProps={{
 					style: {
 						borderRadius: '32px',
-						height: '30rem',
-						width: '35rem'
+						height: '31rem',
+						width: '50rem',
+						minHeight: '10rem'
 					}
 				}}
 			>

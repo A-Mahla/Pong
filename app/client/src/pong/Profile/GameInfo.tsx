@@ -30,7 +30,7 @@ type MatchInfoProps = {
 	level: Level,
 }
 
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
+export const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
 	height: 10,
 	borderRadius: 5,
 	[`&.${linearProgressClasses.colorPrimary}`]: {

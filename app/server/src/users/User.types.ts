@@ -5,7 +5,6 @@ export class CreateUserParams {
 	intraLogin?: string;
 }
 
-
 export class UpdateUserParams {
 	login?: string;
 	password?: string;
