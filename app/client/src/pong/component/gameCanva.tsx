@@ -2,15 +2,14 @@ import * as React from 'react'
 import { Typography, Box, Paper, Button } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Tabs from '@mui/material/Tabs'
-import TabList from '@mui/lab/TabList'
 import Tab from '@mui/material/Tab'
-import Swipeable from '/src/pong/component/Swipeable'
-import Profile from '/src/pong/Profile/Profile'
+import Swipeable from '../component/Swipeable'
+import Profile from '../Profile/Profile'
 import PropTypes from 'prop-types';
-import { useFetchAuth } from '/src/pong/context/useAuth'
-import { FetchApi, Api, responseApi } from '/src/pong/component/FetchApi'
-import useAuth from '/src/pong/context/useAuth'
-import io from "socket.io-client";
+import { useFetchAuth } from '../context/useAuth'
+import { FetchApi, Api, responseApi } from '../component/FetchApi'
+import useAuth from '../context/useAuth'
+import io, {Socket} from "socket.io-client";
 // import '../page/game.css'
 import { render } from 'react-dom'
 
@@ -268,8 +267,7 @@ export const draw = (canvas: any, game: GameData) => {
 	context.fill();
 };
 
-
-const Canvas = ({ socket, handleThereIsMatch }: any) => {
+const Canvas = ({ socket, handleThereIsMatch }: {socket: Socket, handleThereIsMatch: () => void}) => {
 	// ref to the html5 canvas on wich we will draw
 	const canvas = React.useRef<HTMLCanvasElement>(null); // reference/pointer on html5 canvas element, so you can draw on it
 
@@ -294,7 +292,7 @@ const Canvas = ({ socket, handleThereIsMatch }: any) => {
 
 	const gameCanvas = React.useCallback((node: null | HTMLCanvasElement) => {
 		if (node !== null) {
-			canvas.current = node;
+			canvas.current = node; //fait en sorte que ton canvas soit gerer dans un useState
 			setGame(true)
 		}
 	  }, []);
@@ -373,9 +371,9 @@ const Canvas = ({ socket, handleThereIsMatch }: any) => {
 	);
 };
 
-Canvas.propTypes = {
+/*Canvas.propTypes = {
 	height: PropTypes.number.isRequired,
 	width: PropTypes.number.isRequired,
-};
+	};*/
 
 export default Canvas;

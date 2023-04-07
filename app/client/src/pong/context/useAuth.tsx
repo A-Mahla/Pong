@@ -7,8 +7,8 @@ import React, {
   useState,
 } from "react";
 import { useNavigate, useLocation, createSearchParams } from "react-router-dom";
-import { originalRequest, refreshRequest, responseApi } from "/src/pong/component/FetchApi"
-import { FetchApi, Api } from '/src/pong/component/FetchApi'
+import { originalRequest, refreshRequest, responseApi } from "../component/FetchApi"
+import { FetchApi, Api } from '../component/FetchApi'
 import axios from 'axios'
 
 interface AuthContextType {
@@ -21,14 +21,14 @@ interface AuthContextType {
 	setIntraLogin: React.Dispatch<React.SetStateAction<string>>,
 	setId: React.Dispatch<React.SetStateAction<number>>,
 	loading: boolean;
-	error?: Error;
-	authLogin: (login: string, password: string) => Promise<string | undefined>;
+	error?: string;
+	authLogin: (login: string, password: string) => Promise<void>;
 	authLogout: () => void;
-	authSignup: (login: string, password: string) => Promise<string | undefined>;
+	authSignup: (login: string, password: string, avatar: string) => Promise<any>;
 	authLogIntra: (url: URL) => void;
-	authSignupIntra: (url: URL) => void;
-	twoFA: (url: URL) => void;
-	navigate: () => "POP" | "PUSH" | "REPLACE",
+	authSignupIntra: (url: URL, avatar: string) => Promise<any>;
+	twoFA: (url: URL, avatar: string) => Promise<any>;
+	navigate: (route: string) => void,
 }
 
 export type fetchContext = {
@@ -47,7 +47,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 	const [id, setId] = useState<number>(0);
 	const [intraLogin, setIntraLogin] = useState<string>('');
 	const [token, setToken] = useState<string>('');
-	const [error, setError] = useState<Error>();
+	const [error, setError] = useState<string>();
 	const [loading, setLoading] = useState<boolean>(false);
 	const [loadingInitial, setLoadingInitial] = useState<boolean>(true);
 
@@ -85,7 +85,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				});
 
 				if (response1.response.statusText === "Unauthorized") {
-					const refresh: responseApi = await refreshRequest();
+					const refresh = await refreshRequest();
 
 					if (refresh.response.status !== 200 && refresh.response.status !== 304) {
 						setUser('');

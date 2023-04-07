@@ -51,7 +51,7 @@ const SignUp = () => {
 		inputFileRef.current.value = null;
 	};
 
-	const handleChange = (e: React.ChangeEvent<HTMLButtonElement>) => {
+	const handleChange: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e: React.ChangeEvent<HTMLButtonElement>) => {
 		e.preventDefault()
 		setError('')
 		setLoginError('')

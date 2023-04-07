@@ -1,10 +1,11 @@
 import { ReactNode } from "react"
 import React from 'react';
-import { useFetchAuth } from '/src/pong/context/useAuth'
-import { FetchApi, Api, responseApi } from '/src/pong/component/FetchApi'
-import io from "socket.io-client";
+import { useFetchAuth } from '../context/useAuth'
+import { FetchApi, Api, responseApi } from '../component/FetchApi'
+import io, {Socket} from "socket.io-client";
 
-export const UserContext = React.createContext();
+
+export const UserContext = React.createContext<Socket>({} as Socket);
 
 
 export const GameSocketProvider = ({children}: {children: ReactNode}) => {

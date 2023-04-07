@@ -3,15 +3,14 @@ import { useEffect } from 'react'
 import { Typography, Box, Paper } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Tabs from '@mui/material/Tabs'
-import TabList from '@mui/lab/TabList'
 import Tab from '@mui/material/Tab'
-import Swipeable from '/src/pong/component/Swipeable'
-import Profile from '/src/pong/Profile/Profile'
+import Swipeable from '../component/Swipeable'
+import Profile from '../Profile/Profile'
 import './LeadPage.css'
-import useAuth, {useFetchAuth} from '/src/pong/context/useAuth'
-import { FetchApi, Api } from '/src/pong/component/FetchApi'
+import useAuth, {useFetchAuth} from '../context/useAuth'
+import { FetchApi, Api } from '../component/FetchApi'
 import  GamePage  from './Game';
-import '/src/App.css';
+import '../../App.css';
 import { ChatSocketProvider } from '../Chatv2/Socket'
 
 const header = {
@@ -49,7 +48,7 @@ const centralProfileBoxReduce550 = {
 type TabPanelProps = {
 	value: number,
 	index: number,
-	children: React.ComponentNode
+	children: React.ReactNode
 }
 
 function TabPanel(props: TabPanelProps) {
