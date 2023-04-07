@@ -41,6 +41,7 @@ export type GameDataType = {
 	roomInfo: {
 		//roomId: string, // not sure yet i need it
 		timer: number
+		countDown: number
 	},
 	player1: {
 		login: string,

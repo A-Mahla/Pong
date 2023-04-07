@@ -5,11 +5,7 @@ import Tabs from '@mui/material/Tabs'
 import Button from "@mui/material/Button";
 import TabList from '@mui/lab/TabList'
 import Tab from '@mui/material/Tab'
-import Swipeable from '/src/pong/component/Swipeable'
-import Profile from '/src/pong/Profile/Profile'
 import PropTypes from 'prop-types';
-import { useFetchAuth } from '/src/pong/context/useAuth'
-import { FetchApi, Api, responseApi } from '/src/pong/component/FetchApi'
 import useAuth from '/src/pong/context/useAuth'
 import io from "socket.io-client";
 import './game.css'
@@ -64,7 +60,7 @@ function JoinQueuButton({socket, setJoinQueu, joinQueu}: any): any {
 			</>) : (
 			<>
 					<Button>
-							QUEU IS JOINED
+							WAITING FOR A MATCH
 					</Button>
 			</>
 			)
@@ -80,11 +76,18 @@ function MatchMaker ({socket, thereIsMatch, launchCanvas} : any){
 		launchCanvas();
 	})
 
+	socket.on('timeOut', () => {
+		setJoinQueu(false);
+		/**
+		 * here i will have to make some user interface stuff to print the fact that the guy has been disconnected
+		 */
+	})
+
 	return (
 		<>
 		<Grid container spacing={2}>
 			<Grid item xs={12} sm={6}>
-				<JoinQueuButton  socket={socket} setJoinQueu={setJoinQueu} joinQueu={joinQueu} />
+				<JoinQueuButton socket={socket} setJoinQueu={setJoinQueu} joinQueu={joinQueu} />
 			</Grid>
 		</Grid>
 		</>
