@@ -2,9 +2,8 @@
 
 if [ ! -d "/app/prisma/migrations" ]
 then
-	npx prisma migrate deploy
-	npx prisma generate
-	npm run build
+#	npx prisma migrate deploy
+#	npx prisma generate
 	node dist/main.js
 else
 	node dist/main.js
