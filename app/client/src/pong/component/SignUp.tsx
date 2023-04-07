@@ -38,7 +38,7 @@ const SignUp = () => {
 	const [loginError, setLoginError] = useState('');
 
 	const [file, setFile] = useState<any>(null);
-	const [image, setImage] = useState<URL>(null);
+	const [image, setImage] = useState<string | null>(null);
 
 	const inputFileRef = createRef(null);
 
@@ -158,7 +158,6 @@ const SignUp = () => {
 				<label htmlFor="avatar-image-upload">
 					<IconButton component="span">
 						<Avatar
-							variant="inherit"
 							alt="avatar"
 							src={image}
 							sx={{
@@ -175,8 +174,6 @@ const SignUp = () => {
 					</IconButton>
 				</label>
 				<IconButton
-					component="span"
-					variant="inherit"
 					size='small'
 					sx={{
 						position: 'relative',
