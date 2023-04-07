@@ -77,12 +77,12 @@ export const FriendBar = () => {
 
   const handleSendFriendRequestClick = (userId: number) => {
 
-		const payload: AddFriendData = {
-			user1_id: id,
-			user2_id: userId
-		}
+    const payload: AddFriendData = {
+      user1_id: id,
+      user2_id: userId
+    }
 
-		socket.emit('friendRequest',  payload)
+    socket.emit('friendRequest', payload)
   }
 
   const handleSeachUserOnChange = (e) => {
@@ -139,7 +139,7 @@ export const FriendBar = () => {
         <UserListWrapper>
           {matchingUsers.map((user) => (
             <UserListItem
-              key={user.id} friends={friends} onClick={handleSendFriendRequestClick} user={user} friendRequests={friendRequests} id={id}/>
+              key={user.id} friends={friends} onClick={handleSendFriendRequestClick} user={user} friendRequests={friendRequests} id={id} />
           ))}
         </UserListWrapper>
         <DialogActions>
@@ -154,8 +154,7 @@ export const FriendBar = () => {
         <DialogContent>
           <FriendRequestWrapper>
             {friendRequests.map((friendRequest) => (
-              <FriendRequestItem key={friendRequest.id} friendRequest={friendRequest} id={id} 
-                onAccept={(id: number) => console.log('accept')} onDecline={(id: number) => console.log('decline')} />
+              <FriendRequestItem key={friendRequest.id} friendRequest={friendRequest} id={id} />
             ))}
           </FriendRequestWrapper>
         </DialogContent>

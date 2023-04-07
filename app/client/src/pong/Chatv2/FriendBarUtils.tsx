@@ -4,8 +4,9 @@ import CheckIcon from '@mui/icons-material/Check';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import PropTypes from 'prop-types';
 import { styled } from '@mui/system'
-import React from 'react';
+import React, { useContext } from 'react';
 import { socket } from './Socket';
+import { ChatContext } from './Chat';
 
 export const FriendListWrapper = styled('div')({
 	display: 'flex',
@@ -82,7 +83,7 @@ export const FriendListItemText = styled('div')({
 //------------------------
 
 export const FriendRequestWrapper = styled(List)({
-	backgroundColor: '#EDEDED',
+	//backgroundColor: '#EDEDED',
 	borderRadius: '8px',
 	padding: '8px',
 	marginBottom: '8px',
@@ -93,7 +94,7 @@ export const FriendRequestWrapper = styled(List)({
 });
 
 export const FriendRequestItemWrapper = styled(ListItem)({
-	backgroundColor: '#EDEDED',
+	backgroundColor: /* '#EDEDED' */ 'white',
 	borderRadius: '8px',
 	padding: '8px',
 	marginBottom: '8px',
@@ -115,6 +116,7 @@ export const FriendRequestButtonWrapper = styled('div')({
 	display: 'flex',
 	gap: '8px',
 	marginTop: 'auto',
+
 });
 
 export const FriendRequestButton = styled('div')(({ isActive }) => ({
@@ -132,7 +134,18 @@ export const FriendRequestButton = styled('div')(({ isActive }) => ({
 	},
 }));
 
-export const FriendRequestItem = ({ friendRequest, onAccept, onDecline, id }) => {
+export const FriendRequestItem = ({ friendRequest, id }) => {
+  	const { friendRequests, setFriendRequests } = useContext(ChatContext)
+
+	const handleAcceptFriendRequest = (friendRequestId: number) => {
+		socket.emit('acceptFriend', friendRequestId)
+		setFriendRequests(friendRequests.filter((friendRequest) => friendRequest.id !== friendRequestId))
+	}
+
+	const handleDeclineFriendRequest = (friendRequestId: number) => {
+		socket.emit('declineFriend', friendRequestId)
+		setFriendRequests(friendRequests.filter((friendRequest) => friendRequest.id !== friendRequestId))
+	}
 
 	if (id === friendRequest.user1Id)
 		return null
@@ -143,10 +156,10 @@ export const FriendRequestItem = ({ friendRequest, onAccept, onDecline, id }) =>
 			</FriendRequestAvatar>
 			<FriendRequestListItemText primary={friendRequest.user1Login} />
 			<FriendRequestButtonWrapper>
-				<FriendRequestButton className="accept" onClick={() => onAccept(friendRequest.id)}>
+				<FriendRequestButton className="accept" onClick={() => handleAcceptFriendRequest(friendRequest.id)}>
 					Accept
 				</FriendRequestButton>
-				<FriendRequestButton className="decline" onClick={() => onDecline(friendRequest.id)}>
+				<FriendRequestButton className="decline" onClick={() => handleDeclineFriendRequest(friendRequest.id)}>
 					Decline
 				</FriendRequestButton>
 			</FriendRequestButtonWrapper>
@@ -163,8 +176,6 @@ FriendRequestItem.propTypes = {
 		user2Id: PropTypes.number.isRequired,
 	}).isRequired,
 	id: PropTypes.number.isRequired,
-	onAccept: PropTypes.func.isRequired,
-	onDecline: PropTypes.func.isRequired,
 };
 
 //--------------matching users

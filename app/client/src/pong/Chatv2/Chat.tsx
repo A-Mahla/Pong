@@ -209,6 +209,7 @@ export function Chat() {
 		}
 		if (newFriend !== undefined) {
 			console.log(`newFriend: `, newFriend)
+			setFriends([...friends, newFriend])
 			setNewFriend()
 		}
 

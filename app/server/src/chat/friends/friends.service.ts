@@ -7,8 +7,8 @@ export class FriendsService {
 
 	constructor(private readonly prisma: PrismaService) {}
 
-	async acceptFriend(friendRequestId: number) {
-		await this.prisma.friend.updateMany({
+	async acceptFriendRequest(friendRequestId: number) {
+		await this.prisma.friend.update({
 			where: {
 				id: friendRequestId
 			},
@@ -22,9 +22,22 @@ export class FriendsService {
 			where: {
 				id: friendRequestId
 			},
-			include: {
-				user1: true,
-				user2: true
+			select: {
+				id: true,
+				user1: {
+					select: {
+						id: true,
+						login: true,
+						avatar: true
+					}
+				},
+				user2: {
+					select: {
+						id: true,
+						login: true,
+						avatar: true
+					}
+				},
 			}
 		}).catch((e) => {
 			throw new BadRequestException(e);
