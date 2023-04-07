@@ -108,21 +108,6 @@ export class ChatService {
 		return this.userService.joinRoom(payload.user_id, payload.room_id)
 	}
 
-	async acceptFriendRequest(server: Server, client: Socket,
-			friendRequestId: number) {
-		
-		const friendAcceptedRelation = await this.friendService.acceptFriendRequest(friendRequestId)
-		if (friendAcceptedRelation === null)
-			return
-
-		console.log('friendAcceptedRelation: ', friendAcceptedRelation)
-	
-		server.to(friendAcceptedRelation.user1.id.toString()).emit('newFriend', friendAcceptedRelation.user2)
-		server.to(friendAcceptedRelation.user2.id.toString()).emit('newFriend', friendAcceptedRelation.user1)
-
-		return friendAcceptedRelation
-	}
-
 	async sendFriendRequest(server: Server, client: Socket, payload: FriendRequestData) {
 
 		const existingRequest = await this.friendService.isExisting({user1_id: payload.user2_id, user2_id: payload.user1_id})
@@ -140,4 +125,25 @@ export class ChatService {
 
 		return newFriendRequest
 	}
+
+	async acceptFriendRequest(server: Server, client: Socket,
+			friendRequestId: number) {
+		
+		const friendAcceptedRelation = await this.friendService.acceptFriendRequest(friendRequestId)
+		if (friendAcceptedRelation === null)
+			return
+
+		console.log('friendAcceptedRelation: ', friendAcceptedRelation)
+	
+		server.to(friendAcceptedRelation.user1.id.toString()).emit('newFriend', friendAcceptedRelation.user2)
+		server.to(friendAcceptedRelation.user2.id.toString()).emit('newFriend', friendAcceptedRelation.user1)
+
+		return friendAcceptedRelation
+	}
+
+	async declineFriendRequest(server: Server, client: Socket, payload: {senderId: number, friendRequestId: number}) {
+		await this.friendService.declineFriendRequest(payload.friendRequestId)
+		server.to(payload.senderId.toString()).emit('declineFriend', payload.friendRequestId)
+	}
+
 }

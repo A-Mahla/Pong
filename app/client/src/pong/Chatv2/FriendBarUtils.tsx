@@ -144,9 +144,10 @@ export const FriendRequestItem = ({ friendRequest, id }) => {
 		setFriendRequests(friendRequests.filter((friendRequest) => friendRequest.id !== friendRequestId))
 	}
 
-	const handleDeclineFriendRequest = (friendRequestId: number) => {
-		socket.emit('declineFriend', friendRequestId)
-		setFriendRequests(friendRequests.filter((friendRequest) => friendRequest.id !== friendRequestId))
+	const handleDeclineFriendRequest = (friendRequestParam) => {
+		console.log('friendRequestParam: ', friendRequestParam)
+		socket.emit('declineFriend', {senderId: friendRequestParam.user1Id, friendRequestId: friendRequestParam.id})
+		setFriendRequests(friendRequests.filter((friendRequest) => friendRequest.id !== friendRequestParam.id))
 	}
 
 	if (id === friendRequest.user1Id)
@@ -161,7 +162,7 @@ export const FriendRequestItem = ({ friendRequest, id }) => {
 				<FriendRequestButton className="accept" onClick={() => handleAcceptFriendRequest(friendRequest.id)}>
 					Accept
 				</FriendRequestButton>
-				<FriendRequestButton className="decline" onClick={() => handleDeclineFriendRequest(friendRequest.id)}>
+				<FriendRequestButton className="decline" onClick={() => handleDeclineFriendRequest(friendRequest)}>
 					Decline
 				</FriendRequestButton>
 			</FriendRequestButtonWrapper>

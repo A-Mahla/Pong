@@ -18,7 +18,9 @@ const initialUpdatesContext = {
 	newFriendRequest: {},
 	setNewFriendRequest: null,
 	newFriend: {},
-	setNewFriend: null
+	setNewFriend: null,
+	declineFriendRequestId: {},
+	setDeclineFriendRequestId: null
 }
 
 export const UpdatesContext = createContext(initialUpdatesContext)
@@ -39,6 +41,8 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 
 	const [newFriend, setNewFriend] = useState()
 
+	const [declineFriendRequestId, setDeclineFriendRequestId] = useState<number>()
+
 	const updatesContext = {
 		newDirectMessage: newDirectMessage,
 		setNewDirectMessage: setNewDirectMessage,
@@ -51,7 +55,9 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 		newFriendRequest: newFriendRequest,
 		setNewFriendRequest: setNewFriendRequest,
 		newFriend: newFriend,
-		setNewFriend: setNewFriend
+		setNewFriend: setNewFriend,
+		declineFriendRequestId: declineFriendRequestId,
+		setDeclineFriendRequestId: setDeclineFriendRequestId
 	}
 
 	useEffect(() => {		//---ROOMS & MESSAGES--//
@@ -106,6 +112,12 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 
 		socket.on('newFriend', onNewFriendEvent)
 
+		function onDeclineFriendRequest(friendRequestId) {
+			setDeclineFriendRequestId(friendRequestId)
+		}
+
+		socket.on('declineFriend', onDeclineFriendRequest)
+
 		return () => {
 			socket.off('roomCreated', onRoomCreatedEvent)
 			socket.off('roomJoined', onRoomJoinedEvent)
@@ -113,6 +125,7 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 			socket.off('roomMessage', onRoomMessageEvent)
 			socket.off('friendRequest', onFriendRequestEvent)
 			socket.off('newFriend', onNewFriendEvent)
+			socket.off('declineFriend', onDeclineFriendRequest)
 		}
 
 	}, [socket])

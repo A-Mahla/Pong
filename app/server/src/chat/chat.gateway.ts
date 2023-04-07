@@ -61,6 +61,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     return this.chatService.acceptFriendRequest(this.server, client, friendRequestId)
   }
 
+  @SubscribeMessage('declineFriend')
+  async handleDeclineFriend(client: Socket, payload: {senderId: number, friendRequestId: number}) {
+    return this.chatService.declineFriendRequest(this.server, client, payload)
+  }
+
   @SubscribeMessage('friendRequest')
   async handleFriendRequest(client: Socket, payload: FriendRequestData) {
     return this.chatService.sendFriendRequest(this.server, client, payload);

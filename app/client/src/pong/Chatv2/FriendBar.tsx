@@ -98,8 +98,6 @@ export const FriendBar = () => {
         auth: useContextAuth
       })
 
-      console.log('data: ', data)
-
       setMatchingUsers(data.map((value) => ({
         id: value.id,
         login: value.login,

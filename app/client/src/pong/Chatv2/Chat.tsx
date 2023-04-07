@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect, createContext} from 'react'
+import { useContext, useState, useEffect, createContext } from 'react'
 import { Box, Grid } from '@mui/material'
 import { Api, FetchApi } from '../component/FetchApi'
 import { useFetchAuth } from '../context/useAuth'
@@ -7,7 +7,8 @@ import { DirectMessageBar } from './DirectMessageBar'
 import { RoomBar } from './RoomBar'
 import { socket, UpdatesContext } from './Socket'
 import { MessagesBox } from './MessagesBox'
-import { FriendBar} from './FriendBar'
+import { FriendBar } from './FriendBar'
+import { ElderlyWoman } from '@mui/icons-material'
 
 const initialChatContext = {
 	rooms: [],
@@ -47,7 +48,9 @@ export function Chat() {
 		newFriendRequest,
 		setNewFriendRequest,
 		newFriend,
-		setNewFriend
+		setNewFriend,
+		declineFriendRequestId,
+		setDeclineFriendRequestId
 	} = useContext(UpdatesContext)
 
 	const [directMessages, setDirectMessages] = useState<Message[]>([])
@@ -58,9 +61,9 @@ export function Chat() {
 
 	const [friends, setFriends] = useState<User[]>([])
 
-	const [current, setCurrent] = useState({name: '', id: 0})
-	
-	const [target, setTarget] = useState({login: '', id: 0})
+	const [current, setCurrent] = useState({ name: '', id: 0 })
+
+	const [target, setTarget] = useState({ login: '', id: 0 })
 
 	const [isJoining, setIsJoining] = useState(false)
 
@@ -104,7 +107,7 @@ export function Chat() {
 
 	useEffect(() => {
 		async function getFriendRequests() {
-			const {data} = await FetchApi(getFriendsRequestsRequest)
+			const { data } = await FetchApi(getFriendsRequestsRequest)
 			return data
 		}
 		getFriendRequests().then(data => setFriendRequests(data))
@@ -119,7 +122,7 @@ export function Chat() {
 
 	useEffect(() => {
 		async function getFriends() {
-			const {data} = await FetchApi(getFriendsRequest)
+			const { data } = await FetchApi(getFriendsRequest)
 			console.log('friends: ', data)
 			return data
 		}
@@ -212,31 +215,37 @@ export function Chat() {
 			setFriends([...friends, newFriend])
 			setNewFriend()
 		}
+		if (declineFriendRequestId !== undefined) {
+			console.log(declineFriendRequestId)
+			//console.log(friendRequests.filter((friendRequest) => (friendRequest.id !== declineFriendRequestId)))
+			setFriendRequests(friendRequests.filter((friendRequest) => (friendRequest.id !== declineFriendRequestId)))
+			setDeclineFriendRequestId()
+		}
 
-	}, [newRoomMessage, newDirectMessage, newRoom, leavedRoom, newFriendRequest, newFriend])
+	}, [newRoomMessage, newDirectMessage, newRoom, leavedRoom, newFriendRequest, newFriend, declineFriendRequestId])
 
 	return (
 		<ChatContext.Provider value={chatContext}>
 			{
 
-/* 			<Box
-				sx={{display: 'flex', borderRadius:2, p:0,m:2,border: 1,maxHeight:500, overflow:'auto'}}
-				>
-				<RoomBar />
-				<DirectMessageBar />
-				<MessagesBox />
-
-			</Box> */
+				/* 			<Box
+								sx={{display: 'flex', borderRadius:2, p:0,m:2,border: 1,maxHeight:500, overflow:'auto'}}
+								>
+								<RoomBar />
+								<DirectMessageBar />
+								<MessagesBox />
+				
+							</Box> */
 			}
 			<Grid container
-				sx={{border:1}}
-				>
+				sx={{ border: 1 }}
+			>
 				<Grid item xs={6} md={2}>
 					<RoomBar />
 				</Grid>
 
 				<Grid item xs={6} md={2}>
-					<FriendBar/>
+					<FriendBar />
 					{/* <DirectMessageBar />} */}
 				</Grid>
 

@@ -44,6 +44,16 @@ export class FriendsService {
 		})
 	}
 
+	async declineFriendRequest(friendRequestId: number) {
+		await this.prisma.friend.delete({
+			where: {
+				id: friendRequestId
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+	}
+
 	async getFriends(userId: number) {
 		const friendTab = await this.prisma.friend.findMany({
 			where: {
