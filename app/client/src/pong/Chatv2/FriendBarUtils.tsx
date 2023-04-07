@@ -7,6 +7,7 @@ import { styled } from '@mui/system'
 import React, { useContext } from 'react';
 import { socket } from './Socket';
 import { ChatContext } from './Chat';
+import FetchAvatar from '../component/FetchAvatar'
 
 export const FriendListWrapper = styled('div')({
 	display: 'flex',
@@ -44,7 +45,7 @@ export const FriendListItem = ({ friend, activeFriendId, onClick}) => {
 		onClick={() => onClick(friend.id)}
 	  >
 		<FriendListItemAvatar>
-		  <span>{friend.login.charAt(0)}</span>
+			<FetchAvatar avatar={friend.avatar} sx={{height: '100%', width: '100%'}}/>
 		</FriendListItemAvatar>
 		<FriendListItemText>{friend.login}</FriendListItemText>
 	  </FriendListItemWrapper>
@@ -55,6 +56,7 @@ export const FriendListItem = ({ friend, activeFriendId, onClick}) => {
 	friend: PropTypes.shape({
 	  id: PropTypes.number.isRequired,
 	  login: PropTypes.string.isRequired,
+	  avatar: PropTypes.string.isRequired,
 	}).isRequired,
 	activeFriendId: PropTypes.number.isRequired,
 	onClick: PropTypes.func.isRequired,
@@ -238,7 +240,7 @@ export const UserListItem = ({ user, friends, onClick, friendRequests, id }) => 
 	return (
 		<UserListItemWrapper>
 			<UserListItemAvatar>
-				<span>{user.login.charAt(0)}</span>
+				<FetchAvatar avatar={user.avatar} sx={{height: '100%', width: '100%'}}/>
 			</UserListItemAvatar>
 			<UserListItemText>{user.login}</UserListItemText>
 			{friends.find((friend) => friend.id === user.id) ? 
@@ -260,6 +262,7 @@ UserListItem.propTypes = {
 	user: PropTypes.shape({
 	  id: PropTypes.number.isRequired,
 	  login: PropTypes.string.isRequired,
+	  avatar: PropTypes.string.isRequired,
 	}).isRequired,
 	friends: PropTypes.arrayOf(
 	  PropTypes.shape({
