@@ -80,7 +80,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		const keysTable: string[] = [];
 
 		const assignKeysToTable = () => {
-			// Parcours de chaque noeud de la Map
+			// Parcours chaque noeud de la Map
 			for (let [key, value] of this.gameMap) {
 				if (value.getStatus() === Status.RUNNING)
 					keysTable.push(key);
