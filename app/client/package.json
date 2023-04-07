@@ -14,7 +14,7 @@
     "@emotion/styled": "^11.10.5",
     "@mui/icons-material": "^5.11.9",
     "@mui/joy": "^5.0.0-alpha.70",
-    "@mui/material": "^5.11.8",
+    "@mui/material": "^5.11.16",
     "@mui/system": "^5.11.15",
     "@nestjs/platform-socket.io": "^9.3.9",
     "@nestjs/websockets": "^9.3.9",

@@ -5,11 +5,7 @@ import Tabs from '@mui/material/Tabs'
 import Button from "@mui/material/Button";
 import TabList from '@mui/lab/TabList'
 import Tab from '@mui/material/Tab'
-import Swipeable from '/src/pong/component/Swipeable'
-import Profile from '/src/pong/Profile/Profile'
 import PropTypes from 'prop-types';
-import { useFetchAuth } from '/src/pong/context/useAuth'
-import { FetchApi, Api, responseApi } from '/src/pong/component/FetchApi'
 import useAuth from '/src/pong/context/useAuth'
 import io from "socket.io-client";
 import './game.css'
