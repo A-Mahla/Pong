@@ -13,11 +13,11 @@ import {
 import { useLocation } from 'react-router-dom'
 import React, { useCallback, useRef, createRef, useState, useEffect } from 'react'
 import Cookies from 'js-cookie'
-import useAuth from '/src/pong/context/useAuth'
-import { TFAComponent } from '/src/pong/component/Login'
+import useAuth from '../context/useAuth'
+import { TFAComponent } from '../component/Login'
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
 
-function isNumberOrString(str) {
+function isNumberOrString(str: string) {
 	return /^([0-9a-zA-Z_]){3,20}$/.test(str);
 }
 
@@ -48,13 +48,14 @@ const IntraSignup = () => {
 	const {intraLogin, authSignupIntra, loading} = useAuth()
 	const [error, setError] = useState('')
 	const [file, setFile] = useState<any>(null);
-	const [image, setImage] = useState<URL>(null);
-	const inputFileRef = createRef(null);
+	const [image, setImage] = useState<string>('');
+	const inputFileRef = createRef<HTMLInputElement>();
 	const login = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>
 
 	const cleanup = () => {
 		URL.revokeObjectURL(image);
-		inputFileRef.current.value = null;
+		if (inputFileRef.current)
+			inputFileRef.current.value = '';
 	};
 
 	const handleChangeInputLogin = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +80,7 @@ const IntraSignup = () => {
 	const handleAvatarDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
 		if (image) {
 			event.preventDefault();
-			setImage(null);
+			setImage('');
 			setFile(null)
 		}
 	}
@@ -129,7 +130,6 @@ const IntraSignup = () => {
 			<label htmlFor="avatar-image-upload">
 				<IconButton component="span">
 					<Avatar
-						variant="inherit"
 						alt="avatar"
 						src={image}
 						sx={{
@@ -146,8 +146,6 @@ const IntraSignup = () => {
 				</IconButton>
 			</label>
 			<IconButton
-				component="span"
-				variant="inherit"
 				size='small'
 				sx={{
 					position: 'relative',

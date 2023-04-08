@@ -13,8 +13,8 @@ import {
 	InputAdornment,
 } from '@mui/material'
 import { styled } from '@mui/system';
-import useAuth, { useFetchAuth } from '/src/pong/context/useAuth'
-import { FetchApi, Api } from '/src/pong/component/FetchApi'
+import useAuth, { useFetchAuth } from '../context/useAuth'
+import { FetchApi, Api } from '../component/FetchApi'
 import GppGoodIcon from '@mui/icons-material/GppGood'
 import GppBadIcon from '@mui/icons-material/GppBad';
 import Table from '@mui/material/Table';
@@ -28,17 +28,17 @@ import { useState, useEffect } from 'react'
 import SearchIcon from '@mui/icons-material/Search';
 import CircularProgress from '@mui/material/CircularProgress';
 import * as React from 'react';
-import {Level, BorderLinearProgress} from '/src/pong/Profile/GameInfo';
-import {findLevel} from '/src/pong/Profile/Profile'
-import useMediaQuery from "/src/pong/hooks/useMediaQuery"
-import FetchAvatar from '/src/pong/component/FetchAvatar'
+import {Level, BorderLinearProgress} from '../Profile/GameInfo';
+import {findLevel} from '../Profile/Profile'
+import useMediaQuery from "../hooks/useMediaQuery"
+import FetchAvatar from '../component/FetchAvatar'
 
 
 function timeout(delay: number) {
 	return new Promise( res => setTimeout(res, delay) );
 }
 
-function isNumberOrString(str) {
+function isNumberOrString(str: string) {
 	return /^([0-9a-zA-Z_]){1,20}$/.test(str);
 }
 
@@ -46,11 +46,6 @@ type Players = {
 	id: number,
 	login: string,
 	avatar: string,
-}
-
-export type Level = {
-	level: number,
-	xp: number,
 }
 
 const GridProfile = (props: {player: Players}) => {
@@ -72,9 +67,9 @@ const GridProfile = (props: {player: Players}) => {
 				},
 				auth: auth,
 			})
-			setWin(response.data['nbWin'])
-			setLoss(response.data['nbLoss'])
-			setLevel(findLevel(response.data['nbWin'] * 100 + response.data['nbLoss'] * 25))
+			setWin(response?.data['nbWin'])
+			setLoss(response?.data['nbLoss'])
+			setLevel(findLevel(response?.data['nbWin'] * 100 + response?.data['nbLoss'] * 25))
 			setFetched(true)
 		}
 		fetching()
@@ -221,8 +216,11 @@ const PlayersListWrapper = styled('div')({
 	overflowY: 'auto',
 });
 
+interface PlayersListItemProps {
+	isActive: boolean;
+}
 
-const PlayersListItem = styled('div')(({ isActive }) => ({
+const PlayersListItem = styled('div')<PlayersListItemProps>(({ isActive }) => ({
 	display: 'flex',
 	alignItems: 'center',
 	height: '56px',
@@ -231,7 +229,6 @@ const PlayersListItem = styled('div')(({ isActive }) => ({
 	borderRadius: '8px',
 	cursor: 'pointer',
 	backgroundColor: isActive ? '#EDEDED' : 'transparent',
-
 	'&:hover': {
 		backgroundColor: '#EDEDED',
 	},
@@ -262,8 +259,8 @@ const GridPlayers = () => {
 
 	const auth = useFetchAuth()
 	const [rows, setRows] = useState<Players[]>([] as Players[])
-	const [selectedRow, setSelectedRow] = useState(null)
-	const [selectedRowId, setSelectedRowId] = useState(null)
+	const [selectedRow, setSelectedRow] = useState<Players | null>(null)
+	const [selectedRowId, setSelectedRowId] = useState<number | null>(null)
 
 	useEffect(() => {
 		setRows([] as Players[])
@@ -272,19 +269,18 @@ const GridPlayers = () => {
 
 	const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault()
-		const timer = await timeout(1000)
 		if (isNumberOrString(e.target.value)) {
+			const timer = await timeout(1000)
 			const response = await FetchApi({
 				api: {
 					input: `http://${import.meta.env.VITE_SITE}/api/users/search/${e.target.value}`,
 				},
 				auth: auth,
 			})
-			setRows(response.data)
+			setRows(response?.data)
 		} else if (!e.target.value) {
 			setRows([] as Players[])
 		}
-		return () => clearTimeout(timer)
 	}
 
 	return (
@@ -369,17 +365,14 @@ const GridPlayers = () => {
 }
 
 
-type MatchHistoryProps = {
+type MatchInfoProps = {
 	open: boolean,
 	setOpen: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
-
-
 const SearchPlayers = (props: MatchInfoProps) => {
 
 	const [user, setUser] = useState('')
-	const [rows, setRows] = useState<matchHistoryPayload[]>({} as matchHistoryPayload[])
 	const auth = useFetchAuth();
 
 	const handleClose = () => {
@@ -418,7 +411,7 @@ const SearchPlayers = (props: MatchInfoProps) => {
 					</Box>
 				</DialogTitle>
 				<DialogContent>
-					<GridPlayers rows={rows} />
+					<GridPlayers />
 				</DialogContent>
 			</Dialog>
 		</>

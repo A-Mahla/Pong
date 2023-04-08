@@ -4,19 +4,19 @@ import {
 	Typography,
 	Button,
 } from '@mui/material'
-import useMediaQuery from "/src/pong/hooks/useMediaQuery"
+import useMediaQuery from "../hooks/useMediaQuery"
 import { useState } from 'react'
 import * as React from 'react';
-import { FetchApi, Api } from '/src/pong/component/FetchApi'
-import useAuth, { useFetchAuth } from '/src/pong/context/useAuth'
+import { FetchApi, Api } from '../component/FetchApi'
+import useAuth, { useFetchAuth } from '../context/useAuth'
 import GppGoodIcon from '@mui/icons-material/GppGood'
 import GppBadIcon from '@mui/icons-material/GppBad';
 import GppMaybeIcon from '@mui/icons-material/GppMaybe';
-import TFAComponent from '/src/pong/Profile/TFAComponent'
+import TFAComponent from '../Profile/TFAComponent'
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
 import { styled } from '@mui/material/styles';
-import MatchHistory from '/src/pong/Profile/MatchHistory'
-import SearchPlayers from '/src/pong/Profile/SearchPlayers'
+import MatchHistory from '../Profile/MatchHistory'
+import SearchPlayers from '../Profile/SearchPlayers'
 
 
 export type Level = {

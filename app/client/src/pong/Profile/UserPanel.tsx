@@ -3,9 +3,9 @@ import {
 	Divider,
 } from '@mui/material'
 import { useState } from 'react'
-import TFAComponent from '/src/pong/Profile/TFAComponent'
-import ChangeInfo from '/src/pong/Profile/ChangeInfo'
-import useMediaQuery from "/src/pong/hooks/useMediaQuery"
+import TFAComponent from '../Profile/TFAComponent'
+import ChangeInfo from '../Profile/ChangeInfo'
+import useMediaQuery from "../hooks/useMediaQuery"
 
 const UserPanelGrid = () => {
 

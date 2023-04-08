@@ -1,8 +1,8 @@
 import Avatar from '@mui/material/Avatar';
-import useAuth, {useFetchAuth} from '/src/pong/context/useAuth';
-import { FetchApi, Api, refreshRequest } from '/src/pong/component/FetchApi'
+import useAuth, {useFetchAuth} from '../context/useAuth';
+import { FetchApi, Api, refreshRequest } from '../component/FetchApi'
 import React, { createRef, useState, useEffect } from "react";
-import { SxProps } from '@material-ui/system';
+import { SxProps } from '@mui/system';
 import axios from 'axios';
 
 type PropsAvatar = {
@@ -14,8 +14,8 @@ type PropsAvatar = {
 const FetchAvatar = (props: PropsAvatar) => {
 
 	const [fetched, setFetched] = useState<boolean>(false)
-	const inputFileRef = createRef(null)
-	const [image, setImage] = useState<URL>(null)
+	const inputFileRef = createRef<HTMLInputElement>();
+	const [image, setImage] = useState<string>('')
 	const auth = useAuth()
 
 	useEffect(() => {
@@ -33,7 +33,7 @@ const FetchAvatar = (props: PropsAvatar) => {
 							withCredentials: true,
 							responseType: 'blob',
 							headers: {
-								Authorization: `Bearer ${response.token}`,
+								Authorization: `Bearer ${auth.token}`,
 							}
 						}
 					)

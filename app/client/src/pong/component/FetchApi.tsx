@@ -1,7 +1,7 @@
 import { useContext } from 'react'
 import { useNavigate } from "react-router-dom";
 import * as React from 'react'
-import useAuth from '/src/pong/context/useAuth'
+import useAuth from '../context/useAuth'
 
 export type Api = {
 	api: {
