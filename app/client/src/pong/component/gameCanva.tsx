@@ -292,7 +292,9 @@ const Canvas = ({ socket, handleThereIsMatch }: {socket: Socket, handleThereIsMa
 
 	const gameCanvas = React.useCallback((node: null | HTMLCanvasElement) => {
 		if (node !== null) {
-			canvas.current = node; //fait en sorte que ton canvas soit gerer dans un useState
+//			============= to work on ================
+//			canvas.current = node; //fait en sorte que ton canvas soit gerer dans un useState
+//			=========================================
 			setGame(true)
 		}
 	  }, []);
