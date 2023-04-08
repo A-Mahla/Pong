@@ -49,7 +49,7 @@ const TableHistory = ({rows}: {rows: matchHistoryPayload[]}) => {
 		{rows.length === 0 ?
 			(<>
 			<Divider variant="middle"/>
-			<Grid
+			<Grid container
 				display="flex"
 				direction="column"
 				justifyContent="center"
@@ -62,7 +62,6 @@ const TableHistory = ({rows}: {rows: matchHistoryPayload[]}) => {
 				>
 					No Match Found
 				</Typography>
-				<CircularProgress size={20} sx={{mt: 3, color:"#aab7b8"}}/>
 			</Grid>
 			</>) :
 			(<>
