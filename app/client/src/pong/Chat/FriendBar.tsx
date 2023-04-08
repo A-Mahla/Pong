@@ -9,7 +9,7 @@ import { ChatContext } from './Chat';
 import useAuth, { useFetchAuth } from '../context/useAuth';
 import { FetchApi } from '../component/FetchApi';
 import { socket } from './Socket';
-import { AddFriendData } from './Chat.types';
+import { AddFriendData, User } from './Chat.types';
 
 
 export const FriendBar = () => {
@@ -40,11 +40,11 @@ export const FriendBar = () => {
   //const [friendRequests, setFriendRequests] = React.useState([]);
   const [addFriendDialogOpen, setAddFriendDialogOpen] = React.useState(false);
   const [friendRequestsDialogOpen, setFriendRequestsDialogOpen] = React.useState(false);
-  const [matchingUsers, setMatchingUsers] = React.useState([])
+  const [matchingUsers, setMatchingUsers] = React.useState<User[]>([])
   const useContextAuth = useFetchAuth()
   const { id } = useAuth()
 
-  const handleFriendClick = (friendId) => {
+  const handleFriendClick = (friendId: number) => {
     console.log('friendId: ', friendId)
     setActiveFriendId(friendId);
   };
@@ -85,20 +85,20 @@ export const FriendBar = () => {
     socket.emit('friendRequest', payload)
   }
 
-  const handleSeachUserOnChange = (e) => {
+  const handleSearchUserOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const delayDebounce = setTimeout(async () => {
-      if (e.target.value === '')
+      if (event.target.value === '')
         return setMatchingUsers([])
 
-      const { data } = await FetchApi({
+      const response = await FetchApi({
         api: {
-          input: `http://${import.meta.env.VITE_SITE}/api/users/search/${e.target.value}`,
+          input: `http://${import.meta.env.VITE_SITE}/api/users/search/${event.target.value}`,
           option: {}
         },
         auth: useContextAuth
       })
 
-      setMatchingUsers(data.map((value) => ({
+      setMatchingUsers(response?.data.map((value: User) => ({
         id: value.id,
         login: value.login,
         avatar: value.avatar
@@ -113,7 +113,7 @@ export const FriendBar = () => {
       {friends.map((friend) => (
         <FriendListItem key={friend.id} friend={friend} onClick={handleFriendClick} activeFriendId={activeFriendId} />
       ))}
-      <FriendRequestButton variant="contained" onClick={handleAddFriendClick}>
+      <FriendRequestButton onClick={handleAddFriendClick}>
         <FriendListItemAvatar>
           <PersonAddIcon />
         </FriendListItemAvatar>
@@ -121,7 +121,7 @@ export const FriendBar = () => {
           Add friend
         </FriendListItemText>
       </FriendRequestButton>
-      <FriendRequestButton variant="outlined" onClick={handleFriendRequestCheckClick}>
+      <FriendRequestButton onClick={handleFriendRequestCheckClick}>
         <FriendListItemAvatar>
           <PeopleIcon />
         </FriendListItemAvatar>
@@ -132,7 +132,7 @@ export const FriendBar = () => {
       <Dialog open={addFriendDialogOpen} onClose={handleAddFriendDialogClose}>
         <DialogTitle>Add Friend</DialogTitle>
         <DialogContent>
-          <TextField label="Username" fullWidth onChange={handleSeachUserOnChange} />
+          <TextField label="Username" fullWidth onChange={handleSearchUserOnChange} />
         </DialogContent>
         <UserListWrapper>
           {matchingUsers.map((user) => (

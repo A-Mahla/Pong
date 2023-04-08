@@ -2,13 +2,13 @@ import { useEffect, useState, createContext } from 'react'
 import { io, Socket } from 'socket.io-client';
 import useAuth from '../context/useAuth'
 import { Chat } from './Chat'
-import { Friend, FriendRequest, Message, Room, User } from './Chat.types'
+import { DirectMessage, Friend, FriendRequest, Message, Room, User } from './Chat.types'
 
 export const socket: Socket = io(`http://${import.meta.env.VITE_SITE}/chat`)
 
 interface UpdatesContextProps {
-	newDirectMessage: Message | undefined;
-	setNewDirectMessage: React.Dispatch<React.SetStateAction<Message | undefined>>;
+	newDirectMessage: DirectMessage | undefined;
+	setNewDirectMessage: React.Dispatch<React.SetStateAction<DirectMessage | undefined>>;
 	newRoomMessage: Message | undefined;
 	setNewRoomMessage: React.Dispatch<React.SetStateAction<Message | undefined>>;
 	newRoom: Room | undefined;
@@ -23,7 +23,7 @@ interface UpdatesContextProps {
 	setDeclineFriendRequestId: React.Dispatch<React.SetStateAction<number | undefined>>;
   }
 
-const initialUpdatesContext = {
+const initialUpdatesContext: UpdatesContextProps = {
 	newDirectMessage: undefined,
 	setNewDirectMessage: () => {},
 	newRoomMessage: undefined,
@@ -52,7 +52,7 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 
 	const [newRoomMessage, setNewRoomMessage] = useState<Message | undefined>(undefined)
 
-	const [newDirectMessage, setNewDirectMessage] = useState<Message | undefined>(undefined)
+	const [newDirectMessage, setNewDirectMessage] = useState<DirectMessage | undefined>(undefined)
 
 	const [newFriendRequest, setNewFriendRequest] = useState<FriendRequest | undefined>(undefined)
 
@@ -108,7 +108,7 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 
 		socket.on('roomMessage', onRoomMessageEvent)
 
-		function onDirectMessageEvent(newMessage: Message) {
+		function onDirectMessageEvent(newMessage: DirectMessage) {
 			console.log(`receive message: "${newMessage.content}" send by n:${newMessage.sender_id}`)
 			setNewDirectMessage(newMessage)
 		}

@@ -1,3 +1,8 @@
+export type AddFriendData = {
+	user1_id: number,
+	user2_id: number
+}
+
 export type JoinRoomData = {
 	user_id: number,
 	room_id: number,
@@ -19,7 +24,7 @@ export type CreateRoomData = {
 
 export type MessageData = {
 	content: string,
-	sender_id: string,
+	sender_id: number,
 	time?: string,
 	room?: {
 		name: string,
@@ -42,7 +47,9 @@ export type Action = {
 }
 
 export type User = {
+	id: number,
 	login: string,
+	avatar: string
 }
 
 export type Message = {
@@ -56,7 +63,7 @@ export type Message = {
 export type Room = {
 	id : number,
 	name: string,
-	messages: Messages[]
+	messages: Message[]
 }
 
 export type DirectMessage = {
@@ -65,4 +72,24 @@ export type DirectMessage = {
 	sender_id: number,
 	recipient_id: number,
 	content: string
+}
+
+export type Friend = {
+	id: number,
+	createdAt: string,
+	user1Login: string,
+	user1Id: number,
+	user2Login: string,
+	user2Id: number,
+	status: string
+}
+
+export type FriendRequest = {
+	id: number,
+	createdAt: string,
+	user1Login: string,
+	user1Id: number,
+	user2Login: string,
+	user2Id: number,
+	status: string
 }

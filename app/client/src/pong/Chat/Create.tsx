@@ -4,14 +4,14 @@ import { ChatContext } from "./Chat"
 import useAuth, { useFetchAuth } from '../context/useAuth'
 import { FetchApi } from '../component/FetchApi'
 import { CreateRoomData } from './Chat.types'
-import { socket } from './Chat'
+import { socket } from './Socket'
 
 export function CreateRoom() {
 	const name = useRef('')
 
 	const password = useRef('')
 	
-	const {isCreating} = useContext(ChatContext) 
+	const {isCreating, setIsCreating} = useContext(ChatContext) 
 
 	const [secured, isSecured] = useState(false)
 
@@ -19,33 +19,29 @@ export function CreateRoom() {
 
 	const handleSwitch = useCallback(() => {
 		secured ? isSecured(false) : isSecured(true)
-	})
+	}, [secured])
 
 	const handleCreateRoom = useCallback(() => {
 
-		if (name === '')
+		if (name.current === '')
 			return
-		else if (secured && password === '')
+		else if (secured && password.current === '')
 			return
 
 		const newRoomData : CreateRoomData  = {
-			name: name.current.value,
-			password: password.current ? password.current.value : '',
+			name: name.current,
+			password: password.current ? password.current : '',
 			owner_id: id
 		}
 
-		socket.emit('createRoom', newRoomData/* , (response) => {
-			console.log('creatRoom response: ', response);
-			console.log('clientId: ', socket.id);
-			
-		} */)
+		socket.emit('createRoom', newRoomData)
 
-		isCreating(false)
+		setIsCreating(false)
 	}, [socket])
 
 	return (
 		<FormControl>
-			<Button onClick={() => (isCreating(false))}>x</Button>
+			<Button onClick={() => (setIsCreating(false))}>x</Button>
 			{secured ? 'secured' : 'not secured'} 
 			<FormControlLabel control={<Switch onChange={handleSwitch}/>} label="Protected" />
 			<TextField placeholder="room name" inputRef={name}/>

@@ -4,8 +4,8 @@
 }
 
 .messageReceived {
-	text-align: right;
-	background-color: grey;
+	text-align: left;
+	background-color: lightgrey;
 }
 
 .roomListElem {

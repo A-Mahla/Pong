@@ -21,7 +21,11 @@ export const FriendListWrapper = styled('div')({
 	overflowY: 'auto',
 });
 
-export const FriendListItemWrapper = styled('div')(({ isActive }) => ({
+interface FriendListItemWrapperProps extends React.HTMLAttributes<HTMLDivElement> {
+	isActive?: boolean;
+}
+
+export const FriendListItemWrapper = styled('div')<FriendListItemWrapperProps>(({ isActive }) => ({
 	display: 'flex',
 
 	alignItems: 'center',
@@ -37,11 +41,10 @@ export const FriendListItemWrapper = styled('div')(({ isActive }) => ({
 	},
 }));
 
-export const FriendListItem = ({ friend, activeFriendId, onClick}) => {
+export const FriendListItem = ({ friend, activeFriendId, onClick}: {friend: User, activeFriendId: number, onClick: (id: number) => void}) => {
 	return (
 	  <FriendListItemWrapper
 		key={friend.id}
-		value={JSON.stringify(friend)}
 		isActive={friend.id === activeFriendId}
 		onClick={() => onClick(friend.id)}
 	  >
@@ -122,7 +125,7 @@ export const FriendRequestButtonWrapper = styled('div')({
 
 });
 
-export const FriendRequestButton = styled('div')<{isActive: boolean}>(({ isActive }) => ({
+export const FriendRequestButton = styled('div')(() => ({
 	display: 'flex',
 	alignItems: 'center',
 	height: '56px',
@@ -130,7 +133,6 @@ export const FriendRequestButton = styled('div')<{isActive: boolean}>(({ isActiv
 	margin: '4px',
 	borderRadius: '8px',
 	cursor: 'pointer',
-	backgroundColor: isActive ? '#EDEDED' : 'transparent',
 
 	'&:hover': {
 		backgroundColor: '#EDEDED',

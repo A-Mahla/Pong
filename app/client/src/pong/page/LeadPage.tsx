@@ -11,7 +11,7 @@ import useAuth, {useFetchAuth} from '../context/useAuth'
 import { FetchApi} from '../component/FetchApi'
 import  GamePage  from './Game';
 import '../../App.css';
-import { ChatSocketProvider } from '../Chatv2/Socket'
+import { ChatSocketProvider } from '../Chat/Socket'
 
 const header = {
 	height: '4vw;',

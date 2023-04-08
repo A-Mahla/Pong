@@ -1,10 +1,10 @@
 import { List, ListItem, ListItemButton, Button, FormControl, TextField } from '@mui/material'
-import { Search } from '@mui/icons-material'
-import { useContext, useState, useEffect, useCallback } from "react"
+import { Search, TypeSpecimen } from '@mui/icons-material'
+import React, { useContext, useState, useEffect, useCallback } from "react"
 import { FetchApi } from "../component/FetchApi"
 import useAuth, { useFetchAuth } from "../context/useAuth"
 import { ChatContext } from "./Chat"
-import { AddFriendData, JoinuserData } from "./Chat.types"
+import { AddFriendData, User} from "./Chat.types"
 import { socket } from "./Socket"
 
 export function AddFriend() {
@@ -26,7 +26,7 @@ export function AddFriend() {
 			if (searchTerm === '')
 				return setMatchingUsers([])
 
-			const { data } = await FetchApi({
+			const response = await FetchApi({
 				api: {
 					input: `http://${import.meta.env.VITE_SITE}/api/users/search/${searchTerm}`,
 					option: {}
@@ -34,24 +34,23 @@ export function AddFriend() {
 				auth: useContextAuth
 			})
 
-			console.log('data: ', data)
+			console.log('data: ', response?.data)
 
-			setMatchingUsers(data.map((value) => ({
+			setMatchingUsers(response?.data.map((value: User) => ({
 				id: value.id,
-				login: value.login
+				login: value.login,
+				avatar: value.avatar
 			})))
 
 		}, 800)
 		return () => clearTimeout(delayDebounce)
 	}, [searchTerm])
 
-	const handleAdd = useCallback((e) => {
-
-		const value = JSON.parse(e.target.value)
+	const handleAdd = useCallback((user: User) => {
 
 		const payload: AddFriendData = {
 			user1_id: id,
-			user2_id: value.id
+			user2_id: user.id
 		}
 
 		socket.emit('friendRequest',  payload)
@@ -77,11 +76,11 @@ export function AddFriend() {
 		setIsSearching(false)
 	}, [socket])
 
-	const handleChange = useCallback((e) => {
+	const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchTerm(e.target.value)
 	}, [])
 
-	const [userList, setUserList] = useState([])
+	const [userList, setUserList] = useState<React.ReactNode[]>([])
 
 	useEffect(() => {
 		setUserList(
@@ -93,7 +92,7 @@ export function AddFriend() {
 					return (<ListItem
 						key={tmpUser.id}
 						secondaryAction={
-							<Button value={JSON.stringify(tmpUser)} onClick={handleAdd}>ADD</Button>
+							<Button onClick={() => handleAdd(tmpUser)}>ADD</Button>
 						}
 					>{tmpUser.login}</ListItem>)
 				}

@@ -208,13 +208,12 @@ function ChatInput() {
 const ChatBox = styled(Paper)(({ theme }) => ({
 	display: 'flex',
 	flexDirection: 'column',
-	height: '50vh',
 	borderRadius: 0,
 	overflow: 'hidden',
 	boxShadow: 'none',
 	border: `1px solid ${theme.palette.grey[300]}`,
 	position: 'relative', /* add position relative */
-	//height: '600px',
+	height: '600px',
 	width: '100%',
 	maxWidth: '100%'
 }));

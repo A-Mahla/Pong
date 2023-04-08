@@ -1,111 +1,166 @@
-import { Button, TextField, FormControl, Paper, Box, InputAdornment, List, ListItem, ListItemButton, ListItemText, Dialog} from "@mui/material"
-import React, { useRef, useCallback, useState, useEffect, useReducer, createContext } from "react"
-import { State, Room, Message, MessageData, LeaveRoomData } from "./Chat.types"
-import useAuth from '/src/pong/context/useAuth';
-import { reducer, getUserRooms } from "./Chat.utils"
-import io from "socket.io-client"
-import { SearchRoom } from "./Search";
-import { CreateRoom } from "./Create";
-import { DirectMessages } from "./DirectMessages";
-import { RoomMessages } from "./RoomMessages";
-import './Chat.css'
-import { ChatFooter } from './ChatFooter'
+import { useContext, useState, useEffect, createContext } from 'react'
+import { Box, Grid } from '@mui/material'
+import { Api, FetchApi } from '../component/FetchApi'
+import { useFetchAuth } from '../context/useAuth'
+import { DirectMessage, Friend, FriendRequest, Message, Room, User } from './Chat.types'
+import { RoomBar } from './RoomBar'
+import { socket, UpdatesContext } from './Socket'
+import { MessagesBox } from './MessagesBox'
+import { FriendBar } from './FriendBar'
 
-
-import { useFetchAuth } from '/src/pong/context/useAuth'
-import { FetchApi, Api } from '/src/pong/component/FetchApi'
-
-const initialState: State = {
-	room: {
-		name: '',
-		id: 0
-	},
-	messages: []
-}
-
-const initialChatContext = {
-	isJoining: null,
-	joining: false,
-	isCreatoing: null,
-	creating: false,
-	setDirect: null,
-	direct: false,
-	current: {},
-	setCurrent: null
-}
-
-const initialRoomContext = {
+type ChatContextType = {
+	rooms: Room[];
+	setRooms: React.Dispatch<React.SetStateAction<Room[]>>;
+	directMessages: DirectMessage[];
+	setDirectMessages: React.Dispatch<React.SetStateAction<DirectMessage[]>>;
+	friends: User[];
+	setFriends: React.Dispatch<React.SetStateAction<User[]>>;
+	friendRequests: FriendRequest[];
+	setFriendRequests: React.Dispatch<React.SetStateAction<FriendRequest[]>>;
+	current: {
+	  name: string;
+	  id: number;
+	};
+	setCurrent: React.Dispatch<React.SetStateAction<{ name: string; id: number }>>;
+	target: {
+	  login: string;
+	  id: number;
+	};
+	setTarget: React.Dispatch<React.SetStateAction<{ login: string; id: number }>>;
+	isJoining: boolean;
+	setIsJoining: React.Dispatch<React.SetStateAction<boolean>>;
+	isCreating: boolean;
+	setIsCreating: React.Dispatch<React.SetStateAction<boolean>>;
+	isInDirect: boolean;
+	setIsInDirect: React.Dispatch<React.SetStateAction<boolean>>;
+	isSearching: boolean;
+	setIsSearching: React.Dispatch<React.SetStateAction<boolean>>;
+  };
+  
+  const initialChatContext: ChatContextType = {
 	rooms: [],
-	setRooms: null,
-	current: {}
-}
-
-const initialDirectMessagesContext = {
+	setRooms: () => null,
 	directMessages: [],
-	setDirectMessages: null,
-	newDirectMessage: {},
-	setNewDirectMessage: null
-}
-
-export const ChatContext = createContext(initialChatContext)
-
-export const RoomContext = createContext(initialRoomContext)
-
-export const DirectMessagesContext = createContext(initialDirectMessagesContext)
-
-export const socket = io.connect("http://localhost:8080/chat")
-
+	setDirectMessages: () => null,
+	friends: [],
+	setFriends: () => null,
+	friendRequests: [],
+	setFriendRequests: () => null,
+	current: {
+	  name: '',
+	  id: 0,
+	},
+	setCurrent: () => null,
+	target: {
+	  login: '',
+	  id: 0,
+	},
+	setTarget: () => null,
+	isJoining: false,
+	setIsJoining: () => null,
+	isCreating: false,
+	setIsCreating: () => null,
+	isInDirect: false,
+	setIsInDirect: () => null,
+	isSearching: false,
+	setIsSearching: () => null,
+  };
+  
+  export const ChatContext = createContext<ChatContextType>(initialChatContext);
+  
 export function Chat() {
+	const {
+		newDirectMessage,
+		setNewDirectMessage,
+		newRoomMessage,
+		setNewRoomMessage,
+		newRoom,
+		setNewRoom,
+		leavedRoom,
+		setLeavedRoom,
+		newFriendRequest,
+		setNewFriendRequest,
+		newFriend,
+		setNewFriend,
+		declineFriendRequestId,
+		setDeclineFriendRequestId
+	} = useContext(UpdatesContext)
 
-	const message = useRef('')
-
-	const [current, setCurrent] = useState({name: '', id: 0})
+	const [directMessages, setDirectMessages] = useState<DirectMessage[]>([])
 
 	const [rooms, setRooms] = useState<Room[]>([])
 
-	const [newRoom, setNewRoom] = useState<Room>()
+	const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([])
 
-	const [leavedRoom, setLeavedRoom] = useState<number>()
+	const [friends, setFriends] = useState<User[]>([])
 
-	const [newRoomMessage, setNewRoomMessage] = useState<Message>()
+	const [current, setCurrent] = useState<{name: string, id: number}>({ name: '', id: 0 })
 
-	const [newDirectMessage, setNewDirectMessage] = useState<Message>()
+	const [target, setTarget] = useState<{login: string, id: number}>({ login: '', id: 0 })
 
-	const [directMessages, setDirectMessages] = useState<Message[]>([])
+	const [isJoining, setIsJoining] = useState<boolean>(false)
 
-	const [joining, isJoining] = useState(false)
+	const [isSearching, setIsSearching] = useState<boolean>(false)
 
-	const [creating, isCreating] = useState(false)
+	const [isCreating, setIsCreating] = useState<boolean>(false)
 
-	const [direct, setDirect] = useState(false)
+	const [isInDirect, setIsInDirect] = useState<boolean>(false)
 
-	const { user, id } = useAuth()
+	const chatContext = {
+		rooms: rooms,
+		setRooms: setRooms,
+		directMessages: directMessages,
+		setDirectMessages: setDirectMessages,
+		friends: friends,
+		setFriends: setFriends,
+		friendRequests: friendRequests,
+		setFriendRequests: setFriendRequests,
+		current: current,
+		setCurrent: setCurrent,
+		target: target,
+		setTarget: setTarget,
+		isJoining: isJoining,
+		setIsJoining: setIsJoining,
+		isCreating: isCreating,
+		setIsCreating: setIsCreating,
+		isInDirect: isInDirect,
+		setIsInDirect: setIsInDirect,
+		isSearching: isSearching,
+		setIsSearching: setIsSearching
+	}
 
 	const auth = useFetchAuth()
 
-	const chatContext = {
-		isJoining: isJoining,
-		joining: joining,
-		isCreating: isCreating,
-		creating: creating,
-		setDirect: setDirect,
-		direct: direct,
-		current: current,
-		setCurrent: setCurrent
+	const getFriendsRequestsRequest: Api = {
+		api: {
+			input: `http://${import.meta.env.VITE_SITE}/api/friends/requests`,
+		},
+		auth: auth
 	}
 
-	const roomContext = {
-		rooms: rooms,
-		setRooms: setRooms,
-		current: current
+	useEffect(() => {
+		async function getFriendRequests() {
+			const response = await FetchApi(getFriendsRequestsRequest)
+			return response?.data
+		}
+		getFriendRequests().then(data => setFriendRequests(data))
+	}, [])
+
+	const getFriendsRequest: Api = {
+		api: {
+			input: `http://${import.meta.env.VITE_SITE}/api/friends`,
+		},
+		auth: auth
 	}
 
-	const directMessageContext = {
-		directMessages: directMessages,
-		setDirectMessages: setDirectMessages,
-		newDirectMessage: newDirectMessage,
-		setNewDirectMessage: setNewDirectMessage
-	}
+	useEffect(() => {
+		async function getFriends() {
+			const response = await FetchApi(getFriendsRequest)
+			console.log('friends: ', response?.data)
+			return response?.data
+		}
+		getFriends().then(data => setFriends(data))
+	}, [])
 
 	const findRooms: Api = {
 		api: {
@@ -127,9 +182,9 @@ export function Chat() {
 
 	useEffect(() => {
 		async function getMessages() {
-			const {data} = await FetchApi(getMessagesRequest)
-			console.log('messages data: ', data)
-			return data
+			const response = await FetchApi(getMessagesRequest)
+			console.log('messages data: ', response?.data)
+			return response?.data
 		}
 
 		getMessages().then(data => setDirectMessages(data))
@@ -137,70 +192,21 @@ export function Chat() {
 
 	useEffect(() => {
 		const getRooms = async () => {
-			const { data } = await FetchApi(findRooms)
+			const response = await FetchApi(findRooms)
 
-			const rooms = data.map((value) => ({
-				id: value.room_id,
+			const rooms = response?.data.map((value: Room) => ({
+				id: value.id,
 				name: value.name,
 				messages: value.messages
 			}))
-
 			return rooms
-
 		}
+
 		getRooms().then(data => {
 			setRooms(data)
 		})
 
 	}, [])
-
-	useEffect(() => {		//---ROOMS & MESSAGES--//
-
-		console.log('add eventListeners')
-
-		socket.emit('join', id)
-
-		function onRoomCreatedEvent(payload) {
-			setNewRoom(payload)
-		}
-
-		socket.on('roomCreated', onRoomCreatedEvent)
-
-		function onRoomJoinedEvent(payload) {
-			console.log(`room ${payload} joined`)
-			setNewRoom({id: payload.room_id, name: payload.name, messages: payload.messages})		
-		}
-
-		socket.on('roomJoined', onRoomJoinedEvent)
-
-		function onRoomLeavedEvent(payload) {
-			console.log(`leaving room ${payload.room_id}`)
-			setLeavedRoom(payload.room_id)
-		}
-
-		socket.on('roomLeaved', onRoomLeavedEvent)
-
-		function onRoomMessageEvent(newMessage) {
-			console.log(`receive message: "${newMessage.content}" send by n:${newMessage.sender_id}`)
-			setNewRoomMessage(newMessage)
-		}
-
-		socket.on('roomMessage', onRoomMessageEvent)
-
-		function onDirectMessageEvent(newMessage) {
-			setNewDirectMessage(newMessage)
-		}
-
-		socket.on('directMessage', onDirectMessageEvent)
-
-		return () => {
-			socket.off('roomCreated', onRoomCreatedEvent)
-			socket.off('roomJoined', onRoomJoinedEvent)
-			socket.off('roomLeaved', onRoomLeavedEvent)
-			socket.off('roomMessage', onRoomMessageEvent)
-		}
-
-	}, [socket])
 
 	useEffect(() => {
 		if (newRoomMessage !== undefined) {
@@ -211,188 +217,75 @@ export function Chat() {
 					return room
 				}))
 			}
-			setNewRoomMessage()
+			setNewRoomMessage(undefined)
+		}
+		if (newDirectMessage !== undefined) {
+			console.log('oueee', newDirectMessage)
+			console.log('directMessages: ', directMessages)
+			setDirectMessages([...directMessages, newDirectMessage])
+			setNewDirectMessage(undefined)
 		}
 		if (newRoom !== undefined) {
 			setRooms([...rooms, newRoom])
-			setNewRoom()
+			setNewRoom(undefined)
 		}
 		if (leavedRoom !== undefined) {
 			console.log('leave a room')
 			setRooms(rooms.filter((room) => {
 				if (room.id !== leavedRoom) {
-					return rooms 
+					return rooms
 				}
 			}))
-			setLeavedRoom()
+			setLeavedRoom(undefined)
+		}
+		if (newFriendRequest !== undefined) {
+			console.log('newFriendRequest: ', newFriendRequest)
+			setFriendRequests([...friendRequests, newFriendRequest])
+			setNewFriendRequest(undefined)
+		}
+		if (newFriend !== undefined) {
+			console.log(`newFriend: `, newFriend)
+			setFriends([...friends, newFriend])
+			setNewFriend(undefined)
+		}
+		if (declineFriendRequestId !== undefined) {
+			console.log(declineFriendRequestId)
+			//console.log(friendRequests.filter((friendRequest) => (friendRequest.id !== declineFriendRequestId)))
+			setFriendRequests(friendRequests.filter((friendRequest) => (friendRequest.id !== declineFriendRequestId)))
+			setDeclineFriendRequestId(undefined)
 		}
 
-	}, [newRoomMessage, newRoom, leavedRoom])
-
-
-	const handleChangeRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-
-		const payload = JSON.parse(e.currentTarget.getAttribute('value'))
-
-		if (payload.id === current.id)
-			return
-
-		console.log(payload)
-
-		setCurrent(payload)
-
-	}, [])
-
-	const handleCreateRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-
-		creating ? isCreating(false) : isCreating(true)
-		if (joining)
-			isJoining(false)
-		if (direct)
-			setDirect(false)
-
-	}, [creating, joining])
-
-	const handleSearchRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-		joining ? isJoining(false) : isJoining(true)
-		if (creating)
-			isCreating(false)
-		if (direct)
-			setDirect(false)
-
-	}, [joining, creating])
-
-	const handleDirectMessages = useCallback(() => {
-		direct ? setDirect(false) : setDirect(true)
-		if (creating)
-			isCreating(false)
-		if (joining)
-			isJoining(false)
-
-		setCurrent({name: '', id: 0})
-	})
-
-	const roomList = rooms.map((room) => {
-
-		if (current.id === room.id) {
-			return (
-				<ListItem 
-					disablePadding
-					key={room.id}
-					sx={{borderRadius: 20,bgcolor: 'LightSkyBlue'}}
-					>
-					<ListItemButton
-						sx={{borderRadius: 10}}
-						onClick={handleChangeRoom}
-						value={JSON.stringify(room)}
-						>
-						<ListItemText
-							sx={{textAlign: 'center'}}
-							>{room.name}</ListItemText>
-					</ListItemButton>
-				</ListItem>
-			)
-
-		}
-		else {
-			return (
-				<ListItem 
-					disablePadding
-					key={room.id}
-					sx={{borderRadius: 20,bgcolor: 'lightgrey'}}
-					>
-					<ListItemButton
-						sx={{borderRadius: 10}}
-						onClick={handleChangeRoom}
-						value={JSON.stringify(room)}
-						>
-						<ListItemText
-							sx={{textAlign: 'center'}}
-							>{room.name}</ListItemText>
-					</ListItemButton>
-				</ListItem>
-			)
-
-		}
-
-	})
+	}, [newRoomMessage, newDirectMessage, newRoom, leavedRoom, newFriendRequest, newFriend, declineFriendRequestId])
 
 	return (
 		<ChatContext.Provider value={chatContext}>
-			<Box
-				sx={{display: 'flex'}}
-				>
-				<List sx={{borderRadius:2, p:0,m:2,border: 1,maxHeight:800, maxWidth:200, overflow:'auto'}}>
-					<ListItem disablePadding>
-						<ListItemButton
-							onClick={handleDirectMessages}
-							sx={{borderRadius: 10}}>	
-							<ListItemText 
-								sx={{textAlign: 'center'}}
-								>direct messages</ListItemText>
-						</ListItemButton>
-					</ListItem>
+			{
 
-					<ListItem disablePadding>
-						<ListItemText
-							sx={{textAlign: 'center', bgcolor: 'grey' }}
-							>rooms</ListItemText>
-					</ListItem>
+				/* 			<Box
+								sx={{display: 'flex', borderRadius:2, p:0,m:2,border: 1,maxHeight:500, overflow:'auto'}}
+								>
+								<RoomBar />
+								<DirectMessageBar />
+								<MessagesBox />
+				
+							</Box> */
+			}
+			<Grid container
+				sx={{ border: 1 }}
+			>
+				<Grid item xs={6} md={2}>
+					<RoomBar />
+				</Grid>
 
-					{roomList}
+				<Grid item xs={6} md={2}>
+					<FriendBar />
+					{/* <DirectMessageBar />} */}
+				</Grid>
 
-					<ListItem disablePadding>
-						<ListItemText
-							sx={{textAlign: 'center', bgcolor: 'grey' }}
-							>options</ListItemText>
-					</ListItem>
-
-					<ListItem disablePadding>
-						<ListItemButton
-							onClick={handleCreateRoom}
-							sx={{borderRadius: 10}}>	
-							<ListItemText 
-								sx={{textAlign: 'center'}}
-								>create room</ListItemText>
-						</ListItemButton>
-					</ListItem>
-
-					<ListItem disablePadding>
-						<ListItemButton
-							onClick={handleSearchRoom}
-							sx={{borderRadius: 10}}>	
-							<ListItemText 
-								sx={{textAlign: 'center'}}
-								>search room</ListItemText>
-						</ListItemButton>
-					</ListItem>
-				</List>
-
-				<RoomContext.Provider value={roomContext}>
-					<Dialog
-						open={creating}
-						onClose={() => isCreating(false) }
-						>
-							<CreateRoom/>
-						</Dialog>
-
-					<Dialog
-						open={joining}
-						onClose={() => isJoining(false) }
-						>
-							<SearchRoom/>
-						</Dialog>
-
-					<DirectMessagesContext.Provider value={directMessageContext}>
-						{direct ? <DirectMessages/> : null}	
-					</DirectMessagesContext.Provider>
-					<Paper>
-						{current.name !== '' ? <RoomMessages/> : null}
-						{current.name !== '' ? <ChatFooter/> : null}
-					</Paper>
-				</RoomContext.Provider>
-			</Box>
+				<Grid item xs={12} md={8}>
+					<MessagesBox />
+				</Grid>
+			</Grid>
 		</ChatContext.Provider>
 	)
-
 }
