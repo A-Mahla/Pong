@@ -1,7 +1,7 @@
 import Avatar from '@mui/material/Avatar';
-import useAuth, {useFetchAuth} from '../context/useAuth';
-import { FetchApi, Api, refreshRequest } from '../component/FetchApi'
-import React, { createRef, useState, useEffect } from "react";
+import useAuth from '../context/useAuth';
+import { refreshRequest } from '../component/FetchApi'
+import  { createRef, useState, useEffect } from "react";
 import { SxProps } from '@mui/system';
 import axios from 'axios';
 

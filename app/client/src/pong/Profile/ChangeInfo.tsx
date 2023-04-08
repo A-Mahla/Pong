@@ -9,8 +9,7 @@ import {
 import useMediaQuery from "../hooks/useMediaQuery"
 import { useState, useRef } from 'react'
 import * as React from 'react';
-import TFAComponent from '../Profile/TFAComponent'
-import { FetchApi, Api } from '../component/FetchApi'
+import { FetchApi} from '../component/FetchApi'
 import useAuth, { useFetchAuth } from '../context/useAuth'
 
 function isNumberOrString(str: string) {

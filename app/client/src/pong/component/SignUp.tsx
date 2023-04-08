@@ -11,13 +11,10 @@ import {
 } from '@mui/material';
 import React, {
 	useRef,
-	useEffect,
 	useState,
 	createRef,
 } from 'react'
 import useAuth, {useFetchAuth} from '../context/useAuth';
-import { FetchApi, Api, refreshRequest } from '../component/FetchApi'
-import axios from 'axios';
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
 function isNumberOrString(str: string) {

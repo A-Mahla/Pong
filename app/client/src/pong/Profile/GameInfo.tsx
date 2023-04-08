@@ -6,13 +6,9 @@ import {
 } from '@mui/material'
 import useMediaQuery from "../hooks/useMediaQuery"
 import { useState } from 'react'
-import * as React from 'react';
-import { FetchApi, Api } from '../component/FetchApi'
-import useAuth, { useFetchAuth } from '../context/useAuth'
+import { useFetchAuth } from '../context/useAuth'
 import GppGoodIcon from '@mui/icons-material/GppGood'
 import GppBadIcon from '@mui/icons-material/GppBad';
-import GppMaybeIcon from '@mui/icons-material/GppMaybe';
-import TFAComponent from '../Profile/TFAComponent'
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
 import { styled } from '@mui/material/styles';
 import MatchHistory from '../Profile/MatchHistory'

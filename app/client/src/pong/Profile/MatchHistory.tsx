@@ -16,15 +16,12 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { TableVirtuoso, TableComponents } from 'react-virtuoso';
 import { useState, useEffect } from 'react'
 import GppGoodIcon from '@mui/icons-material/GppGood';
 import GppBadIcon from '@mui/icons-material/GppBad';
 import GppMaybeIcon from '@mui/icons-material/GppMaybe';
 import * as React from 'react';
-
 import { styled } from '@mui/system';
 import {PlayersListItemAvatar} from '../Profile/SearchPlayers'
 import FetchAvatar from '../component/FetchAvatar'

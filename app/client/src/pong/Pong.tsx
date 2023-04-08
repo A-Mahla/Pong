@@ -7,15 +7,8 @@ import Contact from './page/Contact';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Login } from './component/Login';
 import { AuthProvider } from './context/useAuth';
-import PrivateRoute from './component/PrivateRoute';
-import LoggedRoute from './component/LoggedRoute';
-import { Chat } from './Chat/Chat';
-import Game from './page/Game';
-import { GameSocketProvider } from './services/GameSocketProvider';
-import { GamePage } from './page/Game';
 import { ChatSocketProvider } from './Chatv2/Socket';
 import SignUp from './component/SignUp';
-import Particles from 'particlesjs'
 import '../index.css';
 
 /**

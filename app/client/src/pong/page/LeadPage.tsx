@@ -8,7 +8,7 @@ import Swipeable from '../component/Swipeable'
 import Profile from '../Profile/Profile'
 import './LeadPage.css'
 import useAuth, {useFetchAuth} from '../context/useAuth'
-import { FetchApi, Api } from '../component/FetchApi'
+import { FetchApi} from '../component/FetchApi'
 import  GamePage  from './Game';
 import '../../App.css';
 import { ChatSocketProvider } from '../Chatv2/Socket'

@@ -2,7 +2,6 @@ import {
 	Typography,
 	Box,
 	Grid,
-	Avatar,
 	Divider,
 	FormControl,
 	TextField,
@@ -11,7 +10,6 @@ import {
 import useAuth from '../context/useAuth';
 import React, {
 	useRef,
-	useEffect,
 	useState,
 } from 'react'
 import emailjs from "@emailjs/browser";

@@ -6,9 +6,8 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useNavigate, useLocation, createSearchParams } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { originalRequest, refreshRequest, responseApi } from "../component/FetchApi"
-import { FetchApi, Api } from '../component/FetchApi'
 import axios from 'axios'
 
 interface AuthContextType {

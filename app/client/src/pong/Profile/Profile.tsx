@@ -1,4 +1,4 @@
-import { Box, Grid, Typography } from '@mui/material'
+import { Grid} from '@mui/material'
 import { useEffect, useState } from 'react'
 import '../page/LeadPage.css'
 //import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -10,7 +10,6 @@ import {
 	ThemeProvider,
 	createTheme,
 	CircularProgress,
-	Divider
 } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
