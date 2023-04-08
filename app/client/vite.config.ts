@@ -9,9 +9,9 @@ export default defineConfig({
 	  react(),
 	  eslintPlugin(),
 	  // ======= checker typescript to activate ====
-	  /*checker({
+	  checker({
         typescript: true,
-	  }),*/
+	  }),
 	 // =============================================
   ],
   server: {
