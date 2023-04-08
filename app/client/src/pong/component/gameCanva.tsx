@@ -293,7 +293,7 @@ export const draw = (canvas: any, game: GameData) => {
 	context.fill();
 };
 
-const Canvas = ({ socket, handleThereIsMatch }: {socket: Socket, handleThereIsMatch: () => void}) => {
+const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Socket, handleThereIsMatch: () => void, handleThereIsError: (errorstr: string) => void}) => {
 	// ref to the html5 canvas on wich we will draw
 	const canvas = React.useRef<HTMLCanvasElement>(null); // reference/pointer on html5 canvas element, so you can draw on it
 
@@ -330,7 +330,6 @@ const Canvas = ({ socket, handleThereIsMatch }: {socket: Socket, handleThereIsMa
 		drawWaitingScreen(canvas.current, animationId);
 
 		socket.on('disconnection', (errorMessage: string) => {
-			console.log("OYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY");
 			handleThereIsError(errorMessage)
 		})
 

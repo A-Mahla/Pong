@@ -53,7 +53,7 @@ function JoinQueuButton({socket, setJoinQueu, joinQueu}: any): any {
 			!joinQueu ? (<>
 
 					<Button onClick={handleClick}>
-						JOIN QUEU
+							JOIN QUEU
 					</Button>
 
 			</>) : (
