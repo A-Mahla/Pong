@@ -18,14 +18,14 @@ import {
 	FormControlLabel,
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import useAuth, { useFetchAuth } from '/src/pong/context/useAuth'
+import useAuth, { useFetchAuth } from '../context/useAuth'
 import { useState, useEffect } from 'react'
-import { FetchApi, Api, refreshRequest } from '/src/pong/component/FetchApi'
+import { FetchApi, Api, refreshRequest } from '../component/FetchApi'
 import * as React from 'react';
 import axios from 'axios';
 
 
-function isNumber(str) {
+function isNumber(str: string) {
 	return /^\d+$/.test(str);
 }
 
@@ -113,7 +113,7 @@ export const QRCodeComponent = (props: QRProps) => {
 
 	const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault()
-		setError(undefined)
+		setError(null)
 		if( e.target.value.length === 6 ) {
 
 			if (!isNumber(e.target.value)) {
@@ -128,9 +128,9 @@ export const QRCodeComponent = (props: QRProps) => {
 								method: 'POST'
 							},
 						},
-						auth: fetchAuth
+						auth: authFetching
 					})
-					if (response.response.status === 200) {
+					if (response?.response.status === 200) {
 						props.setCheck(true)
 						props.setOpen(false)
 						props.setIsActivate('Enable')
@@ -149,7 +149,7 @@ export const QRCodeComponent = (props: QRProps) => {
 
 	const handleClose = () => {
 		props.setOpen(false);
-		setError(undefined);
+		setError(null);
 	}
 
 
@@ -162,7 +162,7 @@ export const QRCodeComponent = (props: QRProps) => {
 
 			try {
 
-				setError(undefined)
+				setError(null)
 
 				const result = await axios.post(
 
@@ -376,14 +376,14 @@ const TFAComponent = (props: TFAProps) => {
 	useEffect(() => {
 		async function fetching() {
 			try {
-				const response: Api = await FetchApi({
+				const response = await FetchApi({
 					api: {
 						input: `http://${import.meta.env.VITE_SITE}/api/2fa/activate`
 					},
 						auth: auth
 				})
-				setCheck(response.data['isTfaActivate'] ? true : false)
-				setIsActivate(!response.data['isTfaActivate'] ? 'Disable' : 'Enable')
+				setCheck(response?.data['isTfaActivate'] ? true : false)
+				setIsActivate(!response?.data['isTfaActivate'] ? 'Disable' : 'Enable')
 			} catch(err) {
 				console.log(err)
 			}

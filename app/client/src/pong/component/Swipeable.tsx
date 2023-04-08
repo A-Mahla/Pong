@@ -1,6 +1,6 @@
 import * as React from 'react'
-import useAuth from '/src/pong/context/useAuth';
-import { Box } from '@mui/material'
+import useAuth from '../context/useAuth';
+import { Box, Button } from '@mui/material'
 import SwipeableDrawer from '@mui/material/SwipeableDrawer'
 import { Link } from "react-router-dom"
 import { List, ListSubheader }  from '@mui/material'
@@ -75,12 +75,12 @@ const Swipeable = (props: propsSwip) => {
 
 		const {token, authLogout, navigate} = useAuth()
 
-		const handlePlay = (e: React.MouseEvent<HTMLButtonElement>) => {
+		const handlePlay = (e: React.MouseEvent<HTMLDivElement>) => {
 			e.preventDefault()
 			navigate('/pong')
 		}
 
-		const handleLogout = (e: React.MouseEvent<HTMLButtonElement>) => {
+		const handleLogout = (e: React.MouseEvent<HTMLDivElement>) => {
 			e.preventDefault()
 			authLogout();
 		}
@@ -88,7 +88,7 @@ const Swipeable = (props: propsSwip) => {
 		return (
 			<Box
 				sx={{
-					width: anchor === 'top' || anchor === 'bottom' ? 'auto' : '30vw;',
+					width: '30vw;',
 					'@media (max-width:300px)': {
 						width: '33vw;',
 					},
@@ -132,9 +132,9 @@ const Swipeable = (props: propsSwip) => {
 						</ListItemButton>
 						<Divider variant="middle" />
 						<ListItemButton onClick={handleLogout} >
-						<ListItemIcon sx={listIconButton}>
-							<LogoutIcon />
-						</ListItemIcon>
+							<ListItemIcon sx={listIconButton}>
+								<LogoutIcon />
+							</ListItemIcon>
 							<ListItemText
 								primary="Logout"
 								disableTypography={true}
@@ -173,8 +173,8 @@ const Swipeable = (props: propsSwip) => {
 			>
 			<React.Fragment key={anchor}>
 				<IconButton
+					component={Button}
 					onClick={toggleDrawer(anchor, true)}
-					variant="contained"
 					sx={{ py: 0.2, px: 0.8 }}
 				>
 					<MenuRoundedIcon sx={{

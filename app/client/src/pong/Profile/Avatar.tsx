@@ -1,27 +1,28 @@
 import Avatar from '@mui/material/Avatar';
-import { Typography, Grid, Button, IconButton } from '@mui/material';
-import useAuth, {useFetchAuth} from '/src/pong/context/useAuth';
-import { FetchApi, Api, refreshRequest } from '/src/pong/component/FetchApi'
-import React, { createRef, useState, useEffect } from "react";
+import { Typography, Grid, IconButton } from '@mui/material';
+import useAuth, {useFetchAuth} from '../context/useAuth';
+import { FetchApi, Api, refreshRequest } from '../component/FetchApi'
+import React, { createRef} from "react";
 import axios from 'axios';
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
 type AvatarProps = {
-	image: URL,
-	setImage: React.Dispatch<React.SetStateAction<URL>>,
+	image: string,
+	setImage: React.Dispatch<React.SetStateAction<string>>,
 
 }
 
 const ProfileAvatar = (props: AvatarProps) => {
 
-	const inputFileRef = createRef(null);
+	const inputFileRef = createRef<HTMLInputElement>();
 
 	const {token} = useAuth()
 	const authFetching = useFetchAuth()
 
 	const cleanup = () => {
 		URL.revokeObjectURL(props.image);
-		inputFileRef.current.value = null;
+		if (inputFileRef.current)
+			inputFileRef.current.value = '';
 	};
 
 
@@ -111,7 +112,7 @@ const ProfileAvatar = (props: AvatarProps) => {
 				},
 				auth: authFetching,
 			})
-			props.setImage(null);
+			props.setImage('');
 		}
 	};
 
@@ -136,7 +137,6 @@ const ProfileAvatar = (props: AvatarProps) => {
 		<label htmlFor="avatar-image-upload">
 			<IconButton component="span">
 				<Avatar
-					variant="inherit"
 					alt="avatar"
 					src={props.image}
 					sx={{
@@ -153,8 +153,6 @@ const ProfileAvatar = (props: AvatarProps) => {
 			</IconButton>
 		</label>
 		<IconButton
-			component="span"
-			variant="inherit"
 			size='small'
 			sx={{
 				position: 'relative',

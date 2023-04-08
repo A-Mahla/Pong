@@ -1,22 +1,15 @@
 import { ThemeProvider, createTheme } from '@mui/material';
-import { Redirect } from '/src/pong/component/Oauth2';
-import  MainPage  from '/src/pong/page/MainPage';
-import LeadPage from '/src/pong/page/LeadPage';
-import AboutUs from '/src/pong/page/AboutUs';
-import Contact from '/src/pong/page/Contact';
+import { Redirect } from './component/Oauth2';
+import  MainPage  from './page/MainPage';
+import LeadPage from './page/LeadPage';
+import AboutUs from './page/AboutUs';
+import Contact from './page/Contact';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Login } from '/src/pong/component/Login';
-import { AuthProvider } from '/src/pong/context/useAuth';
-import PrivateRoute from '/src/pong/component/PrivateRoute';
-import LoggedRoute from '/src/pong/component/LoggedRoute';
-import { Chat } from '/src/pong/Chat/Chat';
-import Game from '/src/pong/page/Game';
-import { GameSocketProvider } from './services/GameSocketProvider';
-import { GamePage } from './page/Game';
+import { Login } from './component/Login';
+import { AuthProvider } from './context/useAuth';
 import { ChatSocketProvider } from './Chatv2/Socket';
 import SignUp from './component/SignUp';
-import Particles from 'particlesjs'
-import '/src/index.css';
+import '../index.css';
 
 /**
  * ============ Entrypoint of the project =============
@@ -24,7 +17,7 @@ import '/src/index.css';
 
 const theme = createTheme({
 	typography: {
-		fontFamily: ['pong-policy']
+		fontFamily: 'pong-policy'
 	},
 	breakpoints: {
 		values: {

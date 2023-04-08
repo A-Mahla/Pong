@@ -1,10 +1,9 @@
-import * as React from 'react'
-import Swipeable from '/src/pong/component/Swipeable'
+import Swipeable from '../component/Swipeable'
 import { Typography, Button, Box } from '@mui/material'
 import Grid from '@mui/material/Grid'
-import { Link, Route } from "react-router-dom"
+import { Link } from "react-router-dom"
 import './MainPage.css'
-import useAuth from '/src/pong/context/useAuth';
+import useAuth from '../context/useAuth';
 import '/src/App.css';
 
 const titleStyle = {

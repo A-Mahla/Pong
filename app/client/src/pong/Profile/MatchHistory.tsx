@@ -10,24 +10,21 @@ import {
 	Stack,
 	CircularProgress,
 } from '@mui/material'
-import useAuth, { useFetchAuth } from '/src/pong/context/useAuth'
-import { FetchApi, Api } from '/src/pong/component/FetchApi'
+import useAuth, { useFetchAuth } from '../context/useAuth'
+import { FetchApi, Api } from '../component/FetchApi'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { TableVirtuoso, TableComponents } from 'react-virtuoso';
 import { useState, useEffect } from 'react'
 import GppGoodIcon from '@mui/icons-material/GppGood';
 import GppBadIcon from '@mui/icons-material/GppBad';
 import GppMaybeIcon from '@mui/icons-material/GppMaybe';
 import * as React from 'react';
-
 import { styled } from '@mui/system';
-import {PlayersListItemAvatar} from '/src/pong/Profile/SearchPlayers'
-import FetchAvatar from '/src/pong/component/FetchAvatar'
+import {PlayersListItemAvatar} from '../Profile/SearchPlayers'
+import FetchAvatar from '../component/FetchAvatar'
 
 type matchHistoryPayload = {
 	index: number,
@@ -52,7 +49,7 @@ const TableHistory = ({rows}: {rows: matchHistoryPayload[]}) => {
 		{rows.length === 0 ?
 			(<>
 			<Divider variant="middle"/>
-			<Grid
+			<Grid container
 				display="flex"
 				direction="column"
 				justifyContent="center"
@@ -65,7 +62,6 @@ const TableHistory = ({rows}: {rows: matchHistoryPayload[]}) => {
 				>
 					No Match Found
 				</Typography>
-				<CircularProgress size={20} sx={{mt: 3, color:"#aab7b8"}}/>
 			</Grid>
 			</>) :
 			(<>
@@ -151,7 +147,7 @@ type MatchHistoryProps = {
 	setOpen: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
-const MatchHistory = (props: MatchInfoProps) => {
+const MatchHistory = (props: MatchHistoryProps) => {
 
 	const [fetched, setFetched] = useState(false)
 	const [rows, setRows] = useState<matchHistoryPayload[]>({} as matchHistoryPayload[])
@@ -172,7 +168,7 @@ const MatchHistory = (props: MatchInfoProps) => {
 				auth: auth,
 			});
 
-			await setRows(response.data['history'])
+			await setRows(response?.data['history'])
 
 			setFetched(true)
 
@@ -193,7 +189,7 @@ const MatchHistory = (props: MatchInfoProps) => {
 				},
 				auth: auth,
 			});
-			await setRows(response.data['history'])
+			await setRows(response?.data['history'])
 		}
 		fetching()
 

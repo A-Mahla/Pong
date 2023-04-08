@@ -3,10 +3,9 @@ import { Typography, Box, Paper } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Tabs from '@mui/material/Tabs'
 import Button from "@mui/material/Button";
-import TabList from '@mui/lab/TabList'
 import Tab from '@mui/material/Tab'
 import PropTypes from 'prop-types';
-import useAuth from '/src/pong/context/useAuth'
+import useAuth from '../context/useAuth'
 import io from "socket.io-client";
 import './game.css'
 import { render } from 'react-dom'
@@ -25,7 +24,7 @@ const pongTitle = {
 /* ---------------- type definition for matchmaking fetch informations --------- */
 
 type PlayerPayload = {
-	id: string,
+	id: number,
 	login: string
 }
 

@@ -6,9 +6,8 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useNavigate, useLocation, createSearchParams } from "react-router-dom";
-import { originalRequest, refreshRequest, responseApi } from "/src/pong/component/FetchApi"
-import { FetchApi, Api } from '/src/pong/component/FetchApi'
+import { useNavigate, useLocation } from "react-router-dom";
+import { originalRequest, refreshRequest, responseApi } from "../component/FetchApi"
 import axios from 'axios'
 
 interface AuthContextType {
@@ -17,18 +16,19 @@ interface AuthContextType {
 	intraLogin?: string;
 	token: string;
 	setUser: React.Dispatch<React.SetStateAction<string>>,
+	setError: React.Dispatch<React.SetStateAction<string | null>>,
 	setToken: React.Dispatch<React.SetStateAction<string>>,
 	setIntraLogin: React.Dispatch<React.SetStateAction<string>>,
 	setId: React.Dispatch<React.SetStateAction<number>>,
 	loading: boolean;
-	error?: Error;
-	authLogin: (login: string, password: string) => Promise<string | undefined>;
+	error?: string | null;
+	authLogin: (login: string, password: string) => Promise<void>;
 	authLogout: () => void;
-	authSignup: (login: string, password: string) => Promise<string | undefined>;
-	authLogIntra: (url: URL) => void;
-	authSignupIntra: (url: URL) => void;
-	twoFA: (url: URL) => void;
-	navigate: () => "POP" | "PUSH" | "REPLACE",
+	authSignup: (login: string, password: string, avatar: string) => Promise<any>;
+	authLogIntra: (url: string) => Promise<"2FA" | "else" | ''>;
+	authSignupIntra: (url: string, avatar: string) => Promise<any>;
+	twoFA: (url: string) => Promise<any>;
+	navigate: (route: string) => void,
 }
 
 export type fetchContext = {
@@ -47,7 +47,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 	const [id, setId] = useState<number>(0);
 	const [intraLogin, setIntraLogin] = useState<string>('');
 	const [token, setToken] = useState<string>('');
-	const [error, setError] = useState<Error>();
+	const [error, setError] = useState<string | null>(null);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [loadingInitial, setLoadingInitial] = useState<boolean>(true);
 
@@ -56,7 +56,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 	useEffect(() => {
 		if (error)
-			setError(undefined);
+			setError(null);
 	}, [location.pathname]);
 
 	useEffect( () => {
@@ -85,7 +85,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				});
 
 				if (response1.response.statusText === "Unauthorized") {
-					const refresh: responseApi = await refreshRequest();
+					const refresh = await refreshRequest();
 
 					if (refresh.response.status !== 200 && refresh.response.status !== 304) {
 						setUser('');
@@ -142,7 +142,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 	}, [])
 
-	async function authLogIntra(url: URL) {
+	async function authLogIntra(url: string) {
 
 		try {
 			const response = await fetch(url)
@@ -168,9 +168,10 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 		} catch(err) {
 			console.log(err);
 		}
+		return ''
 	}
 
-	async function authSignupIntra(url: URL, avatar: any) {
+	async function authSignupIntra(url: string, avatar: any) {
 
 
 		const requestOptions = {
@@ -369,7 +370,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 		}
 	}
 
-	async function twoFA(url: URL) {
+	async function twoFA(url: string) {
 
 		try {
 			const response = await fetch( url, { method: 'POST'} )
@@ -392,9 +393,9 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			id,
 			token,
 			setUser,
+			setError,
 			setId,
 			setToken,
-			setError,
 			setIntraLogin,
 			loading,
 			error,

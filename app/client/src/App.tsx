@@ -72,6 +72,5 @@ function App() {
 	);
 }
 
-//			<script src="/node_modules/particlesjs/dist/particles.min.js"></script>
 
 export default App;

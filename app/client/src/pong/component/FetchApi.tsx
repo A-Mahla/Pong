@@ -1,7 +1,4 @@
-import { useContext } from 'react'
-import { useNavigate } from "react-router-dom";
 import * as React from 'react'
-import useAuth from '/src/pong/context/useAuth'
 
 export type Api = {
 	api: {
@@ -16,7 +13,7 @@ export type Api = {
 		setId: React.Dispatch<React.SetStateAction<number>>,
 		setToken: React.Dispatch<React.SetStateAction<string>>,
 		setIntraLogin: React.Dispatch<React.SetStateAction<string>>,
-		navigate: () => "POP" | "PUSH" | "REPLACE",
+		navigate: (route: string) => void,
 	},
 }
 
@@ -30,7 +27,7 @@ export type apiInput = {
 export type responseApi = {
 	response: Response,
 	data: any,
-	token?: string
+	token: string | null
 }
 
 export const originalRequest = async (api: apiInput) => {
@@ -119,7 +116,7 @@ export const FetchApi = async (fetchType: Api) => {
 
 		if (response.response.statusText === "Unauthorized") {
 
-			const refresh: responseApi = await refreshRequest();
+			const refresh = await refreshRequest();
 
 			if (refresh.response.status !== 200 && refresh.response.status !== 304) {
 				fetchType.auth.setToken('');
