@@ -21,23 +21,23 @@ interface UpdatesContextProps {
 	setNewFriend: React.Dispatch<React.SetStateAction<User | undefined>>;
 	declineFriendRequestId: number | undefined;
 	setDeclineFriendRequestId: React.Dispatch<React.SetStateAction<number | undefined>>;
-  }
+}
 
 const initialUpdatesContext: UpdatesContextProps = {
-	newDirectMessage: undefined,
-	setNewDirectMessage: () => {},
-	newRoomMessage: undefined,
-	setNewRoomMessage: () => {},
-	newRoom: undefined,
-	setNewRoom: () => {},
-	leavedRoom: undefined,
-	setLeavedRoom: () => {},
-	newFriendRequest: undefined,
-	setNewFriendRequest: () => {},
-	newFriend: undefined,
-	setNewFriend: () => {},
-	declineFriendRequestId: undefined,
-	setDeclineFriendRequestId: () => {},
+	newDirectMessage: undefined,// eslint-disable-next-line @typescript-eslint/no-empty-function
+	setNewDirectMessage: () => { },
+	newRoomMessage: undefined,// eslint-disable-next-line @typescript-eslint/no-empty-function
+	setNewRoomMessage: () => { },
+	newRoom: undefined,// eslint-disable-next-line @typescript-eslint/no-empty-function
+	setNewRoom: () => { },
+	leavedRoom: undefined,// eslint-disable-next-line @typescript-eslint/no-empty-function
+	setLeavedRoom: () => { },
+	newFriendRequest: undefined,// eslint-disable-next-line @typescript-eslint/no-empty-function
+	setNewFriendRequest: () => { },
+	newFriend: undefined,// eslint-disable-next-line @typescript-eslint/no-empty-function
+	setNewFriend: () => { },
+	declineFriendRequestId: undefined,// eslint-disable-next-line @typescript-eslint/no-empty-function
+	setDeclineFriendRequestId: () => { },
 }
 
 export const UpdatesContext = createContext<UpdatesContextProps>(initialUpdatesContext)
@@ -149,7 +149,7 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 
 	return (
 		<UpdatesContext.Provider value={updatesContext}>
-			<Chat/>
+			<Chat />
 		</UpdatesContext.Provider>
 	)
 
