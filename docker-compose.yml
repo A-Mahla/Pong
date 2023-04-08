@@ -4,7 +4,7 @@ version:  '3.8'
 services:
 
 # ====== client ======
-  client:
+  frontend:
     depends_on:
       postgres_db:
         condition: service_healthy
@@ -15,18 +15,14 @@ services:
       context: ./app/client/.
       dockerfile: Dockerfile
     image: react
-    expose:
-      - "5173"
-    volumes:
-      - ./app/client/src:/app/src
-      - ./app/client/public:/app/public
-      - ./app/client/vite.config.ts:/app/vite.config.ts
+    ports:
+      - "8080:8080"
     restart: always
     networks:
       - webapp
 
 # ====== server ======
-  server:
+  backend:
     depends_on:
       postgres_db:
         condition: service_healthy
@@ -40,7 +36,6 @@ services:
     expose:
       - "3500"
     volumes:
-      - ./app/server/src:/app/src
       - ./app/server/prisma:/app/prisma
     restart: always
     networks:
@@ -64,22 +59,6 @@ services:
       test: ["CMD-SHELL", "psql $POSTGRES_DB -U $POSTGRES_USER -c 'SELECT 1' || exit 1"]
       interval: 0.5s
       retries: 100
-
-# ======== Nginx =========
-  nginx_proxy:
-    depends_on:
-      postgres_db:
-        condition: service_healthy
-    container_name: nginx_proxy
-    env_file:
-      - .env
-    build: ./app/nginx/.
-    image: nginx_proxy
-    ports:
-      - "8080:8080"
-    restart: always
-    networks:
-      - webapp
 
 # ====== networks ======
 networks:

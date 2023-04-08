@@ -8,11 +8,11 @@ export default defineConfig({
   plugins: [
 	  react(),
 	  eslintPlugin(),
-	  // ======= checker typescript to activate ====
+	  // ======= checker typescript ====
 	  checker({
         typescript: true,
 	  }),
-	 // =============================================
+	 // ================================
   ],
   server: {
     hmr: {
