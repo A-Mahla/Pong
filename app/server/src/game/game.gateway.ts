@@ -31,13 +31,17 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	@SubscribeMessage('automatikMatchMaking')
 	async matchMaker(client: Socket, clientPayload: ClientPayload) {
 		let gameToJoin: GameAlgo | undefined;
+		let notPlayingwithYourself = true
 
 		this.gameMap.forEach((game) => {
 			if (game.getStatus() === Status.ONE_PLAYER) {
-				gameToJoin = game;
-				return;
+				if (game.getPlayerID(1) === clientPayload.id)
+					notPlayingwithYourself = false;
+				else
+					gameToJoin = game;
 			}
 		});
+
 		if (gameToJoin) {
 			// La première partie avec un statut 'ONE_PLAYER' a été trouvée et peut être utilisée ici
 			client.join(gameToJoin.roomID);
@@ -48,31 +52,42 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				playerRole: "p2",
 				playerSocket: client
 			});
-		} else {
+		} else if (notPlayingwithYourself) {
 			// no waiting games with one player so we create one
 				const newGameDB = await this.gameService.registerNewGame('WAIT');
 				if (newGameDB) {
-						const newGameAlgo = new GameAlgo(this.gameService, this.server, newGameDB.game_id.toString())
+						var newGameAlgo: GameAlgo = new GameAlgo(this.gameService, this.server, newGameDB.game_id.toString());
 						this.gameMap.set( newGameDB.game_id.toString(), newGameAlgo);
 						newGameAlgo.initPlayer1({
-						  id: parseInt( clientPayload.id ),
-						  login: clientPayload.login,
-						  socketID: client.id,
-						  playerRole: "p1",
-						  playerSocket: client
+							id: parseInt( clientPayload.id ),
+							login: clientPayload.login,
+							socketID: client.id,
+							playerRole: "p1",
+							playerSocket: client
 						});
 						await newGameAlgo.launchGame().then( value => {
-							console.log("OUI OUI OUI" + value)
+							newGameAlgo.disconnectInternalEvents();
+							this.gameMap.delete(newGameAlgo.roomID);
 						}).catch(onrejected => {
-							console.log("NON NON NON" + onrejected)
-							if (onrejected === 'TIME')
-								this.server.to(client.id).emit('timeOut');
+							if (onrejected === '1') {
+								console.log(" --- p1 left --- ");
+								this.server.to(newGameAlgo.getPlayerSocketID(2)).emit('disconnection', `DISCONNECTED: ${newGameAlgo.getPlayerLogin(1)} quit the game :(`);
+							}
+							else if (onrejected === '2') {
+								console.log(" --- p2 left --- ");
+								this.server.to(newGameAlgo.getPlayerSocketID(1)).emit('disconnection', `DISCONNECTED: ${newGameAlgo.getPlayerLogin(2)} quit the game :(`);
+							}
+							if (onrejected === 'TIME') {
+								console.log(" --- timeOut --- ");
+								this.server.to(client.id).emit('disconnection', 'unable to find a match: You have been disconnected from the queu');
+							}
+							newGameAlgo.disconnectInternalEvents();
+							this.gameMap.delete(newGameAlgo.roomID);
 						})
 				}
 			}
 			if (gameToJoin && gameToJoin.getStatus() === Status.RUNNING)
 				this.runingGamesList();
-
 	}
 
 	@SubscribeMessage('getRuningGames')

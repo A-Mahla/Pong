@@ -14,7 +14,7 @@ import Canvas from '../component/gameCanva'
 import { draw } from '../component/gameCanva'
 import { GameSocketProvider, UserContext } from '../services/GameSocketProvider'
 import { Spectator } from '../component/Spectator'
-
+import Popover from '@mui/material/Popover';
 
 const pongTitle = {
 	fontSize: '2vw;',
@@ -69,37 +69,34 @@ function JoinQueuButton({socket, setJoinQueu, joinQueu}: any): any {
 
 }
 
+
 function MatchMaker ({socket, thereIsMatch, launchCanvas} : any){
 
 	const [joinQueu, setJoinQueu] = React.useState(false);
-	socket.on("lockAndLoaded", () => {
-		launchCanvas();
-	})
 
-	socket.on('timeOut', () => {
-		setJoinQueu(false);
-		/**
-		 * here i will have to make some user interface stuff to print the fact that the guy has been disconnected
-		 */
+	socket.on("lockAndLoaded", () => {
+	  launchCanvas();
 	})
 
 	return (
-		<>
+	  <>
 		<Grid container spacing={2}>
-			<Grid item xs={12} sm={6}>
-				<JoinQueuButton socket={socket} setJoinQueu={setJoinQueu} joinQueu={joinQueu} />
-			</Grid>
+		  <Grid item xs={12} sm={6}>
+			<JoinQueuButton socket={socket} setJoinQueu={setJoinQueu} joinQueu={joinQueu} />
+		  </Grid>
 		</Grid>
-		</>
-	)
-}
-
+	  </>
+	);
+  }
 
 // Main Game page, rendering either matchmaking page or Canvas if therIsMatch == true
 export const Game = ({ height, width }: any) => {
 
 	const socket = React.useContext(UserContext);
 	const [thereIsMatch, setThereIsMatch] = React.useState(false);
+	const [errorPopoverOpen, setErrorPopoverOpen] = React.useState(false);
+	const [errorMessage, setErrorMessage] = React.useState('');
+	const errorButtonRef = React.useRef(null);
 
 	const handleClick = () => {
 		if (!thereIsMatch)
@@ -107,13 +104,25 @@ export const Game = ({ height, width }: any) => {
 		else
 			setThereIsMatch(false)
 	}
+
+	const handleOpenErrorPop = (errorMessage: string) => {
+		handleClick();
+		setErrorMessage(errorMessage);
+		setErrorPopoverOpen(true);
+	};
+
+	const handleCloseErrorPop = () => {
+		setErrorPopoverOpen(false);
+		setErrorMessage("");
+	};
+
 	return (<>
 		{
 			thereIsMatch ?
 			(<>
 				<Grid container justifyContent="space-between" alignItems="flex-start">
 					<Typography sx={pongTitle} variant='h2'>Game</Typography>
-						<Canvas socket={socket} handleThereIsMatch={handleClick}/>
+						<Canvas socket={socket} handleThereIsMatch={handleClick} handleThereIsError={(errorStr: string) => { handleOpenErrorPop(errorStr) }}/>
 				</Grid>
 			</>)
 			:
@@ -136,23 +145,23 @@ export const Game = ({ height, width }: any) => {
 							<Spectator socket={socket} thereIsMatch={thereIsMatch} handleThereIsMatch={handleClick}/>
 						{/* Ajoutez ici le contenu pour "Watch game" */}
 					</Grid>
-				</Grid>
+					<Popover
+						open={errorPopoverOpen}
+						onClose={handleCloseErrorPop}
+						anchorReference="none"
+						anchorPosition={{ top: '50%', left: '50%' }}
+						transformOrigin={{
+							vertical: 'center',
+							horizontal: 'center',
+						}}
+					>
+					<Box sx={{ p: 2 }}>
+						<Typography>{errorMessage}</Typography>
+					</Box>
+					</Popover>
+					</Grid>
 			</>)
 		}</>)
-	};
-
-	const canvasStyle = {
-		display: 'inline-block',
-		verticalAlign: 'top',
-	};
-
-	const buttonStyle = {
-		backgroundColor: '#15232F',
-		color: 'white',
-		border: 'none',
-		padding: '15px 30px',
-		borderRadius: '5px',
-		marginLeft: '20px',
 	};
 
 	export const GamePage = () => {

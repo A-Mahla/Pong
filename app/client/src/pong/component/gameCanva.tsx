@@ -22,6 +22,7 @@ const PLAYER_HEIGHT = 100;
 const PLAYER_WIDTH = 5;
 const BALLRADIUS = 5;
 
+const WAITING_FONT = 100;
 const LOGIN_FONT = 30;
 const SCORE_FONT = 75;
 const TIMER_FONT = 70;
@@ -60,14 +61,54 @@ type GameData = {
 
 
 // the idea would be to print a GIF while waiting
-const WaitingScreen = () => {
-	//<iframe src="https://giphy.com/embed/6uGhT1O4sxpi8" width="480" height="240" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/awkward-pulp-fiction-john-travolta-6uGhT1O4sxpi8">via GIPHY</a></p>
-	return (
-	  <div>
-		<img src="https://giphy.com/embed/6uGhT1O4sxpi8" width="480" height="240" alt="Chargement en cours" />
-	  </div>
-	);
-  };
+const drawWaitingScreen = (canvas: any, animationId: any) => {
+	const context = canvas.getContext('2d');
+
+	// Clear canvas
+	context.clearRect(0, 0, canvas.width, canvas.height);
+
+	// Draw background
+	context.fillStyle = '#15232f';
+	context.fillRect(0, 0, canvas.width, canvas.height);
+
+	// Draw text
+	const scaledFont = Math.floor((WAITING_FONT * canvas.height) / CANVAS_HEIGHT);
+	context.font = `${scaledFont}px 'Tr2n', sans-serif`;
+	context.textAlign = 'center';
+	context.fillStyle = '#2f8ca3';
+	context.fillText('Waiting for opponent...', canvas.width / 2, canvas.height / 2);
+
+	// Draw paddle animation
+	const paddleWidth = Math.floor((PLAYER_HEIGHT * canvas.width) / CANVAS_WIDTH);
+	const paddleHeight = Math.floor((PLAYER_WIDTH * canvas.height) / CANVAS_HEIGHT);
+	const paddleY = Math.floor((260 * canvas.height) / CANVAS_HEIGHT);
+	const paddleSpeed = 1; // Adjust to change paddle speed
+	let paddleX = -paddleWidth; // Start off-screen
+	let direction = 1; // Move to the right initially
+
+	const animatePaddle = () => {
+	  // Clear previous paddle position
+	  context.clearRect(paddleX - paddleSpeed, paddleY, paddleWidth, paddleHeight);
+
+	  // Draw new paddle position
+	  context.fillStyle = '#2f8ca3';
+	  context.fillRect(paddleX, paddleY, paddleWidth, paddleHeight);
+
+	  // Update paddle position
+	  paddleX += paddleSpeed * direction;
+
+	  // Reverse direction if paddle reaches edge of canvas
+	  if (paddleX + paddleWidth >= canvas.width || paddleX <= 0) {
+		direction *= -1;
+	  }
+	};
+
+	// Start animation loop
+	animationId = setInterval(() => {
+	  animatePaddle();
+	}, 10);
+
+}
 
 const drawCountDown = (canvas: any, countdown: number) => {
 
@@ -90,21 +131,6 @@ const drawCountDown = (canvas: any, countdown: number) => {
 	context.fillText(countdown.toString(), canvas.width / 2, canvas.height / 2);
 }
 
-
-/*
-const scaleGame = (game: GameData, width : number, height: number) => {
-		game.roomInfo.margin = Math.floor((width * 5) / CANVAS_WIDTH);
-		game.ball.r = Math.floor((height * BALLRADIUS) / CANVAS_HEIGHT);
-		game.roomInfo.playerheight = Math.floor((height * PLAYER_HEIGHT) / CANVAS_HEIGHT);
-		game.roomInfo.playerwidth = Math.floor((width * PLAYER_WIDTH) / CANVAS_WIDTH);
-
-		game.ball.x = Math.floor((game.ball.x * width) / CANVAS_WIDTH);
-		game.ball.y = Math.floor((game.ball.y * height) / CANVAS_HEIGHT);
-		console.log(`IN SCALE GAME --> game.ball.x ${game.ball.x} | game.ball.y ${game.ball.y}`)
-		game.player1.y = Math.floor((game.player1.y * height) / CANVAS_HEIGHT);
-		game.player2.y = Math.floor((game.player2.y * height) / CANVAS_HEIGHT);
-}
-*/
 const scaleGame = (game: GameData, width : number, height: number): GameData => {
 	return {
 		roomInfo:{
@@ -269,16 +295,17 @@ export const draw = (canvas: any, game: GameData) => {
 };
 
 
-const Canvas = ({ socket, handleThereIsMatch }: any) => {
+const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: any) => {
 	// ref to the html5 canvas on wich we will draw
 	const canvas = React.useRef<HTMLCanvasElement>(null); // reference/pointer on html5 canvas element, so you can draw on it
 
 	const [game, setGame] = React.useState<boolean>(false);
-
+	let animationId: any;
 	const quitGame = async () => {
 		socket.emit('quitGame', )
 		handleThereIsMatch()
 	}
+
 
 	const canvaResize = async () => {
 		const testTimeout = setTimeout(() => {
@@ -297,19 +324,25 @@ const Canvas = ({ socket, handleThereIsMatch }: any) => {
 			canvas.current = node;
 			setGame(true)
 		}
-	  }, []);
+	}, []);
+
 
 	React.useEffect(() => {
 
+		drawWaitingScreen(canvas.current, animationId);
+
+		socket.on('disconnection', (errorMessage: string) => {
+			console.log("OYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY");
+			handleThereIsError(errorMessage)
+		})
+
 		socket.on("updateClient", (gameData: GameData) => {
-			console.log("---------------------> ON updateClient");
 			draw(canvas.current, gameData);
 		})
 
 		socket.on("initSetup", (gameData: GameData) => {
 			console.log("---------------------> ON initSetup");
-			console.log(`game.ball.x ${gameData.ball.x} | game.ball.y ${gameData.ball.y}`)
-
+			clearInterval(animationId)
 			draw(canvas.current, gameData);
 			// setWaiting(false);
 		})

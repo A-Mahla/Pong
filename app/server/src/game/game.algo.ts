@@ -53,8 +53,8 @@ export class GameAlgo {
 				const checkPlayer = (count: number, timeout: NodeJS.Timeout) => {
 					if (this.player1 && this.player2 && this.player2.id != this.player1.id)
 					{
-						this.server.to(this.player1.socketID).emit('lockAndLoaded');
-						this.server.to(this.player2.socketID).emit('lockAndLoaded');
+						// this.server.to(this.player1.socketID).emit('lockAndLoaded');
+						// this.server.to(this.player2.socketID).emit('lockAndLoaded');
 						this.server.to(this.player1.socketID).emit('initSetup', this.gameData);
 						this.server.to(this.player2.socketID).emit('initSetup', this.rotateGameData(this.gameData));
 						this.startGame().then(solved => {
@@ -194,6 +194,8 @@ export class GameAlgo {
 			this.gameData.player1.y = y;
 			this.gameData.player1.timeout = Date.now();
 		})
+
+		this.server.to(this.player1.socketID).emit('lockAndLoaded');
 	}
 
 	public initPlayer2(player: Player) {
@@ -211,6 +213,8 @@ export class GameAlgo {
 			this.gameData.player2.y = y;
 			this.gameData.player2.timeout = Date.now();
 		})
+
+		this.server.to(this.player2.socketID).emit('lockAndLoaded');
 	}
 
 
@@ -227,6 +231,27 @@ export class GameAlgo {
 		else
 			return "error"
 	}
+
+	public getPlayerSocketID(player1ou2: number) : string {
+
+		if (player1ou2 === 1 && this.player1)
+			return this.player1.socketID
+		else if (player1ou2 === 2 && this.player2)
+			return this.player2.socketID
+		else
+			return "error"
+	}
+
+	public getPlayerLogin(player1ou2: number) : string {
+
+		if (player1ou2 === 1 && this.player1)
+			return this.player1.login
+		else if (player1ou2 === 2 && this.player2)
+			return this.player2.login
+		else
+			return "error"
+	}
+
 
 	public playerChangeSocket(playerSocket: Socket, socketID: string, player1ou2: number) {
 		if (player1ou2 === 1) {
@@ -301,6 +326,11 @@ export class GameAlgo {
 		};
 		return temp;
 	}
+
+	disconnectInternalEvents() {
+		this.internalEvents.removeAllListeners();
+	}
+
 
 	private playersTimeout(): boolean {
 		if ((Date.now() - this.gameData.player1.timeout) > 10000)
