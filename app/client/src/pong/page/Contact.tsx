@@ -2,21 +2,19 @@ import {
 	Typography,
 	Box,
 	Grid,
-	Avatar,
 	Divider,
 	FormControl,
 	TextField,
 	Button,
 } from '@mui/material'
-import useAuth from '/src/pong/context/useAuth';
+import useAuth from '../context/useAuth';
 import React, {
 	useRef,
-	useEffect,
 	useState,
 } from 'react'
 import emailjs from "@emailjs/browser";
 
-function isEmail(str) {
+function isEmail(str: string) {
 	return /^(?=.*@)(?=.*\.)/.test(str);
 }
 
@@ -27,14 +25,14 @@ const Contact = () => {
 	const [subError, setSubError] = useState('');
 	const [validate, setValidate] = useState(false)
 	const {navigate} = useAuth();
-	const form = useRef();
+	const form = useRef<HTMLFormElement | null>(null);
 
 		const handleHome = (event: React.SyntheticEvent) => {
 		event.preventDefault();
 		navigate('/');
 	};
 
-	const handleChange = (e: React.ChangeEvent<HTMLButtonElement>) => {
+	const handleChange = (e: React.FormEvent) => {
 		e.preventDefault()
 		setError('')
 		setTextError('')
@@ -46,6 +44,9 @@ const Contact = () => {
 	const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
 		
+		if (!form.current)
+			return
+
 		if (!form.current.email.value
 			|| !isEmail(form.current.email.value) ) {
 				setError("Invalid email");

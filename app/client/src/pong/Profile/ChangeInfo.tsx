@@ -6,18 +6,17 @@ import {
 	TextField,
 	Button,
 } from '@mui/material'
-import useMediaQuery from "/src/pong/hooks/useMediaQuery"
+import useMediaQuery from "../hooks/useMediaQuery"
 import { useState, useRef } from 'react'
 import * as React from 'react';
-import TFAComponent from '/src/pong/Profile/TFAComponent'
-import { FetchApi, Api } from '/src/pong/component/FetchApi'
-import useAuth, { useFetchAuth } from '/src/pong/context/useAuth'
+import { FetchApi} from '../component/FetchApi'
+import useAuth, { useFetchAuth } from '../context/useAuth'
 
-function isNumberOrString(str) {
+function isNumberOrString(str: string) {
 	return /^([0-9a-zA-Z_]){3,20}$/.test(str);
 }
 
-function isPassword(str) {
+function isPassword(str: string) {
 	return /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])/.test(str);
 }
 
@@ -70,10 +69,10 @@ const ChangeInfo = (props: InfoProps) => {
 				},
 				auth: fetchAuth,
 			})
-			if (response.response.status === 201) {
+			if (response?.response.status === 201) {
 				fetchAuth.setUser(login.current.value.toLowerCase())
-				fetchAuth.setToken(response.data['aT'])
-				login.current.value = null;
+				fetchAuth.setToken(response?.data['aT'])
+				login.current.value = '';
 				setLoginError('Login Modified')
 			} else {
 				setLoginError('Login Unvailable')
@@ -108,9 +107,9 @@ const ChangeInfo = (props: InfoProps) => {
 				},
 				auth: fetchAuth,
 			})
-			if (response.response.status === 201) {
-				password.current.value = null;
-				passwordConfirm.current.value = null;
+			if (response?.response.status === 201) {
+				password.current.value = '';
+				passwordConfirm.current.value = '';
 				setError('Password Modified');
 			}
 		}
@@ -133,7 +132,7 @@ const ChangeInfo = (props: InfoProps) => {
 						inputRef={login}
 						variant="outlined"
 						label="New Login"
-						size={ isQuery950 && props.isAccordion ? "small" : "normal" }
+						size={ isQuery950 && props.isAccordion ? "small" : "medium" }
 						onChange={handleChange}
 /*						inputProps={{
 							style: {

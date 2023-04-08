@@ -11,31 +11,25 @@ import {
 	DialogContent,
 } from '@mui/material';
 import React, {
-	useCallback,
 	useRef,
 	useEffect,
 	useState,
-	useMemo
 } from 'react'
 import { useNavigate } from "react-router-dom";
-//import { LogoutButton } from '/src/pong/component/LogoutButton';
-import { Oauth2 } from '/src/pong/component/Oauth2';
-//import Cookies from 'js-cookie'
-import { FetchApi } from '/src/pong/component/FetchApi';
-import useAuth from '/src/pong/context/useAuth';
-//import { _2fa } from "./2fa"
-import '/src/App'
-import '/src/pong/page/LeadPage'
+import { Oauth2 } from '../component/Oauth2';
+import useAuth from '../context/useAuth';
+import '../../App'
+import '../page/LeadPage'
 
-function isNumber(str) {
+function isNumber(str: string) {
 	return /^\d+$/.test(str);
 }
 
-function isNumberOrString(str) {
+function isNumberOrString(str: string) {
 	return /^([0-9a-zA-Z_]){3,20}$/.test(str);
 }
 
-function isPassword(str) {
+function isPassword(str: string) {
 	return /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])/.test(str);
 }
 
@@ -53,13 +47,13 @@ export const TFAComponent = (props: TFAProps) => {
 
 	const handleClose = () => {
 		props.setOpen(false)
-		setError(undefined)
+		setError('')
 		navigate('/login')
 	}
 
 	const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault()
-		setError(undefined)
+		setError('')
 		if( e.target.value.length === 6 ) {
 
 			if (!isNumber(e.target.value)) {
@@ -81,7 +75,7 @@ export const TFAComponent = (props: TFAProps) => {
 		if (!count) {
 			setUser('');
 			setId(0);
-			setError(undefined);
+			setError('');
 			props.setOpen(false);
 			setCount(count => 3)
 			navigate('/login')
@@ -121,7 +115,7 @@ export const TFAComponent = (props: TFAProps) => {
 					justifyContent="center"
 					alignItems="center"
 				>
-					<Typography variant='body'
+					<Typography variant="body1"
 						sx={{
 							fontFamily: '"system-ui", sans-serif',
 							fontSize: [15, '!important']
@@ -190,12 +184,12 @@ export const Login = () => {
 	const username = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 	const password = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 
-	const handleChange = (e: React.ChangeEvent<HTMLButtonElement>) => {
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 		e.preventDefault()
-		setError(undefined)
+		setError('')
 	}
 
-	const handleHome = (event: React.SyntheticEvent) => {
+	const handleHome = (event: React.SyntheticEvent, navigate: (route: string) => void) => {
 		event.preventDefault()
 		navigate('/')
 	};
@@ -214,11 +208,11 @@ export const Login = () => {
 			await authLogin(username.current.value.toLowerCase(), password.current.value)
 	}
 
-	const handleSignup = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+	const handleSignup = (e: React.MouseEvent<HTMLButtonElement>, navigate: (route: string) => void) => {
 		e.preventDefault()
 
 		navigate('/signup')
-	})
+	}
 
 	useEffect(() => {
 		console.log('test')
@@ -233,7 +227,7 @@ export const Login = () => {
 			<Typography
 				className="homeButton"
 				variant='h4'
-				onClick={handleHome}
+				onClick={(event) => handleHome(event, navigate)}
 			>
 				Pong
 			</Typography>
@@ -262,7 +256,14 @@ export const Login = () => {
 
 				<Button sx={{color: 'primary.main'}} onClick={handleLogin}>signin</Button>
 				<Divider variant='middle'/>
-				<Button sx={{color: 'primary.main'}} onClick={handleSignup}>signup</Button>
+				<Button
+					sx={{
+						color: 'primary.main'
+					}}
+					onClick={(event) => handleSignup(event, navigate)}
+				>
+					signup
+				</Button>
 				<Oauth2>Login via intra</Oauth2>
 				{!error || error === '2FA' || error === 'Error Authentification Code'
 					? null

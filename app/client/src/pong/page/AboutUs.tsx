@@ -1,5 +1,5 @@
 import { Typography, Box, Grid, Avatar, Divider } from '@mui/material'
-import useAuth from '/src/pong/context/useAuth';
+import useAuth from '../context/useAuth';
 
 const avatarSx = {
 	width: '17rem',
@@ -40,7 +40,6 @@ const AboutUs = () => {
 			<Grid item display="flex" xs={12}>
 				<Grid item xs={4} display="flex" justifyContent="center">
 					<Avatar
-						variant="inherit"
 						alt="sacha"
 						src="/public/slahlou.JPG"
 						sx={avatarSx}
@@ -48,7 +47,6 @@ const AboutUs = () => {
 				</Grid>
 				<Grid item xs={4} display="flex" justifyContent="center">
 					<Avatar
-						variant="inherit"
 						alt="augustin"
 						src="/public/alorain.jpeg"
 						sx={avatarSx}
@@ -56,7 +54,6 @@ const AboutUs = () => {
 				</Grid>
 				<Grid item xs={4} display="flex" justifyContent="center">
 					<Avatar
-						variant="inherit"
 						alt="amir"
 						src="/public/amahla.JPG"
 						sx={avatarSx}

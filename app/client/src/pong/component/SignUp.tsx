@@ -11,20 +11,17 @@ import {
 } from '@mui/material';
 import React, {
 	useRef,
-	useEffect,
 	useState,
 	createRef,
 } from 'react'
-import useAuth, {useFetchAuth} from '/src/pong/context/useAuth';
-import { FetchApi, Api, refreshRequest } from '/src/pong/component/FetchApi'
-import axios from 'axios';
+import useAuth, {useFetchAuth} from '../context/useAuth';
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
-function isNumberOrString(str) {
+function isNumberOrString(str: string) {
 	return /^([0-9a-zA-Z_]){3,20}$/.test(str);
 }
 
-function isPassword(str) {
+function isPassword(str: string) {
 	return /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])/.test(str);
 }
 
@@ -38,9 +35,9 @@ const SignUp = () => {
 	const [loginError, setLoginError] = useState('');
 
 	const [file, setFile] = useState<any>(null);
-	const [image, setImage] = useState<URL>(null);
+	const [image, setImage] = useState<string>('');
 
-	const inputFileRef = createRef(null);
+	const inputFileRef = createRef<HTMLInputElement>();
 
 	const login = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 	const password = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
@@ -48,10 +45,11 @@ const SignUp = () => {
 
 	const cleanup = () => {
 		URL.revokeObjectURL(image);
-		inputFileRef.current.value = null;
+		if (inputFileRef.current)
+			inputFileRef.current.value = '';
 	};
 
-	const handleChange = (e: React.ChangeEvent<HTMLButtonElement>) => {
+	const handleChange: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 		e.preventDefault()
 		setError('')
 		setLoginError('')
@@ -74,7 +72,7 @@ const SignUp = () => {
 	const handleAvatarDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
 		if (image) {
 			event.preventDefault();
-			setImage(null);
+			setImage('');
 		}
 	};
 
@@ -158,7 +156,6 @@ const SignUp = () => {
 				<label htmlFor="avatar-image-upload">
 					<IconButton component="span">
 						<Avatar
-							variant="inherit"
 							alt="avatar"
 							src={image}
 							sx={{
@@ -175,8 +172,6 @@ const SignUp = () => {
 					</IconButton>
 				</label>
 				<IconButton
-					component="span"
-					variant="inherit"
 					size='small'
 					sx={{
 						position: 'relative',
