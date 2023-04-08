@@ -1,53 +1,53 @@
 import { Box, TextField, InputAdornment, List, ListItem, Button, FormControl } from '@mui/material'
 import Search from '@mui/icons-material/Search'
-import React, { useCallback, useState, useEffect, useContext} from 'react'
-import { ChatContext, RoomContext } from './Chat'
+import React, { useCallback, useState, useEffect, useContext, ReactText } from 'react'
+import { ChatContext } from './Chat'
 import useAuth, { useFetchAuth } from '../context/useAuth'
 import { Api, FetchApi } from '../component/FetchApi'
 import { JoinRoomData, Room } from './Chat.types'
 import { socket } from './Socket'
 
-export function SearchRoom(children : string) {
+export function SearchRoom() {
 
 	const {
 		rooms,
 		isJoining, setIsJoining
-			} = useContext(ChatContext)
+	} = useContext(ChatContext)
 
-	const {user, id} = useAuth()
+	const { user, id } = useAuth()
 
 	const [searchTerm, setSearchTerm] = useState('')
 
-	const [matchingRooms, setMatchingRooms] = useState<any[]>([]) 
+	const [matchingRooms, setMatchingRooms] = useState<any[]>([])
 
 	const useContextAuth = useFetchAuth()
- 
+
 	useEffect(() => {
 
 		const delayDebounce = setTimeout(async () => {
 			if (searchTerm === '')
-				return setMatchingRooms([]) 
+				return setMatchingRooms([])
 
-			const {data} = await FetchApi({
+			const { data } = await FetchApi({
 				api: {
-					input : `http://${import.meta.env.VITE_SITE}/api/rooms/${searchTerm}`,
-					option : {}
+					input: `http://${import.meta.env.VITE_SITE}/api/rooms/${searchTerm}`,
+					option: {}
 				},
-				auth : useContextAuth
+				auth: useContextAuth
 			})
 
-			setMatchingRooms(data.map((value) => ({
-				id: value.room_id,
+			setMatchingRooms(data.map((value: Room) => ({
+				id: value.id,
 				name: value.name
 			})))
 
 		}, 800)
 		return () => clearTimeout(delayDebounce)
-	}, [searchTerm])	
+	}, [searchTerm])
 
-	const handleJoin = useCallback((e) => {
+	const handleJoin = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
 
-		const value = JSON.parse(e.target.value)
+		const value = JSON.parse((e.target as HTMLButtonElement).value)
 
 		const payload: JoinRoomData = {
 			user_id: id,
@@ -55,55 +55,60 @@ export function SearchRoom(children : string) {
 			room_name: value.name
 		}
 
-		socket.emit('joinRoom',  payload)
+		socket.emit('joinRoom', payload)
 
 		setIsJoining(false)
-	}, [socket])	
+	}, [socket])
 
-	const handleChange = useCallback((e) => {
-		setSearchTerm(e.target.value)
-	})
+	const handleChange: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (event) => {
+		setSearchTerm(event.target.value)
+	}
 
-	const [roomList, setRoomList] = useState([])
+	const [roomList, setRoomList] = useState<(React.ReactNode)[]>([])
 
 	useEffect(() => {
 		setRoomList(
-			matchingRooms.map((tmpRoom) => {
-			let isIn = false
+			matchingRooms
+				.map((tmpRoom) => {
+					let isIn = false
 
-			for (const room of rooms) {
-				if (room.id === tmpRoom.id ) {
-					isIn = true
-				}
-			}
-			if (!isIn) {
-				return (<ListItem 
-					key={tmpRoom.id}
-					secondaryAction={
-						<Button value={JSON.stringify(tmpRoom)} onClick={handleJoin}>JOIN</Button>
+					for (const room of rooms) {
+						if (room.id === tmpRoom.id) {
+							isIn = true
+						}
 					}
-					>{tmpRoom.name}</ListItem>)
-			}
-			return null
-		})
-	)
+					if (!isIn) {
+						return (<ListItem
+							key={tmpRoom.id}
+							secondaryAction={
+								<Button value={JSON.stringify(tmpRoom)} onClick={handleJoin}>JOIN</Button>
+							}
+						>{tmpRoom.name}</ListItem>)
+					}
+					return null
+				})
+				.filter((tmpRoom) => tmpRoom !== null)
+		)
 
-	}, [matchingRooms])
+	}, [matchingRooms, rooms])
 
 	return (
-				<FormControl>
-					<Button onClick={() => (setIsJoining(false))}>x</Button>
-					<TextField
-						size="small"
-						variant="outlined"
-						onChange={handleChange}
-						InputProps={{
-							startAdornment: (
-								<Search/>
-							)}}/>
-					<List>
-						{roomList}
-					</List>
-				</FormControl>
-	) 
-} 
+		<FormControl>
+			<Button onClick={() => (setIsJoining(false))}>x</Button>
+			<TextField
+				size="small"
+				variant="outlined"
+				onChange={handleChange}
+				InputProps={{
+					startAdornment: (
+						<Search />
+					)
+				}} />
+			<List>
+				<>
+					{roomList}
+				</>
+			</List>
+		</FormControl>
+	)
+}

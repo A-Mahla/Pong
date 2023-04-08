@@ -118,10 +118,9 @@
 //		</ChatBody>	
 //	)
 //}
-import { useState, useRef, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useContext, useCallback, HtmlHTMLAttributes } from 'react';
 import { Avatar, Box, Paper, TextField, List, ListItem, ListItemText } from '@mui/material';
 import { styled } from '@mui/system';
-import { PropTypes } from 'prop-types';
 import { ChatContext } from './Chat';
 import useAuth from '../context/useAuth';
 import { socket } from './Socket';
@@ -132,12 +131,13 @@ const ChatInputField = styled(TextField)(({ theme }) => ({
 	width: '100%',
 }));
 
-function ChatInput({ onSubmit }) {
+function ChatInput() {
+
 	const [inputValue, setInputValue] = useState('');
 
 	const { id } = useAuth()
 
-	const handleInputChange = (event) => {
+	const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 		setInputValue(event.target.value);
 	};
 
@@ -146,14 +146,14 @@ function ChatInput({ onSubmit }) {
 		target,
 	} = useContext(ChatContext)
 
-	const handleSubmit = useCallback((e) => {
+	const handleSubmit = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (target.id !== 0) {
 			//console.log(message.current.value);
-			console.log(e.target.value);
+			console.log(inputValue);
 
 			const payload: MessageData = {
 				//content: message.current.value,
-				content: e.target.value,
+				content: inputValue,
 				sender_id: id,
 				recipient_id: target.id
 			}
@@ -166,7 +166,7 @@ function ChatInput({ onSubmit }) {
 		else if (current.id !== 0) {
 			const messageData: MessageData = {
 				//content: message.current.value,
-				content: e.target.value,
+				content: inputValue,
 				sender_id: id,
 				room: {
 					id: current.id,
@@ -179,7 +179,7 @@ function ChatInput({ onSubmit }) {
 
 			socket.emit('roomMessage', messageData)
 		}
-	}, [socket, target, current])
+	}, [socket, target, current, inputValue])
 
 	//multiline #I delete it from ChatInputField because when my imput is too long the behavior is horrible
 	return (
@@ -205,10 +205,6 @@ function ChatInput({ onSubmit }) {
 	);
 }
 
-ChatInput.propTypes = {
-	onSubmit: PropTypes.func,
-};
-
 const ChatBox = styled(Paper)(({ theme }) => ({
 	display: 'flex',
 	flexDirection: 'column',
@@ -218,7 +214,7 @@ const ChatBox = styled(Paper)(({ theme }) => ({
 	boxShadow: 'none',
 	border: `1px solid ${theme.palette.grey[300]}`,
 	position: 'relative', /* add position relative */
-	height: '600px',
+	//height: '600px',
 	width: '100%',
 	maxWidth: '100%'
 }));
@@ -253,7 +249,7 @@ const ChatFooter = styled(Box)(({ theme }) => ({
 }));
 
 export const MessagesBox = () => {
-	const chatBodyRef = useRef()
+	const chatBodyRef = useRef<HTMLDivElement>(null)
 
 	const { id } = useAuth()
 
@@ -263,7 +259,7 @@ export const MessagesBox = () => {
 		target,
 	} = useContext(ChatContext)
 
-	const [messageList, setMessageList] = useState([])
+	const [messageList, setMessageList] = useState<React.ReactNode[]>([])
 
 	useEffect(() => {
 		if (target.id !== 0) {

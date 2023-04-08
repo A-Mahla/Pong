@@ -2,39 +2,73 @@ import { useContext, useState, useEffect, createContext } from 'react'
 import { Box, Grid } from '@mui/material'
 import { Api, FetchApi } from '../component/FetchApi'
 import { useFetchAuth } from '../context/useAuth'
-import { Friend, FriendRequest, Message, Room, User } from './Chat.types'
+import { DirectMessage, Friend, FriendRequest, Message, Room, User } from './Chat.types'
 import { DirectMessageBar } from './DirectMessageBar'
 import { RoomBar } from './RoomBar'
 import { socket, UpdatesContext } from './Socket'
 import { MessagesBox } from './MessagesBox'
 import { FriendBar } from './FriendBar'
-import { ElderlyWoman } from '@mui/icons-material'
 
-const initialChatContext = {
+type ChatContextType = {
+	rooms: Room[];
+	setRooms: React.Dispatch<React.SetStateAction<Room[]>>;
+	directMessages: DirectMessage[];
+	setDirectMessages: React.Dispatch<React.SetStateAction<DirectMessage[]>>;
+	friends: User[];
+	setFriends: React.Dispatch<React.SetStateAction<User[]>>;
+	friendRequests: FriendRequest[];
+	setFriendRequests: React.Dispatch<React.SetStateAction<FriendRequest[]>>;
+	current: {
+	  name: string;
+	  id: number;
+	};
+	setCurrent: React.Dispatch<React.SetStateAction<{ name: string; id: number }>>;
+	target: {
+	  login: string;
+	  id: number;
+	};
+	setTarget: React.Dispatch<React.SetStateAction<{ login: string; id: number }>>;
+	isJoining: boolean;
+	setIsJoining: React.Dispatch<React.SetStateAction<boolean>>;
+	isCreating: boolean;
+	setIsCreating: React.Dispatch<React.SetStateAction<boolean>>;
+	isInDirect: boolean;
+	setIsInDirect: React.Dispatch<React.SetStateAction<boolean>>;
+	isSearching: boolean;
+	setIsSearching: React.Dispatch<React.SetStateAction<boolean>>;
+  };
+  
+  const initialChatContext: ChatContextType = {
 	rooms: [],
-	setRooms: null,
+	setRooms: () => null,
 	directMessages: [],
-	setDirectMessages: null,
+	setDirectMessages: () => null,
 	friends: [],
-	setFriends: null,
+	setFriends: () => null,
 	friendRequests: [],
-	setFriendRequests: null,
-	current: {},
-	setCurrent: null,
-	target: {},
-	setTarget: null,
+	setFriendRequests: () => null,
+	current: {
+	  name: '',
+	  id: 0,
+	},
+	setCurrent: () => null,
+	target: {
+	  login: '',
+	  id: 0,
+	},
+	setTarget: () => null,
 	isJoining: false,
-	setIsJoining: null,
+	setIsJoining: () => null,
 	isCreating: false,
-	setIsCreating: null,
+	setIsCreating: () => null,
 	isInDirect: false,
-	setIsInDirect: null,
+	setIsInDirect: () => null,
 	isSearching: false,
-	setIsSearching: null
-}
-
-export const ChatContext = createContext(initialChatContext)
-
+	setIsSearching: () => null,
+  };
+  
+  export const ChatContext = createContext(initialChatContext);
+  
 export function Chat() {
 	const {
 		newDirectMessage,
@@ -53,7 +87,7 @@ export function Chat() {
 		setDeclineFriendRequestId
 	} = useContext(UpdatesContext)
 
-	const [directMessages, setDirectMessages] = useState<Message[]>([])
+	const [directMessages, setDirectMessages] = useState<DirectMessage[]>([])
 
 	const [rooms, setRooms] = useState<Room[]>([])
 
@@ -61,17 +95,17 @@ export function Chat() {
 
 	const [friends, setFriends] = useState<User[]>([])
 
-	const [current, setCurrent] = useState({ name: '', id: 0 })
+	const [current, setCurrent] = useState<{name: string, id: number}>({ name: '', id: 0 })
 
-	const [target, setTarget] = useState({ login: '', id: 0 })
+	const [target, setTarget] = useState<{login: string, id: number}>({ login: '', id: 0 })
 
-	const [isJoining, setIsJoining] = useState(false)
+	const [isJoining, setIsJoining] = useState<boolean>(false)
 
-	const [isSearching, setIsSearching] = useState(false)
+	const [isSearching, setIsSearching] = useState<boolean>(false)
 
-	const [isCreating, setIsCreating] = useState(false)
+	const [isCreating, setIsCreating] = useState<boolean>(false)
 
-	const [isInDirect, setIsInDirect] = useState(false)
+	const [isInDirect, setIsInDirect] = useState<boolean>(false)
 
 	const chatContext = {
 		rooms: rooms,

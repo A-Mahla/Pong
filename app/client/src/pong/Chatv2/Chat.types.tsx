@@ -47,7 +47,9 @@ export type Action = {
 }
 
 export type User = {
+	id: number,
 	login: string,
+	avatar: string
 }
 
 export type Message = {

@@ -1,6 +1,7 @@
 import { Box, List, ListItem, ListItemButton, ListItemText, Dialog } from "@mui/material" 
 import { useCallback, useContext } from "react"
 import { ChatContext } from "./Chat"
+import { Room } from "./Chat.types"
 import { CreateRoom } from "./Create"
 import { SearchRoom } from "./Search"
 
@@ -15,21 +16,20 @@ export function RoomBar() {
 		isInDirect, setIsInDirect
 			} = useContext(ChatContext)
 
-	const handleChangeRoom = useCallback((e) => {
+	const handleChangeRoom = useCallback((room: Room) => {
 		
-		const payload = JSON.parse(e.currentTarget.getAttribute('value'))
 
-		if (payload.id === current.id)
+		if (room.id === current.id)
 			return
 
-		console.log(payload)
+		console.log(room)
 
-		setCurrent(payload)
+		setCurrent(room)
 		setTarget({login: '', id: 0})
 
 	}, [])
 
-	const handleCreateRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+	const handleCreateRoom = useCallback(() => {
 
 		isCreating ? setIsCreating(false) : setIsCreating(true)
 		if (isJoining)
@@ -39,7 +39,7 @@ export function RoomBar() {
 
 	}, [isCreating, isJoining, isInDirect])
 
-	const handleSearchRoom = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+	const handleSearchRoom = useCallback(() => {
 		isJoining ? setIsJoining(false) : setIsJoining(true)
 		if (isCreating)
 			setIsCreating(false)
@@ -59,8 +59,7 @@ export function RoomBar() {
 					>
 					<ListItemButton
 						sx={{borderRadius: 10}}
-						onClick={handleChangeRoom}
-						value={JSON.stringify(room)}
+						onClick={() => handleChangeRoom(room)}
 						>
 						<ListItemText
 							sx={{textAlign: 'center'}}
@@ -79,8 +78,7 @@ export function RoomBar() {
 					>
 					<ListItemButton
 						sx={{borderRadius: 10}}
-						onClick={handleChangeRoom}
-						value={JSON.stringify(room)}
+						onClick={() => handleChangeRoom(room)}
 						>
 						<ListItemText
 							sx={{textAlign: 'center'}}

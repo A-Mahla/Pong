@@ -8,6 +8,7 @@ import React, { useContext } from 'react';
 import { socket } from './Socket';
 import { ChatContext } from './Chat';
 import FetchAvatar from '../component/FetchAvatar'
+import { FriendRequest, User } from './Chat.types';
 
 export const FriendListWrapper = styled('div')({
 	display: 'flex',
@@ -121,7 +122,7 @@ export const FriendRequestButtonWrapper = styled('div')({
 
 });
 
-export const FriendRequestButton = styled('div')(({ isActive }) => ({
+export const FriendRequestButton = styled('div')<{isActive: boolean}>(({ isActive }) => ({
 	display: 'flex',
 	alignItems: 'center',
 	height: '56px',
@@ -136,7 +137,7 @@ export const FriendRequestButton = styled('div')(({ isActive }) => ({
 	},
 }));
 
-export const FriendRequestItem = ({ friendRequest, id }) => {
+export const FriendRequestItem = ({ friendRequest, id } : {friendRequest: FriendRequest, id: number}) => {
   	const { friendRequests, setFriendRequests } = useContext(ChatContext)
 
 	const handleAcceptFriendRequest = (friendRequestId: number) => {
@@ -144,7 +145,7 @@ export const FriendRequestItem = ({ friendRequest, id }) => {
 		setFriendRequests(friendRequests.filter((friendRequest) => friendRequest.id !== friendRequestId))
 	}
 
-	const handleDeclineFriendRequest = (friendRequestParam) => {
+	const handleDeclineFriendRequest = (friendRequestParam: FriendRequest) => {
 		console.log('friendRequestParam: ', friendRequestParam)
 		socket.emit('declineFriend', {senderId: friendRequestParam.user1Id, friendRequestId: friendRequestParam.id})
 		setFriendRequests(friendRequests.filter((friendRequest) => friendRequest.id !== friendRequestParam.id))
@@ -225,7 +226,7 @@ const UserListItemText = styled('div')({
 	flexGrow: 1,
 });
 
-export const UserListItem = ({ user, friends, onClick, friendRequests, id }) => {
+export const UserListItem = ({ user, friends, onClick, friendRequests, id }: {user: User, friends: User[], onClick: (id: number) => void, friendRequests: FriendRequest[], id: number}) => {
 
 	if (id === user.id)
 		return null
