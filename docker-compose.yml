@@ -17,6 +17,8 @@ services:
     image: react
     ports:
       - "8080:8080"
+    volumes:
+      - ./app/client/save:/app/save
     restart: always
     networks:
       - webapp
@@ -37,6 +39,7 @@ services:
       - "3500"
     volumes:
       - ./app/server/prisma:/app/prisma
+      - ./app/server/save:/app/save
     restart: always
     networks:
       - webapp

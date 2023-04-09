@@ -5,6 +5,14 @@ all			: ${NAME}
 ${NAME}		: dev
 
 prod		:
+			@if [ ! -f "/app/client/save" ]; then \
+				mkdir -p ./app/client/save; \
+				touch ./app/client/save/.dev; \
+			fi
+			@if [ ! -f "/app/server/save" ]; then \
+				mkdir -p ./app/server/save; \
+				touch ./app/server/save/.dev; \
+			fi
 			docker compose up --build
 
 dev			:
@@ -31,6 +39,8 @@ fclean-prod	: clean-prod
 			docker rmi postgres:latest nestjs:latest react:latest nginx_proxy:latest -f
 			docker volume rm postgres -f
 			rm -rf ./app/server/prisma/migrations
+			rm -rf ./app/server/save
+			rm -rf ./app/client/save
 
 fclean-dev	: clean-dev
 			docker system prune -af

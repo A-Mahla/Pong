@@ -124,3 +124,6 @@ dist
 # MAC OS cache
 .DS_Store
 
+# no prod
+.prod
+save
