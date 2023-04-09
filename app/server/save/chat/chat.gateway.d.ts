@@ -22,14 +22,14 @@ export declare class ChatGateway implements OnGatewayInit, OnGatewayConnection, 
     handleAddFriend(client: Socket, friendRequestId: number): Promise<{
         id: number;
         user1: {
-            id: number;
             login: string;
             avatar: string | null;
+            id: number;
         };
         user2: {
-            id: number;
             login: string;
             avatar: string | null;
+            id: number;
         };
     } | undefined>;
     handleDeclineFriend(client: Socket, payload: {

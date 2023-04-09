@@ -19,9 +19,9 @@ export declare class UsersController {
         intraLogin: string;
     }): Promise<User | null>;
     handleSearchLogin(login: string): Promise<{
-        id: number;
         login: string;
         avatar: string | null;
+        id: number;
     }[]>;
     pong(): Promise<void>;
     checkAvatar(req: any, file: Express.Multer.File): Promise<User>;

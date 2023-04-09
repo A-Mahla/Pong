@@ -8,9 +8,9 @@ export declare class UsersService {
     constructor(prisma: PrismaService, gameService: GameService);
     findUsers(): Promise<User[]>;
     searchManyUsers(login: string): Promise<{
-        id: number;
         login: string;
         avatar: string | null;
+        id: number;
     }[]>;
     findIfExistUser(login: string): Promise<number>;
     findOneUser(login: string): Promise<User | null>;

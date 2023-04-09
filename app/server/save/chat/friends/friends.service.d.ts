@@ -6,14 +6,14 @@ export declare class FriendsService {
     acceptFriendRequest(friendRequestId: number): Promise<{
         id: number;
         user1: {
-            id: number;
             login: string;
             avatar: string | null;
+            id: number;
         };
         user2: {
-            id: number;
             login: string;
             avatar: string | null;
+            id: number;
         };
     } | null>;
     declineFriendRequest(friendRequestId: number): Promise<void>;

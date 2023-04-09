@@ -29,14 +29,14 @@ export declare class ChatService {
     acceptFriendRequest(server: Server, client: Socket, friendRequestId: number): Promise<{
         id: number;
         user1: {
-            id: number;
             login: string;
             avatar: string | null;
+            id: number;
         };
         user2: {
-            id: number;
             login: string;
             avatar: string | null;
+            id: number;
         };
     } | undefined>;
     declineFriendRequest(server: Server, client: Socket, payload: {
