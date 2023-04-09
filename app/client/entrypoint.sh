@@ -4,7 +4,7 @@ then
 	&& cp /app/nginx-reverse-proxy/default.conf /etc/nginx/http.d/. \
 	&& cp -r /app/dist /var/www/html  \
 	&& cp -r /app/dist/* /app/save/. \
-	&& mv /app/save/.dev /app/save/.prod
+	&& touch /app/save/.prod
 #	cp /app/nginx-reverse-proxy/default.conf.template /etc/nginx/templates/default.conf.template
 else
 	cp /app/nginx-reverse-proxy/default.conf /etc/nginx/http.d/.

@@ -5,7 +5,7 @@ then
 	npx prisma migrate dev --name init \
 	&& npx prisma generate \
 	&& npm run build
-	(cp -r /app/dist/* /app/save/. && mv /app/save/.dev /app/save/.prod) &
+	cp -r /app/dist/* /app/save/. &
 	node dist/main.js
 else
 	npx prisma generate \

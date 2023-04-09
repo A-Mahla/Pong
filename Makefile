@@ -5,14 +5,6 @@ all			: ${NAME}
 ${NAME}		: dev
 
 prod		:
-			@if [ ! -f "/app/client/save" ]; then \
-				mkdir -p ./app/client/save; \
-				touch ./app/client/save/.dev; \
-			fi
-			@if [ ! -f "/app/server/save" ]; then \
-				mkdir -p ./app/server/save; \
-				touch ./app/server/save/.dev; \
-			fi
 			docker compose up --build
 
 dev			:
