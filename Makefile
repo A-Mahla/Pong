@@ -40,7 +40,11 @@ fclean-prod	: clean-prod
 			docker volume rm postgres -f
 			rm -rf ./app/server/prisma/migrations
 			rm -rf ./app/server/save
+			mkdir -p ./app/server/save
+			touch ./app/server/save/.dev
 			rm -rf ./app/client/save
+			mkdir -p ./app/client/save
+			touch ./app/client/save/.dev
 
 fclean-dev	: clean-dev
 			docker system prune -af

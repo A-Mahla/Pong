@@ -125,5 +125,6 @@ dist
 .DS_Store
 
 # no prod
-.prod
-save
+save/*
+save/.prod
+!sava/.dev
