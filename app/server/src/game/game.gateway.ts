@@ -4,7 +4,6 @@ import { 	SubscribeMessage,
 			OnGatewayConnection,
 			OnGatewayDisconnect
 								} from "@nestjs/websockets";
-import { stringify } from "querystring";
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service'
 import { ClientPayload, RoomInfo, GamePatron, gamePatron, Status, Player } from './game.types'
@@ -13,7 +12,6 @@ import { Injectable, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { jwtConstants } from "src/auth/constants";
 import * as jwt from 'jsonwebtoken';
-import { EventEmitter } from 'events';
 
 @Injectable()
 @WebSocketGateway({ namespace: 'gameTransaction' })
@@ -31,12 +29,12 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	@SubscribeMessage('automatikMatchMaking')
 	async matchMaker(client: Socket, clientPayload: ClientPayload) {
 		let gameToJoin: GameAlgo | undefined;
-		let notPlayingwithYourself = true
+		let notPlayingWithYourself = true
 
 		this.gameMap.forEach((game) => {
 			if (game.getStatus() === Status.ONE_PLAYER) {
 				if (game.getPlayerID(1) === clientPayload.id)
-					notPlayingwithYourself = false;
+					notPlayingWithYourself = false;
 				else
 					gameToJoin = game;
 			}
@@ -52,7 +50,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				playerRole: "p2",
 				playerSocket: client
 			});
-		} else if (notPlayingwithYourself) {
+		} else if (notPlayingWithYourself) {
 			// no waiting games with one player so we create one
 				const newGameDB = await this.gameService.registerNewGame('WAIT');
 				if (newGameDB) {
@@ -66,7 +64,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 							playerSocket: client
 						});
 						await newGameAlgo.launchGame().then( value => {
-							newGameAlgo.disconnectInternalEvents();
+							newGameAlgo.shutDownInternalEvents();
 							this.gameMap.delete(newGameAlgo.roomID);
 						}).catch(onrejected => {
 							if (onrejected === '1') {
@@ -81,8 +79,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 								console.log(" --- timeOut --- ");
 								this.server.to(client.id).emit('disconnection', 'unable to find a match: You have been disconnected from the queu');
 							}
-							newGameAlgo.disconnectInternalEvents();
-							this.gameMap.delete(newGameAlgo.roomID);
+							newGameAlgo.shutDownInternalEvents();
+							this.gameService.deleteGame(newGameAlgo.roomID); // deleteting from the DB
+							this.gameMap.delete(newGameAlgo.roomID); // deleteting from the running games
 						})
 				}
 			}

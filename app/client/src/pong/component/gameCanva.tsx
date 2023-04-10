@@ -299,6 +299,8 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 
 	const [game, setGame] = React.useState<boolean>(false);
 	let animationId: any;
+
+
 	const quitGame = async () => {
 		socket.emit('quitGame', )
 		handleThereIsMatch()
@@ -369,6 +371,7 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 
 	const handleMouseMove = React.useMemo(() => {
 		const canvasElement = canvas.current
+
 		if (game && canvasElement) {
 			const sendPos = (y: number) => {
 				socket.volatile.emit("paddlePos", y);

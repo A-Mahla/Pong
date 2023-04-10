@@ -21,6 +21,14 @@ export class GameService {
 		}).catch((e) => {throw e})
 	}
 
+	async deleteGame(game_id: string) {
+		return this.prisma.games.delete({
+			where: {
+				game_id: parseInt(game_id)
+			}
+		})
+	}
+
 	async registerNewPlayer(game_id: number, user_id: number, score: number) {
 		const newUserGame = {
 			game_id: game_id,

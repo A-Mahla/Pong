@@ -148,7 +148,7 @@ export const Game = ({ height, width }: any) => {
 						open={errorPopoverOpen}
 						onClose={handleCloseErrorPop}
 						anchorReference="none"
-						anchorPosition={{ top: '50%', left: '50%' }}
+						anchorPosition={{ top: parseInt('50%'), left: parseInt('50%') }}
 						transformOrigin={{
 							vertical: 'center',
 							horizontal: 'center',
