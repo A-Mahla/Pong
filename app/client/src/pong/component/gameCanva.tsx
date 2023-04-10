@@ -297,7 +297,7 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 	// ref to the html5 canvas on wich we will draw
 	const canvas = React.useRef<HTMLCanvasElement>(null); // reference/pointer on html5 canvas element, so you can draw on it
 
-	const [game, setGame] = React.useState<boolean>(false);
+	const [game, setGame] = React.useState<boolean>(true);
 	let animationId: any;
 
 
@@ -319,13 +319,12 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 		}
 	}
 
-	const gameCanvas = React.useCallback((node: null | HTMLCanvasElement) => {
+	const gameCanvas = React.useCallback((node: HTMLCanvasElement | null) => {
 		if (node !== null) {
 			canvas.current = node; //fait en sorte que ton canvas soit gerer dans un useState
 			setGame(true)
 		}
 	}, []);
-
 
 	React.useEffect(() => {
 
@@ -343,7 +342,6 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 			console.log("---------------------> ON initSetup");
 			clearInterval(animationId)
 			draw(canvas.current, gameData);
-			// setWaiting(false);
 		})
 
 		socket.on("pause", (gameData: GameData) => {

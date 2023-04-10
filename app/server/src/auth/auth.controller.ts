@@ -87,7 +87,6 @@ export class AuthController {
 		@Body() user: { login: string },
 		@Res({ passthrough: true }) response: Response
 	) {
-		console.log('wessssshhhhhhhhhhhh');
 		return await this.authService.logout(user, response);
 	}
 
