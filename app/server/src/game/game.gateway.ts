@@ -28,7 +28,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	@SubscribeMessage('automatikMatchMaking')
 	async matchMaker(client: Socket, clientPayload: ClientPayload) {
-		console.log(clientPayload)
+		// console.log(clientPayload)
 		let gameToJoin: GameAlgo | undefined;
 		let notPlayingWithYourself = true
 

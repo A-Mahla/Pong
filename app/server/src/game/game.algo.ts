@@ -208,6 +208,7 @@ export class GameAlgo {
 			this.gameConfig = { ballSpeed: '7', paddleSize: '100', duration: '3750' }
 
 		this.gameData.ball.speed.x = this.gameData.ball.speed.y = parseInt(this.gameConfig.ballSpeed);
+		this.gameData.roomInfo.duration = parseInt(this.gameConfig.duration);
 		this.server.to(this.player1.socketID).emit('lockAndLoaded');
 	}
 

@@ -30,6 +30,7 @@ const ENDGAMEFONT = 180;
 type GameData = {
 	roomInfo: {
 		//roomId: string,
+		duration: number
 		timer: number
 		countDown: number
 		margin?:number
@@ -133,6 +134,7 @@ const drawCountDown = (canvas: any, countdown: number) => {
 const scaleGame = (game: GameData, width : number, height: number): GameData => {
 	return {
 		roomInfo:{
+			duration:  game.roomInfo.duration,
 			timer: game.roomInfo.timer,
 			countDown: game.roomInfo.countDown,
 			margin: Math.floor((width * 5) / CANVAS_WIDTH),
@@ -203,7 +205,7 @@ function drawEndGameWatchers(canvas: any, gameData: GameData) {
 	context.fillText(`Game Over\n${gameData.player1.login}: ${gameData.player1.score}\n${gameData.player2.login}: ${gameData.player2.score}`, canvas.width / 2, canvas.height / 2)
 }
 
-const drawTimer = (canvas: any, timer: number) => {
+const drawTimer = (canvas: any, timer: any) => {
 	const context = canvas.getContext('2d');
 
 	// scaling the print
@@ -212,8 +214,8 @@ const drawTimer = (canvas: any, timer: number) => {
 	const heightMargin = Math.floor((20 * canvas.height) / CANVAS_HEIGHT);
 
 
-	const minute = Math.floor((((3750 - timer) * 16) / 1000) / 60);
-	const seconde = Math.floor((((3750 - timer) * 16) / 1000) % 60);
+	const minute = Math.floor((((timer.duration - timer.timer) * 16) / 1000) / 60);
+	const seconde = Math.floor((((timer.duration - timer.timer) * 16) / 1000) % 60);
 
 	const toString = minute.toString() + ':' + seconde.toString().padStart(2, '0');
 
@@ -267,7 +269,7 @@ export const draw = (canvas: any, game: GameData) => {
 	context.fillRect(0, 0, canvas.width, canvas.height);
 
 	drawScore(canvas, scaled.player1.score, scaled.player2.score);
-	drawTimer(canvas, scaled.roomInfo.timer);
+	drawTimer(canvas, scaled.roomInfo);
 
 	if (scaled.roomInfo.countDown > 0)
 		drawCountDown(canvas, scaled.roomInfo.countDown);

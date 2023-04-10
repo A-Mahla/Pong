@@ -59,8 +59,10 @@ function JoinQueuButton({socket, setJoinQueu, joinQueu}: any) {
   const handlePaddleSizeLevel = (event: any) => {
     setPaddle(event.target.value);
 	if (playerPayload.config) {
-		if (paddle === 'easy')
+		if (paddle === 'easy'){
+			console.log("laaaaaaaaaaaaaaaaaaaaaa paddle")
 			playerPayload.config.paddleSize = '100';
+		}
 		if (paddle === 'medium')
 			playerPayload.config.paddleSize = '70';
 		if (paddle === 'hard')
@@ -77,7 +79,10 @@ function JoinQueuButton({socket, setJoinQueu, joinQueu}: any) {
 		if (speed === 'medium')
 			playerPayload.config.ballSpeed = '7';
 		if (speed === 'hard')
+		{
+			console.log("laaaaaaaaaaaaaaaaaaaaaa speed")
 			playerPayload.config.ballSpeed = '10';
+		}
 	}
 
 
@@ -90,7 +95,10 @@ function JoinQueuButton({socket, setJoinQueu, joinQueu}: any) {
 		if (speed === 'medium')
 			playerPayload.config.duration = '3750';
 		if (speed === 'hard')
+		{
+			console.log("laaaaaaaaaaaaaaaaaaaaaa duration");
 			playerPayload.config.duration = '7500';
+		}
 	}
   };
 
