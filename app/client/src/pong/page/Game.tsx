@@ -130,76 +130,146 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
     handleClose();
   }
 
-  return (
-    <>
-      <Dialog open={openMatchmaking} onClose={handleClose}>
-        <DialogTitle>Configure your game</DialogTitle>
-        <DialogContent>
-  <FormGroup style={{ display: 'flex' }}>
-    <div>
-      <DialogTitle>ball speed</DialogTitle>
-      <FormControlLabel
-        control={<Checkbox checked={speed === 'easy'} onChange={handleBallSpeedLevel} value="easy" />}
-        label="Easy"
-        style={{ marginRight: '16px' }}
-      />
-      <FormControlLabel
-        control={<Checkbox checked={speed === 'medium'} onChange={handleBallSpeedLevel} value="medium" />}
-        label="Medium"
-        style={{ marginRight: '16px' }}
-      />
-      <FormControlLabel
-        control={<Checkbox checked={speed === 'hard'} onChange={handleBallSpeedLevel} value="hard" />}
-        label="Hard"
-      />
-    </div>
-    <div>
-      <DialogTitle>paddle size</DialogTitle>
-      <FormControlLabel
-        control={<Checkbox checked={paddle === 'easy'} onChange={handlePaddleSizeLevel} value="easy" />}
-        label="Easy"
-        style={{ marginRight: '16px' }}
-      />
-      <FormControlLabel
-        control={<Checkbox checked={paddle === 'medium'} onChange={handlePaddleSizeLevel} value="medium" />}
-        label="Medium"
-        style={{ marginRight: '16px' }}
-      />
-      <FormControlLabel
-        control={<Checkbox checked={paddle === 'hard'} onChange={handlePaddleSizeLevel} value="hard" />}
-        label="Hard"
-      />
-    </div>
-    <div>
-      <DialogTitle>Duration</DialogTitle>
-      <FormControlLabel
-        control={<Checkbox checked={duration === 'easy'} onChange={handleDuration} value="easy" />}
-        label="0:30m"
-        style={{ marginRight: '16px' }}
-      />
-      <FormControlLabel
-        control={<Checkbox checked={duration === 'medium'} onChange={handleDuration} value="medium" />}
-        label="1:00m"
-        style={{ marginRight: '16px' }}
-      />
-      <FormControlLabel
-        control={<Checkbox checked={duration === 'hard'} onChange={handleDuration} value="hard" />}
-        label="2:00m"
-      />
-    </div>
-  </FormGroup>
-</DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>
-            Cancel
-          </Button>
-          <Button onClick={handleJoinClick}>
-            Join
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
-  );
+	return (
+		<>
+			<Dialog
+				open={openMatchmaking}
+				onClose={handleClose}
+				fullWidth
+				maxWidth="md"
+				PaperProps={{
+					style: {
+						borderRadius: '32px',
+						height: '31rem',
+						width: '50rem',
+						minHeight: '10rem'
+					}
+				}}
+			>
+				<DialogTitle>Configure your game</DialogTitle>
+				<DialogContent>
+					<FormGroup style={{ display: 'flex'}}>
+						<div>
+							<DialogTitle>ball speed</DialogTitle>
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={speed === 'easy'}
+											onChange={handleBallSpeedLevel}
+											value="easy"
+											sx={{
+												justifyContent: 'right'
+											}}
+										/>
+									}
+									label="Easy"
+									style={{ marginRight: '16px' }}
+							/>
+							<FormControlLabel
+							control={
+									<Checkbox
+										checked={speed === 'medium'}
+										onChange={handleBallSpeedLevel}
+										value="medium"
+									/>
+								}
+								label="Medium"
+								style={{ marginRight: '16px' }}
+							/>
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={speed === 'hard'}
+										onChange={handleBallSpeedLevel}
+										value="hard"
+									/>
+								}
+								label="Hard"
+							/>
+						</div>
+						<div>
+							<DialogTitle>paddle size</DialogTitle>
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={paddle === 'easy'}
+										onChange={handlePaddleSizeLevel}
+										value="easy"
+									/>
+								}
+								label="Easy"
+								style={{ marginRight: '16px' }}
+							/>
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={paddle === 'medium'}
+										onChange={handlePaddleSizeLevel}
+										value="medium"
+									/>
+								}
+								label="Medium"
+								style={{ marginRight: '16px' }}
+							/>
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={paddle === 'hard'}
+										onChange={handlePaddleSizeLevel}
+										value="hard"
+									/>
+								}
+								label="Hard"
+							/>
+						</div>
+						<div>
+							<DialogTitle>Duration</DialogTitle>
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={duration === 'easy'}
+										onChange={handleDuration}
+										value="easy"
+									/>
+								}
+								label="0:30m"
+								style={{ marginRight: '16px' }}
+							/>
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={duration === 'medium'}
+										onChange={handleDuration}
+										value="medium"
+									/>
+								}
+								label="1:00m"
+								style={{ marginRight: '16px' }}
+							/>
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={duration === 'hard'}
+										onChange={handleDuration}
+										value="hard"
+									/>
+								}
+								label="2:00m"
+							/>
+						</div>
+					</FormGroup>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleClose}>
+						Cancel
+					</Button>
+					<Button onClick={handleJoinClick}>
+						Join
+					</Button>
+				</DialogActions>
+			</Dialog>
+		</>
+	);
 }
 
 type MatchProps = {
@@ -233,10 +303,6 @@ interface PlayersListItemProps {
 	justify: string,
 }
 
-interface PlayersListItemTextProps {
-	isActive: boolean;
-}
-
 const PlayersListWrapper = styled('div')({
 	display: 'flex',
 	flexDirection: 'column',
@@ -252,24 +318,26 @@ const PlayersListItem = styled('div')<PlayersListItemProps>(({ isActive, justify
 	alignItems: 'center',
 	height: '33%',
 	margin: '4px',
+	mx: '32px',
 	padding: '0 16px',
 	borderRadius: '8px',
 	cursor: 'pointer',
 	backgroundColor: isActive ? '#EDEDED' : 'transparent',
+	color: isActive ? "#427094" : '#213547',
 	'&:hover': {
 		backgroundColor: '#EDEDED',
+		color: "#427094",
 	},
 	justifyContent: justify
 }));
 
-const PlayersListItemText = styled('div')<PlayersListItemTextProps>(({ isActive }) => ({
+const PlayersListItemText = styled('div')(() => ({
 	whiteSpace: 'nowrap',
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
 	fontFamily: 'pong-policy',
 	fontSize: '5rem',
 	fontWeight: '600',
-	color: isActive ? "#427094" : '#213547',
 }));
 
 type Row = {
@@ -369,9 +437,7 @@ export const Game = ({ height, width }: any) => {
 								justify={justify[row.id]}
 								onClick={() => setSelectedRow(row)}
 							>
-								<PlayersListItemText
-									isActive={row.id === selectedRowId}
-								>
+								<PlayersListItemText>
 									{row.name}
 								</PlayersListItemText>
 							</PlayersListItem>
