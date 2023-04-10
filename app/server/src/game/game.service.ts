@@ -1,6 +1,6 @@
 import { BadGatewayException, BadRequestException, Injectable, UseInterceptors, UploadedFile, Param } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { GameDataType, Status, gamePatron, GamePatron, Player, matchHistoryPayload } from './game.types'
+import { GameDataType, GameParams, gamePatron, GamePatron, Player, matchHistoryPayload } from './game.types'
 
 @Injectable()
 export class GameService {
@@ -19,6 +19,14 @@ export class GameService {
 				status: status
 			}
 		}).catch((e) => {throw e})
+	}
+
+	async deleteGame(game_id: string) {
+		return this.prisma.games.delete({
+			where: {
+				game_id: parseInt(game_id)
+			}
+		})
 	}
 
 	async registerNewPlayer(game_id: number, user_id: number, score: number) {
@@ -181,6 +189,18 @@ export class GameService {
 			throw new BadRequestException(e)
 		})
 	}
+
+	configMatch(config1: GameParams, config2: GameParams): boolean {
+		if (config1.ballSpeed !== config2.ballSpeed)
+			return false;
+		if (config1.duration !== config2.duration)
+			return false;
+		if (config1.paddleSize !== config2.paddleSize)
+			return false;
+		return (true);
+	}
+
 }
 
 //	================ ^^^^^^^^^^^^^^^^^^ ===========
+

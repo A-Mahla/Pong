@@ -93,6 +93,7 @@ export class UsersService {
 			where: { login: login },
 			data: { refreshToken: refreshToken }
 		}).catch((e) => {
+			console.log(e);
 			throw new BadRequestException(); // maybe we will have to specifie the error later
 		});
 	}

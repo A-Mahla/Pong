@@ -4,7 +4,6 @@ import { 	SubscribeMessage,
 			OnGatewayConnection,
 			OnGatewayDisconnect
 								} from "@nestjs/websockets";
-import { stringify } from "querystring";
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service'
 import { ClientPayload, RoomInfo, GamePatron, gamePatron, Status, Player } from './game.types'
@@ -13,7 +12,6 @@ import { Injectable, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { jwtConstants } from "src/auth/constants";
 import * as jwt from 'jsonwebtoken';
-import { EventEmitter } from 'events';
 
 @Injectable()
 @WebSocketGateway({ namespace: 'gameTransaction' })
@@ -30,14 +28,19 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	@SubscribeMessage('automatikMatchMaking')
 	async matchMaker(client: Socket, clientPayload: ClientPayload) {
+		// console.log(clientPayload)
 		let gameToJoin: GameAlgo | undefined;
+		let notPlayingWithYourself = true
 
 		this.gameMap.forEach((game) => {
 			if (game.getStatus() === Status.ONE_PLAYER) {
-				gameToJoin = game;
-				return;
+				if (game.getPlayerID(1) === clientPayload.id)
+					notPlayingWithYourself = false;
+				else if (this.gameService.configMatch(clientPayload.config!, game.gameConfig))
+					gameToJoin = game;
 			}
 		});
+
 		if (gameToJoin) {
 			// La première partie avec un statut 'ONE_PLAYER' a été trouvée et peut être utilisée ici
 			client.join(gameToJoin.roomID);
@@ -48,31 +51,48 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				playerRole: "p2",
 				playerSocket: client
 			});
-		} else {
+		} else if (notPlayingWithYourself) {
 			// no waiting games with one player so we create one
 				const newGameDB = await this.gameService.registerNewGame('WAIT');
 				if (newGameDB) {
-						const newGameAlgo = new GameAlgo(this.gameService, this.server, newGameDB.game_id.toString())
+						var newGameAlgo: GameAlgo = new GameAlgo(this.gameService, this.server, newGameDB.game_id.toString());
 						this.gameMap.set( newGameDB.game_id.toString(), newGameAlgo);
 						newGameAlgo.initPlayer1({
-						  id: parseInt( clientPayload.id ),
-						  login: clientPayload.login,
-						  socketID: client.id,
-						  playerRole: "p1",
-						  playerSocket: client
-						});
+							id: parseInt( clientPayload.id ),
+							login: clientPayload.login,
+							socketID: client.id,
+							playerRole: "p1",
+							playerSocket: client
+
+						}, clientPayload.config);
 						await newGameAlgo.launchGame().then( value => {
-							console.log("OUI OUI OUI" + value)
+							newGameAlgo.shutDownInternalEvents();
+							this.gameMap.delete(newGameAlgo.roomID);
 						}).catch(onrejected => {
-							console.log("NON NON NON" + onrejected)
-							if (onrejected === 'TIME')
-								this.server.to(client.id).emit('timeOut');
+							if (onrejected === '1') {
+								console.log(" --- p1 left --- ");
+								this.server.to(newGameAlgo.getPlayerSocketID(2)).emit('disconnection', `DISCONNECTED: ${newGameAlgo.getPlayerLogin(1)} quit the game :(`);
+							}
+							else if (onrejected === '2') {
+								console.log(" --- p2 left --- ");
+								this.server.to(newGameAlgo.getPlayerSocketID(1)).emit('disconnection', `DISCONNECTED: ${newGameAlgo.getPlayerLogin(2)} quit the game :(`);
+							}
+							if (onrejected === 'TIME') {
+								console.log(" --- timeOut --- ");
+								this.server.to(client.id).emit('disconnection', 'unable to find a match: You have been disconnected from the queu');
+							}
+							if (onrejected === 'BLOCKED') {
+								console.log(" --- bloked --- ");
+								this.server.to(client.id).emit('disconnection', 'you are disconnected from the matchmaking queu');
+							}
+							newGameAlgo.shutDownInternalEvents();
+							this.gameService.deleteGame(newGameAlgo.roomID); // deleteting from the DB
+							this.gameMap.delete(newGameAlgo.roomID); // deleteting from the running games
 						})
 				}
 			}
 			if (gameToJoin && gameToJoin.getStatus() === Status.RUNNING)
 				this.runingGamesList();
-
 	}
 
 	@SubscribeMessage('getRuningGames')

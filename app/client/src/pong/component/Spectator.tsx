@@ -29,7 +29,6 @@ export const Spectator = ({socket, thereIsMatch, handleThereIsMatch}: any) => {
 	}
 
 	socket.on('updateRuningGames', (runningGameList: any) => {
-		console.log("LOOOOOOOOOOOOO");
 		setGameList(runningGameList);
 	})
 

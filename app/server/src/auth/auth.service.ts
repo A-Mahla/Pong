@@ -50,6 +50,7 @@ export class AuthService {
 
 
 	async logout(user: any, response: Response) {
+		console.log("regarde la --> " + user.login)
 		await this.usersService.updateRefreshToken(user.login, "");
 		response.clearCookie(
 			`${jwtConstants.refresh_jwt_name}`,
