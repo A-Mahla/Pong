@@ -5,7 +5,7 @@ import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 import PropTypes from 'prop-types';
 import useAuth from '../context/useAuth'
-import io from "socket.io-client";
+import io, {Socket} from "socket.io-client";
 import './game.css'
 import { render } from 'react-dom'
 import Canvas from '../component/gameCanva'
@@ -16,6 +16,8 @@ import Popover from '@mui/material/Popover';
 import { useState } from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
+import { styled } from '@mui/system';
+import {useEffect} from 'react'
 
 const pongTitle = {
 	fontSize: '2vw;',
@@ -38,7 +40,16 @@ type PlayerPayload = {
 
 /* ---------------- ^^^^ ---------------*/
 
-function JoinQueuButton({socket, setJoinQueu, joinQueu}: any) {
+type JoinProps = {
+	socket: Socket,
+	joinQueu: boolean,
+	openMatchmaking: boolean,
+	setJoinQueu: React.Dispatch<React.SetStateAction<boolean>>,
+	setOpenMatchmaking: React.Dispatch<React.SetStateAction<boolean>>,
+}
+
+function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, setJoinQueu}: any) {
+
   const {user, id} = useAuth();
 
   const playerPayload: PlayerPayload = {
@@ -110,7 +121,7 @@ function JoinQueuButton({socket, setJoinQueu, joinQueu}: any) {
   }
 
   const handleClose = () => {
-    setOpen(false);
+    setOpenMatchmaking(false);
   }
 
   const handleJoinClick = () => {
@@ -121,16 +132,7 @@ function JoinQueuButton({socket, setJoinQueu, joinQueu}: any) {
 
   return (
     <>
-      {!joinQueu ? (
-        <Button onClick={handleOpen}>
-          JOIN QUEU
-        </Button>
-      ) : (
-        <Button>
-          WAITING FOR A MATCH
-        </Button>
-      )}
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog open={openMatchmaking} onClose={handleClose}>
         <DialogTitle>Configure your game</DialogTitle>
         <DialogContent>
   <FormGroup style={{ display: 'flex' }}>
@@ -200,82 +202,134 @@ function JoinQueuButton({socket, setJoinQueu, joinQueu}: any) {
   );
 }
 
+type MatchProps = {
+	socket: Socket,
+	openMatchmaking: boolean,
+	thereIsMatch: boolean,
+	setOpenMatchmaking: React.Dispatch<React.SetStateAction<boolean>>,
+	launchCanvas: any,
+}
 
-// function JoinQueuButton({socket, setJoinQueu, joinQueu}: any): any {
-// 	const {user, id} = useAuth();
+function MatchMaker ({socket, openMatchmaking, thereIsMatch, setOpenMatchmaking, launchCanvas} : MatchProps){
 
-// 	const playerPayload: PlayerPayload = {
-// 		id: id,
-// 		login: user
-// 	}
-
-// 	const matchMaking = () => {
-// 		socket.emit("automatikMatchMaking", playerPayload);
-// 	}
-// 	const handleClick = () => {
-// 		if (!joinQueu)
-// 		{
-// 			matchMaking();
-// 			setJoinQueu(true);
-// 		}
-// 	}
-// 	return (<>
-// 		{
-// 			!joinQueu ? (<>
-
-// 					<Button onClick={handleClick}>
-// 							JOIN QUEU
-// 					</Button>
-
-// 			</>) : (
-// 			<>
-// 					<Button>
-// 							WAITING FOR A MATCH
-// 					</Button>
-// 			</>
-// 			)
-// 		}
-// 	</>)
-// }
-
-
-function MatchMaker ({socket, thereIsMatch, launchCanvas} : any){
-
-	const [joinQueu, setJoinQueu] = React.useState(false);
+	const [joinQueu, setJoinQueu] = useState(false);
 
 	socket.on("lockAndLoaded", () => {
-	  launchCanvas();
+		launchCanvas();
 	})
 
-	return (
-	  <>
-		<Grid container spacing={2}>
-		  <Grid item xs={12} sm={6}>
-			<JoinQueuButton socket={socket} setJoinQueu={setJoinQueu} joinQueu={joinQueu} />
-		  </Grid>
-		</Grid>
-	  </>
-	);
+	return <JoinQueuButton
+		socket={socket}
+		joinQueu={joinQueu}
+		openMatchmaking={openMatchmaking}
+		setJoinQueu={setJoinQueu}
+		setOpenMatchmaking={setOpenMatchmaking}
+	/>
   }
+
+
+interface PlayersListItemProps {
+	isActive: boolean;
+	justify: string,
+}
+
+interface PlayersListItemTextProps {
+	isActive: boolean;
+}
+
+const PlayersListWrapper = styled('div')({
+	display: 'flex',
+	flexDirection: 'column',
+	width: '100%',
+	padding: '8px',
+	boxSizing: 'border-box',
+	height: '100%',
+	overflowY: 'auto',
+});
+
+const PlayersListItem = styled('div')<PlayersListItemProps>(({ isActive, justify }) => ({
+	display: 'flex',
+	alignItems: 'center',
+	height: '33%',
+	margin: '4px',
+	padding: '0 16px',
+	borderRadius: '8px',
+	cursor: 'pointer',
+	backgroundColor: isActive ? '#EDEDED' : 'transparent',
+	'&:hover': {
+		backgroundColor: '#EDEDED',
+	},
+	justifyContent: justify
+}));
+
+const PlayersListItemText = styled('div')<PlayersListItemTextProps>(({ isActive }) => ({
+	whiteSpace: 'nowrap',
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	fontFamily: 'pong-policy',
+	fontSize: '5rem',
+	fontWeight: '600',
+	color: isActive ? "#427094" : '#213547',
+}));
+
+type Row = {
+	name: string,
+	id: number
+}
 
 // Main Game page, rendering either matchmaking page or Canvas if therIsMatch == true
 export const Game = ({ height, width }: any) => {
 
 	const socket = React.useContext(UserContext);
+	const [openMatchmaking, setOpenMatchmaking] = useState(false)
 	const [thereIsMatch, setThereIsMatch] = React.useState(false);
 	const [errorPopoverOpen, setErrorPopoverOpen] = React.useState(false);
 	const [errorMessage, setErrorMessage] = React.useState('');
+	const [selectedRow, setSelectedRow] = useState<Row | null>(null)
+	const [selectedRowId, setSelectedRowId] = useState<number | null>(null)
 	const errorButtonRef = React.useRef(null);
+	const rows = [
+		{
+			name: 'Matchmaking',
+			id: 0,
+		},
+		{
+			name: 'WatchGame',
+			id: 1,
+		},
+		{
+			name: 'Invite friends',
+			id: 2,
+		},
+	]
+	const justify: string[] = [
+		'left',
+		'center',
+		'right',
+	]
 
-	const handleClick = () => {
+	useEffect(() => {
+		setSelectedRow(null)
+	}, [])
+
+	useEffect(() => {
+		if (selectedRow && selectedRow.id === 0)
+			setOpenMatchmaking(true)
+	}, [selectedRow])
+
+	const handleMatchClick = () => {
 		if (!thereIsMatch)
 			setThereIsMatch(true)
 		else
 			setThereIsMatch(false)
 	}
 
+	const handleMatchmaking = () => {
+		setOpenMatchmaking(true)
+	}
+
 	const handleOpenErrorPop = (errorMessage: string) => {
-		handleClick();
+		handleMatchClick();
 		setErrorMessage(errorMessage);
 		setErrorPopoverOpen(true);
 	};
@@ -285,35 +339,44 @@ export const Game = ({ height, width }: any) => {
 		setErrorMessage("");
 	};
 
+//	<Spectator socket={socket} thereIsMatch={thereIsMatch} handleThereIsMatch={handleClick}/>
+
 	return (<>
 		{
 			thereIsMatch ?
 			(<>
 				<Grid container justifyContent="space-between" alignItems="flex-start">
 					<Typography sx={pongTitle} variant='h2'>Game</Typography>
-						<Canvas socket={socket} handleThereIsMatch={handleClick} handleThereIsError={(errorStr: string) => { handleOpenErrorPop(errorStr) }}/>
+						<Canvas
+							socket={socket}
+							handleThereIsMatch={handleMatchClick}
+							handleThereIsError={
+								(errorStr: string) => {
+									handleOpenErrorPop(errorStr)
+								}
+							}
+						/>
 				</Grid>
 			</>)
 			:
 			(<>
-				<Grid container justifyContent="space-between" alignItems="flex-start">
-					<Grid item xs={12} sm={4}>
-						<Grid container justifyContent="flex-start" alignItems="center">
-							<Grid item>
-								<Typography sx={pongTitle} variant='h2'>Matchmaking</Typography>
-							</Grid>
-							<MatchMaker socket={socket} thereIsMatch={thereIsMatch} launchCanvas={handleClick} />
-						</Grid>
-					</Grid>
-					<Grid item xs={12} sm={4}>
-						<Typography sx={pongTitle} variant='h2'>Invite friend</Typography>
-						{/* Ajoutez ici le contenu pour "Invite friend" */}
-					</Grid>
-					<Grid item xs={12} sm={4}>
-						<Typography sx={pongTitle} variant='h2'>Watch game</Typography>
-							<Spectator socket={socket} thereIsMatch={thereIsMatch} handleThereIsMatch={handleClick}/>
-						{/* Ajoutez ici le contenu pour "Watch game" */}
-					</Grid>
+				<Grid container sx={{height: '100%'}} >
+					<PlayersListWrapper>
+						{rows.map((row) => (
+							<PlayersListItem
+								key={row.id}
+								isActive={row.id === selectedRowId}
+								justify={justify[row.id]}
+								onClick={() => setSelectedRow(row)}
+							>
+								<PlayersListItemText
+									isActive={row.id === selectedRowId}
+								>
+									{row.name}
+								</PlayersListItemText>
+							</PlayersListItem>
+						))}
+					</PlayersListWrapper>
 					<Popover
 						open={errorPopoverOpen}
 						onClose={handleCloseErrorPop}
@@ -324,11 +387,18 @@ export const Game = ({ height, width }: any) => {
 							horizontal: 'center',
 						}}
 					>
-					<Box sx={{ p: 2 }}>
-						<Typography>{errorMessage}</Typography>
-					</Box>
+						<Box sx={{ p: 2 }}>
+							<Typography>{errorMessage}</Typography>
+						</Box>
 					</Popover>
 					</Grid>
+				<MatchMaker
+					socket={socket}
+					openMatchmaking={openMatchmaking}
+					setOpenMatchmaking={setOpenMatchmaking}
+					thereIsMatch={thereIsMatch}
+					launchCanvas={handleMatchClick}
+				/>
 			</>)
 		}</>)
 	};
