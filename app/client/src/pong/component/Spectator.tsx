@@ -1,4 +1,5 @@
 import * as React from 'react'
+import {useState} from 'react'
 import { Typography, Box, Paper } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Tabs from '@mui/material/Tabs'
@@ -10,15 +11,66 @@ import PropTypes from 'prop-types';
 import { useFetchAuth } from '../context/useAuth'
 import { FetchApi, Api, responseApi } from '../component/FetchApi'
 import useAuth from '../context/useAuth'
-import io from "socket.io-client";
+import io, {Socket} from "socket.io-client";
 import { render } from 'react-dom'
 import Canvas from '../component/gameCanva'
 import { draw } from '../component/gameCanva'
 import { GameSocketProvider, UserContext } from '../services/GameSocketProvider'
+import { styled } from '@mui/system';
+import { 
+	Dialog,
+	DialogTitle,
+	FormControl,
+	DialogContent,
+	TextField,
+	Divider,
+	InputAdornment,
+} from '@mui/material'
+import {
+	PlayersListWrapper,
+	PlayersListItemAvatar,
+} from '../Profile/SearchPlayers'
+
+interface PlayersListItemProps {
+	isActive: boolean;
+}
+
+export const PlayersListItem = styled('div')<PlayersListItemProps>(({ isActive }) => ({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	height: '56px',
+	margin: '4px',
+	padding: '0 16px',
+	borderRadius: '8px',
+	cursor: 'pointer',
+	backgroundColor: isActive ? '#EDEDED' : 'transparent',
+	'&:hover': {
+		backgroundColor: '#EDEDED',
+	},
+}));
+
+const PlayersListItemText = styled('div')({
+	whiteSpace: 'nowrap',
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	fontSize: '16px',
+	fontWeight: '600',
+	textAlign: 'center'
+});
 
 
-export const Spectator = ({socket, thereIsMatch, handleThereIsMatch}: any) => {
+type WatchProps = {
+	socket: Socket,
+	thereIsMatch: boolean,
+	openWatch: boolean,
+	setOpenWatch: React.Dispatch<React.SetStateAction<boolean>>,
+	handleThereIsMatch: () => void,
+}
+
+export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, setOpenWatch}: WatchProps) => {
 	const [gameList, setGameList] = React.useState<string[]>();
+	const [selectedRowId, setSelectedRowId] = useState<number | null>(null)
 
 	function handleJoinGame(gameId: string) {
 		// Implémentez cette fonction selon ce que vous voulez faire lorsque l'utilisateur clique sur un bouton.
@@ -34,20 +86,82 @@ export const Spectator = ({socket, thereIsMatch, handleThereIsMatch}: any) => {
 
 	React.useEffect(() => {
 		socket.emit("getRuningGames");
+		setGameList([])
 	}, [])
 
-	if (gameList !== undefined) {
-		return (
-			<div>
-				{gameList.map((gameId) => (
-					<Button key={gameId} onClick={() => handleJoinGame(gameId)}>
-						Join game {gameId}
-					</Button>
-				))}
-			</div>
-		);
-		} else {
-			return <Grid> Loading...</Grid>
-		}
+	const handleClose = () => {
+		setOpenWatch(false)
+	}
+
+	return (
+		<>
+			<Dialog open={openWatch} onClose={handleClose}
+				fullWidth
+				maxWidth="md"
+				PaperProps={{
+					style: {
+						borderRadius: '32px',
+						height: '30rem',
+					}
+				}}
+			>
+				<DialogTitle>
+					<Box
+						display="flex"
+						justifyContent="center"
+						alignItems="center"
+						sx={{mt: 4, mb: 1}}
+					>
+						<Typography
+							component={'span'}
+							variant='h6'
+							align="center"
+							style={{color: '#213547'}}
+						>
+							Watch Game
+						</Typography>
+					</Box>
+				</DialogTitle>
+				<DialogContent>
+					<Divider variant="middle"/>
+					{ !gameList?.length ?
+						(<>
+						<Grid container
+							display="flex"
+							direction="column"
+							justifyContent="center"
+							alignItems="center"
+							sx={{ width: '100%', height: '95%' }}
+						>
+							<Typography
+								align="center"
+								style={{color: '#aab7b8'}}
+							>
+								No Match Found
+							</Typography>
+						</Grid>
+						</>) :
+						(<>
+							<Grid container sx={{height: '100%'}} >
+								<PlayersListWrapper>
+									{gameList.map((gameId) => (
+										<PlayersListItem
+											key={+gameId}
+											isActive={+gameId === selectedRowId}
+											onClick={() => handleJoinGame(gameId)}
+										>
+											<PlayersListItemText>
+												Join game {gameId}
+											</PlayersListItemText>
+										</PlayersListItem>
+									))}
+								</PlayersListWrapper>
+							</Grid>
+						</>)
+					}
+				</DialogContent>
+			</Dialog>
+		</>
+	);
 }
 // export default Spectator;

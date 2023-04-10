@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Typography, Box, Paper } from '@mui/material'
+import { Typography, Box, Paper, Divider } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
@@ -15,7 +15,7 @@ import { Spectator } from '../component/Spectator'
 import Popover from '@mui/material/Popover';
 import { useState } from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
+import { Checkbox, Radio, FormControlLabel, FormGroup } from '@mui/material';
 import { styled } from '@mui/system';
 import {useEffect} from 'react'
 
@@ -48,7 +48,11 @@ type JoinProps = {
 	setOpenMatchmaking: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
-function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, setJoinQueu}: any) {
+const checkedSx = {
+	fontSize: '0.8rem',
+}
+
+function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, setJoinQueu}: JoinProps) {
 
   const {user, id} = useAuth();
 
@@ -142,128 +146,210 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 						borderRadius: '32px',
 						height: '31rem',
 						width: '50rem',
-						minHeight: '10rem'
+						minHeight: '10rem',
 					}
 				}}
 			>
-				<DialogTitle>Configure your game</DialogTitle>
+				<DialogTitle>
+					<Box
+						display="flex"
+						justifyContent="center"
+						alignItems="center"
+						sx={{mt: 4, mb: 1}}
+					>
+						<Typography
+							component={'span'}
+							variant='h6'
+							align="center"
+							style={{color: '#213547'}}
+						>
+							Configure your game
+						</Typography>
+					</Box>
+				</DialogTitle>
 				<DialogContent>
-					<FormGroup style={{ display: 'flex'}}>
-						<div>
-							<DialogTitle>ball speed</DialogTitle>
+				<Divider variant="middle"/>
+				<Grid container
+					sx={{
+						height: '95%',
+						minHeight: '10rem',
+						pl: 7,
+						'@media (max-width: 650px)': {
+							pl: 0,
+						}
+					}}
+				>
+
+					<Grid item xs={4} sx={{height: '100%'}}>
+						<Grid
+							sx={{height: '33%'}}
+							display="flex"
+							alignItems="center"
+						>
+							<Typography fontSize="1.3rem">ball speed</Typography>
+						</Grid>
+						<Grid
+							sx={{height: '33%'}}
+							display="flex"
+							alignItems="center"
+						>
+							<Typography fontSize="1.3rem">paddle size</Typography>
+						</Grid>
+						<Grid
+							sx={{height: '33%'}}
+							display="flex"
+							alignItems="center"
+						>
+							<Typography fontSize="1.3rem">duration</Typography>
+						</Grid>
+					</Grid>
+
+					<Grid item xs={7} sx={{height: '100%'}}>
+						<FormGroup style={{ display: 'flex', height: '100%'}}>
+							<Grid
+								sx={{height: '33%'}}
+								display="flex"
+								alignItems="center"
+								justifyContent="center"
+							>
 								<FormControlLabel
 									control={
-										<Checkbox
+										<Radio
 											checked={speed === 'easy'}
 											onChange={handleBallSpeedLevel}
 											value="easy"
-											sx={{
-												justifyContent: 'right'
-											}}
+										/>
+									}
+									label="Easy"
+										style={{ marginRight: '16px' }}
+								/>
+								<FormControlLabel
+								control={
+										<Radio
+											checked={speed === 'medium'}
+											onChange={handleBallSpeedLevel}
+											value="medium"
+										/>
+									}
+									label="Medium"
+									style={{ marginRight: '16px' }}
+								/>
+								<FormControlLabel
+									control={
+										<Radio
+											checked={speed === 'hard'}
+											onChange={handleBallSpeedLevel}
+											value="hard"
+										/>
+									}
+									label="Hard"
+								/>
+							</Grid>
+							<Grid
+								sx={{height: '33%'}}
+								display="flex"
+								alignItems="center"
+								justifyContent="center"
+							>
+								<FormControlLabel
+									control={
+										<Radio
+											checked={paddle === 'easy'}
+											onChange={handlePaddleSizeLevel}
+											value="easy"
 										/>
 									}
 									label="Easy"
 									style={{ marginRight: '16px' }}
-							/>
-							<FormControlLabel
-							control={
-									<Checkbox
-										checked={speed === 'medium'}
-										onChange={handleBallSpeedLevel}
-										value="medium"
-									/>
-								}
-								label="Medium"
-								style={{ marginRight: '16px' }}
-							/>
-							<FormControlLabel
-								control={
-									<Checkbox
-										checked={speed === 'hard'}
-										onChange={handleBallSpeedLevel}
-										value="hard"
-									/>
-								}
-								label="Hard"
-							/>
-						</div>
-						<div>
-							<DialogTitle>paddle size</DialogTitle>
-							<FormControlLabel
-								control={
-									<Checkbox
-										checked={paddle === 'easy'}
-										onChange={handlePaddleSizeLevel}
-										value="easy"
-									/>
-								}
-								label="Easy"
-								style={{ marginRight: '16px' }}
-							/>
-							<FormControlLabel
-								control={
-									<Checkbox
-										checked={paddle === 'medium'}
-										onChange={handlePaddleSizeLevel}
-										value="medium"
-									/>
-								}
-								label="Medium"
-								style={{ marginRight: '16px' }}
-							/>
-							<FormControlLabel
-								control={
-									<Checkbox
-										checked={paddle === 'hard'}
-										onChange={handlePaddleSizeLevel}
-										value="hard"
-									/>
-								}
-								label="Hard"
-							/>
-						</div>
-						<div>
-							<DialogTitle>Duration</DialogTitle>
-							<FormControlLabel
-								control={
-									<Checkbox
-										checked={duration === 'easy'}
-										onChange={handleDuration}
-										value="easy"
-									/>
-								}
-								label="0:30m"
-								style={{ marginRight: '16px' }}
-							/>
-							<FormControlLabel
-								control={
-									<Checkbox
-										checked={duration === 'medium'}
-										onChange={handleDuration}
-										value="medium"
-									/>
-								}
-								label="1:00m"
-								style={{ marginRight: '16px' }}
-							/>
-							<FormControlLabel
-								control={
-									<Checkbox
-										checked={duration === 'hard'}
-										onChange={handleDuration}
-										value="hard"
-									/>
-								}
-								label="2:00m"
-							/>
-						</div>
-					</FormGroup>
+								/>
+								<FormControlLabel
+									control={
+										<Radio
+											checked={paddle === 'medium'}
+											onChange={handlePaddleSizeLevel}
+											value="medium"
+										/>
+									}
+									label="Medium"
+									style={{ marginRight: '16px' }}
+								/>
+								<FormControlLabel
+									control={
+										<Radio
+											checked={paddle === 'hard'}
+											onChange={handlePaddleSizeLevel}
+											value="hard"
+										/>
+									}
+									label="Hard"
+								/>
+							</Grid>
+							<Grid
+								sx={{height: '33%'}}
+								display="flex"
+								alignItems="center"
+								justifyContent="center"
+							>
+								<FormControlLabel
+									control={
+										<Radio
+											checked={duration === 'easy'}
+											onChange={handleDuration}
+											value="easy"
+										/>
+									}
+									label="0:30m"
+									style={{ marginRight: '16px' }}
+								/>
+								<FormControlLabel
+									control={
+										<Radio
+											checked={duration === 'medium'}
+											onChange={handleDuration}
+											value="medium"
+										/>
+									}
+									label="1:00m"
+									style={{ marginRight: '16px' }}
+								/>
+								<FormControlLabel
+									control={
+										<Radio
+											checked={duration === 'hard'}
+											onChange={handleDuration}
+											value="hard"
+										/>
+									}
+									label="2:00m"
+								/>
+							</Grid>
+						</FormGroup>
+					</Grid>
+				</Grid>
+				<Divider variant="middle"/>
 				</DialogContent>
-				<DialogActions>
-					<Button onClick={handleClose}>
+				<DialogActions sx={{pr: 3, pb: 2}}>
+					<Button 
+						variant="contained"
+						onClick={handleClose}
+						sx={{
+							backgroundColor: 'tomato',
+							'&:hover': {
+								backgroundColor: '#ff9070',
+							}
+						}}
+					>
 						Cancel
 					</Button>
-					<Button onClick={handleJoinClick}>
+					<Button
+						variant="contained"
+						onClick={handleJoinClick}
+						sx={{
+							'&:hover': {
+								backgroundColor: '#427094',
+							}
+						}}
+					>
 						Join
 					</Button>
 				</DialogActions>
@@ -277,7 +363,7 @@ type MatchProps = {
 	openMatchmaking: boolean,
 	thereIsMatch: boolean,
 	setOpenMatchmaking: React.Dispatch<React.SetStateAction<boolean>>,
-	launchCanvas: any,
+	launchCanvas: () => void,
 }
 
 function MatchMaker ({socket, openMatchmaking, thereIsMatch, setOpenMatchmaking, launchCanvas} : MatchProps){
@@ -318,7 +404,6 @@ const PlayersListItem = styled('div')<PlayersListItemProps>(({ isActive, justify
 	alignItems: 'center',
 	height: '33%',
 	margin: '4px',
-	mx: '32px',
 	padding: '0 16px',
 	borderRadius: '8px',
 	cursor: 'pointer',
@@ -350,6 +435,7 @@ export const Game = ({ height, width }: any) => {
 
 	const socket = React.useContext(UserContext);
 	const [openMatchmaking, setOpenMatchmaking] = useState(false)
+	const [openWatch, setOpenWatch] = useState(false)
 	const [thereIsMatch, setThereIsMatch] = React.useState(false);
 	const [errorPopoverOpen, setErrorPopoverOpen] = React.useState(false);
 	const [errorMessage, setErrorMessage] = React.useState('');
@@ -366,7 +452,7 @@ export const Game = ({ height, width }: any) => {
 			id: 1,
 		},
 		{
-			name: 'Invite friends',
+			name: 'game friends',
 			id: 2,
 		},
 	]
@@ -381,8 +467,11 @@ export const Game = ({ height, width }: any) => {
 	}, [])
 
 	useEffect(() => {
+		console.log('test')
 		if (selectedRow && selectedRow.id === 0)
 			setOpenMatchmaking(true)
+		else if (selectedRow && selectedRow.id === 1)
+			setOpenWatch(true)
 	}, [selectedRow])
 
 	const handleMatchClick = () => {
@@ -407,7 +496,6 @@ export const Game = ({ height, width }: any) => {
 		setErrorMessage("");
 	};
 
-//	<Spectator socket={socket} thereIsMatch={thereIsMatch} handleThereIsMatch={handleClick}/>
 
 	return (<>
 		{
@@ -464,6 +552,13 @@ export const Game = ({ height, width }: any) => {
 					setOpenMatchmaking={setOpenMatchmaking}
 					thereIsMatch={thereIsMatch}
 					launchCanvas={handleMatchClick}
+				/>
+				<Spectator
+					socket={socket}
+					openWatch={openWatch}
+					setOpenWatch={setOpenWatch}
+					thereIsMatch={thereIsMatch}
+					handleThereIsMatch={handleMatchClick}
 				/>
 			</>)
 		}</>)

@@ -197,7 +197,7 @@ const GridProfile = (props: {player: Players}) => {
 }
 
 
-const PlayersListWrapper = styled('div')({
+export const PlayersListWrapper = styled('div')({
 	display: 'flex',
 	flexDirection: 'column',
 	width: '100%',
@@ -211,7 +211,7 @@ interface PlayersListItemProps {
 	isActive: boolean;
 }
 
-const PlayersListItem = styled('div')<PlayersListItemProps>(({ isActive }) => ({
+export const PlayersListItem = styled('div')<PlayersListItemProps>(({ isActive }) => ({
 	display: 'flex',
 	alignItems: 'center',
 	height: '56px',
@@ -237,7 +237,7 @@ export const PlayersListItemAvatar = styled('div')({
 	flexShrink: 0
 });
 
-const PlayersListItemText = styled('div')({
+export const PlayersListItemText = styled('div')({
 	whiteSpace: 'nowrap',
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
