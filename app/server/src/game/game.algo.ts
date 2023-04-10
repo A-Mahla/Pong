@@ -7,7 +7,7 @@ import { 	SubscribeMessage,
 						} from "@nestjs/websockets";
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service'
-import { GameDataType, Status, gamePatron, GamePatron, Player } from './game.types'
+import { GameDataType, Status, gamePatron, GamePatron, Player, GameParams } from './game.types'
 import { interval } from 'rxjs';
 import { resolve } from 'path';
 import { rejects } from 'assert';
@@ -26,6 +26,8 @@ export class GameAlgo {
 	readonly	gameModel = gamePatron;
 	private player1: Player | undefined;
 	private player2: Player | undefined;
+
+	public gameConfig: GameParams;
 
 	// private countDown: NodeJS.Timeout | undefined;
 	private interval: NodeJS.Timeout | undefined;
@@ -50,11 +52,17 @@ export class GameAlgo {
 	public async launchGame() {
 		return (
 			new Promise<string>((resolve, rejects) => {
+				this.internalEvents.once('stop', () => {
+
+					this.status = Status.OVER;
+					rejects('BLOCKED');
+				});
+
 				const checkPlayer = (count: number, timeout: NodeJS.Timeout) => {
 					if (this.player1 && this.player2 && this.player2.id != this.player1.id)
 					{
-						this.server.to(this.player1.socketID).emit('lockAndLoaded');
-						this.server.to(this.player2.socketID).emit('lockAndLoaded');
+						clearTimeout(timeout);
+						this.shutDownInternalEvents();
 						this.server.to(this.player1.socketID).emit('initSetup', this.gameData);
 						this.server.to(this.player2.socketID).emit('initSetup', this.rotateGameData(this.gameData));
 						this.startGame().then(solved => {
@@ -121,51 +129,51 @@ export class GameAlgo {
 		this.gameData.ball.x += this.gameData.ball.speed.x;
 		this.gameData.ball.y += this.gameData.ball.speed.y;
 
-				if (this.gameData.ball.y > this.gameModel.canvasHeight || this.gameData.ball.y < 0) {
-					this.gameData.ball.speed.y *= -1;
-				}
-				// player 1 kill zone
-				if (this.gameData.ball.x < 15) {
-					let bornInfP1 = (this.gameData.player1.y - this.gameModel.playerHeight / 2)
-					let bornSupP1 = (this.gameData.player1.y + this.gameModel.playerHeight / 2)
+		if (this.gameData.ball.y > this.gameModel.canvasHeight || this.gameData.ball.y < 0) {
+			this.gameData.ball.speed.y *= -1;
+		}
+		// player 1 kill zone
+		if (this.gameData.ball.x < 15) {
+			let bornInfP1 = (this.gameData.player1.y - this.gameModel.playerHeight / 2)
+			let bornSupP1 = (this.gameData.player1.y + this.gameModel.playerHeight / 2)
 
-					if (this.gameData.ball.y > bornInfP1 && this.gameData.ball.y < bornSupP1) {
-						this.gameData.ball.speed.x *= -1,2;
-					} else {
-						this.gameData.player2.score += 1;
-						this.gameData.ball.x = this.gameModel.canvasWidth / 2;
-						this.gameData.ball.y = this.gameModel.canvasHeight / 2;
-						this.internalEvents.emit('pause', 3)
-					}
+			if (this.gameData.ball.y > bornInfP1 && this.gameData.ball.y < bornSupP1) {
+				this.gameData.ball.speed.x *= -1,2;
+			} else {
+				this.gameData.player2.score += 1;
+				this.gameData.ball.x = this.gameModel.canvasWidth / 2;
+				this.gameData.ball.y = this.gameModel.canvasHeight / 2;
+				this.internalEvents.emit('pause', 3)
+			}
 
-				}
-				// player 2 kill zone
-				if (this.gameData.ball.x > (this.gameModel.canvasWidth - 15)) {
-					let bornInfP2 = (this.gameData.player2.y - (this.gameModel.playerHeight / 2))
-					let bornSupP2 = (this.gameData.player2.y + (this.gameModel.playerHeight / 2))
+		}
+		// player 2 kill zone
+		if (this.gameData.ball.x > (this.gameModel.canvasWidth - 15)) {
+			let bornInfP2 = (this.gameData.player2.y - (this.gameModel.playerHeight / 2))
+			let bornSupP2 = (this.gameData.player2.y + (this.gameModel.playerHeight / 2))
 
-					if (this.gameData.ball.y > bornInfP2 && this.gameData.ball.y < bornSupP2) {
-						this.gameData.ball.speed.x *= -1,2;
-					} else {
-						this.gameData.player1.score += 1;
-						this.gameData.ball.x = this.gameModel.canvasWidth / 2;
-						this.gameData.ball.y = this.gameModel.canvasHeight / 2;
-						this.internalEvents.emit('pause', 3);
-					}
-				}
-				// game is finish (3750ms == 1min)
-				if ( ++this.gameData.roomInfo.timer == 1875 /*|| this.playersTimeout()*/ ) {
-					this.server.to(this.player1!.socketID).volatile.emit('gameOver', this.gameData);
-					this.server.to(this.player2!.socketID).volatile.emit('gameOver', this.rotateGameData(this.gameData));
-					this.status = Status.OVER;
-					this.internalEvents.emit('stop', '0');
-					return ;
-				}
-				this.server.to(this.player1!.socketID).volatile.emit('updateClient', this.gameData);
-				this.server.to(this.player2!.socketID).volatile.emit('updateClient', this.rotateGameData(this.gameData));
-				this.watchers.forEach((socketID: string) => {
-					this.server.to(socketID).volatile.emit('updateClient', this.gameData);
-				})
+			if (this.gameData.ball.y > bornInfP2 && this.gameData.ball.y < bornSupP2) {
+				this.gameData.ball.speed.x *= -1,2;
+			} else {
+				this.gameData.player1.score += 1;
+				this.gameData.ball.x = this.gameModel.canvasWidth / 2;
+				this.gameData.ball.y = this.gameModel.canvasHeight / 2;
+				this.internalEvents.emit('pause', 3);
+			}
+		}
+		// game is finish (3750ms == 1min)
+		if ( ++this.gameData.roomInfo.timer == this.gameData.roomInfo.duration /*|| this.playersTimeout()*/ ) {
+			this.server.to(this.player1!.socketID).volatile.emit('gameOver', this.gameData);
+			this.server.to(this.player2!.socketID).volatile.emit('gameOver', this.rotateGameData(this.gameData));
+			this.status = Status.OVER;
+			this.internalEvents.emit('stop', '0');
+			return ;
+		}
+		this.server.to(this.player1!.socketID).volatile.emit('updateClient', this.gameData);
+		this.server.to(this.player2!.socketID).volatile.emit('updateClient', this.rotateGameData(this.gameData));
+		this.watchers.forEach((socketID: string) => {
+			this.server.to(socketID).volatile.emit('updateClient', this.gameData);
+		})
 	}
 
 	private countDown(countDown: number) {
@@ -180,7 +188,7 @@ export class GameAlgo {
 		this.internalEvents.emit('pause', (--countDown));
 	}
 
-	public initPlayer1(player: Player) {
+	public initPlayer1(player: Player, gameConfig: GameParams | undefined) {
 		this.player1 = player;
 		this.gameData.player1.login = this.player1.login;
 		this.status = Status.ONE_PLAYER;
@@ -194,6 +202,13 @@ export class GameAlgo {
 			this.gameData.player1.y = y;
 			this.gameData.player1.timeout = Date.now();
 		})
+		if (gameConfig)
+			this.gameConfig = gameConfig;
+		else
+			this.gameConfig = { ballSpeed: '7', paddleSize: '100', duration: '3750' }
+
+		this.gameData.ball.speed.x = this.gameData.ball.speed.y = parseInt(this.gameConfig.ballSpeed);
+		this.server.to(this.player1.socketID).emit('lockAndLoaded');
 	}
 
 	public initPlayer2(player: Player) {
@@ -211,6 +226,8 @@ export class GameAlgo {
 			this.gameData.player2.y = y;
 			this.gameData.player2.timeout = Date.now();
 		})
+
+		this.server.to(this.player2.socketID).emit('lockAndLoaded');
 	}
 
 
@@ -227,6 +244,27 @@ export class GameAlgo {
 		else
 			return "error"
 	}
+
+	public getPlayerSocketID(player1ou2: number) : string {
+
+		if (player1ou2 === 1 && this.player1)
+			return this.player1.socketID
+		else if (player1ou2 === 2 && this.player2)
+			return this.player2.socketID
+		else
+			return "error"
+	}
+
+	public getPlayerLogin(player1ou2: number) : string {
+
+		if (player1ou2 === 1 && this.player1)
+			return this.player1.login
+		else if (player1ou2 === 2 && this.player2)
+			return this.player2.login
+		else
+			return "error"
+	}
+
 
 	public playerChangeSocket(playerSocket: Socket, socketID: string, player1ou2: number) {
 		if (player1ou2 === 1) {
@@ -254,10 +292,15 @@ export class GameAlgo {
 		this.server.to(newWatcherSocketId).emit('initSetup', this.gameData);
 	}
 
+	public shutDownInternalEvents() {
+		this.internalEvents.removeAllListeners();
+	}
+
 	// initialising the players and ball positions
 	private initGameData(gamePatron: GamePatron): GameDataType {
 		return ({
 			roomInfo: {
+				duration: 3750,
 				countDown: 0,
 				timer: 0
 			},
@@ -301,6 +344,8 @@ export class GameAlgo {
 		};
 		return temp;
 	}
+
+
 
 	private playersTimeout(): boolean {
 		if ((Date.now() - this.gameData.player1.timeout) > 10000)
