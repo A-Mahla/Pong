@@ -28,6 +28,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	@SubscribeMessage('automatikMatchMaking')
 	async matchMaker(client: Socket, clientPayload: ClientPayload) {
+		console.log(clientPayload)
 		let gameToJoin: GameAlgo | undefined;
 		let notPlayingWithYourself = true
 
@@ -35,7 +36,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			if (game.getStatus() === Status.ONE_PLAYER) {
 				if (game.getPlayerID(1) === clientPayload.id)
 					notPlayingWithYourself = false;
-				else
+				else if (this.gameService.configMatch(clientPayload.config!, game.gameConfig))
 					gameToJoin = game;
 			}
 		});
@@ -62,7 +63,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 							socketID: client.id,
 							playerRole: "p1",
 							playerSocket: client
-						});
+
+						}, clientPayload.config);
 						await newGameAlgo.launchGame().then( value => {
 							newGameAlgo.shutDownInternalEvents();
 							this.gameMap.delete(newGameAlgo.roomID);
@@ -78,6 +80,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 							if (onrejected === 'TIME') {
 								console.log(" --- timeOut --- ");
 								this.server.to(client.id).emit('disconnection', 'unable to find a match: You have been disconnected from the queu');
+							}
+							if (onrejected === 'BLOCKED') {
+								console.log(" --- bloked --- ");
+								this.server.to(client.id).emit('disconnection', 'you are disconnected from the matchmaking queu');
 							}
 							newGameAlgo.shutDownInternalEvents();
 							this.gameService.deleteGame(newGameAlgo.roomID); // deleteting from the DB

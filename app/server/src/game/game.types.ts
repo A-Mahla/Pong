@@ -34,12 +34,21 @@ export type Player = {
 
 export type ClientPayload = {
 	id: string,
-	login: string
+	login: string,
+	config?: GameParams
 }
+
+export type GameParams = {
+	ballSpeed: '5' | '7' | '10',
+	paddleSize: '100' | '70' | '50',
+	duration: '1875' | '3750' | '7500'
+}
+
 
 export type GameDataType = {
 	roomInfo: {
 		//roomId: string, // not sure yet i need it
+		duration: number
 		timer: number
 		countDown: number
 	},

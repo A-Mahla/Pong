@@ -295,14 +295,14 @@ export const draw = (canvas: any, game: GameData) => {
 
 const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Socket, handleThereIsMatch: () => void, handleThereIsError: (errorstr: string) => void}) => {
 	// ref to the html5 canvas on wich we will draw
-	const canvas = React.useRef<HTMLCanvasElement>(null); // reference/pointer on html5 canvas element, so you can draw on it
+	const canvas = React.useRef<HTMLCanvasElement | null>(null); // reference/pointer on html5 canvas element, so you can draw on it
 
-	const [game, setGame] = React.useState<boolean>(true);
+	const [game, setGame] = React.useState<boolean>(false);
 	let animationId: any;
 
 
 	const quitGame = async () => {
-		socket.emit('quitGame', )
+		socket.emit('quitGame')
 		handleThereIsMatch()
 	}
 
@@ -319,9 +319,9 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 		}
 	}
 
-	const gameCanvas = React.useCallback((node: HTMLCanvasElement | null) => {
+	const gameCanvas = React.useCallback((node: null | HTMLCanvasElement) => {
 		if (node !== null) {
-			canvas.current = node; //fait en sorte que ton canvas soit gerer dans un useState
+			canvas.current = node; //fait en sorte que ton canvas soit gere dans un useState
 			setGame(true)
 		}
 	}, []);
@@ -396,7 +396,7 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 
 	return (
 		<main role="main">
-			<canvas onMouseMove={handleMouseMove} ref={gameCanvas} height={(document.documentElement.clientWidth * 0.70) * 0.533333} width={document.documentElement.clientWidth * 0.70} />
+			<canvas onMouseMove={handleMouseMove} ref={gameCanvas} height={(document.documentElement.clientWidth * 0.50) * 0.533333} width={document.documentElement.clientWidth * 0.50} />
 			<Button onClick={quitGame}>
 					QUIT GAME
 			</Button>

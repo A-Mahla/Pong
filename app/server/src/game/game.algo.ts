@@ -7,7 +7,7 @@ import { 	SubscribeMessage,
 						} from "@nestjs/websockets";
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service'
-import { GameDataType, Status, gamePatron, GamePatron, Player } from './game.types'
+import { GameDataType, Status, gamePatron, GamePatron, Player, GameParams } from './game.types'
 import { interval } from 'rxjs';
 import { resolve } from 'path';
 import { rejects } from 'assert';
@@ -26,6 +26,8 @@ export class GameAlgo {
 	readonly	gameModel = gamePatron;
 	private player1: Player | undefined;
 	private player2: Player | undefined;
+
+	public gameConfig: GameParams;
 
 	// private countDown: NodeJS.Timeout | undefined;
 	private interval: NodeJS.Timeout | undefined;
@@ -50,9 +52,17 @@ export class GameAlgo {
 	public async launchGame() {
 		return (
 			new Promise<string>((resolve, rejects) => {
+				this.internalEvents.once('stop', () => {
+
+					this.status = Status.OVER;
+					rejects('BLOCKED');
+				});
+
 				const checkPlayer = (count: number, timeout: NodeJS.Timeout) => {
 					if (this.player1 && this.player2 && this.player2.id != this.player1.id)
 					{
+						clearTimeout(timeout);
+						this.shutDownInternalEvents();
 						this.server.to(this.player1.socketID).emit('initSetup', this.gameData);
 						this.server.to(this.player2.socketID).emit('initSetup', this.rotateGameData(this.gameData));
 						this.startGame().then(solved => {
@@ -152,7 +162,7 @@ export class GameAlgo {
 			}
 		}
 		// game is finish (3750ms == 1min)
-		if ( ++this.gameData.roomInfo.timer == 1875 /*|| this.playersTimeout()*/ ) {
+		if ( ++this.gameData.roomInfo.timer == this.gameData.roomInfo.duration /*|| this.playersTimeout()*/ ) {
 			this.server.to(this.player1!.socketID).volatile.emit('gameOver', this.gameData);
 			this.server.to(this.player2!.socketID).volatile.emit('gameOver', this.rotateGameData(this.gameData));
 			this.status = Status.OVER;
@@ -178,7 +188,7 @@ export class GameAlgo {
 		this.internalEvents.emit('pause', (--countDown));
 	}
 
-	public initPlayer1(player: Player) {
+	public initPlayer1(player: Player, gameConfig: GameParams | undefined) {
 		this.player1 = player;
 		this.gameData.player1.login = this.player1.login;
 		this.status = Status.ONE_PLAYER;
@@ -192,7 +202,12 @@ export class GameAlgo {
 			this.gameData.player1.y = y;
 			this.gameData.player1.timeout = Date.now();
 		})
+		if (gameConfig)
+			this.gameConfig = gameConfig;
+		else
+			this.gameConfig = { ballSpeed: '7', paddleSize: '100', duration: '3750' }
 
+		this.gameData.ball.speed.x = this.gameData.ball.speed.y = parseInt(this.gameConfig.ballSpeed);
 		this.server.to(this.player1.socketID).emit('lockAndLoaded');
 	}
 
@@ -285,6 +300,7 @@ export class GameAlgo {
 	private initGameData(gamePatron: GamePatron): GameDataType {
 		return ({
 			roomInfo: {
+				duration: 3750,
 				countDown: 0,
 				timer: 0
 			},
