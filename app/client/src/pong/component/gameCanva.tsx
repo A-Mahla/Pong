@@ -12,6 +12,7 @@ import useAuth from '../context/useAuth'
 import io, {Socket} from "socket.io-client";
 // import '../page/game.css'
 import { render } from 'react-dom'
+import LinearProgress from '@mui/material/LinearProgress';
 
 
 
@@ -300,6 +301,7 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 	const canvas = React.useRef<HTMLCanvasElement | null>(null); // reference/pointer on html5 canvas element, so you can draw on it
 
 	const [game, setGame] = React.useState<boolean>(false);
+	const [fetched, setFetched] = React.useState<boolean>(false);
 	let animationId: any;
 
 
@@ -330,34 +332,39 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 
 	React.useEffect(() => {
 
-		drawWaitingScreen(canvas.current, animationId);
+	//	drawWaitingScreen(canvas.current, animationId);
 
 		socket.on('disconnection', (errorMessage: string) => {
 			handleThereIsError(errorMessage)
 		})
 
 		socket.on("updateClient", (gameData: GameData) => {
+			setFetched(true)
 			draw(canvas.current, gameData);
 		})
 
 		socket.on("initSetup", (gameData: GameData) => {
 			console.log("---------------------> ON initSetup");
 			clearInterval(animationId)
+			setFetched(true)
 			draw(canvas.current, gameData);
 		})
 
 		socket.on("pause", (gameData: GameData) => {
 			console.log("---------------------> ON gameOver");
+			setFetched(true)
 			drawEndGame(canvas.current, gameData);
 		})
 
 		socket.on("gameOver", (gameData: GameData) => {
 			console.log("---------------------> ON gameOver");
+			setFetched(true)
 			drawEndGame(canvas.current, gameData);
 		})
 
 		socket.on("gameOverWatcher", (gameData: GameData) => {
 			console.log("---------------------> ON gameOverWatchers");
+			setFetched(true)
 			drawEndGameWatchers(canvas.current, gameData);
 		})
 
@@ -397,12 +404,40 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 	}, [game])
 
 	return (
-		<main role="main">
-			<canvas onMouseMove={handleMouseMove} ref={gameCanvas} height={(document.documentElement.clientWidth * 0.50) * 0.533333} width={document.documentElement.clientWidth * 0.50} />
-			<Button onClick={quitGame}>
-					QUIT GAME
-			</Button>
-		</main>
+		<>
+		{!fetched ? 
+			(<>
+				<Grid container
+					direction="column"
+					justifyContent="center"
+					alignItems="center"
+					sx={{height: "95%"}}
+				>
+					<Grid  sx={{height: "20%"}}>
+					<Typography variant="h3"
+						style={{color: '#919090'}}
+					>
+						Game Matching...
+					</Typography>
+					</Grid>
+					<Grid sx={{height: '10%', width: '75%', color: "#919090" }}>
+						 <LinearProgress color="inherit" />
+					</Grid>
+				</Grid>
+			</>) : (<>
+				<Typography variant='h4'>Game</Typography>
+				<canvas
+					onMouseMove={handleMouseMove}
+					ref={gameCanvas}
+					height={(document.documentElement.clientWidth * 0.50) * 0.533333}
+					width={document.documentElement.clientWidth * 0.50}
+				/>
+				<Button onClick={quitGame}>
+						QUIT GAME
+				</Button>
+			</>)
+		}
+		</>
 	);
 };
 
