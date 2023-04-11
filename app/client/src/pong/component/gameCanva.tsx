@@ -13,6 +13,7 @@ import io, {Socket} from "socket.io-client";
 // import '../page/game.css'
 import { render } from 'react-dom'
 import LinearProgress from '@mui/material/LinearProgress';
+import FetchAvatar from '../component/FetchAvatar'
 
 
 
@@ -425,16 +426,79 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 					</Grid>
 				</Grid>
 			</>) : (<>
-				<Typography variant='h4'>Game</Typography>
-				<canvas
-					onMouseMove={handleMouseMove}
-					ref={gameCanvas}
-					height={Math.floor((document.documentElement.clientWidth * 0.50) * 0.533)}
-					width={Math.floor(document.documentElement.clientWidth * 0.50)}
-				/>
-				<Button onClick={quitGame}>
-						QUIT GAME
-				</Button>
+				<Grid container sx={{height: '5rem'}}>
+					<Grid item
+						display="flex"
+						xs={5}
+						sx={{height: '100%'}}
+					>
+						<Grid item xs={6}
+							display="flex"
+							alignItems="center"
+							justifyContent="center"
+							sx={{height: '100%'}}
+						>
+							<FetchAvatar avatar="" sx={{height: '5rem', width: '5rem'}}/>
+						</Grid>
+						<Grid item xs={6}
+							alignItems="center"
+							display="flex"
+							justifyContent="center"
+							sx={{height: '100%'}}
+						>
+							<Typography>
+								Player 1
+							</Typography>
+						</Grid>
+					</Grid>
+					<Grid item xs={2}
+						display="flex"
+						alignItems="center"
+						justifyContent="center"
+						sx={{height: '100%'}}
+					>
+						<Typography variant='h6'>VS</Typography>
+					</Grid>
+					<Grid item
+						display="flex"
+						xs={5}
+						sx={{height: '100%'}}
+					>
+						<Grid item xs={6}
+							display="flex"
+							alignItems="center"
+							justifyContent="center"
+							sx={{height: '100%'}}
+						>
+							<Typography>
+								Player 2
+							</Typography>
+						</Grid>
+						<Grid item xs={6}
+							display="flex"
+							alignItems="center"
+							justifyContent="center"
+							sx={{height: '100%'}}
+						>
+							<FetchAvatar avatar="" sx={{height: '5rem', width: '5rem'}}/>
+						</Grid>
+					</Grid>
+				</Grid>
+				<Grid container
+					direction="column"
+					justifyContent="center"
+				>
+					<canvas
+						onMouseMove={handleMouseMove}
+						ref={gameCanvas}
+						height={Math.floor((document.documentElement.clientWidth * 0.50) * 0.533)}
+						width={Math.floor(document.documentElement.clientWidth * 0.50)}
+					/>
+					<Button onClick={quitGame}>
+							QUIT GAME
+					</Button>
+
+				</Grid>
 			</>)
 		}
 		</>

@@ -511,7 +511,6 @@ export const Game = ({ height, width }: any) => {
 			thereIsMatch ?
 			(<>
 				<Grid container
-					direction="column"
 					justifyContent="center"
 					alignItems="center"
 					sx={{height: "95%"}}
