@@ -185,7 +185,7 @@ export class GameAlgo {
 			this.gameData.roomInfo.countDown = -1;
 			this.internalEvents.emit('start')
 		}
-		else if (!(miliseconds % 1000))
+		else if ((miliseconds === 50))
 			this.internalEvents.emit('pause', (--countDown));
 	}
 
