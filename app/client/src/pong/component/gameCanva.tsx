@@ -405,7 +405,7 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 
 	return (
 		<>
-		{!fetched ? 
+		{!fetched ?
 			(<>
 				<Grid container
 					direction="column"

@@ -106,9 +106,10 @@ export class GameAlgo {
 
 				this.internalEvents.on('pause', (countDown: number) => {
 					clearInterval(this.interval);
+					let milisecond = 0;
 					this.interval = setInterval(() => {
-						this.countDown(countDown);
-					}, 1000)
+						this.countDown(countDown, milisecond++);
+					}, 20)
 				});
 
 				this.internalEvents.on('stop', (endofgame) => {
@@ -149,8 +150,8 @@ export class GameAlgo {
 		}
 		// player 2 kill zone
 		if (this.gameData.ball.x > (this.gameModel.canvasWidth - 15)) {
-			let bornInfP2 = (this.gameData.player2.y - (this.gameModel.playerHeight / 2))
-			let bornSupP2 = (this.gameData.player2.y + (this.gameModel.playerHeight / 2))
+			let bornInfP2 = (this.gameData.player2.y - (Math.floor(this.gameModel.playerHeight / 2)))
+			let bornSupP2 = (this.gameData.player2.y + (Math.floor(this.gameModel.playerHeight / 2)))
 
 			if (this.gameData.ball.y > bornInfP2 && this.gameData.ball.y < bornSupP2) {
 				this.gameData.ball.speed.x *= -1,2;
@@ -176,7 +177,7 @@ export class GameAlgo {
 		})
 	}
 
-	private countDown(countDown: number) {
+	private countDown(countDown: number, miliseconds: number) {
 		this.gameData.roomInfo.countDown = countDown;
 		this.server.to(this.player1!.socketID).volatile.emit('updateClient', this.gameData);
 		this.server.to(this.player2!.socketID).volatile.emit('updateClient', this.rotateGameData(this.gameData));
@@ -184,8 +185,8 @@ export class GameAlgo {
 			this.gameData.roomInfo.countDown = -1;
 			this.internalEvents.emit('start')
 		}
-		else
-		this.internalEvents.emit('pause', (--countDown));
+		else if (!(miliseconds % 1000))
+			this.internalEvents.emit('pause', (--countDown));
 	}
 
 	public initPlayer1(player: Player, gameConfig: GameParams | undefined) {
