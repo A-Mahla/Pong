@@ -91,6 +91,22 @@ export class RoomsService {
 		return rooms
 	}
 
+	async findMatchingRooms (name : string) {
+		const rooms = await this.prisma.room.findMany({
+			where: {
+				name : {
+					contains: name
+				}
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+		console.log(rooms)
+
+		return rooms
+	}
+
 	async deleteRelation(userId: number, roomId: number) {
 		return this.prisma.user_Room.delete({
 			where : {

@@ -89,14 +89,14 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 
 		function onRoomJoinedEvent(payload: Room) {
 			console.log(`room ${payload} joined`)
-			setNewRoom({ id: payload.id, name: payload.name, messages: payload.messages })
+			setNewRoom({ room_id: payload.room_id, name: payload.name, messages: payload.messages })
 		}
 
 		socket.on('roomJoined', onRoomJoinedEvent)
 
 		function onRoomLeavedEvent(payload: Room) {
-			console.log(`leaving room ${payload.id}`)
-			setLeavedRoom(payload.id)
+			console.log(`leaving room ${payload.room_id}`)
+			setLeavedRoom(payload.room_id)
 		}
 
 		socket.on('roomLeaved', onRoomLeavedEvent)

@@ -41,30 +41,30 @@ export const FriendListItemWrapper = styled('div')<FriendListItemWrapperProps>((
 	},
 }));
 
-export const FriendListItem = ({ friend, activeFriendId, onClick}: {friend: User, activeFriendId: number, onClick: (id: number) => void}) => {
+export const FriendListItem = ({ friend, activeFriendId, onClick }: { friend: User, activeFriendId: number, onClick: (friend: User) => void }) => {
 	return (
-	  <FriendListItemWrapper
-		key={friend.id}
-		isActive={friend.id === activeFriendId}
-		onClick={() => onClick(friend.id)}
-	  >
-		<FriendListItemAvatar>
-			<FetchAvatar avatar={friend.avatar} sx={{height: '100%', width: '100%'}}/>
-		</FriendListItemAvatar>
-		<FriendListItemText>{friend.login}</FriendListItemText>
-	  </FriendListItemWrapper>
+		<FriendListItemWrapper
+			key={friend.id}
+			isActive={friend.id === activeFriendId}
+			onClick={() => onClick(friend)}
+		>
+			<FriendListItemAvatar>
+				<FetchAvatar avatar={friend.avatar} sx={{ height: '100%', width: '100%' }} />
+			</FriendListItemAvatar>
+			<FriendListItemText>{friend.login}</FriendListItemText>
+		</FriendListItemWrapper>
 	);
-  }
-  
-  FriendListItem.propTypes = {
+}
+
+FriendListItem.propTypes = {
 	friend: PropTypes.shape({
-	  id: PropTypes.number.isRequired,
-	  login: PropTypes.string.isRequired,
-	  avatar: PropTypes.string.isRequired,
+		id: PropTypes.number.isRequired,
+		login: PropTypes.string.isRequired,
+		avatar: PropTypes.string.isRequired,
 	}).isRequired,
 	activeFriendId: PropTypes.number.isRequired,
 	onClick: PropTypes.func.isRequired,
-  };
+};
 
 export const FriendListItemAvatar = styled('div')({
 	display: 'flex',
@@ -139,8 +139,8 @@ export const FriendRequestButton = styled('div')(() => ({
 	},
 }));
 
-export const FriendRequestItem = ({ friendRequest, id } : {friendRequest: FriendRequest, id: number}) => {
-  	const { friendRequests, setFriendRequests } = useContext(ChatContext)
+export const FriendRequestItem = ({ friendRequest, id }: { friendRequest: FriendRequest, id: number }) => {
+	const { friendRequests, setFriendRequests } = useContext(ChatContext)
 
 	const handleAcceptFriendRequest = (friendRequestId: number) => {
 		socket.emit('acceptFriend', friendRequestId)
@@ -149,7 +149,7 @@ export const FriendRequestItem = ({ friendRequest, id } : {friendRequest: Friend
 
 	const handleDeclineFriendRequest = (friendRequestParam: FriendRequest) => {
 		console.log('friendRequestParam: ', friendRequestParam)
-		socket.emit('declineFriend', {senderId: friendRequestParam.user1Id, friendRequestId: friendRequestParam.id})
+		socket.emit('declineFriend', { senderId: friendRequestParam.user1Id, friendRequestId: friendRequestParam.id })
 		setFriendRequests(friendRequests.filter((friendRequest) => friendRequest.id !== friendRequestParam.id))
 	}
 
@@ -228,7 +228,7 @@ const UserListItemText = styled('div')({
 	flexGrow: 1,
 });
 
-export const UserListItem = ({ user, friends, onClick, friendRequests, id }: {user: User, friends: User[], onClick: (id: number) => void, friendRequests: FriendRequest[], id: number}) => {
+export const UserListItem = ({ user, friends, onClick, friendRequests, id }: { user: User, friends: User[], onClick: (id: number) => void, friendRequests: FriendRequest[], id: number }) => {
 
 	if (id === user.id)
 		return null
@@ -244,19 +244,19 @@ export const UserListItem = ({ user, friends, onClick, friendRequests, id }: {us
 	return (
 		<UserListItemWrapper>
 			<UserListItemAvatar>
-				<FetchAvatar avatar={user.avatar} sx={{height: '100%', width: '100%'}}/>
+				<FetchAvatar avatar={user.avatar} sx={{ height: '100%', width: '100%' }} />
 			</UserListItemAvatar>
 			<UserListItemText>{user.login}</UserListItemText>
-			{friends.find((friend) => friend.id === user.id) ? 
+			{friends.find((friend) => friend.id === user.id) ?
 				<CheckIcon />
-			 : 
+				:
 				friendRequests.find((request) => request.user1Id === user.id || request.user2Id === user.id) ?
-					<MoreHorizIcon/>	
-				: 
+					<MoreHorizIcon />
+					:
 					<IconButton onClick={handleAddFriendClick} disabled={isSendingRequest}>
 						<AddIcon />
 					</IconButton>
-			
+
 			}
 		</UserListItemWrapper>
 	);
@@ -264,25 +264,25 @@ export const UserListItem = ({ user, friends, onClick, friendRequests, id }: {us
 
 UserListItem.propTypes = {
 	user: PropTypes.shape({
-	  id: PropTypes.number.isRequired,
-	  login: PropTypes.string.isRequired,
-	  avatar: PropTypes.string.isRequired,
-	}).isRequired,
-	friends: PropTypes.arrayOf(
-	  PropTypes.shape({
 		id: PropTypes.number.isRequired,
 		login: PropTypes.string.isRequired,
-	  }),
+		avatar: PropTypes.string.isRequired,
+	}).isRequired,
+	friends: PropTypes.arrayOf(
+		PropTypes.shape({
+			id: PropTypes.number.isRequired,
+			login: PropTypes.string.isRequired,
+		}),
 	).isRequired,
 	onClick: PropTypes.func.isRequired,
 	friendRequests: PropTypes.arrayOf(
-	  PropTypes.shape({
-		id: PropTypes.number.isRequired,
-		user1Login: PropTypes.string.isRequired,
-		user2Login: PropTypes.string.isRequired,
-		user1Id: PropTypes.number.isRequired,
-		user2Id: PropTypes.number.isRequired,
-	  }),
+		PropTypes.shape({
+			id: PropTypes.number.isRequired,
+			user1Login: PropTypes.string.isRequired,
+			user2Login: PropTypes.string.isRequired,
+			user1Id: PropTypes.number.isRequired,
+			user2Id: PropTypes.number.isRequired,
+		}),
 	).isRequired,
 	id: PropTypes.number.isRequired
-  };
+};

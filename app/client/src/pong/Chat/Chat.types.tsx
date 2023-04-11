@@ -61,7 +61,7 @@ export type Message = {
 }
 
 export type Room = {
-	id : number,
+	room_id : number,
 	name: string,
 	messages: Message[]
 }

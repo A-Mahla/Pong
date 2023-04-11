@@ -27,4 +27,11 @@ export class RoomsController {
 		return this.roomService.findManyRooms(name)
 	}
 
+	@Get('/search/:name')
+	getMatchingRoomsByName(
+		@Param('name') name: string)
+	{
+		return this.roomService.findMatchingRooms(name)
+	}
+
 }

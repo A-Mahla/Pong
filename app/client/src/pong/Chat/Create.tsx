@@ -7,9 +7,9 @@ import { CreateRoomData } from './Chat.types'
 import { socket } from './Socket'
 
 export function CreateRoom() {
-	const name = useRef('')
+	const name = useRef<HTMLInputElement>()
 
-	const password = useRef('')
+	const password = useRef<HTMLInputElement>()
 	
 	const {isCreating, setIsCreating} = useContext(ChatContext) 
 
@@ -23,16 +23,18 @@ export function CreateRoom() {
 
 	const handleCreateRoom = useCallback(() => {
 
-		if (name.current === '')
+		if (name.current?.value === '')
 			return
-		else if (secured && password.current === '')
+		else if (secured && password.current?.value === '')
 			return
 
 		const newRoomData : CreateRoomData  = {
-			name: name.current,
-			password: password.current ? password.current : '',
+			name: name.current?.value as string,
+			password: password.current?.value ? password.current?.value : '',
 			owner_id: id
 		}
+
+		console.log('createRoomData: ', newRoomData)
 
 		socket.emit('createRoom', newRoomData)
 
@@ -41,7 +43,6 @@ export function CreateRoom() {
 
 	return (
 		<FormControl>
-			<Button onClick={() => (setIsCreating(false))}>x</Button>
 			{secured ? 'secured' : 'not secured'} 
 			<FormControlLabel control={<Switch onChange={handleSwitch}/>} label="Protected" />
 			<TextField placeholder="room name" inputRef={name}/>
