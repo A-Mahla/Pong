@@ -17,7 +17,7 @@ import Canvas from '../component/gameCanva'
 import { draw } from '../component/gameCanva'
 import { GameSocketProvider, UserContext } from '../services/GameSocketProvider'
 import { styled } from '@mui/system';
-import { 
+import {
 	Dialog,
 	DialogTitle,
 	FormControl,
@@ -69,24 +69,26 @@ type WatchProps = {
 }
 
 export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, setOpenWatch}: WatchProps) => {
-	const [gameList, setGameList] = React.useState<string[]>();
+	const [gameList, setGameList] = React.useState<{game_id: string, p1:string, p2: string}[]>();
 	const [selectedRowId, setSelectedRowId] = useState<number | null>(null)
 
 	function handleJoinGame(gameId: string) {
 		// Implémentez cette fonction selon ce que vous voulez faire lorsque l'utilisateur clique sur un bouton.
 		socket.emit('watchGame', gameId);
-		console.log(`Joining game ${gameId}`);
+		console.log(`LLLLLLAAAAAAAAAAAAAAA Joining game ${gameId}`);
 		if (!thereIsMatch)
 			handleThereIsMatch()
 	}
 
 	socket.on('updateRuningGames', (runningGameList: any) => {
+		console.log('jai du passer par la' + runningGameList);
 		setGameList(runningGameList);
 	})
 
 	React.useEffect(() => {
-		socket.emit("getRuningGames");
+		console.log('jai du passer par la +++++++++' );
 		setGameList([])
+		socket.emit("getRuningGames");
 	}, [])
 
 	const handleClose = () => {
@@ -146,12 +148,12 @@ export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, 
 								<PlayersListWrapper>
 									{gameList.map((gameId) => (
 										<PlayersListItem
-											key={+gameId}
-											isActive={+gameId === selectedRowId}
-											onClick={() => handleJoinGame(gameId)}
+											key={+gameId.game_id}
+											isActive={+gameId.game_id === selectedRowId}
+											onClick={() => handleJoinGame(gameId.game_id)}
 										>
 											<PlayersListItemText>
-												Join game {gameId}
+												Watch {gameId.game_id}: {gameId.p1} vs {gameId.p2}
 											</PlayersListItemText>
 										</PlayersListItem>
 									))}

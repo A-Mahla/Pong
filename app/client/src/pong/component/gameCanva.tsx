@@ -429,8 +429,8 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 				<canvas
 					onMouseMove={handleMouseMove}
 					ref={gameCanvas}
-					height={(document.documentElement.clientWidth * 0.50) * 0.533333}
-					width={document.documentElement.clientWidth * 0.50}
+					height={Math.floor((document.documentElement.clientWidth * 0.50) * 0.533)}
+					width={Math.floor(document.documentElement.clientWidth * 0.50)}
 				/>
 				<Button onClick={quitGame}>
 						QUIT GAME

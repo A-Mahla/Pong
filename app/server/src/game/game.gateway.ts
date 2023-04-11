@@ -28,7 +28,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	@SubscribeMessage('automatikMatchMaking')
 	async matchMaker(client: Socket, clientPayload: ClientPayload) {
-		// console.log(clientPayload)
+		console.log(clientPayload)
 		let gameToJoin: GameAlgo | undefined;
 		let notPlayingWithYourself = true
 
@@ -97,18 +97,18 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	@SubscribeMessage('getRuningGames')
 	async runingGamesList() {
-		const keysTable: string[] = [];
+		let keysTable: {game_id: string, p1:string, p2: string}[];
 
 		const assignKeysToTable = () => {
 			// Parcours chaque noeud de la Map
+			console.log(this.gameMap);
 			for (let [key, value] of this.gameMap) {
 				if (value.getStatus() === Status.RUNNING)
-					keysTable.push(key);
+					keysTable.push({game_id: key, p1: value.getPlayerLogin(1), p2: value.getPlayerLogin(2)});
 			}
 		}
-
 		assignKeysToTable();
-		this.server.emit('updateRuningGames', keysTable);
+		this.server.emit('updateRuningGames', keysTable!);
 	}
 
 	@SubscribeMessage('watchGame')
