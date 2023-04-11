@@ -501,8 +501,12 @@ export const Game = ({ height, width }: any) => {
 		{
 			thereIsMatch ?
 			(<>
-				<Grid container justifyContent="space-between" alignItems="flex-start">
-					<Typography sx={pongTitle} variant='h2'>Game</Typography>
+				<Grid container
+					direction="column"
+					justifyContent="center"
+					alignItems="center"
+					sx={{height: "95%"}}
+				>
 						<Canvas
 							socket={socket}
 							handleThereIsMatch={handleMatchClick}
