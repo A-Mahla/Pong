@@ -48,6 +48,7 @@ export type GameParams = {
 export type GameDataType = {
 	roomInfo: {
 		//roomId: string, // not sure yet i need it
+		playerHeigth: number
 		duration: number
 		timer: number
 		countDown: number

@@ -23,7 +23,7 @@ import { EventEmitter } from 'events';
 export class GameAlgo {
 
 	private		status: Status
-	readonly	gameModel = gamePatron;
+	private	gameModel = gamePatron;
 	private player1: Player | undefined;
 	private player2: Player | undefined;
 
@@ -63,6 +63,7 @@ export class GameAlgo {
 					{
 						clearTimeout(timeout);
 						this.shutDownInternalEvents();
+						console.log("ici le nouveau test  " + this.gameData.roomInfo.playerHeigth)
 						this.server.to(this.player1.socketID).emit('initSetup', this.gameData);
 						this.server.to(this.player2.socketID).emit('initSetup', this.rotateGameData(this.gameData));
 						this.startGame().then(solved => {
@@ -212,8 +213,12 @@ export class GameAlgo {
 		else
 			this.gameConfig = { ballSpeed: '7', paddleSize: '100', duration: '3750' }
 
+
 		this.gameData.ball.speed.x = this.gameData.ball.speed.y = parseInt(this.gameConfig.ballSpeed);
+		this.gameModel.playerHeight = this.gameData.roomInfo.playerHeigth = parseInt(this.gameConfig.paddleSize);
+
 		this.gameData.roomInfo.duration = parseInt(this.gameConfig.duration);
+		console.log('ici le test ---> ' + this.gameModel.playerHeight + " " + this.gameData.roomInfo.playerHeigth);
 		this.server.to(this.player1.socketID).emit('lockAndLoaded');
 	}
 
@@ -306,6 +311,7 @@ export class GameAlgo {
 	private initGameData(gamePatron: GamePatron): GameDataType {
 		return ({
 			roomInfo: {
+				playerHeigth: 100,
 				duration: 3750,
 				countDown: 0,
 				timer: 0

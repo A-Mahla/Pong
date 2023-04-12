@@ -69,7 +69,7 @@ type WatchProps = {
 }
 
 export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, setOpenWatch}: WatchProps) => {
-	const [gameList, setGameList] = React.useState<{game_id: string/*, p1:string, p2: string*/}[]>();
+	const [gameList, setGameList] = React.useState<{game_id: string, p1:string, p2: string}[]>();
 	const [selectedRowId, setSelectedRowId] = useState<number | null>(null)
 
 	function handleJoinGame(gameId: string) {
@@ -151,8 +151,8 @@ export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, 
 											onClick={() => handleJoinGame(gameId.game_id)}
 										>
 											<PlayersListItemText>
-												Watch {gameId.game_id}
-											{/* Watch {gameId.game_id}:{gameId.p1} vs {gameId.p2} */}
+												{/* Watch {gameId.game_id} */}
+											Watch {gameId.game_id}:{gameId.p1} vs {gameId.p2}
 											</PlayersListItemText>
 										</PlayersListItem>
 									))}

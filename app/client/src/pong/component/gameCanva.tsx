@@ -32,12 +32,14 @@ const ENDGAMEFONT = 180;
 type GameData = {
 	roomInfo: {
 		//roomId: string,
+
 		duration: number
 		timer: number
 		countDown: number
+		playerHeigth: number
 		margin?:number
-		playerheight?: number
-		playerwidth?: number
+		scaledPlayerheight?: number
+		scaledPlayerwidth?: number
 	}
 	player1: {
 		login?: string
@@ -58,58 +60,6 @@ type GameData = {
 			y: number
 		}
 	}
-}
-
-
-
-// the idea would be to print a GIF while waiting
-const drawWaitingScreen = (canvas: any, animationId: any) => {
-	const context = canvas.getContext('2d');
-
-	// Clear canvas
-	context.clearRect(0, 0, canvas.width, canvas.height);
-
-	// Draw background
-	context.fillStyle = '#15232f';
-	context.fillRect(0, 0, canvas.width, canvas.height);
-
-	// Draw text
-	const scaledFont = Math.floor((WAITING_FONT * canvas.height) / CANVAS_HEIGHT);
-	context.font = `${scaledFont}px 'Tr2n', sans-serif`;
-	context.textAlign = 'center';
-	context.fillStyle = '#2f8ca3';
-	context.fillText('Waiting for opponent...', canvas.width / 2, canvas.height / 2);
-
-	// Draw paddle animation
-	const paddleWidth = Math.floor((PLAYER_HEIGHT * canvas.width) / CANVAS_WIDTH);
-	const paddleHeight = Math.floor((PLAYER_WIDTH * canvas.height) / CANVAS_HEIGHT);
-	const paddleY = Math.floor((260 * canvas.height) / CANVAS_HEIGHT);
-	const paddleSpeed = 1; // Adjust to change paddle speed
-	let paddleX = -paddleWidth; // Start off-screen
-	let direction = 1; // Move to the right initially
-
-	const animatePaddle = () => {
-	  // Clear previous paddle position
-	  context.clearRect(paddleX - paddleSpeed, paddleY, paddleWidth, paddleHeight);
-
-	  // Draw new paddle position
-	  context.fillStyle = '#2f8ca3';
-	  context.fillRect(paddleX, paddleY, paddleWidth, paddleHeight);
-
-	  // Update paddle position
-	  paddleX += paddleSpeed * direction;
-
-	  // Reverse direction if paddle reaches edge of canvas
-	  if (paddleX + paddleWidth >= canvas.width || paddleX <= 0) {
-		direction *= -1;
-	  }
-	};
-
-	// Start animation loop
-	animationId = setInterval(() => {
-	  animatePaddle();
-	}, 10);
-
 }
 
 const drawCountDown = (canvas: any, countdown: number) => {
@@ -136,12 +86,13 @@ const drawCountDown = (canvas: any, countdown: number) => {
 const scaleGame = (game: GameData, width : number, height: number): GameData => {
 	return {
 		roomInfo:{
+			playerHeigth: game.roomInfo.playerHeigth,
 			duration:  game.roomInfo.duration,
 			timer: game.roomInfo.timer,
 			countDown: game.roomInfo.countDown,
 			margin: Math.floor((width * 5) / CANVAS_WIDTH),
-			playerheight: Math.floor((height * PLAYER_HEIGHT) / CANVAS_HEIGHT),
-			playerwidth: Math.floor((width * PLAYER_WIDTH) / CANVAS_WIDTH)
+			scaledPlayerheight: Math.floor((height * game.roomInfo.playerHeigth) / CANVAS_HEIGHT),
+			scaledPlayerwidth: Math.floor((width * PLAYER_WIDTH) / CANVAS_WIDTH)
 		},
 		player1:{
 			login: game.player1.login,
@@ -285,9 +236,9 @@ export const draw = (canvas: any, game: GameData) => {
 
 	// draw players
 	context.fillStyle = 'white';
-	if (scaled.roomInfo.playerwidth && scaled.roomInfo.margin && scaled.roomInfo.playerheight) {
-		context.fillRect(scaled.roomInfo.margin, scaled.player1.y - (scaled.roomInfo.playerheight / 2), scaled.roomInfo.playerwidth, scaled.roomInfo.playerheight);
-		context.fillRect(canvas.width - (scaled.roomInfo.playerwidth + scaled.roomInfo.margin), scaled.player2.y - (scaled.roomInfo.playerheight / 2), scaled.roomInfo.playerwidth, scaled.roomInfo.playerheight);
+	if (scaled.roomInfo.scaledPlayerwidth && scaled.roomInfo.margin && scaled.roomInfo.scaledPlayerheight) {
+		context.fillRect(scaled.roomInfo.margin, scaled.player1.y - (scaled.roomInfo.scaledPlayerheight / 2), scaled.roomInfo.scaledPlayerwidth, scaled.roomInfo.scaledPlayerheight);
+		context.fillRect(canvas.width - (scaled.roomInfo.scaledPlayerwidth + scaled.roomInfo.margin), scaled.player2.y - (scaled.roomInfo.scaledPlayerheight / 2), scaled.roomInfo.scaledPlayerwidth, scaled.roomInfo.scaledPlayerheight);
 	}
 
 	// draw ball
@@ -303,7 +254,7 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 
 	const [game, setGame] = React.useState<boolean>(false);
 	const [fetched, setFetched] = React.useState<boolean>(false);
-	let animationId: any;
+	let playerHeigth: number;
 
 
 	const quitGame = async () => {
@@ -348,9 +299,9 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 		})
 
 		socket.on("initSetup", (gameData: GameData) => {
-			console.log("---------------------> ON initSetup");
-			clearInterval(animationId)
-			setFetched(true)
+			console.log("---------------------> ON initSetup  o. " + gameData.roomInfo.playerHeigth);
+			setFetched(true);
+			playerHeigth = gameData.roomInfo.playerHeigth
 			draw(canvas.current, gameData);
 		})
 
@@ -387,7 +338,7 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 			const sendPos = (y: number) => {
 				socket.volatile.emit("paddlePos", y);
 			}
-			const playerHeight = Math.floor((canvasElement.height * PLAYER_HEIGHT) / CANVAS_HEIGHT);
+			const playerHeight = Math.floor((canvasElement.height * playerHeigth) / CANVAS_HEIGHT);
 
 			return ((event: any) => {
 				const canvasLocation = canvasElement.getBoundingClientRect();
