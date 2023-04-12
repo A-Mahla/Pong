@@ -315,7 +315,10 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 	const canvaResize = async () => {
 		const testTimeout = setTimeout(() => {
 			if (canvas.current) {
-				canvas.current.width = document.documentElement.clientWidth * 0.70;
+	//			canvas.current.width = document.documentElement.clientWidth * 0.70;
+				canvas.current.width = document.documentElement.clientWidth < 1300 ?
+							Math.floor((document.documentElement.clientWidth * 0.70))
+							: 1300 * 0.70
 				canvas.current.height = canvas.current.width * 0.533333;
 			}
 		}, 100)
@@ -487,16 +490,45 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 				<Grid container
 					direction="column"
 					justifyContent="center"
+					sx={{maxWidth: '1200px'}}
 				>
-					<canvas
-						onMouseMove={handleMouseMove}
-						ref={gameCanvas}
-						height={Math.floor((document.documentElement.clientWidth * 0.50) * 0.533)}
-						width={Math.floor(document.documentElement.clientWidth * 0.50)}
-					/>
-					<Button onClick={quitGame}>
-							QUIT GAME
-					</Button>
+					<Grid item xs={12}
+						display="flex"
+						justifyContent="center"
+						alignItems="center"
+						sx={{width: '100%', height:"32rem"}}
+					>
+						<canvas
+							onMouseMove={handleMouseMove}
+							ref={gameCanvas}
+							height={ document.documentElement.clientWidth < 1300 ?
+								Math.floor((document.documentElement.clientWidth * 0.70) * 0.533)
+								: (1250 * 0.70) * 0.533
+							}
+							width={ document.documentElement.clientWidth < 1300 ?
+								Math.floor((document.documentElement.clientWidth * 0.70))
+								: 1250 * 0.70
+							}
+						/>
+					</Grid>
+					<Grid container
+						display="flex"
+						alignItems="center"
+						justifyContent="flex-end"
+						sx={{height:"3rem"}}
+					>
+							<Button
+								variant="outlined"
+								onClick={quitGame}
+								sx={{
+									'&:hover': {
+										backgroundColor: '#ff9070',
+									}
+								}}
+							>
+									QUIT GAME
+							</Button>
+					</Grid>
 
 				</Grid>
 			</>)
