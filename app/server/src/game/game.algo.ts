@@ -34,7 +34,7 @@ export class GameAlgo {
 
 	private gameData: GameDataType;
 
-	public watchers: string[] = [];
+	public watchers: (Socket | null)[] = [];
 	private readonly internalEvents: EventEmitter
 
 	constructor (
@@ -172,8 +172,9 @@ export class GameAlgo {
 		}
 		this.server.to(this.player1!.socketID).volatile.emit('updateClient', this.gameData);
 		this.server.to(this.player2!.socketID).volatile.emit('updateClient', this.rotateGameData(this.gameData));
-		this.watchers.forEach((socketID: string) => {
-			this.server.to(socketID).volatile.emit('updateClient', this.gameData);
+		this.watchers.forEach((socket: Socket) => {
+			if (socket)
+				this.server.to(socket.id).volatile.emit('updateClient', this.gameData);
 		})
 	}
 
@@ -182,8 +183,9 @@ export class GameAlgo {
 		this.server.to(this.player1!.socketID).volatile.emit('updateClient', this.gameData);
 		this.server.to(this.player2!.socketID).volatile.emit('updateClient', this.rotateGameData(this.gameData));
 
-		this.watchers.forEach((socketID: string) => {
-			this.server.to(socketID).volatile.emit('updateClient', this.gameData);
+		this.watchers.forEach((socket: Socket) => {
+			if (socket)
+				this.server.to(socket.id).volatile.emit('updateClient', this.gameData);
 		})
 
 		if (!countDown) {
@@ -298,9 +300,17 @@ export class GameAlgo {
 		}
 	}
 
-	public addWatcherSocketID(newWatcherSocketId: string) {
-		this.watchers.push(newWatcherSocketId);
-		this.server.to(newWatcherSocketId).emit('initSetup', this.gameData);
+	public addWatcherSocketID(newWatcherSocket: Socket) {
+		this.watchers.push(newWatcherSocket);
+		this.server.to(newWatcherSocket.id).emit('initSetup', this.gameData);
+		newWatcherSocket.on('quitGame', () => {
+			this.watchers.forEach((value, index) => {
+				if (value === newWatcherSocket) {
+					console.log('tesssssssssssssssssssssssssssssssssssssssssste   ' + this.watchers.length);
+					this.watchers[index] = null;
+				}
+			})
+		})
 	}
 
 	public shutDownInternalEvents() {

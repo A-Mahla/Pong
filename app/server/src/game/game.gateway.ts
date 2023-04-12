@@ -84,14 +84,15 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 							}
 							if (onrejected === 'TIME') {
 								console.log(" --- timeOut --- ");
-								this.server.to(client.id).emit('disconnection', 'unable to find a match: You have been disconnected from the queu');
+								this.server.to(client.id).emit('disconnection', 'DISCONNECTED: unable to find a match, try later');
 							}
 							if (onrejected === 'BLOCKED') {
 								console.log(" --- bloked --- ");
-								this.server.to(client.id).emit('disconnection', 'you are disconnected from the matchmaking queu');
+								this.server.to(client.id).emit('disconnection', 'DISCONNECTED: stop breaking my stuff');
 							}
 							newGameAlgo.watchers.forEach((watchersID) => {
-								this.server.to(watchersID).emit('disconnection', 'one of the players got disconnected, press quit to return to watch menu');
+								if (watchersID)
+									this.server.to(watchersID.id).emit('disconnection', 'DISCONNECTED: one of the players got disconnected');
 							})
 							newGameAlgo.shutDownInternalEvents();
 							this.gameService.deleteGame(newGameAlgo.roomID); // deleteting from the DB
@@ -113,7 +114,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			}
 		}
 		assignKeysToTable();
-		console.log("----------> " + keysTable);
 		this.server.emit('updateRuningGames', keysTable);
 	}
 
@@ -122,7 +122,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		const temp = this.gameMap.get(gameId);
 
 		if (temp && temp.getStatus() === Status.RUNNING)
-			temp.addWatcherSocketID(client.id)
+			temp.addWatcherSocketID(client)
 		/**
 		 * here the client send the gameID (button on wich he clicked) we check if the game existe and is RUNNING
 		 * if yes, we add the clientid to the watcher list so gameAlgo class will send him the gameData stuff too
