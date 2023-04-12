@@ -51,6 +51,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				playerRole: "p2",
 				playerSocket: client
 			});
+			if (gameToJoin.getStatus() === Status.RUNNING)
+				this.runingGamesList();
 		} else if (notPlayingWithYourself) {
 			// no waiting games with one player so we create one
 				const newGameDB = await this.gameService.registerNewGame('WAIT');
@@ -65,6 +67,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 							playerSocket: client
 
 						}, clientPayload.config);
+
+						// this.runingGamesList(); // update client for watching gamelist
+
 						await newGameAlgo.launchGame().then( value => {
 							newGameAlgo.shutDownInternalEvents();
 							this.gameMap.delete(newGameAlgo.roomID);
@@ -85,30 +90,31 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 								console.log(" --- bloked --- ");
 								this.server.to(client.id).emit('disconnection', 'you are disconnected from the matchmaking queu');
 							}
+							newGameAlgo.watchers.forEach((watchersID) => {
+								this.server.to(watchersID).emit('disconnection', 'one of the players got disconnected, press quit to return to watch menu');
+							})
 							newGameAlgo.shutDownInternalEvents();
 							this.gameService.deleteGame(newGameAlgo.roomID); // deleteting from the DB
 							this.gameMap.delete(newGameAlgo.roomID); // deleteting from the running games
 						})
 				}
 			}
-			if (gameToJoin && gameToJoin.getStatus() === Status.RUNNING)
-				this.runingGamesList();
 	}
 
 	@SubscribeMessage('getRuningGames')
 	async runingGamesList() {
-		let keysTable: {game_id: string, p1:string, p2: string}[];
+		let keysTable: {game_id: string/*, p1:string, p2: string*/}[] = [];
 
 		const assignKeysToTable = () => {
 			// Parcours chaque noeud de la Map
-			console.log(this.gameMap);
 			for (let [key, value] of this.gameMap) {
 				if (value.getStatus() === Status.RUNNING)
-					keysTable.push({game_id: key, p1: value.getPlayerLogin(1), p2: value.getPlayerLogin(2)});
+					keysTable.push({game_id: key/*, p1: value.getPlayerLogin(1), p2: value.getPlayerLogin(2)*/});
 			}
 		}
 		assignKeysToTable();
-		this.server.emit('updateRuningGames', keysTable!);
+		console.log("----------> " + keysTable);
+		this.server.emit('updateRuningGames', keysTable);
 	}
 
 	@SubscribeMessage('watchGame')
@@ -146,7 +152,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 						// console.log(`---> ICI: ${Status.RUNNING} = ${game.getStatus()} | ${clientPayload.sub} === ${game.getPlayerID(0)} | ${clientPayload.sub} === ${game.getPlayerID(1)}`);
 					}
 				})
-
 			} catch (err) {
 				console.error("IN HANDLE CONNECTION: token is broke ->" + err);
 				console.log(`Client connected, token is : ${client.handshake.auth.token}`);
@@ -157,5 +162,12 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	handleDisconnect(client: Socket) {
 		console.log(`Client disconnected: ${client.id}`);
+		for (let [key, value] of this.gameMap) {
+			if (value.getPlayerSocketID(1) === client.id && value.getStatus() === Status.ONE_PLAYER ){
+				value.shutDownInternalEvents();
+				this.gameService.deleteGame(value.roomID);
+				this.gameMap.delete(value.roomID);
+			}
+		}
 	}
 }

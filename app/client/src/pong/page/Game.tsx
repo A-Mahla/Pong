@@ -31,7 +31,7 @@ type PlayerPayload = {
 	id: number,
 	login: string
 	config?:{
-		ballSpeed: '5' | '7' | '10',
+		ballSpeed: '7' | '10' | '12',
 		paddleSize: '100' | '70' | '50',
 		duration: '1875' | '3750' | '7500'
 
@@ -54,68 +54,98 @@ const checkedSx = {
 
 function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, setJoinQueu}: JoinProps) {
 
-  const {user, id} = useAuth();
+	const {user, id} = useAuth();
+	const [open, setOpen] = useState(false);
+	const [playerPayload, setPlayerPayload] = useState<PlayerPayload>({
+		id: id,
+		login: user,
+		config: {
+			ballSpeed: '7',
+			paddleSize: '100',
+			duration:'3750'
+		}
+  })
 
-  const playerPayload: PlayerPayload = {
-    id: id,
-    login: user,
-	config: {
-		ballSpeed: '7',
-		paddleSize: '100',
-		duration:'3750'
-	}
-  }
-
-  const [open, setOpen] = useState(false);
-  const [paddle, setPaddle] = useState<string>('easy');
-  const [duration, setDuration] = useState<string>('medium');
-  const [speed, setSpeed] = useState<string>('medium');
+//   const [paddle, setPaddle] = useState<string>('easy');
+//   const [duration, setDuration] = useState<string>('medium');
+//   const [speed, setSpeed] = useState<string>('medium');
 
   const handlePaddleSizeLevel = (event: any) => {
-	  setPaddle(event.target.value);
 	if (playerPayload.config) {
-		if (paddle === "easy"){
-			playerPayload.config.paddleSize = '100';
+		if (event.target.value === "easy"){
+			setPlayerPayload({...playerPayload,
+				config: {
+					...playerPayload.config,
+					paddleSize: '50'
+				}})
 		}
-		if (paddle === 'medium')
-			console.log("paddle --> " + paddle);
-			playerPayload.config.paddleSize = '70';
-			console.log(playerPayload);
-		if (paddle === 'hard')
-			playerPayload.config.paddleSize = '50';
+		else if (event.target.value === 'medium'){
+			setPlayerPayload({...playerPayload,
+				config: {
+					...playerPayload.config,
+					paddleSize: '70'
+				}})
+		}
+		else if (event.target.value === 'hard'){
+			setPlayerPayload({...playerPayload,
+				config: {
+					...playerPayload.config,
+					paddleSize: '50'
+				}})
+		}
 	}
   };
 
 
-  const handleBallSpeedLevel = (event: any) => {
-	  setSpeed(event.target.value);
-	  if (playerPayload.config) {
-		console.log("speed --> " + event.target.value);
-		if (speed === 'easy')
-			playerPayload.config.ballSpeed = '5';
-		if (speed === 'medium')
-			playerPayload.config.ballSpeed = '7';
-		if (speed === 'hard')
-		{
-			console.log("je suis sence passer la");
-			playerPayload.config.ballSpeed = '10';
-		}
-	}
+	const handleBallSpeedLevel = (event: any) => {
 
-
-  };
-	const handleDuration = (event: any) => {
-		setDuration(event.target.value);
 		if (playerPayload.config) {
-			console.log("duration --> " + event.target.value);
-			if (duration === 'easy')
-				playerPayload.config!.duration = '1875';
-			if (duration === 'medium')
-				playerPayload.config!.duration = '3750';
-			if (duration === 'hard')
-			{
-				console.log("je suis sence passer la 2");
-				playerPayload.config!.duration = '7500';
+			if (event.target.value === "easy"){
+				setPlayerPayload({...playerPayload,
+					config: {
+						...playerPayload.config,
+						ballSpeed: '7'
+					}})
+			}
+			else if (event.target.value === 'medium'){
+				setPlayerPayload({...playerPayload,
+					config: {
+						...playerPayload.config,
+						ballSpeed: '10'
+					}})
+			}
+			else if (event.target.value === 'hard'){
+				setPlayerPayload({...playerPayload,
+					config: {
+						...playerPayload.config,
+						ballSpeed: '12'
+					}})
+			}
+		}
+	};
+
+	const handleDuration = (event: any) => {
+		if (playerPayload.config) {
+			if (event.target.value === "easy"){
+				setPlayerPayload({...playerPayload,
+					config: {
+						...playerPayload.config,
+						duration: '1875'
+					}})
+			}
+			else if (event.target.value === 'medium'){
+				setPlayerPayload({...playerPayload,
+					config: {
+						...playerPayload.config,
+						duration: '3750'
+					}})
+			}
+			else if (event.target.value === 'hard'){
+				setPlayerPayload({...playerPayload,
+					config: {
+						...playerPayload.config,
+						duration: '7500'
+					}})
 			}
 		}
 	};
@@ -222,7 +252,7 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 								<FormControlLabel
 									control={
 										<Radio
-											checked={speed === 'easy'}
+											checked={playerPayload.config?.ballSpeed === '7'}
 											onClick={handleBallSpeedLevel}
 											value="easy"
 										/>
@@ -233,7 +263,7 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 								<FormControlLabel
 								control={
 										<Radio
-											checked={speed === 'medium'}
+											checked={playerPayload.config?.ballSpeed === '10'}
 											onClick={handleBallSpeedLevel}
 											value="medium"
 										/>
@@ -244,7 +274,7 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 								<FormControlLabel
 									control={
 										<Radio
-											checked={speed === 'hard'}
+											checked={playerPayload.config?.ballSpeed === '12'}
 											onClick={handleBallSpeedLevel}
 											value="hard"
 										/>
@@ -261,7 +291,7 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 								<FormControlLabel
 									control={
 										<Radio
-											checked={paddle === 'easy'}
+											checked={playerPayload.config?.paddleSize === '100'}
 											onClick={handlePaddleSizeLevel}
 											value="easy"
 										/>
@@ -272,7 +302,7 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 								<FormControlLabel
 									control={
 										<Radio
-											checked={paddle === 'medium'}
+											checked={playerPayload.config?.paddleSize === '70'}
 											onClick={handlePaddleSizeLevel}
 											value="medium"
 										/>
@@ -283,7 +313,7 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 								<FormControlLabel
 									control={
 										<Radio
-											checked={paddle === 'hard'}
+											checked={playerPayload.config?.paddleSize === '50'}
 											onClick={handlePaddleSizeLevel}
 											value="hard"
 										/>
@@ -300,7 +330,7 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 								<FormControlLabel
 									control={
 										<Radio
-											checked={duration === 'easy'}
+											checked={playerPayload.config?.duration === '1875'}
 											onClick={handleDuration}
 											value="easy"
 										/>
@@ -311,7 +341,7 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 								<FormControlLabel
 									control={
 										<Radio
-											checked={duration === 'medium'}
+											checked={playerPayload.config?.duration === '3750'}
 											onClick={handleDuration}
 											value="medium"
 										/>
@@ -322,7 +352,7 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 								<FormControlLabel
 									control={
 										<Radio
-											checked={duration === 'hard'}
+											checked={playerPayload.config?.duration === '7500'}
 											onClick={handleDuration}
 											value="hard"
 										/>

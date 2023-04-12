@@ -39,7 +39,7 @@ export type ClientPayload = {
 }
 
 export type GameParams = {
-	ballSpeed: '5' | '7' | '10',
+	ballSpeed: '7' | '10' | '12',
 	paddleSize: '100' | '70' | '50',
 	duration: '1875' | '3750' | '7500'
 }

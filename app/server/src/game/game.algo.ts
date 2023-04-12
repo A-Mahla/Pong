@@ -34,7 +34,7 @@ export class GameAlgo {
 
 	private gameData: GameDataType;
 
-	private watchers: string[] = [];
+	public watchers: string[] = [];
 	private readonly internalEvents: EventEmitter
 
 	constructor (
@@ -98,6 +98,7 @@ export class GameAlgo {
 
 	private async	startGame() {
 			return new Promise<string>((resolve, rejects) => {
+				this.status = Status.RUNNING;
 
 				this.internalEvents.on('start', () => {
 					clearInterval(this.interval);
@@ -121,8 +122,6 @@ export class GameAlgo {
 				});
 
 				this.internalEvents.emit('pause', (10));
-				this.status = Status.RUNNING;
-
 			})
 	}
 
@@ -181,6 +180,11 @@ export class GameAlgo {
 		this.gameData.roomInfo.countDown = countDown;
 		this.server.to(this.player1!.socketID).volatile.emit('updateClient', this.gameData);
 		this.server.to(this.player2!.socketID).volatile.emit('updateClient', this.rotateGameData(this.gameData));
+
+		this.watchers.forEach((socketID: string) => {
+			this.server.to(socketID).volatile.emit('updateClient', this.gameData);
+		})
+
 		if (!countDown) {
 			this.gameData.roomInfo.countDown = -1;
 			this.internalEvents.emit('start')
