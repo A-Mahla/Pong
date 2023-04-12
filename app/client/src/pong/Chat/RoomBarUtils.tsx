@@ -1,9 +1,11 @@
 import React from 'react'
-import { styled } from '@mui/system'
+import { Box, styled } from '@mui/system'
 import PropTypes from 'prop-types';
-import { List, ListItem, IconButton, Avatar } from '@mui/material';
+import { List, ListItem, IconButton, Avatar, Badge, TextField, Button, Collapse, Fade } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
+import SecurityIcon from '@mui/icons-material/Security';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import FetchAvatar from '../component/FetchAvatar';
 import { Room } from './Chat.types';
 
@@ -106,6 +108,7 @@ export const MatchingRoomListWrapper = styled('div')({
 	display: 'flex',
 	flexDirection: 'column',
 	width: '100%',
+	minWidth: '350px',
 	backgroundColor: '#f2f2f2',
 	padding: '8px',
 	boxSizing: 'border-box',
@@ -141,31 +144,71 @@ const MatchingRoomListItemText = styled('div')({
 	flexGrow: 1,
 });
 
-export const MatchingRoomListItem = ({ room, rooms, onClick}: { room: Room, rooms: Room[], onClick: (room: Room) => void}) => {
+export const MatchingRoomListItem = ({ room, rooms, onClick }: { room: Room, rooms: Room[], onClick: (room: Room, password: string) => void }) => {
 
 	const [isSendingRequest, setIsSendingRequest] = React.useState(false);
+	const [isPasswordInputVisible, setIsPasswordInputVisible] = React.useState(false)
+	const [password, setPassword] = React.useState<string>('')
 
 	const handleAddFriendClick = async () => {
 		setIsSendingRequest(true);
-		await onClick(room);
+		if (room.isPublic === false) {
+			console.log(room)
+			setIsPasswordInputVisible(true)
+		}
+		//await onClick(room, password);
 		setIsSendingRequest(false);
 	};
 
 	return (
-		<MatchingRoomListItemWrapper>
-			<MatchingRoomListItemAvatar>
-				<Avatar>{room.name.charAt(0)}</Avatar>
-			</MatchingRoomListItemAvatar>
-			<MatchingRoomListItemText>{room.name}</MatchingRoomListItemText>
-			{rooms.find((tmpRoom) => tmpRoom.room_id === room.room_id) ?
-				<CheckIcon />
-				:
-					<IconButton onClick={handleAddFriendClick} disabled={isSendingRequest}>
-						<AddIcon />
-					</IconButton>
+		<div>
+			<MatchingRoomListItemWrapper>
+				<MatchingRoomListItemAvatar>
+					{room.isPublic == false ?
+						<Badge
+							overlap="circular"
+							anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+							badgeContent={<SecurityIcon />}
+						>
+							<Avatar>{room.name.charAt(0)}</Avatar>
+						</Badge>
+						:
+
+						<Avatar>{room.name.charAt(0)}</Avatar>}
+				</MatchingRoomListItemAvatar>
+				<MatchingRoomListItemText>{room.name}</MatchingRoomListItemText>
+				{rooms.find((tmpRoom) => tmpRoom.room_id === room.room_id) ?
+					<CheckIcon />
+					:
+					room.isPublic === false ?
+
+						<IconButton onClick={() => isPasswordInputVisible ? setIsPasswordInputVisible(false) : setIsPasswordInputVisible(true)}>
+							<KeyboardArrowDownIcon style={{ transform: `rotate(${isPasswordInputVisible ? '180deg' : '0deg'})`, transition: 'transform 0.5s' }} />
+						</IconButton>
+
+						:
+
+						<IconButton onClick={handleAddFriendClick} disabled={isSendingRequest}>
+							<AddIcon />
+						</IconButton>
+
+				}
+			</MatchingRoomListItemWrapper>
+			{
+				isPasswordInputVisible === true ?
+					<Fade in={isPasswordInputVisible}>
+						<Box
+							sx={{ p: '1rem', display: 'flex'}}
+						>
+							<TextField label="password" onChange={(event: React.ChangeEvent<HTMLInputElement>) => (setPassword(event.target.value))}/>
+							<Button onClick={() => onClick(room, password)}>join</Button>
+
+						</Box >
+					</Fade>
+					:
+					null
 
 			}
-		</MatchingRoomListItemWrapper>
+		</div >
 	);
 };
- 

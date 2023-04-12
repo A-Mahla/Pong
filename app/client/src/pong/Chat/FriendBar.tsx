@@ -68,8 +68,12 @@ export const FriendBar = () => {
     socket.emit('friendRequest', payload)
   }
 
+	let delayDebounce: NodeJS.Timeout
+
   const handleSearchUserOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const delayDebounce = setTimeout(async () => {
+    clearTimeout(delayDebounce)
+
+    delayDebounce = setTimeout(async () => {
       if (event.target.value === '')
         return setMatchingUsers([])
 
