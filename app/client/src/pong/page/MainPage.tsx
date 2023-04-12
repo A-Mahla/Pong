@@ -9,14 +9,14 @@ import '/src/App.css';
 const titleStyle = {
 	'@media (max-width:200px)': {
 		mt: '6px',
-		fontSize: '16vw;',
-	},
-	'@media (min-width:200px) and (max-width:600px)': {
-		fontSize: '19vw;',
 	},
 	fontSize: '18vw;',
 	fontWeight: '700',
 	textAlign: 'left',
+	'@media (min-width:1500px)': {
+		fontSize: '260px',
+		ml: '2rem'
+	},
 }
 
 const buttonContactStyle = {
@@ -40,8 +40,16 @@ const MainPage = () => {
 
 	return <>
 		<Grid container display='flex' spacing={0}>
-			<Grid item xs={8}>
-				<Typography variant='h1' sx={titleStyle}>Pong</Typography>
+			<Grid item xs={8}
+				display="flex"
+				sx={{
+					justifyContent:"center",
+					'@media (min-width:1500px)': {
+						justifyContent:"left",
+					},
+				}}
+			>
+				<Typography variant='h1'  sx={titleStyle}>Pong</Typography>
 			</Grid>
 			<Grid item xs={4}>
 				<Grid container display='flex'>
