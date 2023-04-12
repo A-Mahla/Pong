@@ -3,6 +3,7 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { Room, User, User_Room } from "@prisma/client"
 import { CreateRoomData } from "../Chat.types";
 import { UsersService } from "src/users/users.service";
+import { transformDocument } from "@prisma/client/runtime";
 
 @Injectable()
 export class RoomsService {
@@ -14,6 +15,7 @@ export class RoomsService {
 
 		const newRoomData = {
 			name: roomDetails.name,
+			isPublic: roomDetails.password?.length === 0 ? true : false,
 			ownerId: roomDetails.owner_id,
 			password: roomDetails.password 
 		}
@@ -52,6 +54,8 @@ export class RoomsService {
 					room_id : id
 				},
 				select: {
+					room_id: true,
+					name: true,
 					messages: true,
 					ownerId: true,
 					isPublic: true
@@ -99,6 +103,13 @@ export class RoomsService {
 				name : {
 					contains: name
 				}
+			},
+			select: {
+				room_id: true,
+				name: true,
+				messages: true,
+				ownerId: true,
+				isPublic: true
 			}
 		}).catch((e) => {
 			throw new BadRequestException(e);

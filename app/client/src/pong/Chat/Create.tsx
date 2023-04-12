@@ -11,8 +11,6 @@ export function CreateRoom({setBoolean} :{setBoolean: (bool: boolean) => void}) 
 
 	const password = useRef<HTMLInputElement>()
 	
-	const {isCreating, setIsCreating} = useContext(ChatContext) 
-
 	const [secured, isSecured] = useState(false)
 
 	const {user, id} = useAuth()
@@ -38,7 +36,8 @@ export function CreateRoom({setBoolean} :{setBoolean: (bool: boolean) => void}) 
 
 		socket.emit('createRoom', newRoomData)
 
-		setIsCreating(false)
+		setBoolean(false)
+
 	}, [socket])
 
 	return (
@@ -46,10 +45,7 @@ export function CreateRoom({setBoolean} :{setBoolean: (bool: boolean) => void}) 
 			<FormControlLabel control={<Switch onChange={handleSwitch}/>} label="Protected" />
 			<TextField sx={{marginTop: '1rem'}} label="name" inputRef={name}/>
 			<TextField disabled={!secured} sx={{marginTop: '1rem'}} label="password" inputRef={password}/>
-			<Box sx={{display: 'flex'}}>
 				<Button sx={{m: '1rem'}}onClick={handleCreateRoom}>Create room</Button>
-				<Button sx={{m: '1rem'}}onClick={() => setBoolean(false)}>Cancel</Button>
-			</Box>
 		</FormControl>
 	)
 }

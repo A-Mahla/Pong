@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useContext, useCallback, HtmlHTMLAttributes } from 'react';
-import { Avatar, Box, Paper, TextField, List, ListItem, ListItemText } from '@mui/material';
+import { Avatar, Box, Paper, TextField, List, ListItem, ListItemText, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import { ChatContext } from './Chat';
 import useAuth from '../context/useAuth';
@@ -140,7 +140,6 @@ export const MessagesBox = () => {
 		if (target.id !== 0) {
 			console.log('directMessages: ', directMessages)
 			setMessageList(directMessages.map((message, index) => {
-				//(target.id === message.recipient_id ) ?
 				if (message.sender_id === id || message.recipient_id === id) {
 
 					return (<Box key={index} style={{ display: 'flex', justifyContent: message.sender_id === id ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
@@ -148,13 +147,6 @@ export const MessagesBox = () => {
 					</Box>)
 				}
 				return null
-				//<ListItem key={message.id}>
-				//	<ListItemText  className='messageSent'>{message.sender_id} {message.content} {message.createdAt}</ListItemText>
-				//</ListItem>
-				//:
-				//<ListItem key={message.id}>
-				//	<ListItemText  className='messageReceived'>{message.sender_id} {message.content} {message.createdAt}</ListItemText>
-				//</ListItem>)
 			}))
 
 		}
@@ -186,9 +178,24 @@ export const MessagesBox = () => {
 
 	return (
 		<ChatBox>
-			<ChatHeader>
-				<FetchAvatar avatar={target.id !== 0 ? target.avatar : ''} sx={null} />
-			</ChatHeader>
+			{
+				target.id !== 0 ?
+					<ChatHeader>
+						<FetchAvatar avatar={target.id !== 0 ? target.avatar : ''} sx={null} />
+						<Typography sx={{p:'2rem'}}>{target.login}</Typography>
+					</ChatHeader>
+					:
+					current.id !== 0 ?
+
+						<ChatHeader>
+							<Avatar >
+								{current.name.charAt(0)}
+							</Avatar>
+							<Typography sx={{p:'2rem'}}>{current.name}</Typography>
+						</ChatHeader>
+						:
+						null
+			}
 			<ChatBody ref={chatBodyRef}>
 				{messageList}
 			</ChatBody>
