@@ -90,39 +90,47 @@ const PlayersListItemText = styled('div')({
 type WatchProps = {
 	socket: Socket,
 	thereIsMatch: boolean,
-	openWatch: boolean,
-	setOpenWatch: React.Dispatch<React.SetStateAction<boolean>>,
+	openFriends: boolean,
+	setOpenFriends: React.Dispatch<React.SetStateAction<boolean>>,
 	handleThereIsMatch: () => void,
 }
 
-export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, setOpenWatch}: WatchProps) => {
-	const [gameList, setGameList] = React.useState<{game_id: string, p1:string, p2: string}[]>([]);
+export const GameFriends = ({socket, thereIsMatch, handleThereIsMatch, openFriends, setOpenFriends}: WatchProps) => {
+	const [friendList, setFriendList] = React.useState<{game_id: string, playerWhoCreateAGame: string}[]>([
+		{
+			game_id: "2",
+			playerWhoCreateAGame: "John",
+		}
+	]);
 	const [selectedRowId, setSelectedRowId] = useState<number | null>(null)
 
 	function handleJoinGame(gameId: string) {
 		// Implémentez cette fonction selon ce que vous voulez faire lorsque l'utilisateur clique sur un bouton.
-		socket.emit('watchGame', gameId);
+		/* socket.emit('watchGame', gameId); */
 		if (!thereIsMatch)
 			handleThereIsMatch()
 	}
 
+	/*	SET NEW FRIEND SOCKET EVENT
 	socket.on('updateRuningGames', (runningGameList: any) => {
-		console.log('jai du passer par la' + runningGameList);
-		setGameList(runningGameList);
-	})
+		console.log('jai du passer par la' + friendGameList);
+		setFriendList(friendGameList);
+	}) */
 
 	React.useEffect(() => {
-		setGameList([])
+		//		setFriendList([])
+	/* EMIT A NEW FRIEND SOCKET EVENT
 		socket.emit("getRuningGames");
+	*/
 	}, [])
 
 	const handleClose = () => {
-		setOpenWatch(false)
+		setOpenFriends(false)
 	}
 
 	return (
 		<>
-			<Dialog open={openWatch} onClose={handleClose}
+			<Dialog open={openFriends} onClose={handleClose}
 				fullWidth
 				maxWidth="md"
 				PaperProps={{
@@ -145,13 +153,13 @@ export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, 
 							align="center"
 							style={{color: '#213547'}}
 						>
-							Watch Game
+							Friends Game
 						</Typography>
 					</Box>
 				</DialogTitle>
 				<DialogContent>
 					<Divider variant="middle"/>
-					{ !gameList?.length ?
+					{ !friendList?.length ?
 						(<>
 						<Grid container
 							display="flex"
@@ -171,16 +179,15 @@ export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, 
 						(<>
 							<Grid container sx={{height: '100%'}} >
 								<PlayersListWrapper>
-									{gameList.map((gameId) => (
+									{friendList.map((gameId) => (
 										<PlayersListItem
 											key={+gameId.game_id}
 											isActive={+gameId.game_id === selectedRowId}
-											onClick={() => handleJoinGame(gameId.game_id)}
 										>
 											<Grid container
 												sx={{width: '100%'}}
 											>
-												<Grid item display="flex" xs={5}
+												<Grid item display="flex" xs={4}
 													sx={{
 														justifyContent: 'center',
 														alignItems: 'center'
@@ -196,43 +203,42 @@ export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, 
 														/>
 													</PlayersListItemAvatarLeft>
 													<PlayersListItemText>
-														{gameId.p1}
+														{gameId.playerWhoCreateAGame}
 													</PlayersListItemText>
 												</Grid>
-												<Grid item xs={2}
+												<Grid item xs={5}
 													sx={{
 														justifyContent: 'center',
 														alignItems: 'center'
 													}}
 												>
-													<Typography variant='h6'
+													<Typography variant='body1'
 														textAlign="center"
 														sx={{
 															position: 'relative',
-															top: 5,
+															top: 8,
 														}}
 													>
-														VS
+														invited you
 													</Typography>
 												</Grid>
-												<Grid item display="flex" xs={5}
+												<Grid item display="flex" xs={3}
 													sx={{
 														justifyContent: 'center',
 														alignItems: 'center'
 													}}
 												>
-													<PlayersListItemText>
-														{gameId.p2}
-													</PlayersListItemText>
-													<PlayersListItemAvatarRight>
-														<FetchAvatar
-															avatar=""
-															sx={{
-																height: '100%',
-																width: '100%'
-															}}
-														/>
-													</PlayersListItemAvatarRight>
+													<Button
+														variant="contained"
+													onClick={() => handleJoinGame(gameId.game_id)}
+														sx={{
+															'&:hover': {
+																backgroundColor: '#427094',
+															}
+														}}
+													>
+														Join
+													</Button>
 												</Grid>
 											</Grid>
 										</PlayersListItem>
