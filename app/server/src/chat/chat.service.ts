@@ -105,7 +105,7 @@ export class ChatService {
 
 		server.to(client.id).emit('roomJoined', room)
 
-		return this.userService.joinRoom(payload.user_id, payload.room_id)
+		return await this.userService.joinRoom(payload.user_id, payload.room_id)
 	}
 
 	async sendFriendRequest(server: Server, client: Socket, payload: FriendRequestData) {

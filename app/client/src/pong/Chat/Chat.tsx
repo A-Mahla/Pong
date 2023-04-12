@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect, createContext } from 'react'
-import { Box, Grid } from '@mui/material'
+import { Box, Divider, Grid } from '@mui/material'
 import { Api, FetchApi } from '../component/FetchApi'
 import { useFetchAuth } from '../context/useAuth'
 import { DirectMessage, Friend, FriendRequest, Message, Room, User } from './Chat.types'
@@ -195,6 +195,8 @@ export function Chat() {
 			const rooms = response?.data.map((value: Room) => ({
 				room_id: value.room_id,
 				name: value.name,
+				isPublic: value.isPublic,
+				ownerId: value.ownerId,
 				messages: value.messages
 			}))
 			return rooms
@@ -275,7 +277,6 @@ export function Chat() {
 				<Grid item xs={6} md={2}>
 					<RoomBar />
 				</Grid>
-
 				<Grid item xs={6} md={2}>
 					<FriendBar />
 					{/* <DirectMessageBar />} */}

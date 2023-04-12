@@ -180,10 +180,14 @@ export function RoomBar() {
 		setCreateRoomDialogOpen(true)
 	}
 
+	let delayDebounce: NodeJS.Timeout
+
 	const handleSearchRoomOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 
 
-		const delayDebounce = setTimeout(async () => {
+		clearTimeout(delayDebounce)
+		
+		delayDebounce = setTimeout(async () => {
 			const searchTerm = event.target.value
 			if (searchTerm === '')
 				return setMatchingRooms([])
@@ -198,28 +202,29 @@ export function RoomBar() {
 
 			console.log('matching rooms: ', response?.data)
 
-			setMatchingRooms(response?.data.map((value: Room) => ({
-				room_id: value.room_id,
-				name: value.name
-			})))
+			setMatchingRooms(response?.data.map((value: Room) => (
+				value
+			)))
 
 		}, 800)
 		return () => clearTimeout(delayDebounce)
 	}
 
-	const handleJoinRoom = (room: Room) => {
-		console.log(`joining room n:${id}`)
-
-		if (room.isPublic === false) {
-			console.log('secured')
-		}
-
+	const handleJoinRoom = (room: Room, password: string) => {
+		console.log(`joining ${room}`)
 
 		const payload: JoinRoomData = {
 			user_id: id,
 			room_id: room.room_id,
 			room_name: room.name
 		}
+
+		if (room.isPublic === false) {
+			console.log('secured')
+			payload.password = password 
+		}
+
+		console.log('joinRoomPayload: ', payload)
 
 		socket.emit('joinRoom', payload)
 	}
