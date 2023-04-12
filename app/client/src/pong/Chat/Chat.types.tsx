@@ -61,8 +61,10 @@ export type Message = {
 }
 
 export type Room = {
-	id : number,
+	room_id : number,
 	name: string,
+	isPublic: boolean,
+	owner_id: number,
 	messages: Message[]
 }
 

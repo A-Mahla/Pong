@@ -37,7 +37,7 @@ export function SearchRoom() {
 			})
 
 			setMatchingRooms(response?.data.map((value: Room) => ({
-				id: value.id,
+				room_id: value.room_id,
 				name: value.name
 			})))
 
@@ -73,7 +73,7 @@ export function SearchRoom() {
 					let isIn = false
 
 					for (const room of rooms) {
-						if (room.id === tmpRoom.id) {
+						if (room.room_id === tmpRoom.id) {
 							isIn = true
 						}
 					}

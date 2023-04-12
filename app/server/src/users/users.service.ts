@@ -238,7 +238,7 @@ export class UsersService {
 			data: {
 				member_id: userId,
 				room_id: room_id
-			}
+			},
 		}).catch((e) => {
 			throw new BadRequestException(e);
 		})

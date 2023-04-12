@@ -22,7 +22,7 @@ export class ChatService {
 
 		client.join((newRoom as Room).room_id.toString() + payload.name)
 
-		server.to(client.id).emit('roomCreated', { name: payload.name, id: newRoom?.room_id, messages: [] })
+		server.to(client.id).emit('roomCreated', { name: payload.name, room_id: newRoom?.room_id, messages: [] })
 
 		return newRoom
 	}
@@ -111,8 +111,6 @@ export class ChatService {
 	async sendFriendRequest(server: Server, client: Socket, payload: FriendRequestData) {
 
 		const existingRequest = await this.friendService.isExisting({user1_id: payload.user2_id, user2_id: payload.user1_id})
-
-		console.log('request existing ? : ', existingRequest)
 
 		if (existingRequest === true)
 			return 'the receiver already send you a friend request'
