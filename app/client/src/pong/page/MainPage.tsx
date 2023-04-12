@@ -43,7 +43,7 @@ const MainPage = () => {
 			<Grid item xs={8}
 				display="flex"
 				sx={{
-					justifyContent:"center",
+					justifyContent:"left",
 					'@media (min-width:1500px)': {
 						justifyContent:"left",
 					},
