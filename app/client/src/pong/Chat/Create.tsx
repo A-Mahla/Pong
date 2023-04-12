@@ -6,7 +6,7 @@ import { FetchApi } from '../component/FetchApi'
 import { CreateRoomData } from './Chat.types'
 import { socket } from './Socket'
 
-export function CreateRoom() {
+export function CreateRoom({setBoolean} :{setBoolean: (bool: boolean) => void}) {
 	const name = useRef<HTMLInputElement>()
 
 	const password = useRef<HTMLInputElement>()
@@ -42,12 +42,14 @@ export function CreateRoom() {
 	}, [socket])
 
 	return (
-		<FormControl>
-			{secured ? 'secured' : 'not secured'} 
+		<FormControl sx={{m: '1rem'}}>
 			<FormControlLabel control={<Switch onChange={handleSwitch}/>} label="Protected" />
-			<TextField placeholder="room name" inputRef={name}/>
-			{secured ? <TextField placeholder="room password" inputRef={password}/> : null }
-			<Button onClick={handleCreateRoom}>Create room</Button>
+			<TextField sx={{marginTop: '1rem'}} label="name" inputRef={name}/>
+			<TextField disabled={!secured} sx={{marginTop: '1rem'}} label="password" inputRef={password}/>
+			<Box sx={{display: 'flex'}}>
+				<Button sx={{m: '1rem'}}onClick={handleCreateRoom}>Create room</Button>
+				<Button sx={{m: '1rem'}}onClick={() => setBoolean(false)}>Cancel</Button>
+			</Box>
 		</FormControl>
 	)
 }

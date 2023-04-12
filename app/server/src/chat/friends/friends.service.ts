@@ -5,7 +5,7 @@ import { AddFriendData, FriendRequestData } from "../Chat.types";
 @Injectable()
 export class FriendsService {
 
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(private readonly prisma: PrismaService) { }
 
 	async acceptFriendRequest(friendRequestId: number) {
 		await this.prisma.friend.update({
@@ -18,7 +18,7 @@ export class FriendsService {
 		}).catch((e) => {
 			throw new BadRequestException(e);
 		})
-		return await this,this.prisma.friend.findUnique({
+		return await this, this.prisma.friend.findUnique({
 			where: {
 				id: friendRequestId
 			},
@@ -70,13 +70,38 @@ export class FriendsService {
 				]
 			},
 			include: {
-				user1: true,
-				user2: true
+				user1: {
+					select: {
+						id: true,
+						login: true,
+						avatar: true,
+						password: false,
+						isTwoFA: false,
+						twoFA: false,
+						refreshToken: false,
+						intraLogin: false,
+						updatedAt: false,
+						createdAt: false,
+					}
+				},
+				user2: {
+					select: {
+						id: true,
+						login: true,
+						avatar: true,
+						password: false,
+						isTwoFA: false,
+						twoFA: false,
+						refreshToken: false,
+						intraLogin: false,
+						updatedAt: false,
+						createdAt: false,
+					}
+				},
 			}
 		}).catch((e) => {
 			throw new BadRequestException(e);
 		})
-
 
 		const relationFriendTab = friendTab.map((elem) => {
 			if (userId === elem.user1Id) {
@@ -100,14 +125,89 @@ export class FriendsService {
 		return relationFriendTab
 	}
 
+	async getMatchingFriends(userId: number, loginPrefix: string) {
+		const friendTab = await this.prisma.friend.findMany({
+			where: {
+				OR: [
+					{
+						user1Id: userId,
+						status: 'accepted',
+						user2: {
+							login: { startsWith: loginPrefix }
+						}
+					},
+					{
+						user2Id: userId,
+						status: 'accepted',
+						user1: {
+							login: { startsWith: loginPrefix }
+						}
+					}
+				]
+			},
+			include: {
+				user1: {
+					select: {
+						id: true,
+						login: true,
+						avatar: true,
+						password: false,
+						isTwoFA: false,
+						twoFA: false,
+						refreshToken: false,
+						intraLogin: false,
+						updatedAt: false,
+						createdAt: false,
+					}
+				},
+				user2: {
+					select: {
+						id: true,
+						login: true,
+						avatar: true,
+						password: false,
+						isTwoFA: false,
+						twoFA: false,
+						refreshToken: false,
+						intraLogin: false,
+						updatedAt: false,
+						createdAt: false,
+					}
+				},
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		});
+
+		const relationFriendTab = friendTab.map((elem) => {
+			if (userId === elem.user1Id) {
+				return {
+					id: elem.user2Id,
+					login: elem.user2.login,
+					avatar: elem.user2.avatar
+				};
+			} else {
+				return {
+					id: elem.user1Id,
+					login: elem.user1.login,
+					avatar: elem.user1.avatar
+				};
+			}
+		});
+
+		console.log(relationFriendTab);
+
+		return relationFriendTab;
+	}
+
 	async getFriendRequests(userId: number) {
 
 		console.log('userId: ', userId)
 
 		const friendRequestsTab = await this.prisma.friend.findMany({
 			where: {
-					//user2Id: userId,
-					//status: 'pending'
+				//user2Id: userId,
+				//status: 'pending'
 				OR: [
 					{
 						user1Id: userId,
@@ -147,7 +247,7 @@ export class FriendsService {
 
 	async createFriendRequest(friendRequestData: FriendRequestData) {
 
-		const isExisting = await this.isExisting({user1_id: friendRequestData.user2_id, user2_id: friendRequestData.user1_id})
+		const isExisting = await this.isExisting({ user1_id: friendRequestData.user2_id, user2_id: friendRequestData.user1_id })
 		if (isExisting)
 			return isExisting
 
@@ -160,29 +260,29 @@ export class FriendsService {
 				user1: true,
 				user2: true
 			}
-			
+
 		}).catch((e) => {
 			throw new BadRequestException(e);
 		})
 
-			return {
-				id: newFriendRequest.id,
-				user1Login: newFriendRequest.user1.login,
-				user1Id: newFriendRequest.user1Id,
-				user2Login: newFriendRequest.user2.login,
-				user2Id: newFriendRequest.user2Id,
-				status: newFriendRequest.status,
-				createdAt: newFriendRequest.createdAt,
-			}
-	}  
+		return {
+			id: newFriendRequest.id,
+			user1Login: newFriendRequest.user1.login,
+			user1Id: newFriendRequest.user1Id,
+			user2Login: newFriendRequest.user2.login,
+			user2Id: newFriendRequest.user2Id,
+			status: newFriendRequest.status,
+			createdAt: newFriendRequest.createdAt,
+		}
+	}
 
 	async isExisting(friendRequestData: FriendRequestData) {
 		const friendRequest = await this.prisma.friend.findMany({
-			where: 
-				{
-					user1Id : friendRequestData.user1_id,
-					user2Id: friendRequestData.user2_id
-				}
+			where:
+			{
+				user1Id: friendRequestData.user1_id,
+				user2Id: friendRequestData.user2_id
+			}
 		})
 
 		console.log('isExistrong : ', friendRequest)
@@ -190,5 +290,5 @@ export class FriendsService {
 		if (friendRequest.length !== 0)
 			return true
 		return false
-	} 
+	}
 }

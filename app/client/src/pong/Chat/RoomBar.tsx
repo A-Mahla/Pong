@@ -142,26 +142,34 @@
 
 import React, { useContext, useState } from 'react'
 import { ChatContext } from './Chat'
-import { Room } from './Chat.types'
-import { RoomBarButton, RoomListItem, RoomListItemAvatar, RoomListItemText, RoomListWrapper } from './RoomBarUtils'
+import { JoinRoomData, Room } from './Chat.types'
+import { MatchingRoomListItem, MatchingRoomListWrapper, RoomBarButton, RoomListItem, RoomListItemAvatar, RoomListItemText, RoomListWrapper } from './RoomBarUtils'
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
-import { Divider, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material'
+import { Divider, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from '@mui/material'
 import { FetchApi } from '../component/FetchApi';
-import { useFetchAuth } from '../context/useAuth';
+import useAuth, { useFetchAuth } from '../context/useAuth';
 import { CreateRoom } from './Create';
+import { socket } from './Socket';
 
 export function RoomBar() {
 
-	const { rooms, setRooms } = useContext(ChatContext)
+	const { rooms,
+		setTarget,
+		setCurrent
+	} = useContext(ChatContext)
 	const [activeRoomId, setActiveRoomId] = useState<number>(0)
-	const [createRoomDialogOpen, setCreateRoomDialogOpen] = useState<boolean>(false) 
-	const [searchRoomDialogOpen, setSearchRoomDialogOpen] = useState<boolean>(false) 
+	const [createRoomDialogOpen, setCreateRoomDialogOpen] = useState<boolean>(false)
+	const [searchRoomDialogOpen, setSearchRoomDialogOpen] = useState<boolean>(false)
 	const [matchingRooms, setMatchingRooms] = useState<Room[]>([])
 	const useContextAuth = useFetchAuth()
+	const { id } = useAuth()
 
 	const handleRoomClick = (room: Room) => {
 		console.log(room)
+		setTarget({ login: '', id: 0, avatar: '' })
+		setCurrent({ name: room.name, id: room.room_id })
+		setActiveRoomId(room.room_id)
 	}
 
 	const handleSearchRoomClick = () => {
@@ -172,7 +180,7 @@ export function RoomBar() {
 		setCreateRoomDialogOpen(true)
 	}
 
-	const handleSearchRoomOnChange  = (event: React.ChangeEvent<HTMLInputElement>) => {
+	const handleSearchRoomOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 
 
 		const delayDebounce = setTimeout(async () => {
@@ -187,7 +195,7 @@ export function RoomBar() {
 				},
 				auth: useContextAuth
 			})
-			
+
 			console.log('matching rooms: ', response?.data)
 
 			setMatchingRooms(response?.data.map((value: Room) => ({
@@ -199,16 +207,38 @@ export function RoomBar() {
 		return () => clearTimeout(delayDebounce)
 	}
 
+	const handleJoinRoom = (room: Room) => {
+		console.log(`joining room n:${id}`)
+
+		if (room.isPublic === false) {
+			console.log('secured')
+		}
+
+
+		const payload: JoinRoomData = {
+			user_id: id,
+			room_id: room.room_id,
+			room_name: room.name
+		}
+
+		socket.emit('joinRoom', payload)
+	}
+
+	const handleCloseSearchRoomDialog = () => {
+		setMatchingRooms([])
+		setSearchRoomDialogOpen(false)
+	}
+
 	return (
 		<RoomListWrapper>
 			{rooms.map(
 				room => <RoomListItem key={room.room_id} room={room} activeRoomId={activeRoomId} onClick={handleRoomClick} />
-			
+
 			)}
-			<Divider/>
+			<Divider />
 			<RoomBarButton onClick={handleSearchRoomClick}>
 				<RoomListItemAvatar>
-					<SearchIcon/>		
+					<SearchIcon />
 				</RoomListItemAvatar>
 				<RoomListItemText>
 					Search room
@@ -217,26 +247,36 @@ export function RoomBar() {
 			</RoomBarButton>
 			<RoomBarButton onClick={handleCreateRoomClick}>
 				<RoomListItemAvatar>
-					<AddIcon/>	
+					<AddIcon />
 				</RoomListItemAvatar>
 				<RoomListItemText>
 					Create room
 				</RoomListItemText>
 			</RoomBarButton>
-			<Dialog open={searchRoomDialogOpen} onClose={() => setSearchRoomDialogOpen(false)}>
+			<Dialog open={searchRoomDialogOpen} onClose={handleCloseSearchRoomDialog}>
 				<DialogTitle>Search Room</DialogTitle>
 				<DialogContent>
-					<TextField  sx={{m:'1rem'}}label="Room name" fullWidth onChange={handleSearchRoomOnChange} />
-
-					{matchingRooms.map(
-						room => <RoomListItem key={room.room_id} room={room} activeRoomId={activeRoomId} onClick={handleRoomClick} />
-					
-					)}
+					<TextField sx={{ marginTop: '1rem' }} label="Room name" fullWidth onChange={handleSearchRoomOnChange} />
 				</DialogContent>
-			</Dialog> 
+				<MatchingRoomListWrapper>
+					{matchingRooms.map(
+						room => <MatchingRoomListItem key={room.room_id} room={room} onClick={handleJoinRoom} rooms={rooms} />
+
+					)}
+				</MatchingRoomListWrapper>
+				<DialogActions>
+					<Button onClick={handleCloseSearchRoomDialog}>Cancel</Button>
+				</DialogActions>
+			</Dialog>
 			<Dialog open={createRoomDialogOpen} onClose={() => setCreateRoomDialogOpen(false)}>
-				<CreateRoom></CreateRoom>
-			</Dialog> 
+				<DialogTitle>Create Room</DialogTitle>
+				<DialogContent>
+					<CreateRoom setBoolean={setCreateRoomDialogOpen} />
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={() => setCreateRoomDialogOpen(false)}>Cancel</Button>
+				</DialogActions>
+			</Dialog>
 		</RoomListWrapper>
 	)
 }

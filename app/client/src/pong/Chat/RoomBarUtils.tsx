@@ -1,7 +1,9 @@
 import React from 'react'
 import { styled } from '@mui/system'
 import PropTypes from 'prop-types';
-import { List, ListItem } from '@mui/material';
+import { List, ListItem, IconButton, Avatar } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import CheckIcon from '@mui/icons-material/Check';
 import FetchAvatar from '../component/FetchAvatar';
 import { Room } from './Chat.types';
 
@@ -63,7 +65,7 @@ export const RoomListItem = ({ room, activeRoomId, onClick }: { room: Room, acti
 			onClick={() => onClick(room)}
 		>
 			<RoomListItemAvatar>
-				<FetchAvatar avatar={''} sx={{ height: '100%', width: '100%' }} />
+				<Avatar>{room.name.charAt(0)}</Avatar>
 			</RoomListItemAvatar>
 			<RoomListItemText>{room.name}</RoomListItemText>
 		</RoomListItemWrapper>
@@ -99,3 +101,71 @@ export const RoomBarButton = styled('div')(() => ({
 		backgroundColor: '#EDEDED',
 	},
 }));
+
+export const MatchingRoomListWrapper = styled('div')({
+	display: 'flex',
+	flexDirection: 'column',
+	width: '100%',
+	backgroundColor: '#f2f2f2',
+	padding: '8px',
+	boxSizing: 'border-box',
+	height: '400px',
+	overflowY: 'auto',
+});
+
+const MatchingRoomListItemWrapper = styled('div')({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'space-between',
+	height: '56px',
+	padding: '0 16px',
+	borderRadius: '8px',
+	cursor: 'pointer',
+
+	'&:hover': {
+		backgroundColor: '#EDEDED',
+	},
+});
+
+const MatchingRoomListItemAvatar = styled('div')({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	height: '40px',
+	width: '40px',
+	borderRadius: '50%',
+	marginRight: '16px',
+});
+
+const MatchingRoomListItemText = styled('div')({
+	flexGrow: 1,
+});
+
+export const MatchingRoomListItem = ({ room, rooms, onClick}: { room: Room, rooms: Room[], onClick: (room: Room) => void}) => {
+
+	const [isSendingRequest, setIsSendingRequest] = React.useState(false);
+
+	const handleAddFriendClick = async () => {
+		setIsSendingRequest(true);
+		await onClick(room);
+		setIsSendingRequest(false);
+	};
+
+	return (
+		<MatchingRoomListItemWrapper>
+			<MatchingRoomListItemAvatar>
+				<Avatar>{room.name.charAt(0)}</Avatar>
+			</MatchingRoomListItemAvatar>
+			<MatchingRoomListItemText>{room.name}</MatchingRoomListItemText>
+			{rooms.find((tmpRoom) => tmpRoom.room_id === room.room_id) ?
+				<CheckIcon />
+				:
+					<IconButton onClick={handleAddFriendClick} disabled={isSendingRequest}>
+						<AddIcon />
+					</IconButton>
+
+			}
+		</MatchingRoomListItemWrapper>
+	);
+};
+ 

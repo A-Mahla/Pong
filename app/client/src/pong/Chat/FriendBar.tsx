@@ -116,7 +116,7 @@ export const FriendBar = () => {
       <Dialog open={addFriendDialogOpen} onClose={handleAddFriendDialogClose}>
         <DialogTitle>Add Friend</DialogTitle>
         <DialogContent>
-          <TextField sx={{m:'1rem'}} label="Username" fullWidth onChange={handleSearchUserOnChange} />
+          <TextField sx={{marginTop:'1rem'}} label="Username" fullWidth onChange={handleSearchUserOnChange} />
         </DialogContent>
         <UserListWrapper>
           {matchingUsers.map((user) => (
@@ -126,9 +126,6 @@ export const FriendBar = () => {
         </UserListWrapper>
         <DialogActions>
           <Button onClick={handleAddFriendDialogClose}>Cancel</Button>
-          <Button onClick={handleAddFriendSubmit} variant="contained" color="primary">
-            Send Friend Request
-          </Button>
         </DialogActions>
       </Dialog>
       <Dialog open={friendRequestsDialogOpen} onClose={handleFriendRequestsDialogClose}>
@@ -141,7 +138,7 @@ export const FriendBar = () => {
           </FriendRequestWrapper>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleFriendRequestsDialogClose}>Close</Button>
+          <Button onClick={handleFriendRequestsDialogClose}>Cancel</Button>
         </DialogActions>
       </Dialog>
     </FriendListWrapper>

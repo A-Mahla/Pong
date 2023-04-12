@@ -112,8 +112,6 @@ export class ChatService {
 
 		const existingRequest = await this.friendService.isExisting({user1_id: payload.user2_id, user2_id: payload.user1_id})
 
-		console.log('request existing ? : ', existingRequest)
-
 		if (existingRequest === true)
 			return 'the receiver already send you a friend request'
 

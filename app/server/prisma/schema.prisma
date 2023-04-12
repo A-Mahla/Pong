@@ -61,7 +61,7 @@ model Room {
   room_id        Int      @id @default(autoincrement())
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  isPublic       Boolean  @default(false)
+  isPublic       Boolean  @default(true)
   password       String?
   name           String
   owner          User?    @relation("RoomOwner", fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)

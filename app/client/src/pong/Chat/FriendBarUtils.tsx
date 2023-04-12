@@ -212,17 +212,15 @@ const UserListItemWrapper = styled('div')({
 	},
 });
 
-const UserListItemAvatar = styled('div')(({ theme }) => ({
+const UserListItemAvatar = styled('div')({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
 	height: '40px',
 	width: '40px',
 	borderRadius: '50%',
-	backgroundColor: theme.palette.primary.main,
-	color: theme.palette.primary.contrastText,
 	marginRight: '16px',
-}));
+});
 
 const UserListItemText = styled('div')({
 	flexGrow: 1,
