@@ -30,12 +30,13 @@ import {
 	PlayersListWrapper,
 	PlayersListItemAvatar,
 } from '../Profile/SearchPlayers'
+import FetchAvatar from './FetchAvatar'
 
 interface PlayersListItemProps {
 	isActive: boolean;
 }
 
-export const PlayersListItem = styled('div')<PlayersListItemProps>(({ isActive }) => ({
+const PlayersListItem = styled('div')<PlayersListItemProps>(({ isActive }) => ({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
@@ -50,6 +51,30 @@ export const PlayersListItem = styled('div')<PlayersListItemProps>(({ isActive }
 	},
 }));
 
+const PlayersListItemAvatarRight = styled('div')({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	height: '40px',
+	width: '40px',
+	borderRadius: '50%',
+	marginLeft: '16px',
+	backgroundColor: '#ffffff',
+	flexShrink: 0
+});
+
+const PlayersListItemAvatarLeft = styled('div')({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	height: '40px',
+	width: '40px',
+	borderRadius: '50%',
+	marginRight: '16px',
+	backgroundColor: '#ffffff',
+	flexShrink: 0
+});
+
 const PlayersListItemText = styled('div')({
 	whiteSpace: 'nowrap',
 	overflow: 'hidden',
@@ -58,7 +83,6 @@ const PlayersListItemText = styled('div')({
 	fontWeight: '600',
 	textAlign: 'center'
 });
-
 
 type WatchProps = {
 	socket: Socket,
@@ -69,7 +93,13 @@ type WatchProps = {
 }
 
 export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, setOpenWatch}: WatchProps) => {
-	const [gameList, setGameList] = React.useState<{game_id: string, p1:string, p2: string}[]>();
+	const [gameList, setGameList] = React.useState<{game_id: string, p1:string, p2: string}[]>([
+		{
+			game_id: "2",
+			p1: "player1",
+			p2: "player2",
+		}
+	]);
 	const [selectedRowId, setSelectedRowId] = useState<number | null>(null)
 
 	function handleJoinGame(gameId: string) {
@@ -81,11 +111,11 @@ export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, 
 
 	socket.on('updateRuningGames', (runningGameList: any) => {
 		console.log('jai du passer par la' + runningGameList);
-		setGameList(runningGameList);
+		//	setGameList(runningGameList);
 	})
 
 	React.useEffect(() => {
-		setGameList([])
+		//		setGameList([])
 		socket.emit("getRuningGames");
 	}, [])
 
@@ -150,10 +180,64 @@ export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, 
 											isActive={+gameId.game_id === selectedRowId}
 											onClick={() => handleJoinGame(gameId.game_id)}
 										>
-											<PlayersListItemText>
-												{/* Watch {gameId.game_id} */}
-											Watch {gameId.game_id}:{gameId.p1} vs {gameId.p2}
-											</PlayersListItemText>
+											<Grid container
+												sx={{width: '100%'}}
+											>
+												<Grid item display="flex" xs={5}
+													sx={{
+														justifyContent: 'center',
+														alignItems: 'center'
+													}}
+												>
+													<PlayersListItemAvatarLeft>
+														<FetchAvatar
+															avatar=""
+															sx={{
+																height: '100%',
+																width: '100%'
+															}}
+														/>
+													</PlayersListItemAvatarLeft>
+													<PlayersListItemText>
+														{gameId.p1}
+													</PlayersListItemText>
+												</Grid>
+												<Grid item xs={2}
+													sx={{
+														justifyContent: 'center',
+														alignItems: 'center'
+													}}
+												>
+													<Typography variant='h6'
+														textAlign="center"
+														sx={{
+															position: 'relative',
+															top: 5,
+														}}
+													>
+														VS
+													</Typography>
+												</Grid>
+												<Grid item display="flex" xs={5}
+													sx={{
+														justifyContent: 'center',
+														alignItems: 'center'
+													}}
+												>
+													<PlayersListItemText>
+														{gameId.p2}
+													</PlayersListItemText>
+													<PlayersListItemAvatarRight>
+														<FetchAvatar
+															avatar=""
+															sx={{
+																height: '100%',
+																width: '100%'
+															}}
+														/>
+													</PlayersListItemAvatarRight>
+												</Grid>
+											</Grid>
 										</PlayersListItem>
 									))}
 								</PlayersListWrapper>
