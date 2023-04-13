@@ -237,6 +237,7 @@ export class UsersService {
 	}
 
 	async joinRoom(userId: number, roomId: number) {
+
 		const room_id = +roomId
 
 		return this.prisma.user_Room.create({

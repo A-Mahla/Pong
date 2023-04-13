@@ -6,11 +6,18 @@ import useAuth from '../context/useAuth';
 import { socket } from './Socket';
 import { MessageData } from './Chat.types';
 import FetchAvatar from '../component/FetchAvatar';
+import { SettingsButtton } from './ControlButton';
 
 
-const ChatInputField = styled(TextField)(({ theme }) => ({
+const ChatInputField = styled(TextField)({
 	width: '100%',
-}));
+	'& .MuiInputLabel-root.Mui-focused': {
+		opacity: 0.3,
+	},
+	'& .MuiFilledInput-underline:after': {
+		border: 'none',
+	},
+});
 
 function ChatInput() {
 
@@ -61,7 +68,8 @@ function ChatInput() {
 	return (
 		<ChatInputField
 			fullWidth
-			placeholder="Type your message here..."
+			variant='filled'
+			label="Type your message here..."
 			value={inputValue}
 			onChange={handleInputChange}
 			onKeyDown={(e) => {
@@ -72,29 +80,34 @@ function ChatInput() {
 					e.preventDefault();
 				}
 			}}
-
 			InputProps={{
 				autoComplete: 'off',
 				autoCorrect: 'off',
+				style: {
+					fontFamily: '"system-ui", sans-serif'
+				}
 			}}
 		/>
 	);
 }
 
-const ChatBox = styled(Paper)(({ theme }) => ({
+const ChatBox = styled(Paper)({
 	display: 'flex',
 	flexDirection: 'column',
-	borderRadius: 0,
+	borderRadius: '20px',
 	overflow: 'hidden',
 	boxShadow: 'none',
-	border: `1px solid ${theme.palette.grey[300]}`,
+	border: `1px solid lightgray`,
 	position: 'relative', /* add position relative */
 	height: '600px',
 	width: '100%',
-	maxWidth: '100%'
-}));
+	maxWidth: '100%',
+	margingBottom: 0
+});
 
 const ChatHeader = styled(Box)(({ theme }) => ({
+	width: '100%',
+	justifyContent: 'space-between',
 	display: 'flex',
 	alignItems: 'center',
 	height: 32,
@@ -115,7 +128,7 @@ const ChatBody = styled(Box)({
 const ChatFooter = styled(Box)(({ theme }) => ({
 	display: 'flex',
 	alignItems: 'center',
-	height: 64,
+	//height: 64,
 	backgroundColor: theme.palette.background.paper,
 	position: 'absolute', /* add position absolute */
 	bottom: 0, /* position it at the bottom */
@@ -143,7 +156,7 @@ export const MessagesBox = () => {
 				if (message.sender_id === id || message.recipient_id === id) {
 
 					return (<Box key={index} style={{ display: 'flex', justifyContent: message.sender_id === id ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
-						<Box style={{ maxWidth: '80%', backgroundColor: message.sender_id === id ? '#DCF8C6' : 'lightgrey', padding: '8px 12px', borderRadius: '12px', wordWrap: 'break-word' }}>{message.content}</Box>
+						<Box style={{ maxWidth: '80%', backgroundColor: message.sender_id === id ? '#DCF8C6' : '#f2f2f2', padding: '8px 12px', borderRadius: '12px', wordWrap: 'break-word' }}>{message.content}</Box>
 					</Box>)
 				}
 				return null
@@ -162,7 +175,7 @@ export const MessagesBox = () => {
 				setMessageList(room.messages.map((message, index) => {
 					return (
 						<Box key={index} style={{ display: 'flex', justifyContent: message.sender_id === id ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
-							<Box style={{ maxWidth: '80%', backgroundColor: message.sender_id === id ? '#DCF8C6' : '#fff', padding: '8px 12px', borderRadius: '12px', wordWrap: 'break-word' }}>{message.content}</Box>
+							<Box style={{ maxWidth: '80%', backgroundColor: message.sender_id === id ? '#DCF8C6' : '#f2f2f2', padding: '8px 12px', borderRadius: '12px', wordWrap: 'break-word' }}>{message.content}</Box>
 						</Box>
 					)
 				}))
@@ -181,8 +194,9 @@ export const MessagesBox = () => {
 			{
 				target.id !== 0 ?
 					<ChatHeader>
-						<FetchAvatar avatar={target.id !== 0 ? target.avatar : ''} sx={null} />
-						<Typography sx={{p:'2rem'}}>{target.login}</Typography>
+							<FetchAvatar avatar={target.id !== 0 ? target.avatar : ''} sx={null} />
+							<Typography sx={{ p: '2rem' }}>{target.login}</Typography>
+							<SettingsButtton />
 					</ChatHeader>
 					:
 					current.id !== 0 ?
@@ -191,7 +205,8 @@ export const MessagesBox = () => {
 							<Avatar >
 								{current.name.charAt(0)}
 							</Avatar>
-							<Typography sx={{p:'2rem'}}>{current.name}</Typography>
+							<Typography sx={{ p: '2rem' }}>{current.name}</Typography>
+							<SettingsButtton />
 						</ChatHeader>
 						:
 						null

@@ -7,6 +7,13 @@ import { RoomBar } from './RoomBar'
 import { socket, UpdatesContext } from './Socket'
 import { MessagesBox } from './MessagesBox'
 import { FriendBar } from './FriendBar'
+import { borderLeft } from '@mui/system'
+import { styled } from '@mui/system'
+
+//const VerticalDivider = styled('div')({
+//	borderLeft: '1px solid lightgray',
+//	height: '50%',
+//});
 
 type ChatContextType = {
 	rooms: Room[];
@@ -20,8 +27,9 @@ type ChatContextType = {
 	current: {
 		name: string;
 		id: number;
+		ownerId: number
 	};
-	setCurrent: React.Dispatch<React.SetStateAction<{ name: string; id: number }>>;
+	setCurrent: React.Dispatch<React.SetStateAction<{ name: string; id: number; ownerId: number}>>;
 	target: User;
 	setTarget: React.Dispatch<React.SetStateAction<User>>;
 	isJoining: boolean;
@@ -46,6 +54,7 @@ const initialChatContext: ChatContextType = {
 	current: {
 		name: '',
 		id: 0,
+		ownerId: 0
 	},
 	setCurrent: () => null,
 	target: {
@@ -92,7 +101,7 @@ export function Chat() {
 
 	const [friends, setFriends] = useState<User[]>([])
 
-	const [current, setCurrent] = useState<{ name: string, id: number }>({ name: '', id: 0 })
+	const [current, setCurrent] = useState<{ name: string, id: number, ownerId: number }>({ name: '', id: 0, ownerId: 0 })
 
 	const [target, setTarget] = useState<User>({ login: '', id: 0, avatar: '' })
 
@@ -260,29 +269,15 @@ export function Chat() {
 
 	return (
 		<ChatContext.Provider value={chatContext}>
-			{
-
-				/* 			<Box
-								sx={{display: 'flex', borderRadius:2, p:0,m:2,border: 1,maxHeight:500, overflow:'auto'}}
-								>
-								<RoomBar />
-								<DirectMessageBar />
-								<MessagesBox />
-				
-							</Box> */
-			}
-			<Grid container
-				sx={{ border: 1 }}
-			>
-				<Grid item xs={6} md={2}>
+			<Grid container >
+				<Grid item xs={6} md={2} sx={{p: '2px'}}>
 					<RoomBar />
 				</Grid>
-				<Grid item xs={6} md={2}>
+				<Grid item xs={6} md={2} sx={{p: '2px'}}>
 					<FriendBar />
-					{/* <DirectMessageBar />} */}
 				</Grid>
 
-				<Grid item xs={12} md={8}>
+				<Grid item xs={12} md={8} sx={{p: '2px'}}>
 					<MessagesBox />
 				</Grid>
 			</Grid>

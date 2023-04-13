@@ -103,9 +103,17 @@ export class ChatService {
 
 		console.log('room in JOIN: ', room)
 
+		if (payload.password) {
+			if ((await this.roomService.checkRoomPassword(payload.room_id, payload.password)) === false)
+				return {
+					error: 'Invalid password'
+				}
+		}
+
 		server.to(client.id).emit('roomJoined', room)
 
 		return await this.userService.joinRoom(payload.user_id, payload.room_id)
+		
 	}
 
 	async sendFriendRequest(server: Server, client: Socket, payload: FriendRequestData) {

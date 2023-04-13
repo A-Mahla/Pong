@@ -33,5 +33,11 @@ export class RoomsController {
 	{
 		return this.roomService.findMatchingRooms(name)
 	}
+	@Get('/:id/members')
+	getRoomMembers(
+		@Param('id') id: number
+	){
+		return this.roomService.getRoomMembers(id)
+	}
 
 }

@@ -28,7 +28,7 @@ export const FriendBar = () => {
   const handleFriendClick = (friend: User) => {
     console.log('friendId: ', friend)
     setTarget(friend)
-    setCurrent({name: '', id: 0})
+    setCurrent({name: '', id: 0, ownerId: 0})
     setActiveFriendId(friend.id);
   };
 
