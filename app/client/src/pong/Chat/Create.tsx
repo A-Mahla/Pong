@@ -6,13 +6,11 @@ import { FetchApi } from '../component/FetchApi'
 import { CreateRoomData } from './Chat.types'
 import { socket } from './Socket'
 
-export function CreateRoom() {
-	const name = useRef('')
+export function CreateRoom({setBoolean} :{setBoolean: (bool: boolean) => void}) {
+	const name = useRef<HTMLInputElement>()
 
-	const password = useRef('')
+	const password = useRef<HTMLInputElement>()
 	
-	const {isCreating, setIsCreating} = useContext(ChatContext) 
-
 	const [secured, isSecured] = useState(false)
 
 	const {user, id} = useAuth()
@@ -23,30 +21,31 @@ export function CreateRoom() {
 
 	const handleCreateRoom = useCallback(() => {
 
-		if (name.current === '')
+		if (name.current?.value === '')
 			return
-		else if (secured && password.current === '')
+		else if (secured && password.current?.value === '')
 			return
 
 		const newRoomData : CreateRoomData  = {
-			name: name.current,
-			password: password.current ? password.current : '',
+			name: name.current?.value as string,
+			password: password.current?.value ? password.current?.value : '',
 			owner_id: id
 		}
 
+		console.log('createRoomData: ', newRoomData)
+
 		socket.emit('createRoom', newRoomData)
 
-		setIsCreating(false)
+		setBoolean(false)
+
 	}, [socket])
 
 	return (
-		<FormControl>
-			<Button onClick={() => (setIsCreating(false))}>x</Button>
-			{secured ? 'secured' : 'not secured'} 
+		<FormControl sx={{m: '1rem'}}>
 			<FormControlLabel control={<Switch onChange={handleSwitch}/>} label="Protected" />
-			<TextField placeholder="room name" inputRef={name}/>
-			{secured ? <TextField placeholder="room password" inputRef={password}/> : null }
-			<Button onClick={handleCreateRoom}>Create room</Button>
+			<TextField sx={{marginTop: '1rem'}} label="name" inputRef={name}/>
+			<TextField disabled={!secured} sx={{marginTop: '1rem'}} label="password" inputRef={password}/>
+				<Button sx={{m: '1rem'}}onClick={handleCreateRoom}>Create room</Button>
 		</FormControl>
 	)
 }

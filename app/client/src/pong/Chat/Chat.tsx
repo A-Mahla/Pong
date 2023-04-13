@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect, createContext } from 'react'
-import { Box, Grid } from '@mui/material'
+import { Box, Divider, Grid } from '@mui/material'
 import { Api, FetchApi } from '../component/FetchApi'
 import { useFetchAuth } from '../context/useAuth'
 import { DirectMessage, Friend, FriendRequest, Message, Room, User } from './Chat.types'
@@ -18,15 +18,12 @@ type ChatContextType = {
 	friendRequests: FriendRequest[];
 	setFriendRequests: React.Dispatch<React.SetStateAction<FriendRequest[]>>;
 	current: {
-	  name: string;
-	  id: number;
+		name: string;
+		id: number;
 	};
 	setCurrent: React.Dispatch<React.SetStateAction<{ name: string; id: number }>>;
-	target: {
-	  login: string;
-	  id: number;
-	};
-	setTarget: React.Dispatch<React.SetStateAction<{ login: string; id: number }>>;
+	target: User;
+	setTarget: React.Dispatch<React.SetStateAction<User>>;
 	isJoining: boolean;
 	setIsJoining: React.Dispatch<React.SetStateAction<boolean>>;
 	isCreating: boolean;
@@ -35,9 +32,9 @@ type ChatContextType = {
 	setIsInDirect: React.Dispatch<React.SetStateAction<boolean>>;
 	isSearching: boolean;
 	setIsSearching: React.Dispatch<React.SetStateAction<boolean>>;
-  };
-  
-  const initialChatContext: ChatContextType = {
+};
+
+const initialChatContext: ChatContextType = {
 	rooms: [],
 	setRooms: () => null,
 	directMessages: [],
@@ -47,13 +44,14 @@ type ChatContextType = {
 	friendRequests: [],
 	setFriendRequests: () => null,
 	current: {
-	  name: '',
-	  id: 0,
+		name: '',
+		id: 0,
 	},
 	setCurrent: () => null,
 	target: {
-	  login: '',
-	  id: 0,
+		login: '',
+		id: 0,
+		avatar: ''
 	},
 	setTarget: () => null,
 	isJoining: false,
@@ -64,10 +62,10 @@ type ChatContextType = {
 	setIsInDirect: () => null,
 	isSearching: false,
 	setIsSearching: () => null,
-  };
-  
-  export const ChatContext = createContext<ChatContextType>(initialChatContext);
-  
+};
+
+export const ChatContext = createContext<ChatContextType>(initialChatContext);
+
 export function Chat() {
 	const {
 		newDirectMessage,
@@ -94,9 +92,9 @@ export function Chat() {
 
 	const [friends, setFriends] = useState<User[]>([])
 
-	const [current, setCurrent] = useState<{name: string, id: number}>({ name: '', id: 0 })
+	const [current, setCurrent] = useState<{ name: string, id: number }>({ name: '', id: 0 })
 
-	const [target, setTarget] = useState<{login: string, id: number}>({ login: '', id: 0 })
+	const [target, setTarget] = useState<User>({ login: '', id: 0, avatar: '' })
 
 	const [isJoining, setIsJoining] = useState<boolean>(false)
 
@@ -195,14 +193,17 @@ export function Chat() {
 			const response = await FetchApi(findRooms)
 
 			const rooms = response?.data.map((value: Room) => ({
-				id: value.id,
+				room_id: value.room_id,
 				name: value.name,
+				isPublic: value.isPublic,
+				ownerId: value.ownerId,
 				messages: value.messages
 			}))
 			return rooms
 		}
 
 		getRooms().then(data => {
+			console.log('rooms: ', data)
 			setRooms(data)
 		})
 
@@ -212,7 +213,7 @@ export function Chat() {
 		if (newRoomMessage !== undefined) {
 			if (newRoomMessage.room_id != undefined) {
 				setRooms(rooms.map((room) => {
-					if (room.id === newRoomMessage.room_id)
+					if (room.room_id === newRoomMessage.room_id)
 						room.messages = [...room.messages, newRoomMessage]
 					return room
 				}))
@@ -232,7 +233,7 @@ export function Chat() {
 		if (leavedRoom !== undefined) {
 			console.log('leave a room')
 			setRooms(rooms.filter((room) => {
-				if (room.id !== leavedRoom) {
+				if (room.room_id !== leavedRoom) {
 					return rooms
 				}
 			}))
@@ -276,7 +277,6 @@ export function Chat() {
 				<Grid item xs={6} md={2}>
 					<RoomBar />
 				</Grid>
-
 				<Grid item xs={6} md={2}>
 					<FriendBar />
 					{/* <DirectMessageBar />} */}

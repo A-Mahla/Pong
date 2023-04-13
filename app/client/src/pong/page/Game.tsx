@@ -12,6 +12,7 @@ import Canvas from '../component/gameCanva'
 import { draw } from '../component/gameCanva'
 import { GameSocketProvider, UserContext } from '../services/GameSocketProvider'
 import { Spectator } from '../component/Spectator'
+import { GameFriends } from '../component/GameFriends'
 import Popover from '@mui/material/Popover';
 import { useState } from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
@@ -452,6 +453,10 @@ const PlayersListItem = styled('div')<PlayersListItemProps>(({ isActive, justify
 		backgroundColor: '#EDEDED',
 		color: "#427094",
 	},
+	'@media (max-width: 950px)': {
+		marginTop: '50px',
+		marginBottom: '50px',
+	},
 	justifyContent: justify
 }));
 
@@ -462,6 +467,12 @@ const PlayersListItemText = styled('div')(() => ({
 	fontFamily: 'pong-policy',
 	fontSize: '5rem',
 	fontWeight: '600',
+	'@media (max-width: 950px)': {
+		fontSize: '3rem'
+	},
+	'@media (max-width: 550px)': {
+		fontSize: '1.5rem'
+	},
 }));
 
 type Row = {
@@ -475,6 +486,7 @@ export const Game = ({ height, width }: any) => {
 	const socket = React.useContext(UserContext);
 	const [openMatchmaking, setOpenMatchmaking] = useState(false)
 	const [openWatch, setOpenWatch] = useState(false)
+	const [openFriends, setOpenFriends] = useState(false)
 	const [thereIsMatch, setThereIsMatch] = React.useState(false);
 	const [errorPopoverOpen, setErrorPopoverOpen] = React.useState(false);
 	const [errorMessage, setErrorMessage] = React.useState('');
@@ -511,6 +523,8 @@ export const Game = ({ height, width }: any) => {
 			setOpenMatchmaking(true)
 		else if (selectedRow && selectedRow.id === 1)
 			setOpenWatch(true)
+		else if (selectedRow && selectedRow.id === 2)
+			setOpenFriends(true)
 	}, [selectedRow])
 
 	const handleMatchClick = () => {
@@ -599,6 +613,13 @@ export const Game = ({ height, width }: any) => {
 					socket={socket}
 					openWatch={openWatch}
 					setOpenWatch={setOpenWatch}
+					thereIsMatch={thereIsMatch}
+					handleThereIsMatch={handleMatchClick}
+				/>
+				<GameFriends
+					socket={socket}
+					openFriends={openFriends}
+					setOpenFriends={setOpenFriends}
 					thereIsMatch={thereIsMatch}
 					handleThereIsMatch={handleMatchClick}
 				/>

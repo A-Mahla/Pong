@@ -3,6 +3,7 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { Room, User, User_Room } from "@prisma/client"
 import { CreateRoomData } from "../Chat.types";
 import { UsersService } from "src/users/users.service";
+import { transformDocument } from "@prisma/client/runtime";
 
 @Injectable()
 export class RoomsService {
@@ -14,6 +15,7 @@ export class RoomsService {
 
 		const newRoomData = {
 			name: roomDetails.name,
+			isPublic: roomDetails.password?.length === 0 ? true : false,
 			ownerId: roomDetails.owner_id,
 			password: roomDetails.password 
 		}
@@ -51,9 +53,13 @@ export class RoomsService {
 				where: {
 					room_id : id
 				},
-				include: {
-					messages: true
-				}
+				select: {
+					room_id: true,
+					name: true,
+					messages: true,
+					ownerId: true,
+					isPublic: true
+				},
 			}
 		).catch((e) => {
 			throw new BadRequestException(e);
@@ -69,7 +75,7 @@ export class RoomsService {
 		if (room.ownerId === null)
 			throw new BadRequestException('Invalid content', { cause: new Error(), description: 'room dont have owner' })  
 
-		const user = await this.userService.findUserById((room as Room).ownerId as number)
+		const user = await this.userService.findUserById(room.ownerId as number)
 		.catch((e) => {
 			throw new BadRequestException(e);
 		})
@@ -83,10 +89,33 @@ export class RoomsService {
 		const rooms = await this.prisma.room.findMany({
 			where: {
 				name : name
+			},
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+		return rooms
+	}
+
+	async findMatchingRooms (name : string) {
+		const rooms = await this.prisma.room.findMany({
+			where: {
+				name : {
+					contains: name
+				}
+			},
+			select: {
+				room_id: true,
+				name: true,
+				messages: true,
+				ownerId: true,
+				isPublic: true
 			}
 		}).catch((e) => {
 			throw new BadRequestException(e);
 		})
+
+		console.log(rooms)
 
 		return rooms
 	}

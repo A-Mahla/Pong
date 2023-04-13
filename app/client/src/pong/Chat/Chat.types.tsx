@@ -6,7 +6,8 @@ export type AddFriendData = {
 export type JoinRoomData = {
 	user_id: number,
 	room_id: number,
-	room_name: string	
+	room_name: string,
+	password?: string, 
 }
 
 export type LeaveRoomData = {
@@ -61,8 +62,10 @@ export type Message = {
 }
 
 export type Room = {
-	id : number,
+	room_id : number,
 	name: string,
+	isPublic: boolean,
+	ownerId: number,
 	messages: Message[]
 }
 

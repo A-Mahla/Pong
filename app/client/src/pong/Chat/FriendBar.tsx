@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { styled } from '@mui/system';
-import { IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Avatar, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
+import { IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Avatar, ListItem, ListItemAvatar, ListItemText, Divider } from '@mui/material';
 import PropTypes from 'prop-types';
 import PeopleIcon from '@mui/icons-material/People';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -13,40 +13,23 @@ import { AddFriendData, User } from './Chat.types';
 
 
 export const FriendBar = () => {
-  //const friends = [
-  //  { id: 1, login: 'John Doe' },
-  //  { id: 2, login: 'Jane Smith' },
-  //  { id: 3, login: 'Mike Johnson' },
-  //  { id: 4, login: 'Sarah Williams' },
-  //  { id: 5, login: 'David Lee' },
-  //  { id: 6, login: 'Karen Brown' },
-  //  { id: 7, login: 'Tom Wilson' },
-  //  { id: 8, login: 'Alice Green' },
-  //  { id: 9, login: 'Peter Parker' },
-  //  { id: 10, login: 'Mary Jane' },
-  //  { id: 11, login: 'Bruce Wayne' },
-  //  { id: 12, login: 'Clark Kent' },
-  //  { id: 13, login: 'Tony Stark' },
-  //  { id: 14, login: 'Steve Rogers' },
-  //  { id: 15, login: 'Thor Odinson' },
-  //  { id: 16, login: 'Natasha Romanoff' },
-  //  { id: 17, login: 'Wanda Maximoff' },
-  //  { id: 18, login: 'Vision' },
-  //  { id: 19, login: 'Scott Lang' },
-  //  { id: 20, login: 'Stephen Strange' }
-  //];
-  const { friends, friendRequests } = useContext(ChatContext)
+
+  const { friends, friendRequests,
+    target, setTarget,
+    current, setCurrent
+  } = useContext(ChatContext)
   const [activeFriendId, setActiveFriendId] = React.useState(0);
-  //const [friendRequests, setFriendRequests] = React.useState([]);
   const [addFriendDialogOpen, setAddFriendDialogOpen] = React.useState(false);
   const [friendRequestsDialogOpen, setFriendRequestsDialogOpen] = React.useState(false);
   const [matchingUsers, setMatchingUsers] = React.useState<User[]>([])
   const useContextAuth = useFetchAuth()
   const { id } = useAuth()
 
-  const handleFriendClick = (friendId: number) => {
-    console.log('friendId: ', friendId)
-    setActiveFriendId(friendId);
+  const handleFriendClick = (friend: User) => {
+    console.log('friendId: ', friend)
+    setTarget(friend)
+    setCurrent({name: '', id: 0})
+    setActiveFriendId(friend.id);
   };
 
   const handleAddFriendClick = () => {
@@ -85,8 +68,12 @@ export const FriendBar = () => {
     socket.emit('friendRequest', payload)
   }
 
+	let delayDebounce: NodeJS.Timeout
+
   const handleSearchUserOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const delayDebounce = setTimeout(async () => {
+    clearTimeout(delayDebounce)
+
+    delayDebounce = setTimeout(async () => {
       if (event.target.value === '')
         return setMatchingUsers([])
 
@@ -113,6 +100,7 @@ export const FriendBar = () => {
       {friends.map((friend) => (
         <FriendListItem key={friend.id} friend={friend} onClick={handleFriendClick} activeFriendId={activeFriendId} />
       ))}
+      <Divider/>
       <FriendRequestButton onClick={handleAddFriendClick}>
         <FriendListItemAvatar>
           <PersonAddIcon />
@@ -126,13 +114,13 @@ export const FriendBar = () => {
           <PeopleIcon />
         </FriendListItemAvatar>
         <FriendListItemText>
-          Friend Requests ({friendRequests.length})
+          Friend Requests
         </FriendListItemText>
       </FriendRequestButton>
       <Dialog open={addFriendDialogOpen} onClose={handleAddFriendDialogClose}>
         <DialogTitle>Add Friend</DialogTitle>
         <DialogContent>
-          <TextField label="Username" fullWidth onChange={handleSearchUserOnChange} />
+          <TextField sx={{marginTop:'1rem'}} label="Username" fullWidth onChange={handleSearchUserOnChange} />
         </DialogContent>
         <UserListWrapper>
           {matchingUsers.map((user) => (
@@ -142,9 +130,6 @@ export const FriendBar = () => {
         </UserListWrapper>
         <DialogActions>
           <Button onClick={handleAddFriendDialogClose}>Cancel</Button>
-          <Button onClick={handleAddFriendSubmit} variant="contained" color="primary">
-            Send Friend Request
-          </Button>
         </DialogActions>
       </Dialog>
       <Dialog open={friendRequestsDialogOpen} onClose={handleFriendRequestsDialogClose}>
@@ -157,7 +142,7 @@ export const FriendBar = () => {
           </FriendRequestWrapper>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleFriendRequestsDialogClose}>Close</Button>
+          <Button onClick={handleFriendRequestsDialogClose}>Cancel</Button>
         </DialogActions>
       </Dialog>
     </FriendListWrapper>

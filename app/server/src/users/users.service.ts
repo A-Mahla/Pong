@@ -220,8 +220,13 @@ export class UsersService {
 			where: {
 				room_id: { in: userRoomsId }
 			},
-			include: {
-				messages: true
+			select: {
+				room_id: true,
+				name: true,
+				messages: true,
+				ownerId: true,
+				isPublic: true
+
 			}
 		}).catch((e) => {
 			throw new BadRequestException(e);
@@ -238,7 +243,7 @@ export class UsersService {
 			data: {
 				member_id: userId,
 				room_id: room_id
-			}
+			},
 		}).catch((e) => {
 			throw new BadRequestException(e);
 		})
