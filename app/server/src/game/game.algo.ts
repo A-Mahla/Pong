@@ -306,7 +306,6 @@ export class GameAlgo {
 		newWatcherSocket.on('quitGame', () => {
 			this.watchers.forEach((value, index) => {
 				if (value === newWatcherSocket) {
-					console.log('tesssssssssssssssssssssssssssssssssssssssssste   ' + this.watchers.length);
 					this.watchers[index] = null;
 				}
 			})
