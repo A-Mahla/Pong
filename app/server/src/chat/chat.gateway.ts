@@ -5,7 +5,7 @@ import { Server, Socket } from 'socket.io';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { UsersService } from 'src/users/users.service';
 import { RoomsService } from './rooms/rooms.service';
-import { AddFriendData, CreateRoomData, FriendRequestData, JoinRoomData, MessageData } from './Chat.types';
+import { AddFriendData, BanMemberData, CreateRoomData, FriendRequestData, JoinRoomData, MessageData } from './Chat.types';
 import { WsGuard } from './ws.guard';
 import { MessageService } from './messages/messages.service';
 import { ChatService } from './chat.service';
@@ -69,6 +69,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('friendRequest')
   async handleFriendRequest(client: Socket, payload: FriendRequestData) {
     return this.chatService.sendFriendRequest(this.server, client, payload);
+  }
+
+  @SubscribeMessage('banMember')
+  async handleBanMembers(client: Socket, payload: BanMemberData) {
+    return this.chatService.banMember(this.server, client, payload)
+  }
+
+  @SubscribeMessage('unbanMember')
+  async handleUnbanMembers(client: Socket, payload: BanMemberData) {
+    return this.chatService.unbanUser(this.server, client, payload)
   }
     
   afterInit(server : Server): any {

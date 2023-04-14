@@ -28,7 +28,7 @@ export const FriendBar = () => {
   const handleFriendClick = (friend: User) => {
     console.log('friendId: ', friend)
     setTarget(friend)
-    setCurrent({name: '', id: 0, ownerId: 0})
+    setCurrent({ name: '', id: 0, ownerId: 0 })
     setActiveFriendId(friend.id);
   };
 
@@ -68,7 +68,7 @@ export const FriendBar = () => {
     socket.emit('friendRequest', payload)
   }
 
-	let delayDebounce: NodeJS.Timeout
+  let delayDebounce: NodeJS.Timeout
 
   const handleSearchUserOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     clearTimeout(delayDebounce)
@@ -100,7 +100,7 @@ export const FriendBar = () => {
       {friends.map((friend) => (
         <FriendListItem key={friend.id} friend={friend} onClick={handleFriendClick} activeFriendId={activeFriendId} />
       ))}
-      <Divider/>
+      <Divider />
       <FriendRequestButton onClick={handleAddFriendClick}>
         <FriendListItemAvatar>
           <PersonAddIcon />
@@ -117,10 +117,16 @@ export const FriendBar = () => {
           Friend Requests
         </FriendListItemText>
       </FriendRequestButton>
-      <Dialog open={addFriendDialogOpen} onClose={handleAddFriendDialogClose}>
+      <Dialog open={addFriendDialogOpen} onClose={handleAddFriendDialogClose}
+        PaperProps={{
+          style: {
+            borderRadius: '32px',
+          }
+        }}
+      >
         <DialogTitle>Add Friend</DialogTitle>
         <DialogContent>
-          <TextField sx={{marginTop:'1rem'}} label="Username" fullWidth onChange={handleSearchUserOnChange} />
+          <TextField sx={{ marginTop: '1rem' }} label="Username" fullWidth onChange={handleSearchUserOnChange} />
         </DialogContent>
         <UserListWrapper>
           {matchingUsers.map((user) => (
@@ -129,10 +135,16 @@ export const FriendBar = () => {
           ))}
         </UserListWrapper>
         <DialogActions>
-          <Button onClick={handleAddFriendDialogClose}>Cancel</Button>
+          <Button onClick={handleAddFriendDialogClose} sx={{borderRadius: '20px'}}>Cancel</Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={friendRequestsDialogOpen} onClose={handleFriendRequestsDialogClose}>
+      <Dialog open={friendRequestsDialogOpen} onClose={handleFriendRequestsDialogClose}
+        PaperProps={{
+          style: {
+            borderRadius: '32px',
+          }
+        }}
+      >
         <DialogTitle>Friend Requests</DialogTitle>
         <DialogContent>
           <FriendRequestWrapper>
@@ -142,7 +154,7 @@ export const FriendBar = () => {
           </FriendRequestWrapper>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleFriendRequestsDialogClose}>Cancel</Button>
+          <Button onClick={handleFriendRequestsDialogClose} sx={{borderRadius: '20px'}}>Cancel</Button>
         </DialogActions>
       </Dialog>
     </FriendListWrapper>

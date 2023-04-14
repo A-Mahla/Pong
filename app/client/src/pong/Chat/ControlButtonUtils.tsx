@@ -1,11 +1,21 @@
-import { Button, IconButton } from '@mui/material'
+import { Button, IconButton, Box } from '@mui/material'
 import BlockIcon from '@mui/icons-material/Block';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import VolumeOffIcon from '@mui/icons-material/VolumeOff';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { styled } from '@mui/system'
 import { useEffect, useState } from 'react';
 import { User } from './Chat.types';
 import useAuth, { useFetchAuth } from '../context/useAuth';
 import { FetchApi } from '../component/FetchApi';
 import FetchAvatar from '../component/FetchAvatar';
+import { socket } from './Socket';
+
+export enum UserListType {
+	MEMBERS = 'members',
+	BANNED = 'banned',
+  }
 
 export const SettingsButtonWrapper = styled('div')({
 	display: 'flex',
@@ -35,11 +45,11 @@ export const UserListWrapper = styled('div')({
 });
 
 const UserListItemWrapper = styled('div')({
+	padding: '8px 1rem',
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'space-between',
 	height: '56px',
-	padding: '0 16px',
 	borderRadius: '8px',
 	cursor: 'pointer',
 
@@ -69,15 +79,25 @@ const IconButtonWrapper = styled(IconButton)({
 	marginLeft: '1rem'
 })
 
-export const UserListItem = ({ user, id }: { user: User, id: number }) => {
+export const UserListItem = ({ user, id, currentRoom, onClick }: { user: User, id: number, currentRoom: {id: number, name: string, ownerId: number}, onClick: (id: number) => void }) => {
 
-	//if (id === user.id)
-	//	return null
+	if (id === user.id)
+		return null
 
 	const [isSendingRequest, setIsSendingRequest] = useState(false);
-	const handleAddFriendClick = async () => {
+	const handleBanMemberClick = (member: User) => {
 		setIsSendingRequest(true);
-		//await onClick(user.id);
+
+		const banData = {
+			room_id: currentRoom.id,
+			room_name: currentRoom.name,
+			user_id: user.id
+		}
+
+		socket.emit('banMember', banData)
+
+		onClick(user.id)
+
 		setIsSendingRequest(false);
 	};
 
@@ -88,9 +108,64 @@ export const UserListItem = ({ user, id }: { user: User, id: number }) => {
 			</UserListItemAvatar>
 			<UserListItemText>{user.login}</UserListItemText>
 			{
-				<IconButtonWrapper onClick={handleAddFriendClick} disabled={isSendingRequest}>
-					<BlockIcon />
-				</IconButtonWrapper>
+				<Box sx={{display: 'flex'}}>
+
+					<IconButtonWrapper onClick={() => console.log('Mute')} disabled={isSendingRequest}>
+						{/*<VolumeUpIcon />*/}
+						<VolumeOffIcon />
+					</IconButtonWrapper>
+
+					<IconButtonWrapper onClick={() => handleBanMemberClick(user)} disabled={isSendingRequest}>
+						{/*<CheckCircleOutlineIcon/>*/}
+						<BlockIcon />
+
+					</IconButtonWrapper>
+
+					<IconButtonWrapper onClick={() => console.log('Kick')} disabled={isSendingRequest}>
+						<ExitToAppIcon />
+
+					</IconButtonWrapper>
+				</Box>
+
+			}
+		</UserListItemWrapper>
+	);
+};
+
+export const BannedUserListItem = ({ user, id, currentRoom, onClick }: { user: User, id: number, currentRoom: {id: number, name: string, ownerId: number}, onClick: (id: number) => void }) => {
+
+	if (id === user.id)
+		return null
+
+	const [isSendingRequest, setIsSendingRequest] = useState(false);
+	const handleBanMemberClick = (member: User) => {
+		setIsSendingRequest(true);
+
+		const banData = {
+			room_id: currentRoom.id,
+			room_name: currentRoom.name,
+			user_id: user.id
+		}
+
+		socket.emit('unbanMember', banData)
+
+		onClick(user.id)
+
+		setIsSendingRequest(false);
+	};
+
+	return (
+		<UserListItemWrapper>
+			<UserListItemAvatar>
+				<FetchAvatar avatar={user.avatar} sx={{ height: '100%', width: '100%' }} />
+			</UserListItemAvatar>
+			<UserListItemText>{user.login}</UserListItemText>
+			{
+				<Box sx={{display: 'flex'}}>
+					<IconButtonWrapper onClick={() => handleBanMemberClick(user)} disabled={isSendingRequest}>
+						<CheckCircleOutlineIcon/>
+					</IconButtonWrapper>
+				</Box>
 
 			}
 		</UserListItemWrapper>

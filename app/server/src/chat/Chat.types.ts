@@ -38,3 +38,9 @@ export type FriendRequestData = {
 	user1_id: number,
 	user2_id: number
 }
+
+export type BanMemberData = {
+	room_id: number,
+	room_name: string,
+	user_id: number
+}

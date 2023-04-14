@@ -10,11 +10,6 @@ import { FriendBar } from './FriendBar'
 import { borderLeft } from '@mui/system'
 import { styled } from '@mui/system'
 
-//const VerticalDivider = styled('div')({
-//	borderLeft: '1px solid lightgray',
-//	height: '50%',
-//});
-
 type ChatContextType = {
 	rooms: Room[];
 	setRooms: React.Dispatch<React.SetStateAction<Room[]>>;
@@ -246,6 +241,8 @@ export function Chat() {
 					return rooms
 				}
 			}))
+			if (current.id === leavedRoom)
+				setCurrent({name: '', id: 0, ownerId: 0})
 			setLeavedRoom(undefined)
 		}
 		if (newFriendRequest !== undefined) {

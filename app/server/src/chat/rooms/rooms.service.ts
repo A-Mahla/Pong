@@ -185,5 +185,76 @@ export class RoomsService {
 		return members
 	}
 
+	async getRoomBans(roomId: number) {
+		const bans = await this.prisma.ban.findMany({
+			where: {
+				RoomId: roomId
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+		const bannedUsersIdTab = bans.map(elem => elem.bannedUserId)
+
+		const bannedUsersTab = this.prisma.user.findMany({
+			where: {
+				id: { in: bannedUsersIdTab }
+			},
+			select: {
+				id: true,
+				login: true,
+				avatar: true
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+		return bannedUsersTab
+	}
+
+	async banMember(roomId: number, userId: number) {
+
+		await this.deleteRelation(userId, roomId)
+
+		return await this.prisma.ban.create({
+			data: {
+				RoomId: roomId,
+				bannedUserId: userId
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+	}
+
+	async isBanned(userId: number, roomId: number) {
+		const banRelation = await this.prisma.ban.findUnique({
+			where: {
+				bannedUserId_RoomId: {
+					RoomId: roomId,
+					bannedUserId: userId
+				}
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+		return !!banRelation
+	}
+
+	async unbanUser(userId: number, roomId: number) {
+
+		return await this.prisma.ban.delete({
+			where: {
+				bannedUserId_RoomId: {
+					RoomId: roomId,
+					bannedUserId: userId
+				}
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+	}
+
 
 }

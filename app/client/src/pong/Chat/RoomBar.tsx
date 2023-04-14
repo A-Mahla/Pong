@@ -28,7 +28,7 @@ export function RoomBar() {
 	const handleRoomClick = (room: Room) => {
 		console.log(room)
 		setTarget({ login: '', id: 0, avatar: '' })
-		setCurrent({ name: room.name, id: room.room_id,	ownerId: room.ownerId})
+		setCurrent({ name: room.name, id: room.room_id, ownerId: room.ownerId })
 		setActiveRoomId(room.room_id)
 	}
 
@@ -123,7 +123,13 @@ export function RoomBar() {
 					Create room
 				</RoomListItemText>
 			</RoomBarButton>
-			<Dialog open={searchRoomDialogOpen} onClose={handleCloseSearchRoomDialog}>
+			<Dialog open={searchRoomDialogOpen} onClose={handleCloseSearchRoomDialog}
+				PaperProps={{
+					style: {
+						borderRadius: '32px',
+					}
+				}}
+			>
 				<DialogTitle>Search Room</DialogTitle>
 				<DialogContent>
 					<TextField sx={{ marginTop: '1rem' }} label="Room name" fullWidth onChange={handleSearchRoomOnChange} />
@@ -135,22 +141,28 @@ export function RoomBar() {
 					)}
 				</MatchingRoomListWrapper>
 				<DialogActions>
-					<Button onClick={handleCloseSearchRoomDialog}>Cancel</Button>
+					<Button onClick={handleCloseSearchRoomDialog} sx={{borderRadius: '20px'}}>Cancel</Button>
 				</DialogActions>
 			</Dialog>
-			<Dialog open={createRoomDialogOpen} onClose={() => setCreateRoomDialogOpen(false)}>
+			<Dialog open={createRoomDialogOpen} onClose={() => setCreateRoomDialogOpen(false)}
+				PaperProps={{
+					style: {
+						borderRadius: '32px',
+					}
+				}}
+			>
 				<DialogTitle>Create Room</DialogTitle>
 				<DialogContent>
 					<CreateRoom setBoolean={setCreateRoomDialogOpen} />
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={() => setCreateRoomDialogOpen(false)}>Cancel</Button>
+					<Button onClick={() => setCreateRoomDialogOpen(false)} sx={{borderRadius: '20px'}}>Cancel</Button>
 				</DialogActions>
 			</Dialog>
 			<Snackbar
 				open={isAlertOpen}
 				autoHideDuration={4000}
-				onClose={() => {setIsAlertOpen(false), setAlertMessage('')}}
+				onClose={() => { setIsAlertOpen(false), setAlertMessage('') }}
 				message={alertMessage}
 			/>
 		</RoomListWrapper>

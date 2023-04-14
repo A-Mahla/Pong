@@ -3,7 +3,7 @@ import { Room, User } from "@prisma/client";
 import { ServerStreamFileResponseOptions } from "http2";
 import { Server, Socket } from "socket.io";
 import { UsersService } from "src/users/users.service";
-import { CreateRoomData, MessageData, LeaveRoomData, JoinRoomData, AddFriendData, FriendRequestData } from "./Chat.types";
+import { CreateRoomData, MessageData, LeaveRoomData, JoinRoomData, AddFriendData, FriendRequestData, BanMemberData } from "./Chat.types";
 import { MessageService } from "./messages/messages.service";
 import { RoomsService } from "./rooms/rooms.service";
 import { FriendsService } from "./friends/friends.service";
@@ -73,7 +73,7 @@ export class ChatService {
 		const newMessage = await this.messageService.createMessage(payload.user_id, payload.room_id, `${payload.user_login} leaved the room`)
 
 		//server.to(payload.room_id.toString() + payload.room_name).emit('message', newMessage)
-		server.to(client.id).emit('roomLeaved', { room_id: payload.room_id, room_name: payload.room_name })
+		server.to(client.id).emit('roomLeaved',  payload.room_id)
 
 		return this.roomService.deleteRelation(payload.user_id, payload.room_id)
 	}
@@ -97,8 +97,12 @@ export class ChatService {
 
 	async joinRoom(server: Server, client: Socket, payload: JoinRoomData) {
 
-		client.join(payload.room_id.toString() + payload.room_name)
-
+		if (await this.roomService.isBanned(payload.user_id, payload.room_id)) {
+			return {
+				error: 'You are banned from this channel'
+			}
+		}
+		
 		const room = await this.roomService.getRoomById(payload.room_id)
 
 		console.log('room in JOIN: ', room)
@@ -109,6 +113,8 @@ export class ChatService {
 					error: 'Invalid password'
 				}
 		}
+
+		client.join(payload.room_id.toString() + payload.room_name)
 
 		server.to(client.id).emit('roomJoined', room)
 
@@ -150,6 +156,15 @@ export class ChatService {
 	async declineFriendRequest(server: Server, client: Socket, payload: {senderId: number, friendRequestId: number}) {
 		await this.friendService.declineFriendRequest(payload.friendRequestId)
 		server.to(payload.senderId.toString()).emit('declineFriend', payload.friendRequestId)
+	}
+
+	async banMember(server: Server, client: Socket, payload: BanMemberData) {
+		server.to(payload.user_id.toString()).emit('roomLeaved', payload.room_id)
+		return await this.roomService.banMember(payload.room_id, payload.user_id)
+	}
+
+	async unbanUser(server: Server, client: Socket, payload: BanMemberData) {
+		return await this.roomService.unbanUser(payload.room_id, payload.user_id)
 	}
 
 }

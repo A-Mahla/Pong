@@ -181,6 +181,9 @@ export const MessagesBox = () => {
 				}))
 			}
 		}
+		else if (current.id === 0 && target.id === 0) {
+			setMessageList([])
+		}
 	}, [target, current, directMessages, rooms])
 
 	useEffect(() => {
