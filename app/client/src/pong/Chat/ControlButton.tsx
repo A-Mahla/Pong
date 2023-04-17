@@ -105,7 +105,7 @@ export function SettingsButtton() {
 	return (
 		<div>
 			<SettingsButtonWrapper onClick={handleSettingsButtonClick} >
-				<SettingsIcon/>
+				<SettingsIcon />
 			</SettingsButtonWrapper>
 			<Dialog open={isSettingsOpen} onClose={handleSettingsButtonClose}
 				fullWidth
@@ -121,7 +121,14 @@ export function SettingsButtton() {
 				<DialogTitle>settings</DialogTitle>
 				<Box width="100%" display="flex">
 					<Button sx={{ flex: '1' }} onClick={() => setDisplayList(UserListType.MEMBERS)}>Members</Button>
-					<Button sx={{ flex: '1' }} onClick={() => setDisplayList(UserListType.BANNED)}>Banned</Button>
+					{
+						id === current.ownerId ?
+
+							<Button sx={{ flex: '1' }} onClick={() => setDisplayList(UserListType.BANNED)}>Banned</Button>
+							:
+							null
+
+					}
 				</Box>
 				<DialogContent sx={{ p: 0 }}>
 					<UserListWrapper>

@@ -241,7 +241,7 @@ export class RoomsService {
 		return !!banRelation
 	}
 
-	async unbanUser(userId: number, roomId: number) {
+	async unbanUser(roomId: number, userId: number) {
 
 		return await this.prisma.ban.delete({
 			where: {

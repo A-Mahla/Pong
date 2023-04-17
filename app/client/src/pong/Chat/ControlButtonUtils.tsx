@@ -108,6 +108,7 @@ export const UserListItem = ({ user, id, currentRoom, onClick }: { user: User, i
 			</UserListItemAvatar>
 			<UserListItemText>{user.login}</UserListItemText>
 			{
+				id === currentRoom.ownerId ?
 				<Box sx={{display: 'flex'}}>
 
 					<IconButtonWrapper onClick={() => console.log('Mute')} disabled={isSendingRequest}>
@@ -126,6 +127,8 @@ export const UserListItem = ({ user, id, currentRoom, onClick }: { user: User, i
 
 					</IconButtonWrapper>
 				</Box>
+				:
+				null
 
 			}
 		</UserListItemWrapper>
@@ -147,7 +150,9 @@ export const BannedUserListItem = ({ user, id, currentRoom, onClick }: { user: U
 			user_id: user.id
 		}
 
-		socket.emit('unbanMember', banData)
+		socket.emit('unbanMember', banData, (response: any) => {
+			console.log('response unban: ', response)
+		})
 
 		onClick(user.id)
 

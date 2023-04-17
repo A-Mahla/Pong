@@ -197,9 +197,9 @@ export const MessagesBox = () => {
 			{
 				target.id !== 0 ?
 					<ChatHeader>
-							<FetchAvatar avatar={target.id !== 0 ? target.avatar : ''} sx={null} />
-							<Typography sx={{ p: '2rem' }}>{target.login}</Typography>
-							<SettingsButtton />
+						<FetchAvatar avatar={target.id !== 0 ? target.avatar : ''} sx={null} />
+						<Typography sx={{ p: '2rem' }}>{target.login}</Typography>
+						<SettingsButtton />
 					</ChatHeader>
 					:
 					current.id !== 0 ?
