@@ -5,19 +5,19 @@ import { Server, Socket } from 'socket.io';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { UsersService } from 'src/users/users.service';
 import { RoomsService } from './rooms/rooms.service';
-import { AddFriendData, BanMemberData, CreateRoomData, FriendRequestData, JoinRoomData, MessageData } from './Chat.types';
+import { AddFriendData, BanMemberData, CreateRoomData, DowngradeMemberData, FriendRequestData, JoinRoomData, KickMemberData, MessageData, UpgradeMemberData } from './Chat.types';
 import { WsGuard } from './ws.guard';
 import { MessageService } from './messages/messages.service';
 import { ChatService } from './chat.service';
 import { LeaveRoomData } from './Chat.types';
 
-@WebSocketGateway({namespace : 'chat'})
-export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
+@WebSocketGateway({ namespace: 'chat' })
+export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
-  constructor (private readonly roomService: RoomsService,
-    private readonly userService : UsersService,
+  constructor(private readonly roomService: RoomsService,
+    private readonly userService: UsersService,
     private readonly messageService: MessageService,
-    private readonly chatService: ChatService) {}
+    private readonly chatService: ChatService) { }
 
   @WebSocketServer()
   server: Server;
@@ -36,7 +36,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   @SubscribeMessage('createRoom')
   handleCreateRoom(client: any, payload: CreateRoomData) {
-    return this.chatService.createRoom(this.server, client, payload)  
+    return this.chatService.createRoom(this.server, client, payload)
   }
 
   @SubscribeMessage('leaveRoom')
@@ -50,7 +50,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   @SubscribeMessage('joinRoom')
-  async handleJoinRoom(client : Socket, payload : JoinRoomData) {
+  async handleJoinRoom(client: Socket, payload: JoinRoomData) {
     return this.chatService.joinRoom(this.server, client, payload)
   }
 
@@ -62,7 +62,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   @SubscribeMessage('declineFriend')
-  async handleDeclineFriend(client: Socket, payload: {senderId: number, friendRequestId: number}) {
+  async handleDeclineFriend(client: Socket, payload: { senderId: number, friendRequestId: number }) {
     return this.chatService.declineFriendRequest(this.server, client, payload)
   }
 
@@ -80,8 +80,23 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   async handleUnbanMembers(client: Socket, payload: BanMemberData) {
     return this.chatService.unbanUser(this.server, client, payload)
   }
-    
-  afterInit(server : Server): any {
+
+  @SubscribeMessage('upgradeMember')
+  async handleUpgradeMember(client: Socket, payload: UpgradeMemberData) {
+    return this.chatService.upgradeMember(this.server, payload)
+  }
+
+  @SubscribeMessage('downgradeMember')
+  async handleDowngradeMember(client: Socket, payload: DowngradeMemberData) {
+    return this.chatService.downgradeMember(this.server, payload)
+  }
+
+  @SubscribeMessage('kickMember') 
+  async handleKickMember(client: Socket, payload: KickMemberData) {
+    return this.chatService.kickMember(this.server, payload)
+  }
+
+  afterInit(server: Server): any {
     console.log('Initialized')
   }
 

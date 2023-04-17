@@ -47,4 +47,11 @@ export class RoomsController {
 		return this.roomService.getRoomBans(id)
 	}
 
+	@Get('/:id/admins')
+	getRoomAdmins(
+		@Param('id') id: number
+	){
+		return this.roomService.getRoomAdmins(id)
+	}
+
 }

@@ -3,7 +3,7 @@ import { Room, User } from "@prisma/client";
 import { ServerStreamFileResponseOptions } from "http2";
 import { Server, Socket } from "socket.io";
 import { UsersService } from "src/users/users.service";
-import { CreateRoomData, MessageData, LeaveRoomData, JoinRoomData, AddFriendData, FriendRequestData, BanMemberData } from "./Chat.types";
+import { CreateRoomData, MessageData, LeaveRoomData, JoinRoomData, AddFriendData, FriendRequestData, BanMemberData, UpgradeMemberData, KickMemberData } from "./Chat.types";
 import { MessageService } from "./messages/messages.service";
 import { RoomsService } from "./rooms/rooms.service";
 import { FriendsService } from "./friends/friends.service";
@@ -73,7 +73,7 @@ export class ChatService {
 		const newMessage = await this.messageService.createMessage(payload.user_id, payload.room_id, `${payload.user_login} leaved the room`)
 
 		//server.to(payload.room_id.toString() + payload.room_name).emit('message', newMessage)
-		server.to(client.id).emit('roomLeaved',  payload.room_id)
+		server.to(client.id).emit('roomLeaved', payload.room_id)
 
 		return this.roomService.deleteRelation(payload.user_id, payload.room_id)
 	}
@@ -102,7 +102,7 @@ export class ChatService {
 				error: 'You are banned from this channel'
 			}
 		}
-		
+
 		const room = await this.roomService.getRoomById(payload.room_id)
 
 		console.log('room in JOIN: ', room)
@@ -119,12 +119,12 @@ export class ChatService {
 		server.to(client.id).emit('roomJoined', room)
 
 		return await this.userService.joinRoom(payload.user_id, payload.room_id)
-		
+
 	}
 
 	async sendFriendRequest(server: Server, client: Socket, payload: FriendRequestData) {
 
-		const existingRequest = await this.friendService.isExisting({user1_id: payload.user2_id, user2_id: payload.user1_id})
+		const existingRequest = await this.friendService.isExisting({ user1_id: payload.user2_id, user2_id: payload.user1_id })
 
 		if (existingRequest === true)
 			return 'the receiver already send you a friend request'
@@ -139,21 +139,21 @@ export class ChatService {
 	}
 
 	async acceptFriendRequest(server: Server, client: Socket,
-			friendRequestId: number) {
-		
+		friendRequestId: number) {
+
 		const friendAcceptedRelation = await this.friendService.acceptFriendRequest(friendRequestId)
 		if (friendAcceptedRelation === null)
 			return
 
 		console.log('friendAcceptedRelation: ', friendAcceptedRelation)
-	
+
 		server.to(friendAcceptedRelation.user1.id.toString()).emit('newFriend', friendAcceptedRelation.user2)
 		server.to(friendAcceptedRelation.user2.id.toString()).emit('newFriend', friendAcceptedRelation.user1)
 
 		return friendAcceptedRelation
 	}
 
-	async declineFriendRequest(server: Server, client: Socket, payload: {senderId: number, friendRequestId: number}) {
+	async declineFriendRequest(server: Server, client: Socket, payload: { senderId: number, friendRequestId: number }) {
 		await this.friendService.declineFriendRequest(payload.friendRequestId)
 		server.to(payload.senderId.toString()).emit('declineFriend', payload.friendRequestId)
 	}
@@ -165,6 +165,20 @@ export class ChatService {
 
 	async unbanUser(server: Server, client: Socket, payload: BanMemberData) {
 		return await this.roomService.unbanUser(payload.room_id, payload.user_id)
+	}
+
+	async upgradeMember(server: Server, payload: UpgradeMemberData) {
+		return await this.roomService.upgradeUser(payload.room_id, payload.user_id)
+	}
+
+	async downgradeMember(server: Server, payload: UpgradeMemberData) {
+		return await this.roomService.downgradeUser(payload.room_id, payload.user_id)
+	}
+
+	async kickMember(server: Server, payload: KickMemberData) {
+		server.to(payload.user_id.toString()).emit('roomLeaved', payload.room_id)
+
+		return await this.roomService.deleteRelation(payload.user_id, payload.room_id)
 	}
 
 }

@@ -77,11 +77,11 @@ model Room {
 }
 
 model Admin {
-  id          Int  @id @default(autoincrement())
   Room        Room @relation(fields: [RoomId], references: [room_id])
   RoomId      Int
   AdminUser   User @relation("AdminUser", fields: [AdminUserId], references: [id])
   AdminUserId Int
+  @@unique([AdminUserId, RoomId])
 }
 
 model Mute {

@@ -256,5 +256,59 @@ export class RoomsService {
 
 	}
 
+	async upgradeUser(roomId: number, userId: number) {
+		return await this.prisma.admin.create({
+			data: {
+				RoomId: roomId,
+				AdminUserId: userId
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+	}
+
+	async downgradeUser(roomId: number, userId: number) {
+		return await this.prisma.admin.delete({
+			where: {
+				AdminUserId_RoomId: {
+					RoomId: roomId,
+					AdminUserId: userId
+				}
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+	}
+
+
+
+	async getRoomAdmins(roomId: number) {
+		const adminRelation = await this.prisma.admin.findMany({
+			where: {
+				RoomId: roomId
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+		const adminsIdTab = adminRelation.map(elem => elem.AdminUserId)
+
+		const adminsTab = this.prisma.user.findMany({
+			where: {
+				id: { in: adminsIdTab }
+			},
+			select: {
+				id: true,
+				login: true,
+				avatar: true
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+		return adminsTab
+	}
+
 
 }

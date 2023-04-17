@@ -13,6 +13,7 @@ export function SettingsButtton() {
 	const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false)
 	const [members, setMembers] = useState<User[]>([])
 	const [bannedUsers, setBannedUsers] = useState<User[]>([])
+	const [adminMembers, setAdminMembers] = useState<User[]>([])
 	const [displayList, setDisplayList] = useState<UserListType>(UserListType.MEMBERS)
 	const { id } = useAuth()
 	const auth = useFetchAuth()
@@ -65,6 +66,25 @@ export function SettingsButtton() {
 		getMembers().then(data => setMembers(data))
 
 	}, [displayList])
+
+	useEffect(() => {
+		const getAdmins = async () => {
+			const getAdminMembersRequest = {
+
+				api: {
+					input: `http://${import.meta.env.VITE_SITE}/api/rooms/${current.id}/admins`
+				},
+				auth: auth
+			}
+
+			const response = await FetchApi(getAdminMembersRequest)
+
+			return response?.data
+		}
+
+		//getAdmins().then(data => setAdminMembers(data))
+		getAdmins().then(data => console.log('adminMembers: ',data))
+	}, [])
 
 	const handleSettingsButtonClick = () => {
 		setIsSettingsOpen(true)
@@ -135,7 +155,9 @@ export function SettingsButtton() {
 						{
 							displayList === UserListType.MEMBERS ?
 								members.map((member) => {
-									return (<UserListItem key={member.id} user={member} id={id} currentRoom={current} onClick={handleBanMember} />)
+									return (<UserListItem key={member.id} user={member} id={id} currentRoom={current}
+									setMembers={setMembers} setBannedUsers={setBannedUsers} setAdminMembers={setAdminMembers} 
+									members={members} bannedUsers={bannedUsers} adminMembers={adminMembers}/>)
 								})
 								:
 								bannedUsers.map((member) => {

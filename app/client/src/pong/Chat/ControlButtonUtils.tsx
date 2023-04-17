@@ -4,6 +4,9 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import StarIcon from '@mui/icons-material/Star';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
+import CopyrightIcon from '@mui/icons-material/Copyright';
 import { styled } from '@mui/system'
 import { useEffect, useState } from 'react';
 import { User } from './Chat.types';
@@ -15,7 +18,7 @@ import { socket } from './Socket';
 export enum UserListType {
 	MEMBERS = 'members',
 	BANNED = 'banned',
-  }
+}
 
 export const SettingsButtonWrapper = styled('div')({
 	display: 'flex',
@@ -79,10 +82,24 @@ const IconButtonWrapper = styled(IconButton)({
 	marginLeft: '1rem'
 })
 
-export const UserListItem = ({ user, id, currentRoom, onClick }: { user: User, id: number, currentRoom: {id: number, name: string, ownerId: number}, onClick: (id: number) => void }) => {
+export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBannedUsers, bannedUsers, setAdminMembers, adminMembers }:
+	{
+		user: User,
+		id: number,
+		currentRoom: { id: number, name: string, ownerId: number },
+		setMembers: (users: User[]) => void,
+		members: User[],
+		setBannedUsers: (users: User[]) => void,
+		bannedUsers: User[],
+		setAdminMembers: (users: User[]) => void,
+		adminMembers: User[],
+
+	}) => {
 
 	if (id === user.id)
 		return null
+
+	const [isAdmin, setIsAdmin] = useState()
 
 	const [isSendingRequest, setIsSendingRequest] = useState(false);
 	const handleBanMemberClick = (member: User) => {
@@ -91,51 +108,122 @@ export const UserListItem = ({ user, id, currentRoom, onClick }: { user: User, i
 		const banData = {
 			room_id: currentRoom.id,
 			room_name: currentRoom.name,
-			user_id: user.id
+			user_id: member.id
 		}
 
 		socket.emit('banMember', banData)
 
-		onClick(user.id)
+		setMembers(members.filter(user => user.id !== member.id))
 
 		setIsSendingRequest(false);
 	};
+
+	const handleUpgradeMember = (member: User) => {
+		setIsSendingRequest(true)
+
+		const upgradeMemberData = {
+			room_id: currentRoom.id,
+			user_id: member.id
+		}
+
+		socket.emit('upgradeMember', upgradeMemberData, ((response: any) => console.log('upgradeMember response: ', response)))
+
+		setAdminMembers([...adminMembers, member])
+
+		setIsSendingRequest(false);
+	}
+
+	const handleDowngradeMember = (member: User) => {
+		setIsSendingRequest(true)
+
+		const upgradeMemberData = {
+			room_id: currentRoom.id,
+			user_id: member.id
+		}
+
+		socket.emit('downgradeMember', upgradeMemberData, ((response: any) => console.log('downgradeMember response: ', response)))
+
+		setAdminMembers(adminMembers.filter(admin => admin.id !== member.id))
+
+		setIsSendingRequest(false);
+	}
+
+	const handleKickMember = (member: User) => {
+		const kickMemberData = {
+			room_id: currentRoom.id,
+			user_id: member.id
+		}
+
+		socket.emit('kickMember', kickMemberData, ((response: any) => console.log('kickMember response: ', response)))
+
+		setMembers(members.filter(user => user.id !== member.id))
+	}
 
 	return (
 		<UserListItemWrapper>
 			<UserListItemAvatar>
 				<FetchAvatar avatar={user.avatar} sx={{ height: '100%', width: '100%' }} />
+				{/*{user.id} {currentRoom.id}*/}
 			</UserListItemAvatar>
 			<UserListItemText>{user.login}</UserListItemText>
 			{
 				id === currentRoom.ownerId ?
-				<Box sx={{display: 'flex'}}>
 
-					<IconButtonWrapper onClick={() => console.log('Mute')} disabled={isSendingRequest}>
-						{/*<VolumeUpIcon />*/}
-						<VolumeOffIcon />
-					</IconButtonWrapper>
+					(
+						user.id !== currentRoom.ownerId ? (
 
-					<IconButtonWrapper onClick={() => handleBanMemberClick(user)} disabled={isSendingRequest}>
-						{/*<CheckCircleOutlineIcon/>*/}
-						<BlockIcon />
+							<Box sx={{ display: 'flex' }}>
+								{adminMembers.find(admin => admin.id === user.id) ?
+									<IconButtonWrapper onClick={() => handleDowngradeMember(user)} disabled={isSendingRequest}>
 
-					</IconButtonWrapper>
+										<StarBorderIcon />
+									</IconButtonWrapper>
+									:
+									<IconButtonWrapper onClick={() => handleUpgradeMember(user)} disabled={isSendingRequest}>
 
-					<IconButtonWrapper onClick={() => console.log('Kick')} disabled={isSendingRequest}>
-						<ExitToAppIcon />
+										<StarIcon />
+									</IconButtonWrapper>
+								}
+								<IconButtonWrapper onClick={() => console.log('Mute')} disabled={isSendingRequest}>
+									{/*<VolumeUpIcon />*/}
+									<VolumeOffIcon />
+								</IconButtonWrapper>
 
-					</IconButtonWrapper>
-				</Box>
-				:
-				null
+								<IconButtonWrapper onClick={() => handleBanMemberClick(user)} disabled={isSendingRequest}>
+									{/*<CheckCircleOutlineIcon/>*/}
+									<BlockIcon />
+
+								</IconButtonWrapper>
+
+								<IconButtonWrapper onClick={() => handleKickMember(user)} disabled={isSendingRequest}>
+									<ExitToAppIcon />
+
+								</IconButtonWrapper>
+							</Box>
+						)
+							:
+							<Box sx={{ display: 'flex' }}>
+								<IconButtonWrapper onClick={() => console.log('Kick')} disabled={isSendingRequest}>
+									<CopyrightIcon />
+								</IconButtonWrapper>
+							</Box>
+
+
+					)
+
+					:
+					<Box sx={{ display: 'flex' }}>
+						<IconButtonWrapper onClick={() => console.log('Kick')} disabled={isSendingRequest}>
+							<CopyrightIcon />
+						</IconButtonWrapper>
+					</Box>
 
 			}
 		</UserListItemWrapper>
 	);
 };
 
-export const BannedUserListItem = ({ user, id, currentRoom, onClick }: { user: User, id: number, currentRoom: {id: number, name: string, ownerId: number}, onClick: (id: number) => void }) => {
+export const BannedUserListItem = ({ user, id, currentRoom, onClick }: { user: User, id: number, currentRoom: { id: number, name: string, ownerId: number }, onClick: (id: number) => void }) => {
 
 	if (id === user.id)
 		return null
@@ -166,9 +254,9 @@ export const BannedUserListItem = ({ user, id, currentRoom, onClick }: { user: U
 			</UserListItemAvatar>
 			<UserListItemText>{user.login}</UserListItemText>
 			{
-				<Box sx={{display: 'flex'}}>
+				<Box sx={{ display: 'flex' }}>
 					<IconButtonWrapper onClick={() => handleBanMemberClick(user)} disabled={isSendingRequest}>
-						<CheckCircleOutlineIcon/>
+						<CheckCircleOutlineIcon />
 					</IconButtonWrapper>
 				</Box>
 

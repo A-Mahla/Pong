@@ -44,3 +44,18 @@ export type BanMemberData = {
 	room_name: string,
 	user_id: number
 }
+
+export type UpgradeMemberData = {
+	room_id: number,
+	user_id: number
+}
+
+export type DowngradeMemberData = {
+	room_id: number,
+	user_id: number
+}
+
+export type KickMemberData = {
+	room_id: number,
+	user_id: number
+}
