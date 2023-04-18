@@ -6,7 +6,7 @@ import { 	SubscribeMessage,
 								} from "@nestjs/websockets";
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service'
-import { ClientPayload, RoomInfo, GamePatron, gamePatron, Status, Player } from './game.types'
+import { ClientPayload, GamePatron, gamePatron, Status, Player } from './game.types'
 import { GameAlgo } from "./game.algo";
 import { Injectable, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';

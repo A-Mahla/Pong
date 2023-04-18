@@ -14,7 +14,6 @@ import useAuth from '../context/useAuth'
 import io, {Socket} from "socket.io-client";
 import { render } from 'react-dom'
 import Canvas from '../component/gameCanva'
-import { draw } from '../component/gameCanva'
 import { GameSocketProvider, UserContext } from '../services/GameSocketProvider'
 import { styled } from '@mui/system';
 import {

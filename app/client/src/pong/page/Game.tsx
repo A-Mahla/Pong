@@ -9,7 +9,6 @@ import io, {Socket} from "socket.io-client";
 import './game.css'
 import { render } from 'react-dom'
 import Canvas from '../component/gameCanva'
-import { draw } from '../component/gameCanva'
 import { GameSocketProvider, UserContext } from '../services/GameSocketProvider'
 import { Spectator } from '../component/Spectator'
 import { GameFriends } from '../component/GameFriends'
@@ -487,6 +486,8 @@ export const Game = ({ height, width }: any) => {
 	const [openMatchmaking, setOpenMatchmaking] = useState(false)
 	const [openWatch, setOpenWatch] = useState(false)
 	const [openFriends, setOpenFriends] = useState(false)
+	console.log(`LOCAL STORAGE: ${localStorage.getItem("fetched") === "true" ? true : false}`)
+	const [fetched, setFetched] = React.useState<boolean>(localStorage.getItem("fetched") === "true" ? true : false);
 	const [thereIsMatch, setThereIsMatch] = React.useState(false);
 	const [errorPopoverOpen, setErrorPopoverOpen] = React.useState(false);
 	const [errorMessage, setErrorMessage] = React.useState('');
@@ -514,6 +515,7 @@ export const Game = ({ height, width }: any) => {
 	]
 
 	useEffect(() => {
+		fetchRelou(false);
 		setSelectedRow(null)
 	}, [])
 
@@ -526,6 +528,12 @@ export const Game = ({ height, width }: any) => {
 		else if (selectedRow && selectedRow.id === 2)
 			setOpenFriends(true)
 	}, [selectedRow])
+
+	const fetchRelou = (state: boolean) => {
+		// Votre logique de matchmaking
+		setFetched(state);
+		localStorage.setItem("fetched", state ? "true" : "false"); // Stocker la valeur dans le stockage local
+	  };
 
 	const handleMatchClick = () => {
 		if (!thereIsMatch)
@@ -560,6 +568,8 @@ export const Game = ({ height, width }: any) => {
 					sx={{height: "95%"}}
 				>
 						<Canvas
+							fetched={fetched}
+							setFetched={(state: boolean) => {fetchRelou(state)}}
 							socket={socket}
 							handleThereIsMatch={handleMatchClick}
 							handleThereIsError={

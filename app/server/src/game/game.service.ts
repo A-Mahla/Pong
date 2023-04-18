@@ -1,6 +1,6 @@
 import { BadGatewayException, BadRequestException, Injectable, UseInterceptors, UploadedFile, Param } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { GameDataType, GameParams, gamePatron, GamePatron, Player, matchHistoryPayload } from './game.types'
+import { GameDataType, GameParams, UpdateGameDataType, Player, matchHistoryPayload } from './game.types'
 
 @Injectable()
 export class GameService {
@@ -8,9 +8,9 @@ export class GameService {
 
 /* ============================ POST game related information ========================*/
 
-	async endGameDBwrites(gameID: string, player1: Player, player2: Player, gameData: GameDataType) {
-		this.registerNewPlayer(parseInt(gameID), player1.id, gameData.player1.score);
-		this.registerNewPlayer(parseInt(gameID), player2.id, gameData.player2.score);
+	async endGameDBwrites(gameID: string, player1: Player, player2: Player, data: UpdateGameDataType) {
+		this.registerNewPlayer(parseInt(gameID), player1.id, data.p1score);
+		this.registerNewPlayer(parseInt(gameID), player2.id, data.p2score);
 	}
 
 	async registerNewGame(status: string) {
@@ -175,6 +175,23 @@ export class GameService {
 		return nbGames;
 	}
 
+	async getAvatarPath(user_id: number): Promise<{avatar: string}> {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id: user_id
+			},
+			select: {
+				avatar: true
+			}
+		})
+		if (user != null && user.avatar != null)
+			return {
+				avatar: user.avatar,
+			};
+		return {
+			avatar: "undefined",
+		};
+	}
 
 	//	================ UPDATE GAME STATUS ===========
 	async updateGamestatus(game_id: number, status: string) {
