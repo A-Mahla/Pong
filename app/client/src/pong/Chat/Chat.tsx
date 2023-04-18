@@ -232,6 +232,8 @@ export function Chat() {
 		}
 		if (newRoom !== undefined) {
 			setRooms([...rooms, newRoom])
+			setCurrent({name: newRoom.name, id: newRoom.room_id, ownerId: newRoom.ownerId})
+			setTarget({login: '', id: 0, avatar: ''})
 			setNewRoom(undefined)
 		}
 		if (leavedRoom !== undefined) {
@@ -253,6 +255,8 @@ export function Chat() {
 		if (newFriend !== undefined) {
 			console.log(`newFriend: `, newFriend)
 			setFriends([...friends, newFriend])
+			setCurrent({name: '', id: 0, ownerId: 0})
+			setTarget(newFriend)
 			setNewFriend(undefined)
 		}
 		if (declineFriendRequestId !== undefined) {
