@@ -7,6 +7,7 @@ import { socket } from './Socket';
 import { MessageData } from './Chat.types';
 import FetchAvatar from '../component/FetchAvatar';
 import { SettingsButtton } from './ControlButton';
+import { Message } from './MessageBoxUtils';
 
 
 const ChatInputField = styled(TextField)({
@@ -155,9 +156,24 @@ export const MessagesBox = () => {
 			setMessageList(directMessages.map((message, index) => {
 				if (message.sender_id === id || message.recipient_id === id) {
 
-					return (<Box key={index} style={{ display: 'flex', justifyContent: message.sender_id === id ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
-						<Box style={{ maxWidth: '80%', backgroundColor: message.sender_id === id ? '#DCF8C6' : '#f2f2f2', padding: '8px 12px', borderRadius: '12px', wordWrap: 'break-word' }}>{message.content}</Box>
-					</Box>)
+					return <Message
+						key={message.id}
+						message={{
+							id: message.id,
+							sender: {
+								id: message.sender_id,
+								login: message.sender.login
+							},
+							content: message.content
+						}} id={id} />
+					//	return (
+					//		<Box key={index} style={{justifyContent: message.sender_id === id ? 'end' : 'start', marginBottom: '8px' }}>
+					//			<Box style={{ position: 'relative', marginBottom: '4px' }}>{message.sender.login}</Box>
+					//			<Box key={index} style={{ display: 'flex', justifyContent: message.sender_id === id ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
+					//				<Box style={{ maxWidth: '80%', backgroundColor: message.sender_id === id ? '#DCF8C6' : '#f2f2f2', padding: '8px 12px', borderRadius: '12px', wordWrap: 'break-word' }}>{message.content}</Box>
+					//			</Box>
+
+					//		</Box>)
 				}
 				return null
 			}))
@@ -173,11 +189,22 @@ export const MessagesBox = () => {
 			}
 			else {
 				setMessageList(room.messages.map((message, index) => {
-					return (
-						<Box key={index} style={{ display: 'flex', justifyContent: message.sender_id === id ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
-							<Box style={{ maxWidth: '80%', backgroundColor: message.sender_id === id ? '#DCF8C6' : '#f2f2f2', padding: '8px 12px', borderRadius: '12px', wordWrap: 'break-word' }}>{message.content}</Box>
-						</Box>
-					)
+					return <Message
+						key={message.id}
+						message={{
+							id: message.id,
+							sender: {
+								id: message.sender_id,
+								login: message.sender.login
+							},
+							content: message.content
+						}} id={id} />
+					//return (
+					//	<Box key={index} style={{ display: 'flex', justifyContent: message.sender_id === id ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
+					//		{message.sender.login}
+					//		<Box style={{ maxWidth: '80%', backgroundColor: message.sender_id === id ? '#DCF8C6' : '#f2f2f2', padding: '8px 12px', borderRadius: '12px', wordWrap: 'break-word' }}>{message.content}</Box>
+					//	</Box>
+					//)
 				}))
 			}
 		}
