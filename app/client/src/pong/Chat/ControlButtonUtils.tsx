@@ -8,12 +8,13 @@ import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import CopyrightIcon from '@mui/icons-material/Copyright';
 import { styled } from '@mui/system'
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { User } from './Chat.types';
 import useAuth, { useFetchAuth } from '../context/useAuth';
 import { FetchApi } from '../component/FetchApi';
 import FetchAvatar from '../component/FetchAvatar';
 import { socket } from './Socket';
+import { CurrencyExchangeTwoTone } from '@mui/icons-material';
 
 export enum UserListType {
 	MEMBERS = 'members',
@@ -159,6 +160,70 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 		setMembers(members.filter(user => user.id !== member.id))
 	}
 
+	const memberActions: React.FC = () => {
+		if (id === currentRoom.ownerId || adminMembers.find(admin => admin.id === id)) {
+			if (user.id !== currentRoom.ownerId) {
+				return (
+					<Box sx={{ display: 'flex' }}>
+						{adminMembers.find(admin => admin.id === user.id) ?
+							<IconButtonWrapper onClick={() => handleDowngradeMember(user)} disabled={isSendingRequest}>
+
+								<StarIcon />
+							</IconButtonWrapper>
+							:
+							<IconButtonWrapper onClick={() => handleUpgradeMember(user)} disabled={isSendingRequest}>
+
+								<StarBorderIcon />
+							</IconButtonWrapper>
+						}
+						<IconButtonWrapper onClick={() => console.log('Mute')} disabled={isSendingRequest}>
+							{/*<VolumeUpIcon />*/}
+							<VolumeOffIcon />
+						</IconButtonWrapper>
+
+						<IconButtonWrapper onClick={() => handleBanMemberClick(user)} disabled={isSendingRequest}>
+							{/*<CheckCircleOutlineIcon/>*/}
+							<BlockIcon />
+
+						</IconButtonWrapper>
+
+						<IconButtonWrapper onClick={() => handleKickMember(user)} disabled={isSendingRequest}>
+							<ExitToAppIcon />
+
+						</IconButtonWrapper>
+					</Box>
+				)
+			}
+			else {
+				return (
+					<Box sx={{ display: 'flex' }}>
+						<IconButtonWrapper onClick={() => console.log('Kick')} disabled={isSendingRequest}>
+							<CopyrightIcon />
+						</IconButtonWrapper>
+					</Box>
+				)
+			}
+		}
+		else if (user.id === currentRoom.ownerId) {
+			return (
+				<Box sx={{ display: 'flex' }}>
+					<IconButtonWrapper onClick={() => console.log('Kick')} disabled={isSendingRequest}>
+						<CopyrightIcon />
+					</IconButtonWrapper>
+				</Box>
+			)
+		}
+		else {
+			return (
+				<Box sx={{ display: 'flex' }}>
+					<IconButtonWrapper onClick={() => console.log('Kick')} disabled={isSendingRequest}>
+						Admin
+					</IconButtonWrapper>
+				</Box>
+			)
+		}
+	}
+
 	return (
 		<UserListItemWrapper>
 			<UserListItemAvatar>
@@ -167,7 +232,7 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 			</UserListItemAvatar>
 			<UserListItemText>{user.login}</UserListItemText>
 			{
-				id === currentRoom.ownerId ?
+				(id === currentRoom.ownerId || adminMembers.find(admin => admin.id === id)) ?
 
 					(
 						user.id !== currentRoom.ownerId ? (
@@ -175,13 +240,11 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 							<Box sx={{ display: 'flex' }}>
 								{adminMembers.find(admin => admin.id === user.id) ?
 									<IconButtonWrapper onClick={() => handleDowngradeMember(user)} disabled={isSendingRequest}>
-
-										<StarBorderIcon />
+										<StarIcon />
 									</IconButtonWrapper>
 									:
 									<IconButtonWrapper onClick={() => handleUpgradeMember(user)} disabled={isSendingRequest}>
-
-										<StarIcon />
+										<StarBorderIcon />
 									</IconButtonWrapper>
 								}
 								<IconButtonWrapper onClick={() => console.log('Mute')} disabled={isSendingRequest}>
@@ -203,7 +266,7 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 						)
 							:
 							<Box sx={{ display: 'flex' }}>
-								<IconButtonWrapper onClick={() => console.log('Kick')} disabled={isSendingRequest}>
+								<IconButtonWrapper>
 									<CopyrightIcon />
 								</IconButtonWrapper>
 							</Box>
@@ -211,12 +274,21 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 
 					)
 
-					:
-					<Box sx={{ display: 'flex' }}>
-						<IconButtonWrapper onClick={() => console.log('Kick')} disabled={isSendingRequest}>
-							<CopyrightIcon />
-						</IconButtonWrapper>
-					</Box>
+					: (user.id === currentRoom.ownerId) ?
+						<Box sx={{ display: 'flex' }}>
+							<IconButtonWrapper>
+								<CopyrightIcon />
+							</IconButtonWrapper>
+						</Box>
+						: (adminMembers.find(admin => admin.id === user.id)) ?
+							<Box sx={{ display: 'flex' }}>
+								<IconButtonWrapper>
+									<StarIcon />
+								</IconButtonWrapper>
+							</Box>
+							:
+							null
+
 
 			}
 		</UserListItemWrapper>

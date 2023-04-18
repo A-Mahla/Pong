@@ -41,7 +41,7 @@ export function SettingsButtton() {
 		}
 
 		getBannedUsers().then(data => setBannedUsers(data))
-	}, [displayList])
+	}, [displayList, isSettingsOpen])
 
 	useEffect(() => {
 
@@ -65,7 +65,7 @@ export function SettingsButtton() {
 
 		getMembers().then(data => setMembers(data))
 
-	}, [displayList])
+	}, [displayList, isSettingsOpen])
 
 	useEffect(() => {
 		const getAdmins = async () => {
@@ -82,9 +82,8 @@ export function SettingsButtton() {
 			return response?.data
 		}
 
-		//getAdmins().then(data => setAdminMembers(data))
-		getAdmins().then(data => console.log('adminMembers: ',data))
-	}, [])
+		getAdmins().then(data => setAdminMembers(data))
+	}, [displayList, isSettingsOpen])
 
 	const handleSettingsButtonClick = () => {
 		setIsSettingsOpen(true)
@@ -94,33 +93,9 @@ export function SettingsButtton() {
 		setIsSettingsOpen(false)
 	}
 
-	const handleBanMember = (bannedMemberId: number) => {
-		setMembers(members.filter(member => member.id !== bannedMemberId))
-	}
-
 	const handleUnbanMember = (bannedUserId: number) => {
 		setBannedUsers(bannedUsers.filter(user => user.id !== bannedUserId))
 	}
-
-	const membersTab = [
-		{ id: 1, login: 'User 1', avatar: 'https://via.placeholder.com/150' },
-		{ id: 2, login: 'User 2', avatar: 'https://via.placeholder.com/150' },
-		{ id: 3, login: 'User 3', avatar: 'https://via.placeholder.com/150' },
-		{ id: 4, login: 'User 4', avatar: 'https://via.placeholder.com/150' },
-		{ id: 5, login: 'User 5', avatar: 'https://via.placeholder.com/150' },
-		{ id: 6, login: 'User 6', avatar: 'https://via.placeholder.com/150' },
-		{ id: 7, login: 'User 7', avatar: 'https://via.placeholder.com/150' },
-		{ id: 8, login: 'User 8', avatar: 'https://via.placeholder.com/150' },
-		{ id: 9, login: 'User 9', avatar: 'https://via.placeholder.com/150' },
-		{ id: 10, login: 'User 10', avatar: 'https://via.placeholder.com/150' },
-		{ id: 11, login: 'User 11', avatar: 'https://via.placeholder.com/150' },
-		{ id: 12, login: 'User 12', avatar: 'https://via.placeholder.com/150' },
-		{ id: 13, login: 'User 13', avatar: 'https://via.placeholder.com/150' },
-		{ id: 14, login: 'User 14', avatar: 'https://via.placeholder.com/150' },
-		{ id: 15, login: 'User 15', avatar: 'https://via.placeholder.com/150' },
-	];
-
-
 
 	return (
 		<div>
@@ -142,7 +117,7 @@ export function SettingsButtton() {
 				<Box width="100%" display="flex">
 					<Button sx={{ flex: '1' }} onClick={() => setDisplayList(UserListType.MEMBERS)}>Members</Button>
 					{
-						id === current.ownerId ?
+						id === current.ownerId || adminMembers.find(admin => admin.id === id)?
 
 							<Button sx={{ flex: '1' }} onClick={() => setDisplayList(UserListType.BANNED)}>Banned</Button>
 							:
