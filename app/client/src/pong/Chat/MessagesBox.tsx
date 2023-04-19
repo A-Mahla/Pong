@@ -188,6 +188,9 @@ export const MessagesBox = () => {
 				setMessageList([])
 			}
 			else {
+				console.log('room', room)
+				console.log('rooms', rooms)
+				console.log('messageList: ', messageList)
 				setMessageList(room.messages.map((message, index) => {
 					return <Message
 						key={message.id}

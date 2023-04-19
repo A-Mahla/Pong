@@ -6,6 +6,7 @@ import { ChatContext } from './Chat';
 import { FetchApi } from '../component/FetchApi';
 import useAuth, { useFetchAuth } from '../context/useAuth';
 import { User } from './Chat.types';
+import { socket } from './Socket';
 
 export function SettingsButtton() {
 
@@ -15,7 +16,7 @@ export function SettingsButtton() {
 	const [bannedUsers, setBannedUsers] = useState<User[]>([])
 	const [adminMembers, setAdminMembers] = useState<User[]>([])
 	const [displayList, setDisplayList] = useState<UserListType>(UserListType.MEMBERS)
-	const { id } = useAuth()
+	const { user, id } = useAuth()
 	const auth = useFetchAuth()
 
 	useEffect(() => {
@@ -97,6 +98,18 @@ export function SettingsButtton() {
 		setBannedUsers(bannedUsers.filter(user => user.id !== bannedUserId))
 	}
 
+	const handleLeaveRoom = () => {
+
+		const leaveRoomData = {
+			room_id: current.id,
+			room_name: current.name,
+			user_id: id,
+			user_login: user,
+		}
+
+		socket.emit('leaveRoom', leaveRoomData)
+	}
+
 	return (
 		<div>
 			<SettingsButtonWrapper onClick={handleSettingsButtonClick} >
@@ -113,16 +126,25 @@ export function SettingsButtton() {
 					}
 				}}
 			>
-				<DialogTitle>settings</DialogTitle>
+				<DialogTitle sx={{ display: 'flex', justifyContent: 'space-between' }}>
+					settings
+					<Button sx={{ borderRadius: '20px' }} onClick={handleLeaveRoom}>Leave Room</Button>
+				</DialogTitle>
 				<Box width="100%" display="flex">
-					<Button sx={{ flex: '1' }} onClick={() => setDisplayList(UserListType.MEMBERS)}>Members</Button>
+					<Button sx={{ backgroundColor: (displayList === UserListType.MEMBERS) ? '#f2f2f2' : 'transparent', flex: '1' }} onClick={() => setDisplayList(UserListType.MEMBERS)}>Members</Button>
 					{
-						id === current.ownerId || adminMembers.find(admin => admin.id === id)?
+						id === current.ownerId || adminMembers.find(admin => admin.id === id) ?
 
-							<Button sx={{ flex: '1' }} onClick={() => setDisplayList(UserListType.BANNED)}>Banned</Button>
+							<Button sx={{ backgroundColor: (displayList === UserListType.BANNED) ? '#f2f2f2' : 'transparent', flex: '1' }} onClick={() => setDisplayList(UserListType.BANNED)}>Banned</Button>
 							:
 							null
 
+					}
+					{
+						id === current.ownerId ?
+							<Button sx={{ backgroundColor: (displayList === UserListType.CONTROL) ? '#f2f2f2' : 'transparent', flex: '1' }} onClick={() => setDisplayList(UserListType.CONTROL)}>CONTROL</Button>
+							:
+							null
 					}
 				</Box>
 				<DialogContent sx={{ p: 0 }}>
@@ -131,18 +153,22 @@ export function SettingsButtton() {
 							displayList === UserListType.MEMBERS ?
 								members.map((member) => {
 									return (<UserListItem key={member.id} user={member} id={id} currentRoom={current}
-									setMembers={setMembers} setBannedUsers={setBannedUsers} setAdminMembers={setAdminMembers} 
-									members={members} bannedUsers={bannedUsers} adminMembers={adminMembers}/>)
+										setMembers={setMembers} setBannedUsers={setBannedUsers} setAdminMembers={setAdminMembers}
+										members={members} bannedUsers={bannedUsers} adminMembers={adminMembers} />)
 								})
-								:
-								bannedUsers.map((member) => {
-									return (<BannedUserListItem key={member.id} user={member} id={id} currentRoom={current} onClick={handleUnbanMember} />)
-								})
+								: displayList === UserListType.BANNED ?
+									bannedUsers.map((member) => {
+										return (<BannedUserListItem key={member.id} user={member} id={id} currentRoom={current} onClick={handleUnbanMember} />)
+									})
+									:
+									<div>FAIRE UN TRUC AVEC LES GRIDS POUR FAIRE PLAISIR A AMIR MDR</div>
 						}
 					</UserListWrapper>
+
+
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={handleSettingsButtonClose}>Cancel</Button>
+					<Button onClick={handleSettingsButtonClose} sx={{ borderRadius: '20px' }}>Cancel</Button>
 				</DialogActions>
 			</Dialog>
 		</div>

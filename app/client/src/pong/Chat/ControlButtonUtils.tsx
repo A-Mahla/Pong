@@ -19,6 +19,7 @@ import { CurrencyExchangeTwoTone } from '@mui/icons-material';
 export enum UserListType {
 	MEMBERS = 'members',
 	BANNED = 'banned',
+	CONTROL = 'control',
 }
 
 export const SettingsButtonWrapper = styled('div')({
@@ -165,16 +166,35 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 			if (user.id !== currentRoom.ownerId) {
 				return (
 					<Box sx={{ display: 'flex' }}>
-						{adminMembers.find(admin => admin.id === user.id) ?
-							<IconButtonWrapper onClick={() => handleDowngradeMember(user)} disabled={isSendingRequest}>
+						{id} {currentRoom.ownerId}
+						{
+							id === currentRoom.ownerId ?
+								(adminMembers.find(admin => admin.id === user.id) ?
+									<IconButtonWrapper onClick={() => handleDowngradeMember(user)} disabled={isSendingRequest}>
 
-								<StarIcon />
-							</IconButtonWrapper>
-							:
-							<IconButtonWrapper onClick={() => handleUpgradeMember(user)} disabled={isSendingRequest}>
+										<StarIcon />
+									</IconButtonWrapper>
+									:
+									<IconButtonWrapper onClick={() => handleUpgradeMember(user)} disabled={isSendingRequest}>
 
-								<StarBorderIcon />
-							</IconButtonWrapper>
+										<StarBorderIcon />
+									</IconButtonWrapper>
+								)
+								:
+								null
+
+						}
+						{
+							//	adminMembers.find(admin => admin.id === user.id) ?
+							//		<IconButtonWrapper onClick={() => handleDowngradeMember(user)} disabled={isSendingRequest}>
+
+							//			<StarIcon />
+							//		</IconButtonWrapper>
+							//		:
+							//		<IconButtonWrapper onClick={() => handleUpgradeMember(user)} disabled={isSendingRequest}>
+
+							//			<StarBorderIcon />
+							//		</IconButtonWrapper>
 						}
 						<IconButtonWrapper onClick={() => console.log('Mute')} disabled={isSendingRequest}>
 							{/*<VolumeUpIcon />*/}
@@ -231,6 +251,7 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 				{/*{user.id} {currentRoom.id}*/}
 			</UserListItemAvatar>
 			<UserListItemText>{user.login}</UserListItemText>
+
 			{
 				(id === currentRoom.ownerId || adminMembers.find(admin => admin.id === id)) ?
 
@@ -238,14 +259,22 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 						user.id !== currentRoom.ownerId ? (
 
 							<Box sx={{ display: 'flex' }}>
-								{adminMembers.find(admin => admin.id === user.id) ?
-									<IconButtonWrapper onClick={() => handleDowngradeMember(user)} disabled={isSendingRequest}>
-										<StarIcon />
-									</IconButtonWrapper>
-									:
-									<IconButtonWrapper onClick={() => handleUpgradeMember(user)} disabled={isSendingRequest}>
-										<StarBorderIcon />
-									</IconButtonWrapper>
+								{
+									id === currentRoom.ownerId ?
+										(adminMembers.find(admin => admin.id === user.id) ?
+											<IconButtonWrapper onClick={() => handleDowngradeMember(user)} disabled={isSendingRequest}>
+
+												<StarIcon />
+											</IconButtonWrapper>
+											:
+											<IconButtonWrapper onClick={() => handleUpgradeMember(user)} disabled={isSendingRequest}>
+
+												<StarBorderIcon />
+											</IconButtonWrapper>
+										)
+										:
+										null
+
 								}
 								<IconButtonWrapper onClick={() => console.log('Mute')} disabled={isSendingRequest}>
 									{/*<VolumeUpIcon />*/}
