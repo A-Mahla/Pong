@@ -34,18 +34,17 @@ const ENDGAMEFONT = 180;
 
 
 
-const Canvas = ({ fetched, setFetched, socket, handleThereIsMatch, handleThereIsError }: {fetched: boolean, setFetched: (state: boolean) => void, socket: Socket, handleThereIsMatch: () => void, handleThereIsError: (errorstr: string) => void}) => {
+const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Socket, handleThereIsMatch: () => void, handleThereIsError: (errorstr: string) => void}) => {
 	// ref to the html5 canvas on wich we will draw
 	const canvas = React.useRef<HTMLCanvasElement | null>(null); // reference/pointer on html5 canvas element, so you can draw on it
 
 	const [game, setGame] = React.useState<boolean>(false);
-	// const [fetched, setFetched] = React.useState<boolean>(false);
+	const [fetched, setFetched] = React.useState<boolean>(false);
 	const [gameContext, setGameContext] = React.useState<constants>();
 	const [gameData, setGameData] = React.useState<GameData>();
 
 	const quitGame = async () => {
 		socket.emit('quitGame')
-		setFetched(false);
 		handleThereIsMatch()
 	}
 
@@ -104,8 +103,13 @@ const Canvas = ({ fetched, setFetched, socket, handleThereIsMatch, handleThereIs
 	// useEffect rendered only once to register the initSetup (wich tell the start)
 	React.useEffect(() => {
 		socket.on("initSetup", (gameData: GameData) => {
-			if ((gameData.player1.avatar) != undefined)
-				console.log("LAAAAAAAAAAAAAAAAAA ->" + gameData.player1.avatar);
+			
+			// if ((gameData.player1.avatar) != undefined) // il faudra que tu check car il peut etre undefined au cas ou jai pas trouve d'avatar
+			
+			// player1 login and avatar	
+			console.log("login: " + gameData.player1.login + " avatar: " + gameData.player1.avatar);
+			// player2 login and avatar	
+			console.log("login: " + gameData.player2.login + " avatar: " + gameData.player2.avatar);
 			setFetched(true);
 			setGameData(gameData);
 		})
@@ -155,7 +159,7 @@ const Canvas = ({ fetched, setFetched, socket, handleThereIsMatch, handleThereIs
 
 			// registering the other event listener
 			socket.on('disconnection', (errorMessage: string) => {
-				setFetched(false);
+				// setFetched(false);
 				handleThereIsError(errorMessage);
 			})
 
