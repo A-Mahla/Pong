@@ -30,6 +30,7 @@ const bodySx = {
 	color: "#000000",
 	maxWidth: '1000px',
 	px: 4,
+	mb: 2,
 }
 
 const AboutUs = () => {
@@ -109,7 +110,6 @@ const AboutUs = () => {
 				an exciting online gaming experience with real-time
 				multiplayer games and a friendly community of players.
 			</Typography>
-			<br/>
 			<Typography variant="body1"
 				sx={bodySx}
 			>
@@ -122,7 +122,6 @@ const AboutUs = () => {
 				level of security, we have implemented a complete OAuth2.0
 				authentication system.
 			</Typography>
-			<br/>
 			<Typography variant="body1"
 				sx={bodySx}
 			>
@@ -132,7 +131,6 @@ const AboutUs = () => {
 				unique name, upload an avatar, and even enable two-factor
 				authentication for added security.
 			</Typography>
-			<br/>
 			<Typography variant="body1"
 				sx={bodySx}
 			>
@@ -141,7 +139,6 @@ const AboutUs = () => {
 				create channels, send direct messages, and even invite others
 				to play games through the chat interface.
 			</Typography>
-			<br/>
 			<Typography variant="body1"
 				sx={bodySx}
 			>
@@ -151,7 +148,6 @@ const AboutUs = () => {
 				in place so that users can join a queue and be automatically
 				matched with another player.
 			</Typography>
-			<br/>
 			<Typography variant="body1"
 				sx={bodySx}
 			>
@@ -162,7 +158,6 @@ const AboutUs = () => {
 				achievements, which are displayed on their profile for other
 				users to see.
 			</Typography>
-			<br/>
 			<Typography variant="body1"
 				sx={bodySx}
 			>
