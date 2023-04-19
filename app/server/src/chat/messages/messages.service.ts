@@ -3,7 +3,6 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { UsersService } from "src/users/users.service";
 import { RoomsService } from "../rooms/rooms.service";
 import { BadRequestException } from "@nestjs/common";
-import { User } from "@prisma/client";
 
 @Injectable()
 export class MessageService {

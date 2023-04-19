@@ -166,14 +166,6 @@ export const MessagesBox = () => {
 							},
 							content: message.content
 						}} id={id} />
-					//	return (
-					//		<Box key={index} style={{justifyContent: message.sender_id === id ? 'end' : 'start', marginBottom: '8px' }}>
-					//			<Box style={{ position: 'relative', marginBottom: '4px' }}>{message.sender.login}</Box>
-					//			<Box key={index} style={{ display: 'flex', justifyContent: message.sender_id === id ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
-					//				<Box style={{ maxWidth: '80%', backgroundColor: message.sender_id === id ? '#DCF8C6' : '#f2f2f2', padding: '8px 12px', borderRadius: '12px', wordWrap: 'break-word' }}>{message.content}</Box>
-					//			</Box>
-
-					//		</Box>)
 				}
 				return null
 			}))
@@ -202,12 +194,6 @@ export const MessagesBox = () => {
 							},
 							content: message.content
 						}} id={id} />
-					//return (
-					//	<Box key={index} style={{ display: 'flex', justifyContent: message.sender_id === id ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
-					//		{message.sender.login}
-					//		<Box style={{ maxWidth: '80%', backgroundColor: message.sender_id === id ? '#DCF8C6' : '#f2f2f2', padding: '8px 12px', borderRadius: '12px', wordWrap: 'break-word' }}>{message.content}</Box>
-					//	</Box>
-					//)
 				}))
 			}
 		}

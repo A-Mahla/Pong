@@ -28,7 +28,7 @@ export function RoomBar() {
 	const handleRoomClick = (room: Room) => {
 		console.log(room)
 		setTarget({ login: '', id: 0, avatar: '' })
-		setCurrent({ name: room.name, id: room.room_id, ownerId: room.ownerId })
+		setCurrent({ name: room.name, id: room.room_id, ownerId: room.ownerId, isPublic: room.isPublic})
 		setActiveRoomId(room.room_id)
 	}
 

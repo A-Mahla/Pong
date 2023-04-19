@@ -22,9 +22,10 @@ type ChatContextType = {
 	current: {
 		name: string;
 		id: number;
-		ownerId: number
+		ownerId: number;
+		isPublic: boolean;
 	};
-	setCurrent: React.Dispatch<React.SetStateAction<{ name: string; id: number; ownerId: number}>>;
+	setCurrent: React.Dispatch<React.SetStateAction<{ name: string; id: number; ownerId: number; isPublic: boolean}>>;
 	target: User;
 	setTarget: React.Dispatch<React.SetStateAction<User>>;
 	isJoining: boolean;
@@ -49,7 +50,8 @@ const initialChatContext: ChatContextType = {
 	current: {
 		name: '',
 		id: 0,
-		ownerId: 0
+		ownerId: 0,
+		isPublic: true,
 	},
 	setCurrent: () => null,
 	target: {
@@ -96,7 +98,7 @@ export function Chat() {
 
 	const [friends, setFriends] = useState<User[]>([])
 
-	const [current, setCurrent] = useState<{ name: string, id: number, ownerId: number }>({ name: '', id: 0, ownerId: 0 })
+	const [current, setCurrent] = useState<{ name: string, id: number, ownerId: number, isPublic: boolean }>({ name: '', id: 0, ownerId: 0, isPublic: true })
 
 	const [target, setTarget] = useState<User>({ login: '', id: 0, avatar: '' })
 
@@ -232,7 +234,7 @@ export function Chat() {
 		}
 		if (newRoom !== undefined) {
 			setRooms([...rooms, newRoom])
-			setCurrent({name: newRoom.name, id: newRoom.room_id, ownerId: newRoom.ownerId})
+			setCurrent({name: newRoom.name, id: newRoom.room_id, ownerId: newRoom.ownerId, isPublic: newRoom.isPublic})
 			setTarget({login: '', id: 0, avatar: ''})
 			setNewRoom(undefined)
 		}
@@ -244,7 +246,7 @@ export function Chat() {
 				}
 			}))
 			if (current.id === leavedRoom)
-				setCurrent({name: '', id: 0, ownerId: 0})
+				setCurrent({name: '', id: 0, ownerId: 0, isPublic: true})
 			setLeavedRoom(undefined)
 		}
 		if (newFriendRequest !== undefined) {
@@ -255,7 +257,7 @@ export function Chat() {
 		if (newFriend !== undefined) {
 			console.log(`newFriend: `, newFriend)
 			setFriends([...friends, newFriend])
-			setCurrent({name: '', id: 0, ownerId: 0})
+			setCurrent({name: '', id: 0, ownerId: 0, isPublic: true})
 			setTarget(newFriend)
 			setNewFriend(undefined)
 		}

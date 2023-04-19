@@ -22,7 +22,7 @@ export class ChatService {
 
 		client.join((newRoom as Room).room_id.toString() + payload.name)
 
-		server.to(client.id).emit('roomCreated', { name: payload.name, room_id: newRoom?.room_id, messages: [], ownerId: payload.owner_id})
+		server.to(client.id).emit('roomCreated', { name: payload.name, room_id: newRoom?.room_id, messages: [], ownerId: payload.owner_id, isPublic: newRoom?.isPublic})
 
 		return newRoom
 	}

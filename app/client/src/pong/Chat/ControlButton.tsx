@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { BannedUserListItem, SettingsButtonWrapper, UserListItem, UserListType, UserListWrapper } from './ControlButtonUtils'
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box } from '@mui/material'
+import { BannedUserListItem, RoomPasswordControl, SettingsButtonWrapper, UserListItem, UserListType, UserListWrapper } from './ControlButtonUtils'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Grid } from '@mui/material'
 import SettingsIcon from '@mui/icons-material/Settings';
 import { ChatContext } from './Chat';
 import { FetchApi } from '../component/FetchApi';
@@ -161,7 +161,7 @@ export function SettingsButtton() {
 										return (<BannedUserListItem key={member.id} user={member} id={id} currentRoom={current} onClick={handleUnbanMember} />)
 									})
 									:
-									<div>FAIRE UN TRUC AVEC LES GRIDS POUR FAIRE PLAISIR A AMIR MDR</div>
+									<RoomPasswordControl currentRoom={current}/>
 						}
 					</UserListWrapper>
 

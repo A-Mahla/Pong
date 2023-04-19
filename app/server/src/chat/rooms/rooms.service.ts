@@ -324,5 +324,19 @@ export class RoomsService {
 		return adminsTab
 	}
 
+	async addPassword(roomId: number, password: string) {
+		return this.prisma.room.update({
+			where: {
+				room_id: roomId
+			},
+			data: {
+				isPublic: false,
+				password: await bcrypt.hash(password, 12) 
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+	}
 
 }

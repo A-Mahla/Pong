@@ -1,4 +1,4 @@
-import { Button, IconButton, Box } from '@mui/material'
+import { Button, IconButton, Box, TextField, Grid } from '@mui/material'
 import BlockIcon from '@mui/icons-material/Block';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import VolumeOffIcon from '@mui/icons-material/VolumeOff';
@@ -8,7 +8,7 @@ import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import CopyrightIcon from '@mui/icons-material/Copyright';
 import { styled } from '@mui/system'
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { User } from './Chat.types';
 import useAuth, { useFetchAuth } from '../context/useAuth';
 import { FetchApi } from '../component/FetchApi';
@@ -365,3 +365,74 @@ export const BannedUserListItem = ({ user, id, currentRoom, onClick }: { user: U
 		</UserListItemWrapper>
 	);
 };
+
+//--------------------------roomPasswordControl
+
+export const RoomPasswordControl = ({ currentRoom }: { currentRoom: { id: number, name: string, ownerId: number, isPublic: boolean } },) => {
+
+	const NewPassword = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
+	const CurrentPassword = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
+
+	const auth = useFetchAuth()
+
+	//const changeRoomPasswordRequest = {
+	//	api: {
+	//		input: `http://${import.meta.env.VITE_SITE}/api/rooms/${currentRoom.id}/password/${NewPassword.current.value}`,
+	//		option: {
+	//			method: "UPDATE"
+	//		} 
+	//	},
+	//	auth: auth
+	//}
+
+
+	//const ChangeRoomProtection = {
+	//	api: {
+	//		input: `http://${import.meta.env.VITE_SITE}/api/rooms/${currentRoom.id}/goPublic`,
+	//		option: {
+	//			method: "UPDATE"
+	//		} 
+	//	},
+	//	auth: auth
+	//}
+
+	//const onChangePasswordClick = () => {
+	//	FetchApi(changeRoomPasswordRequest)
+	//}
+
+	//const onGoPublicClick = () => {
+
+	//}
+
+	const onAddPasswordClick = () => {
+
+		if (!NewPassword.current)
+			return
+
+		const addRoomPasswordRequest = {
+			api: {
+				input: `http://${import.meta.env.VITE_SITE}/api/rooms/${currentRoom.id}/addPassword/${NewPassword.current.value}`,
+				option: {
+					method: "PATCH"
+				} 
+			},
+			auth: auth
+		}
+		FetchApi(addRoomPasswordRequest)
+	}
+
+	return (
+		currentRoom.isPublic ?
+			<Grid sx={{ display: 'flex', flexDirection: 'column', p: '1rem', m: '1rem' }}>
+				<TextField ref={NewPassword} label='new password'></TextField>
+				<Button onClick={onAddPasswordClick}>add password</Button>
+			</Grid>
+			:
+			<Grid sx={{ display: 'flex', flexDirection: 'column' }}>
+				<TextField  ref={CurrentPassword} label='current password'></TextField>
+				<TextField  ref={NewPassword} label='new password'></TextField>
+				<Button>change password</Button>
+				<Button>go public</Button>
+			</Grid>
+	)
+}
