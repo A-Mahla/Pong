@@ -56,10 +56,24 @@ export class RoomsController {
 	}
 
 	@Patch('/:id/addPassword/:password')
-	changeRoomPassword(
+	addRoomPassword(
 		@Param('id') id: number, @Param('password') password: string
 	) {
 		return this.roomService.addPassword(id, password)
+	}
+
+	@Patch('/:id/goPublic')
+	roomGoPublic(
+		@Param('id') id: number
+	) {
+		return this.roomService.goPublic(id)
+	}
+
+	@Patch('/:id/changePassword/:currentPassword/:newPassword')
+	changeRoomPassword(
+		@Param('id') id: number, @Param('currentPassword') currentPassword: string, @Param('newPassword') newPassword: string
+	) {
+		return this.roomService.changeRoomPassword(id, currentPassword, newPassword)
 	}
 
 }

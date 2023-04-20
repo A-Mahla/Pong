@@ -1,4 +1,4 @@
-import { Button, IconButton, Box, TextField, Grid } from '@mui/material'
+import { Button, IconButton, Box, TextField, Grid, Snackbar } from '@mui/material'
 import BlockIcon from '@mui/icons-material/Block';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import VolumeOffIcon from '@mui/icons-material/VolumeOff';
@@ -372,37 +372,59 @@ export const RoomPasswordControl = ({ currentRoom }: { currentRoom: { id: number
 
 	const NewPassword = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
 	const CurrentPassword = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
+	const [isPublic, setIsPublic] = useState(currentRoom.isPublic)
+	const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false)
+	const [alertMessage, setAlertMessage] = useState<string>('')
 
 	const auth = useFetchAuth()
 
-	//const changeRoomPasswordRequest = {
-	//	api: {
-	//		input: `http://${import.meta.env.VITE_SITE}/api/rooms/${currentRoom.id}/password/${NewPassword.current.value}`,
-	//		option: {
-	//			method: "UPDATE"
-	//		} 
-	//	},
-	//	auth: auth
-	//}
+	const onChangePasswordClick = () => {
 
+		const changeRoomPasswordRequest = {
+			api: {
+				input: `http://${import.meta.env.VITE_SITE}/api/rooms/${currentRoom.id}/changePassword/${CurrentPassword.current.value}/${NewPassword.current.value}`,
+				option: {
+					method: 'PATCH',
+					//body: JSON.stringify({
+					//	currentPassword: CurrentPassword.current.value,
+					//	newPassword: NewPassword.current.value
+					//})
+				}
+			},
+			auth: auth
+		}
 
-	//const ChangeRoomProtection = {
-	//	api: {
-	//		input: `http://${import.meta.env.VITE_SITE}/api/rooms/${currentRoom.id}/goPublic`,
-	//		option: {
-	//			method: "UPDATE"
-	//		} 
-	//	},
-	//	auth: auth
-	//}
+		FetchApi(changeRoomPasswordRequest).then(response => response?.data)
+			.then(data => {
+				if (data.error) {
+					setIsAlertOpen(true)
+					setAlertMessage(data.error)
+				}
+				else {
+					setIsAlertOpen(true)
+					setAlertMessage('password change successfully')
+				}
+				NewPassword.current.value = ''
+				CurrentPassword.current.value = ''
+			})
+	}
 
-	//const onChangePasswordClick = () => {
-	//	FetchApi(changeRoomPasswordRequest)
-	//}
+	const onGoPublicClick = () => {
 
-	//const onGoPublicClick = () => {
+		const goPublicRequest = {
+			api: {
+				input: `http://${import.meta.env.VITE_SITE}/api/rooms/${currentRoom.id}/goPublic`,
+				option: {
+					method: 'PATCH'
+				}
+			},
+			auth: auth
+		}
+		FetchApi(goPublicRequest).then(() => setIsPublic(true))
+		NewPassword.current.value = ''
+		CurrentPassword.current.value = ''
 
-	//}
+	}
 
 	const onAddPasswordClick = () => {
 
@@ -414,25 +436,32 @@ export const RoomPasswordControl = ({ currentRoom }: { currentRoom: { id: number
 				input: `http://${import.meta.env.VITE_SITE}/api/rooms/${currentRoom.id}/addPassword/${NewPassword.current.value}`,
 				option: {
 					method: "PATCH"
-				} 
+				}
 			},
 			auth: auth
 		}
-		FetchApi(addRoomPasswordRequest)
+		FetchApi(addRoomPasswordRequest).then(() => setIsPublic(false))
+		NewPassword.current.value = ''
 	}
 
 	return (
-		currentRoom.isPublic ?
+		isPublic ?
 			<Grid sx={{ display: 'flex', flexDirection: 'column', p: '1rem', m: '1rem' }}>
-				<TextField ref={NewPassword} label='new password'></TextField>
+				<TextField inputRef={NewPassword} label='enter a password'></TextField>
 				<Button onClick={onAddPasswordClick}>add password</Button>
 			</Grid>
 			:
-			<Grid sx={{ display: 'flex', flexDirection: 'column' }}>
-				<TextField  ref={CurrentPassword} label='current password'></TextField>
-				<TextField  ref={NewPassword} label='new password'></TextField>
-				<Button>change password</Button>
-				<Button>go public</Button>
+			<Grid sx={{ display: 'flex', flexDirection: 'column', p: '1rem', m: '1rem' }}>
+				<TextField inputRef={CurrentPassword} label='current password'></TextField>
+				<TextField inputRef={NewPassword} label='new password'></TextField>
+				<Button onClick={onChangePasswordClick}>change password</Button>
+				<Button onClick={onGoPublicClick}>go public</Button>
+				<Snackbar
+					open={isAlertOpen}
+					autoHideDuration={4000}
+					onClose={() => { setIsAlertOpen(false), setAlertMessage('') }}
+					message={alertMessage}
+				/>
 			</Grid>
 	)
 }

@@ -325,18 +325,50 @@ export class RoomsService {
 	}
 
 	async addPassword(roomId: number, password: string) {
-		return this.prisma.room.update({
+		return await this.prisma.room.update({
 			where: {
 				room_id: roomId
 			},
 			data: {
 				isPublic: false,
-				password: await bcrypt.hash(password, 12) 
+				password: await bcrypt.hash(password, 12)
 			}
 		}).catch((e) => {
 			throw new BadRequestException(e);
 		})
 
+	}
+
+	async goPublic(roomId: number) {
+		return await this.prisma.room.update({
+			where: {
+				room_id: roomId
+			},
+			data: {
+				isPublic: true,
+				password: null
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+	}
+
+	async changeRoomPassword(roomId: number, currentPassword: string, newPassword: string) {
+
+		if (await this.checkRoomPassword(roomId, currentPassword) == false) {
+			return {error: 'invalid password'}
+		}
+		return await this.prisma.room.update({
+			where: {
+				room_id: roomId
+			},
+			data: {
+				password: await bcrypt.hash(newPassword, 12) 
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
 	}
 
 }
