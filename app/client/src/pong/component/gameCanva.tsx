@@ -230,7 +230,10 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 							justifyContent="center"
 							sx={{height: '100%'}}
 						>
-							<FetchAvatar avatar="" sx={{height: '5rem', width: '5rem'}}/>
+							<FetchAvatar
+								avatar={gameData?.player1.avatar}
+								sx={{height: '5rem', width: '5rem'}}
+							/>
 						</Grid>
 						<Grid item xs={6}
 							alignItems="center"
@@ -239,7 +242,7 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 							sx={{height: '100%'}}
 						>
 							<Typography>
-								Player 1
+								{gameData?.player1.login}
 							</Typography>
 						</Grid>
 					</Grid>
@@ -263,7 +266,7 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 							sx={{height: '100%'}}
 						>
 							<Typography>
-								Player 2
+								{gameData?.player2.login}
 							</Typography>
 						</Grid>
 						<Grid item xs={6}
@@ -272,7 +275,10 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 							justifyContent="center"
 							sx={{height: '100%'}}
 						>
-							<FetchAvatar avatar="" sx={{height: '5rem', width: '5rem'}}/>
+							<FetchAvatar
+								avatar={gameData?.player2.avatar}
+								sx={{height: '5rem', width: '5rem'}}
+							/>
 						</Grid>
 					</Grid>
 				</Grid>

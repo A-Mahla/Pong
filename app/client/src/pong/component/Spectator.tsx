@@ -187,7 +187,7 @@ export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, 
 												>
 													<PlayersListItemAvatarLeft>
 														<FetchAvatar
-															avatar=""
+															avatar={gameId.p1avatar}
 															sx={{
 																height: '100%',
 																width: '100%'
@@ -225,7 +225,7 @@ export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, 
 													</PlayersListItemText>
 													<PlayersListItemAvatarRight>
 														<FetchAvatar
-															avatar=""
+															avatar={gameId.p2avatar}
 															sx={{
 																height: '100%',
 																width: '100%'
