@@ -217,96 +217,99 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 
 				</Grid>
 				</>) : (<>
-				<Grid container sx={{height: '5rem'}}>
-					<Grid item
-						display="flex"
-						xs={5}
-						sx={{height: '100%'}}
-					>
-						<Grid item xs={6}
-							display="flex"
-							alignItems="center"
-							justifyContent="center"
-							sx={{height: '100%'}}
-						>
-							<FetchAvatar
-								avatar={gameData?.player1.avatar}
-								sx={{height: '5rem', width: '5rem'}}
-							/>
-						</Grid>
-						<Grid item xs={6}
-							alignItems="center"
-							display="flex"
-							justifyContent="center"
-							sx={{
-								height: '100%',
-							}}
-						>
-							<Typography
-								sx={{
-									'@media (max-width: 550px)': {
-										display: "none"
-									}
-								}}
-							>
-								{gameData?.player1.login}
-							</Typography>
-						</Grid>
-					</Grid>
-					<Grid item xs={2}
-						display="flex"
-						alignItems="center"
-						justifyContent="center"
-						sx={{height: '100%'}}
-					>
-						<Typography variant='h6'>VS</Typography>
-					</Grid>
-					<Grid item
-						display="flex"
-						xs={5}
-						sx={{height: '100%'}}
-					>
-						<Grid item xs={6}
-							display="flex"
-							alignItems="center"
-							justifyContent="center"
-							sx={{
-								height: '100%',
-							}}
-						>
-							<Typography
-								sx={{
-									'@media (max-width: 550px)': {
-										display: "none"
-									}
-								}}
-							>
-								{gameData?.player2.login}
-							</Typography>
-						</Grid>
-						<Grid item xs={6}
-							display="flex"
-							alignItems="center"
-							justifyContent="center"
-							sx={{height: '100%'}}
-						>
-							<FetchAvatar
-								avatar={gameData?.player2.avatar}
-								sx={{height: '5rem', width: '5rem'}}
-							/>
-						</Grid>
-					</Grid>
-				</Grid>
 				<Grid container
 					direction="column"
 					justifyContent="center"
 					sx={{maxWidth: '1200px'}}
 				>
+					<Grid container
+						direction="row"
+						sx={{height: '5rem', mb: 4}}
+					>
+						<Grid item
+							display="flex"
+							xs={5}
+							sx={{height: '100%'}}
+						>
+							<Grid item xs={6}
+								display="flex"
+								alignItems="center"
+								justifyContent="center"
+								sx={{height: '100%'}}
+							>
+								<FetchAvatar
+									avatar={gameData?.player1.avatar}
+									sx={{height: '5rem', width: '5rem'}}
+								/>
+							</Grid>
+							<Grid item xs={6}
+								alignItems="center"
+								display="flex"
+								justifyContent="center"
+								sx={{
+									height: '100%',
+								}}
+							>
+								<Typography
+									sx={{
+										'@media (max-width: 550px)': {
+											display: "none"
+										}
+									}}
+								>
+									{gameData?.player1.login}
+								</Typography>
+							</Grid>
+						</Grid>
+						<Grid item xs={2}
+							display="flex"
+							alignItems="center"
+							justifyContent="center"
+							sx={{height: '100%'}}
+						>
+							<Typography variant='h6'>VS</Typography>
+						</Grid>
+						<Grid item
+							display="flex"
+							xs={5}
+							sx={{height: '100%'}}
+						>
+							<Grid item xs={6}
+								display="flex"
+								alignItems="center"
+								justifyContent="center"
+								sx={{
+									height: '100%',
+								}}
+							>
+								<Typography
+									sx={{
+										'@media (max-width: 550px)': {
+											display: "none"
+										}
+									}}
+								>
+									{gameData?.player2.login}
+								</Typography>
+							</Grid>
+							<Grid item xs={6}
+								display="flex"
+								alignItems="center"
+								justifyContent="center"
+								sx={{height: '100%'}}
+							>
+								<FetchAvatar
+									avatar={gameData?.player2.avatar}
+									sx={{height: '5rem', width: '5rem'}}
+								/>
+							</Grid>
+						</Grid>
+					</Grid>
 					<Grid item xs={12}
 						display="flex"
 						justifyContent="center"
 						alignItems="center"
-						sx={{width: '100%', height:"32rem"}}
+						sx={{width: '100%', height:"32rem", mb: 4}}
 					>
 						<canvas
 							onMouseMove={handleMouseMove}
