@@ -45,6 +45,7 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 
 	const quitGame = async () => {
 		socket.emit('quitGame')
+		console.log("in quiteGameFunction player send the event");
 		handleThereIsMatch()
 	}
 
@@ -105,7 +106,7 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 		socket.on("initSetup", (gameData: GameData) => {
 			
 			// if ((gameData.player1.avatar) != undefined) // il faudra que tu check car il peut etre undefined au cas ou jai pas trouve d'avatar
-			
+			console.log('BONJOUR BONJOUR');
 			// player1 login and avatar	
 			console.log("login: " + gameData.player1.login + " avatar: " + gameData.player1.avatar);
 			// player2 login and avatar	

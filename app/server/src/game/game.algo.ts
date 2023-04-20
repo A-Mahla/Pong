@@ -11,7 +11,7 @@ import { GameDataType, Status, gamePatron, GamePatron, Player, GameParams, Updat
 import { interval } from 'rxjs';
 import { resolve } from 'path';
 import { rejects } from 'assert';
-import { error } from 'console';
+import { error, time } from 'console';
 import { EventEmitter } from 'events';
 
 /**
@@ -52,7 +52,6 @@ export class GameAlgo {
 		return (
 			new Promise<string>((resolve, rejects) => {
 				this.internalEvents.once('stop', () => {
-
 					this.status = Status.OVER;
 					rejects('BLOCKED');
 				});
@@ -200,7 +199,8 @@ export class GameAlgo {
 		this.status = Status.ONE_PLAYER;
 
 		// registering player1 y listeners
-		this.player1.playerSocket.once('quitGame', (socket: Socket) => { // player quiting the game
+		this.player1.playerSocket.on('quitGame', (socket: Socket) => { // player quiting the game
+			console.log('player1 quit the game');
 			this.internalEvents.emit('stop', '1');
 		})
 
@@ -249,7 +249,8 @@ export class GameAlgo {
 		this.status = Status.TWO_PLAYER;
 
 		// registering player2 y listeners
-		this.player2.playerSocket.once('quitGame', (socket: Socket) => { // player quiting the game
+		this.player2.playerSocket.on('quitGame', (socket: Socket) => { // player quiting the game
+			console.log("player2 quit the game");
 			this.internalEvents.emit('stop', '2');
 		})
 
@@ -302,6 +303,10 @@ export class GameAlgo {
 		if (player1ou2 === 1) {
 			this.player1!.playerSocket = playerSocket
 			this.player1!.socketID = socketID;
+			this.player1!.playerSocket.on('quitGame', (socket: Socket) => { // player quiting the game
+				console.log('player1 quit the game');
+				this.internalEvents.emit('stop', '1');
+			})	
 			this.player1!.playerSocket.on('paddlePos', (y: number, socket: Socket) => { // player moving the paddle
 				this.gameDataUpdate.p1y = y;
 				this.gameModel.p1timeout = Date.now();
@@ -312,6 +317,10 @@ export class GameAlgo {
 		else if (player1ou2 === 2){
 			this.player2!.playerSocket = playerSocket
 			this.player2!.socketID = socketID;
+			this.player2!.playerSocket.on('quitGame', (socket: Socket) => { // player quiting the game
+				console.log("player2 quit the game");
+				this.internalEvents.emit('stop', '2');
+			})
 			this.player2!.playerSocket.on('paddlePos', (y: number, socket: Socket) => { // player moving the paddle
 				this.gameDataUpdate.p2y = y;
 				this.gameModel.p2timeout = Date.now();
@@ -319,6 +328,7 @@ export class GameAlgo {
 			console.log('in playerChangeSocket: player2')
 			this.server.to(socketID).emit('initSetup', this.rotateInitSetup(await this.initGameDataSetUp(this.gameModel)));
 		}
+
 	}
 
 	public async addWatcherSocketID(newWatcherSocket: Socket) {

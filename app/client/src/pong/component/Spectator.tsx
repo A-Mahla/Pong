@@ -95,7 +95,7 @@ type WatchProps = {
 }
 
 export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, setOpenWatch}: WatchProps) => {
-	const [gameList, setGameList] = React.useState<{game_id: string, p1:string, p2: string}[]>([]);
+	const [gameList, setGameList] = React.useState<{game_id: string, p1:string, p1avatar:string, p2: string, p2avatar:string}[]>([]);
 	const [selectedRowId, setSelectedRowId] = useState<number | null>(null)
 
 	function handleJoinGame(gameId: string) {

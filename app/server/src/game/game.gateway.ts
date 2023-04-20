@@ -104,13 +104,19 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	@SubscribeMessage('getRuningGames')
 	async runingGamesList() {
-		let keysTable: {game_id: string, p1:string, p2: string}[] = [];
+		let keysTable: {game_id: string, p1:string, p1avatar:string, p2: string, p2avatar:string}[] = [];
 
-		const assignKeysToTable = () => {
+		const assignKeysToTable = async () => {
 			// Parcours chaque noeud de la Map
 			for (let [key, value] of this.gameMap) {
 				if (value.getStatus() === Status.RUNNING)
-					keysTable.push({game_id: key, p1: value.getPlayerLogin(1), p2: value.getPlayerLogin(2)});
+					keysTable.push({
+									game_id: key, 
+									p1: value.getPlayerLogin(1),
+									p1avatar: (await this.gameService.getAvatarPath(parseInt(value.getPlayerID(1)))).avatar,
+									p2: value.getPlayerLogin(2),
+									p2avatar: (await this.gameService.getAvatarPath(parseInt(value.getPlayerID(2)))).avatar
+								});
 			}
 		}
 		assignKeysToTable();
