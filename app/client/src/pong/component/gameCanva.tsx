@@ -15,7 +15,6 @@ import { render } from 'react-dom'
 import LinearProgress from '@mui/material/LinearProgress';
 import FetchAvatar from '../component/FetchAvatar'
 import { GameData, constants, updateData } from './gameType'
-
 import { draw, drawEndGame } from './drawCanvas'
 
 
@@ -239,9 +238,17 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 							alignItems="center"
 							display="flex"
 							justifyContent="center"
-							sx={{height: '100%'}}
+							sx={{
+								height: '100%',
+							}}
 						>
-							<Typography>
+							<Typography
+								sx={{
+									'@media (max-width: 550px)': {
+										display: "none"
+									}
+								}}
+							>
 								{gameData?.player1.login}
 							</Typography>
 						</Grid>
@@ -263,9 +270,17 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 							display="flex"
 							alignItems="center"
 							justifyContent="center"
-							sx={{height: '100%'}}
+							sx={{
+								height: '100%',
+							}}
 						>
-							<Typography>
+							<Typography
+								sx={{
+									'@media (max-width: 550px)': {
+										display: "none"
+									}
+								}}
+							>
 								{gameData?.player2.login}
 							</Typography>
 						</Grid>
