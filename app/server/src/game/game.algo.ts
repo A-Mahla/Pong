@@ -42,9 +42,10 @@ export class GameAlgo {
 		private readonly gameService: GameService,
 				readonly server: Server,
 				readonly roomID: string,
+				readonly initialStatus: Status
 	) {
 		this.gameDataUpdate = this.initGameDataUpdate(this.gameModel);
-		this.status = Status.EMPTY;
+		this.status = initialStatus;
 		this.internalEvents = new EventEmitter();
 	}
 
@@ -56,13 +57,13 @@ export class GameAlgo {
 					rejects('BLOCKED');
 				});
 
-				const checkPlayer = async (count: number, timeout: NodeJS.Timeout) => {
-					if (this.player1 && this.player2 && this.player2.id != this.player1.id)
+				const checkPlayer = (count: number, timeout: NodeJS.Timeout) => {
+					if (this.player1 && this.player2 && this.player2.id != this.player1.id && this.player2.isReady && this.player1.isReady)
 					{
 						clearTimeout(timeout);
 						this.shutDownInternalEvents();
-						this.server.to(this.player1.socketID).emit('initSetup', await this.initGameDataSetUp(this.gameModel));
-						this.server.to(this.player2.socketID).emit('initSetup', this.rotateInitSetup(await this.initGameDataSetUp(this.gameModel)));
+						this.server.to(this.player1.socketID).emit('initSetup', this.initGameDataSetUp(this.gameModel));
+						this.server.to(this.player2.socketID).emit('initSetup', this.rotateInitSetup( this.initGameDataSetUp(this.gameModel)));
 						this.startGame().then(solved => {
 								this.gameService.endGameDBwrites(this.roomID, this.player1!, this.player2!, this.gameDataUpdate);
 								this.status = Status.OVER;
@@ -97,7 +98,7 @@ export class GameAlgo {
 	private async	startGame() {
 			return new Promise<string>((resolve, rejects) => {
 				this.status = Status.RUNNING;
-
+				this.server.emit('newGameRunning');
 				this.internalEvents.on('start', () => {
 					clearInterval(this.interval);
 					this.interval = setInterval(this.computeGame.bind(this), 16)
@@ -195,8 +196,10 @@ export class GameAlgo {
 
 	public initPlayer1(player: Player, gameConfig: GameParams | undefined) {
 		this.player1 = player;
-		this.gameModel.p1Login  = this.player1.login;
-		this.status = Status.ONE_PLAYER;
+
+		// this.gameModel.p1Login  = this.player1.login;
+		if (this.status != Status.LOCKED) // to not change it if in gameInvite process
+			this.status = Status.ONE_PLAYER;
 
 		// registering player1 y listeners
 		this.player1.playerSocket.on('quitGame', (socket: Socket) => { // player quiting the game
@@ -207,6 +210,10 @@ export class GameAlgo {
 		this.player1.playerSocket.on('paddlePos', (y: number, socket: Socket) => { // player moving the paddle
 			this.gameDataUpdate.p1y = y;
 			this.gameModel.p1timeout = Date.now();
+		})
+
+		this.player1.playerSocket.on('imReady', () => {
+			this.player1!.isReady = true;
 		})
 		// -------------------------------
 
@@ -245,7 +252,7 @@ export class GameAlgo {
 
 	public initPlayer2(player: Player) {
 		this.player2 = player;
-		this.gameModel.p2Login = this.player2.login;
+		// this.gameModel.p2Login = this.player2.login;
 		this.status = Status.TWO_PLAYER;
 
 		// registering player2 y listeners
@@ -259,7 +266,9 @@ export class GameAlgo {
 			this.gameModel.p2timeout = Date.now();
 		})
 		// ------------------------------
-
+		this.player2.playerSocket.on('imReady', () => {
+			this.player2!.isReady = true;
+		})
 		this.server.to(this.player2.socketID).emit('lockAndLoaded');
 	}
 
@@ -299,6 +308,16 @@ export class GameAlgo {
 	}
 
 
+	public getPlayerAvatar(player1ou2: number) : string {
+
+		if (player1ou2 === 1 && this.player1)
+			return this.player1.avatar
+		else if (player1ou2 === 2 && this.player2)
+			return this.player2.avatar
+		else
+			return "error"
+	}
+
 	public async playerChangeSocket(playerSocket: Socket, socketID: string, player1ou2: number) {
 		if (player1ou2 === 1) {
 			this.player1!.playerSocket = playerSocket
@@ -306,13 +325,17 @@ export class GameAlgo {
 			this.player1!.playerSocket.on('quitGame', (socket: Socket) => { // player quiting the game
 				console.log('player1 quit the game');
 				this.internalEvents.emit('stop', '1');
-			})	
+			})
 			this.player1!.playerSocket.on('paddlePos', (y: number, socket: Socket) => { // player moving the paddle
 				this.gameDataUpdate.p1y = y;
 				this.gameModel.p1timeout = Date.now();
 			})
 			console.log('in playerChangeSocket: player1')
-			this.server.to(socketID).emit('initSetup', this.initGameDataSetUp(await this.gameModel));
+			const testTime = setTimeout(()=>{
+				this.server.to(socketID).emit('initSetup', this.initGameDataSetUp(this.gameModel));
+				clearInterval(testTime)
+			}, 100);
+
 		}
 		else if (player1ou2 === 2){
 			this.player2!.playerSocket = playerSocket
@@ -325,15 +348,18 @@ export class GameAlgo {
 				this.gameDataUpdate.p2y = y;
 				this.gameModel.p2timeout = Date.now();
 			})
-			console.log('in playerChangeSocket: player2')
-			this.server.to(socketID).emit('initSetup', this.rotateInitSetup(await this.initGameDataSetUp(this.gameModel)));
+			console.log('in playerChangeSocket: player2');
+			const testTime = setTimeout(()=>{
+				this.server.to(socketID).emit('initSetup', this.rotateInitSetup(this.initGameDataSetUp(this.gameModel)));
+				clearInterval(testTime)
+			}, 100);
 		}
 
 	}
 
 	public async addWatcherSocketID(newWatcherSocket: Socket) {
 		this.watchers.push(newWatcherSocket);
-		this.server.to(newWatcherSocket.id).emit('initSetup', this.initGameDataSetUp(await this.gameModel));
+		this.server.to(newWatcherSocket.id).emit('initSetup', this.initGameDataSetUp( this.gameModel));
 		newWatcherSocket.on('quitGame', () => {
 			this.watchers.forEach((value, index) => {
 				if (value === newWatcherSocket) {
@@ -394,8 +420,7 @@ export class GameAlgo {
 
 
 	/* INITIALISING THE FULL DATA SET UP FOR STARTING THE GAME */
-	async initGameDataSetUp(gamePatron: GamePatron): Promise<GameDataType> {
-
+	initGameDataSetUp(gamePatron: GamePatron): GameDataType {
 		return ({
 			roomInfo: {
 				playerHeigth: gamePatron.playerHeight,
@@ -404,15 +429,15 @@ export class GameAlgo {
 				timer: 0
 			},
 			player1: {
-				login: gamePatron.p1Login,
-				avatar: (await this.gameService.getAvatarPath(this.player1!.id)).avatar,
+				login: this.player1!.login,
+				avatar: this.player1?.avatar,
 				y: gamePatron.canvasHeight / 2,
 				score: 0,
 				timeout: 0
 			},
 			player2: {
-				login: gamePatron.p2Login,
-				avatar: (await this.gameService.getAvatarPath(this.player2!.id)).avatar,
+				login: this.player2!.login,
+				avatar: this.player2?.avatar,
 				y: gamePatron.canvasHeight / 2,
 				score: 0,
 				timeout: 0
@@ -443,4 +468,5 @@ export class GameAlgo {
 		return temp;
 	}
 	/** ---------------------------------------------- */
+
 }

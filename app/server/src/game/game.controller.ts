@@ -40,7 +40,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RefreshJwtAuthGuard } from 'src/auth/refresh-jwt-auth.guard'
 import { Intra42AuthGuard } from 'src/auth/intra42.guard';
 import { GameService } from './game.service';
-import { matchHistoryPayload } from './game.types';
+import { InviteGameData } from './game.types';
 
 
 @Controller('game')
@@ -79,16 +79,26 @@ export class GameController {
 		const raw = await this.gameService.gameHistory(req.user.sub);
 		return this.gameService.parseGameHistory(raw);
 	}
-/*
-	 --> l1 is player that made the request, l2 is the competitor and s* is score
-[
-	{ l1: 'amir', s1: 14, l2: 'sacha', s2: 15 },
-	{ l1: 'amir', s1: 19, l2: 'sacha', s2: 9 },
-	{ l1: 'amir', s1: 10, l2: 'sacha', s2: 23 },
-	{ l1: 'amir', s1: 12, l2: 'sacha', s2: 6 },
-	{ l1: 'amir', s1: 10, l2: 'sacha', s2: 15 }
-]
-*/
+
+	//@UseGuards(JwtAuthGuard)
+	@Post('newInvite')
+	async registerNewGameInvite(@Body() inviteGameData: InviteGameData) {
+		const test = await this.gameService.registerNewGameInvite(inviteGameData);
+		console.log( '+++++++++++++++++++++++++++++' + test.sender_login);
+		return test;
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Get('gamesInvites')
+	async getGamesInvites(
+		@Request() req: any,
+	) {
+		if (!req.user.sub)
+			throw BadRequestException;
+		const test = await this.gameService.getGamesInvites(req.user.sub);
+		console.log(test);
+		return test;
+	}
 
 //	======================== Getting raw stats about a player game ================
 

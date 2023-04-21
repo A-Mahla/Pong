@@ -44,9 +44,11 @@ export const gamePatron: GamePatron = {
 export type Player = {
 	id: number,
 	login: string,
+	avatar: string,
 	playerRole: "p1" | "p2",
 	playerSocket: Socket,
 	socketID: string
+	isReady: boolean
 }
 
 
@@ -123,4 +125,14 @@ export type matchHistoryPayload = {
 	l2: string,
 	a2: string,
 	s2: number
+}
+
+export type InviteGameData = {
+	sender_id: number,
+	sender_login: string,
+	receiver_id: number,
+	receiver_login: string,
+	ballSpeed: string,
+	paddleSize: string,
+	duration: string
 }

@@ -47,28 +47,27 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			gameToJoin.initPlayer2({
 				id: parseInt( clientPayload.id ),
 				login: clientPayload.login,
+				avatar: (await this.gameService.getAvatarPath(parseInt( clientPayload.id ))).avatar,
 				socketID: client.id,
 				playerRole: "p2",
-				playerSocket: client
+				playerSocket: client,
+				isReady: false
 			});
-			if (gameToJoin.getStatus() === Status.RUNNING)
-				this.runingGamesList();
 		} else if (notPlayingWithYourself) {
 			// no waiting games with one player so we create one
 				const newGameDB = await this.gameService.registerNewGame('WAIT');
 				if (newGameDB) {
-						var newGameAlgo: GameAlgo = new GameAlgo(this.gameService, this.server, newGameDB.game_id.toString());
+						var newGameAlgo = new GameAlgo(this.gameService, this.server, newGameDB.game_id.toString(), Status.EMPTY);
 						this.gameMap.set( newGameDB.game_id.toString(), newGameAlgo);
 						newGameAlgo.initPlayer1({
 							id: parseInt( clientPayload.id ),
 							login: clientPayload.login,
+							avatar: (await this.gameService.getAvatarPath(parseInt( clientPayload.id ))).avatar,
 							socketID: client.id,
 							playerRole: "p1",
-							playerSocket: client
-
+							playerSocket: client,
+							isReady: false
 						}, clientPayload.config);
-
-						// this.runingGamesList(); // update client for watching gamelist
 
 						await newGameAlgo.launchGame().then( value => {
 							newGameAlgo.shutDownInternalEvents();
@@ -84,7 +83,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 							}
 							if (onrejected === 'TIME') {
 								console.log(" --- timeOut --- ");
-								this.server.to(client.id).emit('disconnection', 'DISCONNECTED: unable to find a match, try later');
+								this.server.to(client.id).emit('disconnection', 'DISCONNECTED: timeout, try later');
 							}
 							if (onrejected === 'BLOCKED') {
 								console.log(" --- bloked --- ");
@@ -102,20 +101,62 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			}
 	}
 
+	@SubscribeMessage('friendMatchMaking')
+	async friendMatchMaker(client: Socket, {p1Id, p2Id, id, login}: {p1Id: number, p2Id: number, id: number, login: string}) {
+		let test = false;
+		this.gameMap.forEach(async (game) => {
+			if (game.getStatus() === Status.LOCKED) {
+				if (parseInt(game.getPlayerID(1)) === p1Id || parseInt(game.getPlayerID(1)) === p2Id)
+				{
+					console.log(game.roomID);
+					test = true;
+					game.initPlayer2({
+						id: id ,
+						login: login,
+						avatar: (await this.gameService.getAvatarPath(id)).avatar,
+						socketID: client.id,
+						playerRole: "p1",
+						playerSocket: client,
+						isReady: false
+					});
+					return ;
+				}
+			}
+		});
+		if (!test) // the game still need to be created
+		{
+			const newGameDB = await this.gameService.registerNewGame('WAIT');
+			if (newGameDB) {
+				var newGameAlgo = new GameAlgo(this.gameService, this.server, newGameDB.game_id.toString(), Status.LOCKED);
+				console.log(newGameAlgo.roomID);
+					newGameAlgo.initPlayer1({
+						id: id ,
+						login: login,
+						avatar: (await this.gameService.getAvatarPath(id)).avatar,
+						socketID: client.id,
+						playerRole: "p1",
+						playerSocket: client,
+						isReady: false
+					}, undefined);
+					this.gameMap.set( newGameDB.game_id.toString(), newGameAlgo);
+			}
+		}
+	}
+
 	@SubscribeMessage('getRuningGames')
-	async runingGamesList() {
+	runingGamesList() {
 		let keysTable: {game_id: string, p1:string, p1avatar:string, p2: string, p2avatar:string}[] = [];
 
-		const assignKeysToTable = async () => {
+		const assignKeysToTable = () => {
 			// Parcours chaque noeud de la Map
 			for (let [key, value] of this.gameMap) {
 				if (value.getStatus() === Status.RUNNING)
 					keysTable.push({
-									game_id: key, 
+									game_id: key,
 									p1: value.getPlayerLogin(1),
-									p1avatar: (await this.gameService.getAvatarPath(parseInt(value.getPlayerID(1)))).avatar,
+									p1avatar: value.getPlayerAvatar(1),
 									p2: value.getPlayerLogin(2),
-									p2avatar: (await this.gameService.getAvatarPath(parseInt(value.getPlayerID(2)))).avatar
+									p2avatar: value.getPlayerAvatar(2)
 								});
 			}
 		}
@@ -146,13 +187,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 					if (game.getStatus() === Status.RUNNING) {
 						if (clientPayload.sub && clientPayload.sub == game.getPlayerID(1)) { // player1
 							client.join(roomID);
-							game.playerChangeSocket(client, client.id, 1);
 							this.server.to(client.id).emit('lockAndLoaded')
+							game.playerChangeSocket(client, client.id, 1);
 						}
 						else if (clientPayload.sub && clientPayload.sub == game.getPlayerID(2)) { // player2
 							client.join(roomID);
-							game.playerChangeSocket(client, client.id, 2);
 							this.server.to(client.id).emit('lockAndLoaded')
+							game.playerChangeSocket(client, client.id, 2);
 						}
 						return;
 						// console.log(`---> ICI: ${Status.RUNNING} = ${game.getStatus()} | ${clientPayload.sub} === ${game.getPlayerID(0)} | ${clientPayload.sub} === ${game.getPlayerID(1)}`);
@@ -170,6 +211,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		console.log(`Client disconnected: ${client.id}`);
 		for (let [key, value] of this.gameMap) {
 			if (value.getPlayerSocketID(1) === client.id && value.getStatus() === Status.ONE_PLAYER ){
+				console.log('disconecte form the stuff');
 				value.shutDownInternalEvents();
 				this.gameService.deleteGame(value.roomID);
 				this.gameMap.delete(value.roomID);

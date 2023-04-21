@@ -69,3 +69,16 @@ export type updateData = {
 	bx: number
 	by: number
 }
+
+// fetching the invitation
+export type InviteGameData = {
+	id: number,
+	createdAt: Date,
+	sender_id: number,
+	sender_login: string,
+	receiver_id: number,
+	receiver_login: string,
+	ballSpeed: string,
+	paddleSize: string,
+	duration: string
+}

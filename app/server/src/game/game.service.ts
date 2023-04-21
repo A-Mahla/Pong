@@ -1,6 +1,6 @@
 import { BadGatewayException, BadRequestException, Injectable, UseInterceptors, UploadedFile, Param } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { GameDataType, GameParams, UpdateGameDataType, Player, matchHistoryPayload } from './game.types'
+import { GameDataType, GameParams, UpdateGameDataType, Player, matchHistoryPayload, InviteGameData } from './game.types'
 
 @Injectable()
 export class GameService {
@@ -217,6 +217,22 @@ export class GameService {
 		return (true);
 	}
 
+	async registerNewGameInvite(inviteGameData: InviteGameData) {
+		return this.prisma.gamesInvites.create({
+			data: inviteGameData
+		})
+	}
+
+	async getGamesInvites(user_id: number){
+		return this.prisma.gamesInvites.findMany({
+		  where: {
+			OR: [
+			  { sender_id: user_id },
+			  { receiver_id: user_id },
+			],
+		  },
+		});
+	  }
 }
 
 //	================ ^^^^^^^^^^^^^^^^^^ ===========

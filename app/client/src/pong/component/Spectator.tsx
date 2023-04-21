@@ -105,8 +105,11 @@ export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, 
 			handleThereIsMatch()
 	}
 
+	socket.on('newGameRunning', () => {
+		socket.emit("getRuningGames");
+	})
+
 	socket.on('updateRuningGames', (runningGameList: any) => {
-		console.log('jai du passer par la' + runningGameList);
 		setGameList(runningGameList);
 	})
 

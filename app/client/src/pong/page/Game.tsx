@@ -70,7 +70,7 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 //   const [duration, setDuration] = useState<string>('medium');
 //   const [speed, setSpeed] = useState<string>('medium');
 
-  const handlePaddleSizeLevel = (event: any) => {
+const handlePaddleSizeLevel = (event: any) => {
 	if (playerPayload.config) {
 		if (event.target.value === "easy"){
 			setPlayerPayload({...playerPayload,
@@ -94,7 +94,7 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 				}})
 		}
 	}
-  };
+};
 
 
 	const handleBallSpeedLevel = (event: any) => {

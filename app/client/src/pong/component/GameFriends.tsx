@@ -30,6 +30,8 @@ import {
 	PlayersListItemAvatar,
 } from '../Profile/SearchPlayers'
 import FetchAvatar from './FetchAvatar'
+import { InviteGameData }from './gameType'
+
 
 interface PlayersListItemProps {
 	isActive: boolean;
@@ -95,37 +97,51 @@ type WatchProps = {
 }
 
 export const GameFriends = ({socket, thereIsMatch, handleThereIsMatch, openFriends, setOpenFriends}: WatchProps) => {
-	const [friendList, setFriendList] = React.useState<{game_id: string, playerWhoCreateAGame: string}[]>([
-		{
-			game_id: "2",
-			playerWhoCreateAGame: "John",
-		}
+	const [friendList, setFriendList] = React.useState<InviteGameData[]>([
+
 	]);
 	const [selectedRowId, setSelectedRowId] = useState<number | null>(null)
 
-	function handleJoinGame(gameId: string) {
+	const auth = useFetchAuth();
+	const {id, user} = useAuth();
+
+	function handleJoinGame(gameId: number, game: InviteGameData) {
 		// Implémentez cette fonction selon ce que vous voulez faire lorsque l'utilisateur clique sur un bouton.
-		/* socket.emit('watchGame', gameId); */
+		const p1Id = game.sender_id;
+		const p2Id = game.receiver_id;
+		socket.emit('friendMatchMaking', {p1Id, p2Id, id, user})
 		if (!thereIsMatch)
 			handleThereIsMatch()
 	}
 
-	/*	SET NEW FRIEND SOCKET EVENT
-	socket.on('updateRuningGames', (runningGameList: any) => {
-		console.log('jai du passer par la' + friendGameList);
-		setFriendList(friendGameList);
-	}) */
-
-	React.useEffect(() => {
-		//		setFriendList([])
-	/* EMIT A NEW FRIEND SOCKET EVENT
-		socket.emit("getRuningGames");
-	*/
-	}, [])
-
+	//	SET NEW FRIEND SOCKET EVENT
+	/*
+	socket.on('friendGameRequest', (newfriendGameList: {game_id: string, playerWhoCreateAGame: string}) => {
+		console.log('jai du passer par la' + newfriendGameList);
+		friendList.push(newfriendGameList);
+		setFriendList(friendList);
+	})
+*/
 	const handleClose = () => {
 		setOpenFriends(false)
 	}
+
+	React.useEffect(() => {
+		async function fetching() {
+			const response = await FetchApi({
+				api: {
+						input: `http://${import.meta.env.VITE_SITE}/api/game/gamesInvites`,
+						option: {
+							method: "GET",
+						},
+				 },
+					auth: auth,
+			})
+			setFriendList(response!.data)
+
+		}
+		fetching();
+	}, [])
 
 	return (
 		<>
@@ -180,8 +196,8 @@ export const GameFriends = ({socket, thereIsMatch, handleThereIsMatch, openFrien
 								<PlayersListWrapper>
 									{friendList.map((gameId) => (
 										<PlayersListItem
-											key={+gameId.game_id}
-											isActive={+gameId.game_id === selectedRowId}
+											key={+gameId.id}
+											isActive={+gameId.id === selectedRowId}
 										>
 											<Grid container
 												sx={{width: '100%'}}
@@ -202,7 +218,7 @@ export const GameFriends = ({socket, thereIsMatch, handleThereIsMatch, openFrien
 														/>
 													</PlayersListItemAvatarLeft>
 													<PlayersListItemText>
-														{gameId.playerWhoCreateAGame}
+														{gameId.sender_login}
 													</PlayersListItemText>
 												</Grid>
 												<Grid item xs={5}
@@ -229,7 +245,7 @@ export const GameFriends = ({socket, thereIsMatch, handleThereIsMatch, openFrien
 												>
 													<Button
 														variant="contained"
-													onClick={() => handleJoinGame(gameId.game_id)}
+													onClick={() => handleJoinGame(gameId.id, gameId)}
 														sx={{
 															'&:hover': {
 																backgroundColor: '#427094',
