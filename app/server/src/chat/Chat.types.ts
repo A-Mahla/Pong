@@ -59,3 +59,8 @@ export type KickMemberData = {
 	room_id: number,
 	user_id: number
 }
+
+export type MuteMemberData = {
+	room_id: number,
+	user_id: number
+}

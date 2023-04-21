@@ -310,5 +310,15 @@ export class RoomsService {
 		return adminsTab
 	}
 
+	async muteUser(userId: number, roomId: number) {
+		return await this.prisma.mute.create({
+			data: {
+				RoomId: roomId,
+				MutedUserId: userId
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+	}
 
 }

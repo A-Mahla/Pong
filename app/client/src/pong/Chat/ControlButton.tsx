@@ -14,6 +14,7 @@ export function SettingsButtton() {
 	const [members, setMembers] = useState<User[]>([])
 	const [bannedUsers, setBannedUsers] = useState<User[]>([])
 	const [adminMembers, setAdminMembers] = useState<User[]>([])
+	const [mutedMembers, setMutedMembers] = useState<User[]>([])
 	const [displayList, setDisplayList] = useState<UserListType>(UserListType.MEMBERS)
 	const { id } = useAuth()
 	const auth = useFetchAuth()
@@ -41,7 +42,7 @@ export function SettingsButtton() {
 		}
 
 		getBannedUsers().then(data => setBannedUsers(data))
-	}, [displayList])
+	}, [displayList, isSettingsOpen])
 
 	useEffect(() => {
 
@@ -65,7 +66,7 @@ export function SettingsButtton() {
 
 		getMembers().then(data => setMembers(data))
 
-	}, [displayList])
+	}, [displayList, isSettingsOpen])
 
 	useEffect(() => {
 		const getAdmins = async () => {
@@ -82,9 +83,26 @@ export function SettingsButtton() {
 			return response?.data
 		}
 
-		//getAdmins().then(data => setAdminMembers(data))
-		getAdmins().then(data => console.log('adminMembers: ',data))
-	}, [])
+		getAdmins().then(data => setAdminMembers(data))
+	}, [isSettingsOpen])
+
+	useEffect(() => {
+		const getMuteds = async () => {
+			const getMutedMembersRequest = {
+
+				api: {
+					input: `http://${import.meta.env.VITE_SITE}/api/rooms/${current.id}/muted`
+				},
+				auth: auth
+			}
+
+			const response = await FetchApi(getMutedMembersRequest)
+
+			return response?.data
+		}
+
+		getMuteds().then(data => setMutedMembers(data))
+	}, [isSettingsOpen])
 
 	const handleSettingsButtonClick = () => {
 		setIsSettingsOpen(true)
@@ -156,8 +174,9 @@ export function SettingsButtton() {
 							displayList === UserListType.MEMBERS ?
 								members.map((member) => {
 									return (<UserListItem key={member.id} user={member} id={id} currentRoom={current}
-									setMembers={setMembers} setBannedUsers={setBannedUsers} setAdminMembers={setAdminMembers} 
-									members={members} bannedUsers={bannedUsers} adminMembers={adminMembers}/>)
+									setMembers={setMembers} setBannedUsers={setBannedUsers} setAdminMembers={setAdminMembers}
+									members={members} bannedUsers={bannedUsers} adminMembers={adminMembers}
+									setMutedMembers={setMutedMembers} mutedMembers={mutedMembers}/>)
 								})
 								:
 								bannedUsers.map((member) => {

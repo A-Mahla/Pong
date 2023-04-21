@@ -5,7 +5,7 @@ import { Server, Socket } from 'socket.io';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { UsersService } from 'src/users/users.service';
 import { RoomsService } from './rooms/rooms.service';
-import { AddFriendData, BanMemberData, CreateRoomData, DowngradeMemberData, FriendRequestData, JoinRoomData, KickMemberData, MessageData, UpgradeMemberData } from './Chat.types';
+import { AddFriendData, BanMemberData, CreateRoomData, DowngradeMemberData, FriendRequestData, JoinRoomData, KickMemberData, MessageData, MuteMemberData, UpgradeMemberData } from './Chat.types';
 import { WsGuard } from './ws.guard';
 import { MessageService } from './messages/messages.service';
 import { ChatService } from './chat.service';
@@ -94,6 +94,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('kickMember') 
   async handleKickMember(client: Socket, payload: KickMemberData) {
     return this.chatService.kickMember(this.server, payload)
+  }
+
+  @SubscribeMessage('muteMember')
+  async handleMuteMember(client: Socket, payload: MuteMemberData) {
+    return this.chatService.muteMember(this.server, payload)
   }
 
   afterInit(server: Server): any {

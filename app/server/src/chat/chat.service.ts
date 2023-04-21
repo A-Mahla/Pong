@@ -3,7 +3,7 @@ import { Room, User } from "@prisma/client";
 import { ServerStreamFileResponseOptions } from "http2";
 import { Server, Socket } from "socket.io";
 import { UsersService } from "src/users/users.service";
-import { CreateRoomData, MessageData, LeaveRoomData, JoinRoomData, AddFriendData, FriendRequestData, BanMemberData, UpgradeMemberData, KickMemberData } from "./Chat.types";
+import { CreateRoomData, MessageData, LeaveRoomData, JoinRoomData, AddFriendData, FriendRequestData, BanMemberData, UpgradeMemberData, KickMemberData, MuteMemberData } from "./Chat.types";
 import { MessageService } from "./messages/messages.service";
 import { RoomsService } from "./rooms/rooms.service";
 import { FriendsService } from "./friends/friends.service";
@@ -179,6 +179,10 @@ export class ChatService {
 		server.to(payload.user_id.toString()).emit('roomLeaved', payload.room_id)
 
 		return await this.roomService.deleteRelation(payload.user_id, payload.room_id)
+	}
+
+	async muteMember(server: Server, payload: MuteMemberData) {
+		return await this.roomService.muteUser(payload.user_id, payload.room_id)
 	}
 
 }

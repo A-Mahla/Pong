@@ -11,11 +11,21 @@ import { FriendsController } from "./friends/friends.controller";
 import { FriendsService } from "./friends/friends.service";
 import { AdminController } from "src/admin/admin.controller";
 import { BlockService } from "src/admin/block.service";
+import { Cron } from '@nestjs/schedule'
+import { deleteExpiredMutes } from "./rooms/deleteExpiredMutes";
 
 @Module({
 	imports: [PrismaModule],
 	controllers: [RoomsController, MessageController, FriendsController, AdminController],
 	providers: [UsersService, RoomsService, GameService, MessageService, FriendsService, BlockService]
 })
-export class ChatModule {}
+export class ChatModule {
+	constructor() {}
+
+	@Cron('* * * * * *')
+	async MuteExpires() {
+		await deleteExpiredMutes()
+	}
+	
+}
 

@@ -81,16 +81,19 @@ model Admin {
   RoomId      Int
   AdminUser   User @relation("AdminUser", fields: [AdminUserId], references: [id])
   AdminUserId Int
+
   @@unique([AdminUserId, RoomId])
 }
 
 model Mute {
-  id          Int     @id @default(autoincrement())
-  Room        Room    @relation(fields: [RoomId], references: [room_id])
+  Room        Room     @relation(fields: [RoomId], references: [room_id])
+  createdAt   DateTime @default(now())
   RoomId      Int
-  MutedUser   User    @relation("MutedUser", fields: [MutedUserId], references: [id])
+  MutedUser   User     @relation("MutedUser", fields: [MutedUserId], references: [id])
   MutedUserId Int
   reason      String?
+
+  @@unique([MutedUserId, RoomId])
 }
 
 model Ban {
@@ -100,6 +103,7 @@ model Ban {
   bannedUser   User    @relation("BannedUser", fields: [bannedUserId], references: [id])
   bannedUserId Int
   reason       String?
+
   @@unique([bannedUserId, RoomId])
 }
 

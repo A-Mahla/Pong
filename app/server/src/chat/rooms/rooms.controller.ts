@@ -54,4 +54,6 @@ export class RoomsController {
 		return this.roomService.getRoomAdmins(id)
 	}
 
+	//@Get('/:id/muted')
+
 }

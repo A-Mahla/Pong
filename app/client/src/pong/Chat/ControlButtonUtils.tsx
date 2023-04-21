@@ -82,7 +82,7 @@ const IconButtonWrapper = styled(IconButton)({
 	marginLeft: '1rem'
 })
 
-export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBannedUsers, bannedUsers, setAdminMembers, adminMembers }:
+export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBannedUsers, bannedUsers, setAdminMembers, adminMembers, setMutedMembers, mutedMembers }:
 	{
 		user: User,
 		id: number,
@@ -93,6 +93,8 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 		bannedUsers: User[],
 		setAdminMembers: (users: User[]) => void,
 		adminMembers: User[],
+		setMutedMembers: (users: User[]) => void,
+		mutedMembers: User[],
 
 	}) => {
 
@@ -159,6 +161,17 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 		setMembers(members.filter(user => user.id !== member.id))
 	}
 
+	const handleMuteMember = (member: User) => {
+		const muteMemberData = {
+			room_id: currentRoom.id,
+			user_id: member.id
+		}
+
+		socket.emit('muteMember', muteMemberData, ((response: any) => console.log('muteMember response: ', response)))
+
+		setMutedMembers([...mutedMembers, member])
+	}
+
 	return (
 		<UserListItemWrapper>
 			<UserListItemAvatar>
@@ -184,7 +197,7 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 										<StarIcon />
 									</IconButtonWrapper>
 								}
-								<IconButtonWrapper onClick={() => console.log('Mute')} disabled={isSendingRequest}>
+								<IconButtonWrapper onClick={() => handleMuteMember(user)} disabled={isSendingRequest}>
 									{/*<VolumeUpIcon />*/}
 									<VolumeOffIcon />
 								</IconButtonWrapper>
