@@ -11,11 +11,13 @@ import { FriendsController } from "./friends/friends.controller";
 import { FriendsService } from "./friends/friends.service";
 import { AdminController } from "src/admin/admin.controller";
 import { BlockService } from "src/admin/block.service";
+import { MuteService } from "./rooms/mute.service";
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
-	imports: [PrismaModule],
+	imports: [PrismaModule, ScheduleModule.forRoot()],
 	controllers: [RoomsController, MessageController, FriendsController, AdminController],
-	providers: [UsersService, RoomsService, GameService, MessageService, FriendsService, BlockService]
+	providers: [MuteService, UsersService, RoomsService, GameService, MessageService, FriendsService, BlockService]
 })
 export class ChatModule {}
 

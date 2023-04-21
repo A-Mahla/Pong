@@ -1,7 +1,8 @@
 export type JoinRoomData = {
 	user_id: number,
 	room_id: number,
-	room_name: string	
+	room_name: string,
+	password?: string,
 }
 
 export type LeaveRoomData = {
@@ -36,4 +37,35 @@ export type AddFriendData = {
 export type FriendRequestData = {
 	user1_id: number,
 	user2_id: number
+}
+
+export type BanMemberData = {
+	sender_id: number,
+	room_id: number,
+	room_name: string,
+	user_id: number
+}
+
+export type UpgradeMemberData = {
+	sender_id: number,
+	room_id: number,
+	user_id: number
+}
+
+export type DowngradeMemberData = {
+	sender_id: number,
+	room_id: number,
+	user_id: number
+}
+
+export type KickMemberData = {
+	sender_id: number,
+	room_id: number,
+	user_id: number
+}
+
+export type MuteMemberData = {
+	sender_id: number,
+	room_id: number,
+	user_id: number
 }

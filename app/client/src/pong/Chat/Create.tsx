@@ -45,7 +45,7 @@ export function CreateRoom({setBoolean} :{setBoolean: (bool: boolean) => void}) 
 			<FormControlLabel control={<Switch onChange={handleSwitch}/>} label="Protected" />
 			<TextField sx={{marginTop: '1rem'}} label="name" inputRef={name}/>
 			<TextField disabled={!secured} sx={{marginTop: '1rem'}} label="password" inputRef={password}/>
-				<Button sx={{m: '1rem'}}onClick={handleCreateRoom}>Create room</Button>
+				<Button sx={{m: '1rem', borderRadius: '20px'}}onClick={handleCreateRoom}>Create room</Button>
 		</FormControl>
 	)
 }

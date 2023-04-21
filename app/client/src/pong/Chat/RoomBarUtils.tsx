@@ -10,6 +10,8 @@ import FetchAvatar from '../component/FetchAvatar';
 import { Room } from './Chat.types';
 
 export const RoomListWrapper = styled('div')({
+	borderRadius: '20px',
+	border: `1px solid lightgray`,
 	display: 'flex',
 	flexDirection: 'column',
 	width: '100%',
@@ -150,15 +152,19 @@ export const MatchingRoomListItem = ({ room, rooms, onClick }: { room: Room, roo
 	const [isPasswordInputVisible, setIsPasswordInputVisible] = React.useState(false)
 	const [password, setPassword] = React.useState<string>('')
 
-	const handleAddFriendClick = async () => {
+	const handleAddRoomClick = async () => {
 		setIsSendingRequest(true);
+		await onClick(room, password);
 		if (room.isPublic === false) {
 			console.log(room)
-			setIsPasswordInputVisible(true)
+			setIsPasswordInputVisible(false)
 		}
-		//await onClick(room, password);
 		setIsSendingRequest(false);
 	};
+
+	const handleTogglePasswordInput = () => {
+		isPasswordInputVisible ? setIsPasswordInputVisible(false) : setIsPasswordInputVisible(true)
+	}
 
 	return (
 		<div>
@@ -178,17 +184,17 @@ export const MatchingRoomListItem = ({ room, rooms, onClick }: { room: Room, roo
 				</MatchingRoomListItemAvatar>
 				<MatchingRoomListItemText>{room.name}</MatchingRoomListItemText>
 				{rooms.find((tmpRoom) => tmpRoom.room_id === room.room_id) ?
-					<CheckIcon />
+					<CheckIcon sx={{p: '6px'}}/>
 					:
 					room.isPublic === false ?
 
-						<IconButton onClick={() => isPasswordInputVisible ? setIsPasswordInputVisible(false) : setIsPasswordInputVisible(true)}>
+						<IconButton onClick={handleTogglePasswordInput}>
 							<KeyboardArrowDownIcon style={{ transform: `rotate(${isPasswordInputVisible ? '180deg' : '0deg'})`, transition: 'transform 0.5s' }} />
 						</IconButton>
 
 						:
 
-						<IconButton onClick={handleAddFriendClick} disabled={isSendingRequest}>
+						<IconButton onClick={handleAddRoomClick} disabled={isSendingRequest}>
 							<AddIcon />
 						</IconButton>
 
@@ -201,7 +207,7 @@ export const MatchingRoomListItem = ({ room, rooms, onClick }: { room: Room, roo
 							sx={{ p: '1rem', display: 'flex'}}
 						>
 							<TextField label="password" onChange={(event: React.ChangeEvent<HTMLInputElement>) => (setPassword(event.target.value))}/>
-							<Button onClick={() => onClick(room, password)}>join</Button>
+							<Button onClick={handleAddRoomClick}>join</Button>
 
 						</Box >
 					</Fade>
