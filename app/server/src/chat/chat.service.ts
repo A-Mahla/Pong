@@ -166,29 +166,60 @@ export class ChatService {
 	}
 
 	async banMember(server: Server, client: Socket, payload: BanMemberData) {
+		if (!(await this.roomService.isAdmin(payload.sender_id, payload.room_id)) && !(await this.roomService.isRoomOwner(payload.sender_id, payload.room_id))) {
+			return {
+				error: 'Admin access required.'
+			}
+		}
+
 		server.to(payload.user_id.toString()).emit('roomLeaved', payload.room_id)
 		return await this.roomService.banMember(payload.room_id, payload.user_id)
 	}
 
 	async unbanUser(server: Server, client: Socket, payload: BanMemberData) {
+		if (!(await this.roomService.isAdmin(payload.sender_id, payload.room_id)) && !(await this.roomService.isRoomOwner(payload.sender_id, payload.room_id))) {
+			return {
+				error: 'Admin role required.'
+			}
+		}
 		return await this.roomService.unbanUser(payload.room_id, payload.user_id)
 	}
 
 	async upgradeMember(server: Server, payload: UpgradeMemberData) {
+		if (!(await this.roomService.isRoomOwner(payload.sender_id, payload.room_id))) {
+			return {
+				error: 'Room owner role required.'
+			}
+		}
 		return await this.roomService.upgradeUser(payload.room_id, payload.user_id)
 	}
 
 	async downgradeMember(server: Server, payload: UpgradeMemberData) {
+		if (!(await this.roomService.isRoomOwner(payload.sender_id, payload.room_id))) {
+			return {
+				error: 'Room owner role required.'
+			}
+		}
 		return await this.roomService.downgradeUser(payload.room_id, payload.user_id)
 	}
 
 	async kickMember(server: Server, payload: KickMemberData) {
+		if (!(await this.roomService.isAdmin(payload.sender_id, payload.room_id)) && !(await this.roomService.isRoomOwner(payload.sender_id, payload.room_id))) {
+			return {
+				error: 'Admin role required.'
+			}
+		}
 		server.to(payload.user_id.toString()).emit('roomLeaved', payload.room_id)
 
 		return await this.roomService.deleteRelation(payload.user_id, payload.room_id)
 	}
 
 	async muteMember(server: Server, payload: MuteMemberData) {
+		if (!(await this.roomService.isAdmin(payload.sender_id, payload.room_id)) && !(await this.roomService.isRoomOwner(payload.sender_id, payload.room_id))) {
+			return {
+				error: 'Admin role required.'
+			}
+		}
 		return await this.roomService.muteUser(payload.user_id, payload.room_id)
 	}
 

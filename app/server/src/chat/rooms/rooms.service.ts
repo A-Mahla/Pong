@@ -295,7 +295,43 @@ export class RoomsService {
 		})
 	}
 
+	async isRoomOwner(userId: number, roomId: number) {
+		const room = await this.prisma.room.findUnique({
+			where: {
+				room_id: roomId
+			},
+			select: {
+				ownerId: true
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
 
+		console.log('roomOwnerId: ', room?.ownerId, ', userId: ', userId)
+
+		if (room && room.ownerId === userId)
+			return true
+		return false
+
+	}
+
+	async isAdmin(userId: number, roomId: number) {
+		const adminRelation = await this.prisma.admin.findUnique({
+			where: {
+				AdminUserId_RoomId: {
+					AdminUserId: userId,
+					RoomId: roomId
+				}
+			},
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+		console.log('adminRelation: ', adminRelation, ', userId: ', userId)
+
+		if (adminRelation)
+			return true
+		return false
+	}
 
 	async getRoomAdmins(roomId: number) {
 		const adminRelation = await this.prisma.admin.findMany({

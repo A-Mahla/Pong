@@ -40,27 +40,32 @@ export type FriendRequestData = {
 }
 
 export type BanMemberData = {
+	sender_id: number,
 	room_id: number,
 	room_name: string,
 	user_id: number
 }
 
 export type UpgradeMemberData = {
+	sender_id: number,
 	room_id: number,
 	user_id: number
 }
 
 export type DowngradeMemberData = {
+	sender_id: number,
 	room_id: number,
 	user_id: number
 }
 
 export type KickMemberData = {
+	sender_id: number,
 	room_id: number,
 	user_id: number
 }
 
 export type MuteMemberData = {
+	sender_id: number,
 	room_id: number,
 	user_id: number
 }

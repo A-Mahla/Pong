@@ -104,21 +104,29 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 	if (id === user.id)
 		return null
 
-	const [isAdmin, setIsAdmin] = useState()
-
 	const [isSendingRequest, setIsSendingRequest] = useState(false);
+	const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false)
+	const [alertMessage, setAlertMessage] = useState<string>('')
+
 	const handleBanMemberClick = (member: User) => {
 		setIsSendingRequest(true);
 
 		const banData = {
+			sender_id: id,
 			room_id: currentRoom.id,
 			room_name: currentRoom.name,
 			user_id: member.id
 		}
 
-		socket.emit('banMember', banData)
+		socket.emit('banMember', banData, (data: any) => {
+			if (data.error) {
+				setIsAlertOpen(true)
+				setAlertMessage(data.error)
+			}
+			else
+				setMembers(members.filter(user => user.id !== member.id))
+		})
 
-		setMembers(members.filter(user => user.id !== member.id))
 
 		setIsSendingRequest(false);
 	};
@@ -127,13 +135,20 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 		setIsSendingRequest(true)
 
 		const upgradeMemberData = {
+			sender_id: id,
 			room_id: currentRoom.id,
 			user_id: member.id
 		}
 
-		socket.emit('upgradeMember', upgradeMemberData, ((response: any) => console.log('upgradeMember response: ', response)))
+		socket.emit('upgradeMember', upgradeMemberData, (data: any) => {
+			if (data.error) {
+				setIsAlertOpen(true)
+				setAlertMessage(data.error)
+			}
+			else
+				setAdminMembers([...adminMembers, member])
+		})
 
-		setAdminMembers([...adminMembers, member])
 
 		setIsSendingRequest(false);
 	}
@@ -142,42 +157,64 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 		setIsSendingRequest(true)
 
 		const upgradeMemberData = {
+			sender_id: id,
 			room_id: currentRoom.id,
 			user_id: member.id
 		}
 
-		socket.emit('downgradeMember', upgradeMemberData, ((response: any) => console.log('downgradeMember response: ', response)))
+		socket.emit('downgradeMember', upgradeMemberData, (data: any) => {
+			if (data.error) {
+				setIsAlertOpen(true)
+				setAlertMessage(data.error)
+			}
+			else
+				setAdminMembers(adminMembers.filter(admin => admin.id !== member.id))
+		})
 
-		setAdminMembers(adminMembers.filter(admin => admin.id !== member.id))
 
 		setIsSendingRequest(false);
 	}
 
 	const handleKickMember = (member: User) => {
 		const kickMemberData = {
+			sender_id: id,
 			room_id: currentRoom.id,
 			user_id: member.id
 		}
 
-		socket.emit('kickMember', kickMemberData, ((response: any) => console.log('kickMember response: ', response)))
+		socket.emit('kickMember', kickMemberData, (data: any) => {
+			if (data.error) {
+				setIsAlertOpen(true)
+				setAlertMessage(data.error)
+			}
+			else
+				setMembers(members.filter(user => user.id !== member.id))
+		})
 
-		setMembers(members.filter(user => user.id !== member.id))
 	}
 
 	const handleMuteMember = (member: User) => {
 
 		const muteMemberData = {
+			sender_id: id,
 			room_id: currentRoom.id,
 			user_id: member.id
 		}
 
-		socket.emit('muteMember', muteMemberData, ((response: any) => console.log('muteMember response: ', response)))
+		socket.emit('muteMember', muteMemberData, (data: any) => {
+			if (data.error) {
+				setIsAlertOpen(true)
+				setAlertMessage(data.error)
+			}
+			else
+				setMutedMembers([...mutedMembers, member])
+		})
 
-		setMutedMembers([...mutedMembers, member])
 	}
 
 	const handleUnmuteMember = (member: User) => {
 		const unmuteMemberData = {
+			sender_id: id,
 			room_id: currentRoom.id,
 			user_id: member.id
 		}
@@ -229,14 +266,11 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 										</IconButtonWrapper>
 								}
 								<IconButtonWrapper onClick={() => handleBanMemberClick(user)} disabled={isSendingRequest}>
-									{/*<CheckCircleOutlineIcon/>*/}
 									<BlockIcon />
-
 								</IconButtonWrapper>
 
 								<IconButtonWrapper onClick={() => handleKickMember(user)} disabled={isSendingRequest}>
 									<ExitToAppIcon />
-
 								</IconButtonWrapper>
 							</Box>
 						)
@@ -267,6 +301,12 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 
 
 			}
+			<Snackbar
+				open={isAlertOpen}
+				autoHideDuration={4000}
+				onClose={() => { setIsAlertOpen(false), setAlertMessage('') }}
+				message={alertMessage}
+			/>
 		</UserListItemWrapper>
 	);
 };

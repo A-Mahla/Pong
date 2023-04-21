@@ -85,7 +85,7 @@ export function SettingsButtton() {
 		}
 
 		getAdmins().then(data => setAdminMembers(data))
-	}, [isSettingsOpen])
+	}, [displayList, isSettingsOpen])
 
 	useEffect(() => {
 		if (displayList !== UserListType.MEMBERS) {
