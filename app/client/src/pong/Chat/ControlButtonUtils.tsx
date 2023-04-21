@@ -165,6 +165,7 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 	}
 
 	const handleMuteMember = (member: User) => {
+
 		const muteMemberData = {
 			room_id: currentRoom.id,
 			user_id: member.id
@@ -175,87 +176,13 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 		setMutedMembers([...mutedMembers, member])
 	}
 
-	const memberActions: React.FC = () => {
-		if (id === currentRoom.ownerId || adminMembers.find(admin => admin.id === id)) {
-			if (user.id !== currentRoom.ownerId) {
-				return (
-					<Box sx={{ display: 'flex' }}>
-						{id} {currentRoom.ownerId}
-						{
-							id === currentRoom.ownerId ?
-								(adminMembers.find(admin => admin.id === user.id) ?
-									<IconButtonWrapper onClick={() => handleDowngradeMember(user)} disabled={isSendingRequest}>
-
-										<StarIcon />
-									</IconButtonWrapper>
-									:
-									<IconButtonWrapper onClick={() => handleUpgradeMember(user)} disabled={isSendingRequest}>
-
-										<StarBorderIcon />
-									</IconButtonWrapper>
-								)
-								:
-								null
-
-						}
-						{
-							//	adminMembers.find(admin => admin.id === user.id) ?
-							//		<IconButtonWrapper onClick={() => handleDowngradeMember(user)} disabled={isSendingRequest}>
-
-							//			<StarIcon />
-							//		</IconButtonWrapper>
-							//		:
-							//		<IconButtonWrapper onClick={() => handleUpgradeMember(user)} disabled={isSendingRequest}>
-
-							//			<StarBorderIcon />
-							//		</IconButtonWrapper>
-						}
-						<IconButtonWrapper onClick={() => console.log('Mute')} disabled={isSendingRequest}>
-							{/*<VolumeUpIcon />*/}
-							<VolumeOffIcon />
-						</IconButtonWrapper>
-
-						<IconButtonWrapper onClick={() => handleBanMemberClick(user)} disabled={isSendingRequest}>
-							{/*<CheckCircleOutlineIcon/>*/}
-							<BlockIcon />
-
-						</IconButtonWrapper>
-
-						<IconButtonWrapper onClick={() => handleKickMember(user)} disabled={isSendingRequest}>
-							<ExitToAppIcon />
-
-						</IconButtonWrapper>
-					</Box>
-				)
-			}
-			else {
-				return (
-					<Box sx={{ display: 'flex' }}>
-						<IconButtonWrapper onClick={() => console.log('Kick')} disabled={isSendingRequest}>
-							<CopyrightIcon />
-						</IconButtonWrapper>
-					</Box>
-				)
-			}
+	const handleUnmuteMember = (member: User) => {
+		const unmuteMemberData = {
+			room_id: currentRoom.id,
+			user_id: member.id
 		}
-		else if (user.id === currentRoom.ownerId) {
-			return (
-				<Box sx={{ display: 'flex' }}>
-					<IconButtonWrapper onClick={() => console.log('Kick')} disabled={isSendingRequest}>
-						<CopyrightIcon />
-					</IconButtonWrapper>
-				</Box>
-			)
-		}
-		else {
-			return (
-				<Box sx={{ display: 'flex' }}>
-					<IconButtonWrapper onClick={() => console.log('Kick')} disabled={isSendingRequest}>
-						Admin
-					</IconButtonWrapper>
-				</Box>
-			)
-		}
+
+		console.log(`unmute: ${unmuteMemberData}`)
 	}
 
 	return (
@@ -290,11 +217,17 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 										null
 
 								}
-								<IconButtonWrapper onClick={() => handleMuteMember(user)} disabled={isSendingRequest}>
-									{/*<VolumeUpIcon />*/}
-									<VolumeOffIcon />
-								</IconButtonWrapper>
+								{
+									mutedMembers.find(mutedMember => mutedMember.id === user.id) ?
 
+										<IconButtonWrapper onClick={() => handleUnmuteMember(user)} disabled={isSendingRequest}>
+											<VolumeOffIcon />
+										</IconButtonWrapper>
+										:
+										<IconButtonWrapper onClick={() => handleMuteMember(user)} /* disabled={isSendingRequest} */>
+											<VolumeUpIcon />
+										</IconButtonWrapper>
+								}
 								<IconButtonWrapper onClick={() => handleBanMemberClick(user)} disabled={isSendingRequest}>
 									{/*<CheckCircleOutlineIcon/>*/}
 									<BlockIcon />
@@ -400,10 +333,6 @@ export const RoomPasswordControl = ({ currentRoom }: { currentRoom: { id: number
 				input: `http://${import.meta.env.VITE_SITE}/api/rooms/${currentRoom.id}/changePassword/${CurrentPassword.current.value}/${NewPassword.current.value}`,
 				option: {
 					method: 'PATCH',
-					//body: JSON.stringify({
-					//	currentPassword: CurrentPassword.current.value,
-					//	newPassword: NewPassword.current.value
-					//})
 				}
 			},
 			auth: auth
@@ -436,7 +365,7 @@ export const RoomPasswordControl = ({ currentRoom }: { currentRoom: { id: number
 			auth: auth
 		}
 		FetchApi(goPublicRequest).then(() => setIsPublic(true))
-		setCurrent({...currentRoom, isPublic: true})
+		setCurrent({ ...currentRoom, isPublic: true })
 		NewPassword.current.value = ''
 		CurrentPassword.current.value = ''
 

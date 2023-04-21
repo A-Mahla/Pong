@@ -10,6 +10,7 @@ import { WsGuard } from './ws.guard';
 import { MessageService } from './messages/messages.service';
 import { ChatService } from './chat.service';
 import { LeaveRoomData } from './Chat.types';
+import { MuteService } from './rooms/mute.service';
 
 @WebSocketGateway({ namespace: 'chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -98,6 +99,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   @SubscribeMessage('muteMember')
   async handleMuteMember(client: Socket, payload: MuteMemberData) {
+    console.log('inMuteMember: ', payload)
     return this.chatService.muteMember(this.server, payload)
   }
 

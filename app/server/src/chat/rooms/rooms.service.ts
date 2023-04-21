@@ -325,6 +325,7 @@ export class RoomsService {
 	}
 
 	async muteUser(userId: number, roomId: number) {
+		console.log('muteUser')
 		return await this.prisma.mute.create({
 			data: {
 				RoomId: roomId,
@@ -333,6 +334,55 @@ export class RoomsService {
 		}).catch((e) => {
 			throw new BadRequestException(e);
 		})
+	}
+
+	async getRoomMuteds(roomId: number) {
+		return (await this.prisma.mute.findMany({
+			where: {
+				RoomId: roomId
+			},
+			select: {
+				MutedUser: {
+					select: {
+						id: true,
+						login: true,
+						avatar: true
+					}
+				}
+			}
+		})
+			.catch((e) => {
+				throw new BadRequestException(e);
+			})).map(mutedUser => ({ id: mutedUser.MutedUser.id, login: mutedUser.MutedUser.login, avatar: mutedUser.MutedUser.avatar }))
+
+	}
+
+	async isMuted(userId: number, roomId: number) {
+		const lifetime = 60 * 2 * 1000 //2 minutes en ms
+
+		const now = Date.now()
+
+		const cutoff = now - lifetime
+
+		const relation = await this.prisma.mute.findUnique({
+			where: {
+				MutedUserId_RoomId: {
+					MutedUserId: userId,
+					RoomId: roomId
+				},
+			},
+			select: {
+				createdAt: true
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+		console.log('relatio in isMuted: ', relation)
+
+		if (relation && relation.createdAt > new Date(cutoff))
+			return true
+		return false
 	}
 
 	async addPassword(roomId: number, password: string) {

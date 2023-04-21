@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useContext, useCallback, HtmlHTMLAttributes } from 'react';
-import { Avatar, Box, Paper, TextField, List, ListItem, ListItemText, Typography } from '@mui/material';
+import { Avatar, Box, Paper, TextField, List, ListItem, ListItemText, Typography, Snackbar } from '@mui/material';
 import { styled } from '@mui/system';
 import { ChatContext } from './Chat';
 import useAuth from '../context/useAuth';
@@ -23,6 +23,8 @@ const ChatInputField = styled(TextField)({
 function ChatInput() {
 
 	const [inputValue, setInputValue] = useState('');
+	const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false)
+	const [alertMessage, setAlertMessage] = useState<string>('')
 
 	const { id } = useAuth()
 
@@ -61,34 +63,47 @@ function ChatInput() {
 
 			setInputValue('')
 
-			socket.emit('roomMessage', messageData)
+			socket.emit('roomMessage', messageData, (data: any) => {
+				if (data.error !== undefined) {
+					setIsAlertOpen(true)
+					setAlertMessage(data.error)
+				}
+			})
 		}
 	}, [socket, target, current, inputValue])
 
 	//multiline #I delete it from ChatInputField because when my imput is too long the behavior is horrible
 	return (
-		<ChatInputField
-			fullWidth
-			variant='filled'
-			label="Type your message here..."
-			value={inputValue}
-			onChange={handleInputChange}
-			onKeyDown={(e) => {
-				//console.log(e)
-				if (e.key === 'Enter'/*  && onSubmit */) {
-					handleSubmit(e);
-					setInputValue('');
-					e.preventDefault();
-				}
-			}}
-			InputProps={{
-				autoComplete: 'off',
-				autoCorrect: 'off',
-				style: {
-					fontFamily: '"system-ui", sans-serif'
-				}
-			}}
-		/>
+		<>
+			<ChatInputField
+				fullWidth
+				variant='filled'
+				label="Type your message here..."
+				value={inputValue}
+				onChange={handleInputChange}
+				onKeyDown={(e) => {
+					//console.log(e)
+					if (e.key === 'Enter'/*  && onSubmit */) {
+						handleSubmit(e);
+						setInputValue('');
+						e.preventDefault();
+					}
+				}}
+				InputProps={{
+					autoComplete: 'off',
+					autoCorrect: 'off',
+					style: {
+						fontFamily: '"system-ui", sans-serif'
+					}
+				}}
+			/>
+			<Snackbar
+				open={isAlertOpen}
+				autoHideDuration={4000}
+				onClose={() => { setIsAlertOpen(false), setAlertMessage('') }}
+				message={alertMessage}
+			/>
+		</>
 	);
 }
 

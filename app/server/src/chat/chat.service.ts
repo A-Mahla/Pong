@@ -22,7 +22,7 @@ export class ChatService {
 
 		client.join((newRoom as Room).room_id.toString() + payload.name)
 
-		server.to(client.id).emit('roomCreated', { name: payload.name, room_id: newRoom?.room_id, messages: [], ownerId: payload.owner_id, isPublic: newRoom?.isPublic})
+		server.to(client.id).emit('roomCreated', { name: payload.name, room_id: newRoom?.room_id, messages: [], ownerId: payload.owner_id, isPublic: newRoom?.isPublic })
 
 		return newRoom
 	}
@@ -44,7 +44,14 @@ export class ChatService {
 		console.log("payload:\n\n", payload);
 
 
+
 		if (payload.room !== undefined) {
+
+			if (await this.roomService.isMuted(payload.sender_id, payload.room.id)) {
+				return {
+					error: 'you are muted in this channel'
+				}
+			}
 			console.log('client rooms in handle MESSAGE', client.rooms)
 			const newMessage = await this.messageService.createMessage(payload.sender_id, payload.room.id, payload.content)
 			server.to(payload.room.id.toString() + payload.room.name).emit('roomMessage', newMessage)

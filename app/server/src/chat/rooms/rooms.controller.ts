@@ -55,7 +55,13 @@ export class RoomsController {
 		return this.roomService.getRoomAdmins(id)
 	}
 
-	//@Get('/:id/muted')
+	@Get('/:id/muted')
+	getRoomMuteds(
+		@Param('id') id: number
+	) {
+		return this.roomService.getRoomMuteds(id)
+	}
+
 
 	@Patch('/:id/addPassword/:password')
 	addRoomPassword(

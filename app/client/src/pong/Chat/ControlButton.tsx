@@ -23,7 +23,7 @@ export function SettingsButtton() {
 	useEffect(() => {
 		console.log(displayList)
 
-		if (displayList === UserListType.MEMBERS)
+		if (displayList !== UserListType.BANNED)
 			return
 
 		const getBannedUsers = async () => {
@@ -88,6 +88,10 @@ export function SettingsButtton() {
 	}, [isSettingsOpen])
 
 	useEffect(() => {
+		if (displayList !== UserListType.MEMBERS) {
+			return
+		}
+
 		const getMuteds = async () => {
 			const getMutedMembersRequest = {
 
@@ -99,6 +103,7 @@ export function SettingsButtton() {
 
 			const response = await FetchApi(getMutedMembersRequest)
 
+			console.log('mutedUsers: ', response?.data)
 			return response?.data
 		}
 
