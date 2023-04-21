@@ -57,6 +57,9 @@ export type Message = {
 	id: number,
 	date: string,
 	sender_id: number,
+	sender: {
+		login: string
+	},
 	room_id: number,
 	content: string
 }
@@ -73,6 +76,9 @@ export type DirectMessage = {
 	id: number,
 	date: string,
 	sender_id: number,
+	sender: {
+		login: string
+	},
 	recipient_id: number,
 	content: string
 }

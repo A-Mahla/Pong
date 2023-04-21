@@ -223,7 +223,21 @@ export class UsersService {
 			select: {
 				room_id: true,
 				name: true,
-				messages: true,
+				messages: {
+
+					select: {
+						id: true,
+						createdAt: true,
+						sender_id: true,
+						sender: {
+							select: {
+								login: true,
+							},
+						},
+						room_id: true,
+						content: true,
+					},
+				},
 				ownerId: true,
 				isPublic: true
 

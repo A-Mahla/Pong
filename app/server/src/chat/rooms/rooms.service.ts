@@ -60,7 +60,21 @@ export class RoomsService {
 				select: {
 					room_id: true,
 					name: true,
-					messages: true,
+					messages: {
+
+						select: {
+							id: true,
+							createdAt: true,
+							sender_id: true,
+							sender: {
+								select: {
+									login: true,
+								},
+							},
+							room_id: true,
+							content: true,
+						},
+					},
 					ownerId: true,
 					isPublic: true
 				},
@@ -315,6 +329,53 @@ export class RoomsService {
 			data: {
 				RoomId: roomId,
 				MutedUserId: userId
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+	}
+
+	async addPassword(roomId: number, password: string) {
+		return await this.prisma.room.update({
+			where: {
+				room_id: roomId
+			},
+			data: {
+				isPublic: false,
+				password: await bcrypt.hash(password, 12)
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+	}
+
+	async goPublic(roomId: number) {
+		return await this.prisma.room.update({
+			where: {
+				room_id: roomId
+			},
+			data: {
+				isPublic: true,
+				password: null
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+	}
+
+	async changeRoomPassword(roomId: number, currentPassword: string, newPassword: string) {
+
+		if (await this.checkRoomPassword(roomId, currentPassword) == false) {
+			return { error: 'invalid password' }
+		}
+		return await this.prisma.room.update({
+			where: {
+				room_id: roomId
+			},
+			data: {
+				password: await bcrypt.hash(newPassword, 12)
 			}
 		}).catch((e) => {
 			throw new BadRequestException(e);

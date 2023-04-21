@@ -7,6 +7,7 @@ import { socket } from './Socket';
 import { MessageData } from './Chat.types';
 import FetchAvatar from '../component/FetchAvatar';
 import { SettingsButtton } from './ControlButton';
+import { Message } from './MessageBoxUtils';
 
 
 const ChatInputField = styled(TextField)({
@@ -155,9 +156,16 @@ export const MessagesBox = () => {
 			setMessageList(directMessages.map((message, index) => {
 				if (message.sender_id === id || message.recipient_id === id) {
 
-					return (<Box key={index} style={{ display: 'flex', justifyContent: message.sender_id === id ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
-						<Box style={{ maxWidth: '80%', backgroundColor: message.sender_id === id ? '#DCF8C6' : '#f2f2f2', padding: '8px 12px', borderRadius: '12px', wordWrap: 'break-word' }}>{message.content}</Box>
-					</Box>)
+					return <Message
+						key={message.id}
+						message={{
+							id: message.id,
+							sender: {
+								id: message.sender_id,
+								login: message.sender.login
+							},
+							content: message.content
+						}} id={id} />
 				}
 				return null
 			}))
@@ -172,12 +180,20 @@ export const MessagesBox = () => {
 				setMessageList([])
 			}
 			else {
+				console.log('room', room)
+				console.log('rooms', rooms)
+				console.log('messageList: ', messageList)
 				setMessageList(room.messages.map((message, index) => {
-					return (
-						<Box key={index} style={{ display: 'flex', justifyContent: message.sender_id === id ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
-							<Box style={{ maxWidth: '80%', backgroundColor: message.sender_id === id ? '#DCF8C6' : '#f2f2f2', padding: '8px 12px', borderRadius: '12px', wordWrap: 'break-word' }}>{message.content}</Box>
-						</Box>
-					)
+					return <Message
+						key={message.id}
+						message={{
+							id: message.id,
+							sender: {
+								id: message.sender_id,
+								login: message.sender.login
+							},
+							content: message.content
+						}} id={id} />
 				}))
 			}
 		}

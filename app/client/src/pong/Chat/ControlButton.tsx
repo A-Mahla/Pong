@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { BannedUserListItem, SettingsButtonWrapper, UserListItem, UserListType, UserListWrapper } from './ControlButtonUtils'
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box } from '@mui/material'
+import { BannedUserListItem, RoomPasswordControl, SettingsButtonWrapper, UserListItem, UserListType, UserListWrapper } from './ControlButtonUtils'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Grid } from '@mui/material'
 import SettingsIcon from '@mui/icons-material/Settings';
 import { ChatContext } from './Chat';
 import { FetchApi } from '../component/FetchApi';
 import useAuth, { useFetchAuth } from '../context/useAuth';
 import { User } from './Chat.types';
+import { socket } from './Socket';
 
 export function SettingsButtton() {
 
@@ -16,7 +17,7 @@ export function SettingsButtton() {
 	const [adminMembers, setAdminMembers] = useState<User[]>([])
 	const [mutedMembers, setMutedMembers] = useState<User[]>([])
 	const [displayList, setDisplayList] = useState<UserListType>(UserListType.MEMBERS)
-	const { id } = useAuth()
+	const { user, id } = useAuth()
 	const auth = useFetchAuth()
 
 	useEffect(() => {
@@ -102,7 +103,7 @@ export function SettingsButtton() {
 		}
 
 		getMuteds().then(data => setMutedMembers(data))
-	}, [isSettingsOpen])
+	}, [displayList, isSettingsOpen])
 
 	const handleSettingsButtonClick = () => {
 		setIsSettingsOpen(true)
@@ -112,33 +113,21 @@ export function SettingsButtton() {
 		setIsSettingsOpen(false)
 	}
 
-	const handleBanMember = (bannedMemberId: number) => {
-		setMembers(members.filter(member => member.id !== bannedMemberId))
-	}
-
 	const handleUnbanMember = (bannedUserId: number) => {
 		setBannedUsers(bannedUsers.filter(user => user.id !== bannedUserId))
 	}
 
-	const membersTab = [
-		{ id: 1, login: 'User 1', avatar: 'https://via.placeholder.com/150' },
-		{ id: 2, login: 'User 2', avatar: 'https://via.placeholder.com/150' },
-		{ id: 3, login: 'User 3', avatar: 'https://via.placeholder.com/150' },
-		{ id: 4, login: 'User 4', avatar: 'https://via.placeholder.com/150' },
-		{ id: 5, login: 'User 5', avatar: 'https://via.placeholder.com/150' },
-		{ id: 6, login: 'User 6', avatar: 'https://via.placeholder.com/150' },
-		{ id: 7, login: 'User 7', avatar: 'https://via.placeholder.com/150' },
-		{ id: 8, login: 'User 8', avatar: 'https://via.placeholder.com/150' },
-		{ id: 9, login: 'User 9', avatar: 'https://via.placeholder.com/150' },
-		{ id: 10, login: 'User 10', avatar: 'https://via.placeholder.com/150' },
-		{ id: 11, login: 'User 11', avatar: 'https://via.placeholder.com/150' },
-		{ id: 12, login: 'User 12', avatar: 'https://via.placeholder.com/150' },
-		{ id: 13, login: 'User 13', avatar: 'https://via.placeholder.com/150' },
-		{ id: 14, login: 'User 14', avatar: 'https://via.placeholder.com/150' },
-		{ id: 15, login: 'User 15', avatar: 'https://via.placeholder.com/150' },
-	];
+	const handleLeaveRoom = () => {
 
+		const leaveRoomData = {
+			room_id: current.id,
+			room_name: current.name,
+			user_id: id,
+			user_login: user,
+		}
 
+		socket.emit('leaveRoom', leaveRoomData)
+	}
 
 	return (
 		<div>
@@ -156,16 +145,25 @@ export function SettingsButtton() {
 					}
 				}}
 			>
-				<DialogTitle>settings</DialogTitle>
+				<DialogTitle sx={{ display: 'flex', justifyContent: 'space-between' }}>
+					settings
+					<Button sx={{ borderRadius: '20px' }} onClick={handleLeaveRoom}>Leave Room</Button>
+				</DialogTitle>
 				<Box width="100%" display="flex">
-					<Button sx={{ flex: '1' }} onClick={() => setDisplayList(UserListType.MEMBERS)}>Members</Button>
+					<Button sx={{ backgroundColor: (displayList === UserListType.MEMBERS) ? '#f2f2f2' : 'transparent', flex: '1' }} onClick={() => setDisplayList(UserListType.MEMBERS)}>Members</Button>
 					{
-						id === current.ownerId ?
+						id === current.ownerId || adminMembers.find(admin => admin.id === id) ?
 
-							<Button sx={{ flex: '1' }} onClick={() => setDisplayList(UserListType.BANNED)}>Banned</Button>
+							<Button sx={{ backgroundColor: (displayList === UserListType.BANNED) ? '#f2f2f2' : 'transparent', flex: '1' }} onClick={() => setDisplayList(UserListType.BANNED)}>Banned</Button>
 							:
 							null
 
+					}
+					{
+						id === current.ownerId ?
+							<Button sx={{ backgroundColor: (displayList === UserListType.CONTROL) ? '#f2f2f2' : 'transparent', flex: '1' }} onClick={() => setDisplayList(UserListType.CONTROL)}>CONTROL</Button>
+							:
+							null
 					}
 				</Box>
 				<DialogContent sx={{ p: 0 }}>
@@ -178,15 +176,19 @@ export function SettingsButtton() {
 									members={members} bannedUsers={bannedUsers} adminMembers={adminMembers}
 									setMutedMembers={setMutedMembers} mutedMembers={mutedMembers}/>)
 								})
-								:
-								bannedUsers.map((member) => {
-									return (<BannedUserListItem key={member.id} user={member} id={id} currentRoom={current} onClick={handleUnbanMember} />)
-								})
+								: displayList === UserListType.BANNED ?
+									bannedUsers.map((member) => {
+										return (<BannedUserListItem key={member.id} user={member} id={id} currentRoom={current} onClick={handleUnbanMember} />)
+									})
+									:
+									<RoomPasswordControl currentRoom={current}/>
 						}
 					</UserListWrapper>
+
+
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={handleSettingsButtonClose}>Cancel</Button>
+					<Button onClick={handleSettingsButtonClose} sx={{ borderRadius: '20px' }}>Cancel</Button>
 				</DialogActions>
 			</Dialog>
 		</div>

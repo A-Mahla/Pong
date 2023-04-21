@@ -1,4 +1,4 @@
-import { Button, IconButton, Box } from '@mui/material'
+import { Button, IconButton, Box, TextField, Grid, Snackbar } from '@mui/material'
 import BlockIcon from '@mui/icons-material/Block';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import VolumeOffIcon from '@mui/icons-material/VolumeOff';
@@ -8,16 +8,19 @@ import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import CopyrightIcon from '@mui/icons-material/Copyright';
 import { styled } from '@mui/system'
-import { useEffect, useState } from 'react';
+import { ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import { User } from './Chat.types';
 import useAuth, { useFetchAuth } from '../context/useAuth';
 import { FetchApi } from '../component/FetchApi';
 import FetchAvatar from '../component/FetchAvatar';
 import { socket } from './Socket';
+import { CurrencyExchangeTwoTone } from '@mui/icons-material';
+import { ChatContext } from './Chat';
 
 export enum UserListType {
 	MEMBERS = 'members',
 	BANNED = 'banned',
+	CONTROL = 'control',
 }
 
 export const SettingsButtonWrapper = styled('div')({
@@ -172,6 +175,89 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 		setMutedMembers([...mutedMembers, member])
 	}
 
+	const memberActions: React.FC = () => {
+		if (id === currentRoom.ownerId || adminMembers.find(admin => admin.id === id)) {
+			if (user.id !== currentRoom.ownerId) {
+				return (
+					<Box sx={{ display: 'flex' }}>
+						{id} {currentRoom.ownerId}
+						{
+							id === currentRoom.ownerId ?
+								(adminMembers.find(admin => admin.id === user.id) ?
+									<IconButtonWrapper onClick={() => handleDowngradeMember(user)} disabled={isSendingRequest}>
+
+										<StarIcon />
+									</IconButtonWrapper>
+									:
+									<IconButtonWrapper onClick={() => handleUpgradeMember(user)} disabled={isSendingRequest}>
+
+										<StarBorderIcon />
+									</IconButtonWrapper>
+								)
+								:
+								null
+
+						}
+						{
+							//	adminMembers.find(admin => admin.id === user.id) ?
+							//		<IconButtonWrapper onClick={() => handleDowngradeMember(user)} disabled={isSendingRequest}>
+
+							//			<StarIcon />
+							//		</IconButtonWrapper>
+							//		:
+							//		<IconButtonWrapper onClick={() => handleUpgradeMember(user)} disabled={isSendingRequest}>
+
+							//			<StarBorderIcon />
+							//		</IconButtonWrapper>
+						}
+						<IconButtonWrapper onClick={() => console.log('Mute')} disabled={isSendingRequest}>
+							{/*<VolumeUpIcon />*/}
+							<VolumeOffIcon />
+						</IconButtonWrapper>
+
+						<IconButtonWrapper onClick={() => handleBanMemberClick(user)} disabled={isSendingRequest}>
+							{/*<CheckCircleOutlineIcon/>*/}
+							<BlockIcon />
+
+						</IconButtonWrapper>
+
+						<IconButtonWrapper onClick={() => handleKickMember(user)} disabled={isSendingRequest}>
+							<ExitToAppIcon />
+
+						</IconButtonWrapper>
+					</Box>
+				)
+			}
+			else {
+				return (
+					<Box sx={{ display: 'flex' }}>
+						<IconButtonWrapper onClick={() => console.log('Kick')} disabled={isSendingRequest}>
+							<CopyrightIcon />
+						</IconButtonWrapper>
+					</Box>
+				)
+			}
+		}
+		else if (user.id === currentRoom.ownerId) {
+			return (
+				<Box sx={{ display: 'flex' }}>
+					<IconButtonWrapper onClick={() => console.log('Kick')} disabled={isSendingRequest}>
+						<CopyrightIcon />
+					</IconButtonWrapper>
+				</Box>
+			)
+		}
+		else {
+			return (
+				<Box sx={{ display: 'flex' }}>
+					<IconButtonWrapper onClick={() => console.log('Kick')} disabled={isSendingRequest}>
+						Admin
+					</IconButtonWrapper>
+				</Box>
+			)
+		}
+	}
+
 	return (
 		<UserListItemWrapper>
 			<UserListItemAvatar>
@@ -179,23 +265,30 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 				{/*{user.id} {currentRoom.id}*/}
 			</UserListItemAvatar>
 			<UserListItemText>{user.login}</UserListItemText>
+
 			{
-				id === currentRoom.ownerId ?
+				(id === currentRoom.ownerId || adminMembers.find(admin => admin.id === id)) ?
 
 					(
 						user.id !== currentRoom.ownerId ? (
 
 							<Box sx={{ display: 'flex' }}>
-								{adminMembers.find(admin => admin.id === user.id) ?
-									<IconButtonWrapper onClick={() => handleDowngradeMember(user)} disabled={isSendingRequest}>
+								{
+									id === currentRoom.ownerId ?
+										(adminMembers.find(admin => admin.id === user.id) ?
+											<IconButtonWrapper onClick={() => handleDowngradeMember(user)} disabled={isSendingRequest}>
 
-										<StarBorderIcon />
-									</IconButtonWrapper>
-									:
-									<IconButtonWrapper onClick={() => handleUpgradeMember(user)} disabled={isSendingRequest}>
+												<StarIcon />
+											</IconButtonWrapper>
+											:
+											<IconButtonWrapper onClick={() => handleUpgradeMember(user)} disabled={isSendingRequest}>
 
-										<StarIcon />
-									</IconButtonWrapper>
+												<StarBorderIcon />
+											</IconButtonWrapper>
+										)
+										:
+										null
+
 								}
 								<IconButtonWrapper onClick={() => handleMuteMember(user)} disabled={isSendingRequest}>
 									{/*<VolumeUpIcon />*/}
@@ -216,7 +309,7 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 						)
 							:
 							<Box sx={{ display: 'flex' }}>
-								<IconButtonWrapper onClick={() => console.log('Kick')} disabled={isSendingRequest}>
+								<IconButtonWrapper>
 									<CopyrightIcon />
 								</IconButtonWrapper>
 							</Box>
@@ -224,12 +317,21 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 
 					)
 
-					:
-					<Box sx={{ display: 'flex' }}>
-						<IconButtonWrapper onClick={() => console.log('Kick')} disabled={isSendingRequest}>
-							<CopyrightIcon />
-						</IconButtonWrapper>
-					</Box>
+					: (user.id === currentRoom.ownerId) ?
+						<Box sx={{ display: 'flex' }}>
+							<IconButtonWrapper>
+								<CopyrightIcon />
+							</IconButtonWrapper>
+						</Box>
+						: (adminMembers.find(admin => admin.id === user.id)) ?
+							<Box sx={{ display: 'flex' }}>
+								<IconButtonWrapper>
+									<StarIcon />
+								</IconButtonWrapper>
+							</Box>
+							:
+							null
+
 
 			}
 		</UserListItemWrapper>
@@ -277,3 +379,105 @@ export const BannedUserListItem = ({ user, id, currentRoom, onClick }: { user: U
 		</UserListItemWrapper>
 	);
 };
+
+//--------------------------roomPasswordControl
+
+export const RoomPasswordControl = ({ currentRoom }: { currentRoom: { id: number, name: string, ownerId: number, isPublic: boolean } },) => {
+
+	const { setCurrent } = useContext(ChatContext)
+	const NewPassword = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
+	const CurrentPassword = useRef<HTMLInputElement>(null) as React.MutableRefObject<HTMLInputElement>;
+	const [isPublic, setIsPublic] = useState(currentRoom.isPublic)
+	const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false)
+	const [alertMessage, setAlertMessage] = useState<string>('')
+
+	const auth = useFetchAuth()
+
+	const onChangePasswordClick = () => {
+
+		const changeRoomPasswordRequest = {
+			api: {
+				input: `http://${import.meta.env.VITE_SITE}/api/rooms/${currentRoom.id}/changePassword/${CurrentPassword.current.value}/${NewPassword.current.value}`,
+				option: {
+					method: 'PATCH',
+					//body: JSON.stringify({
+					//	currentPassword: CurrentPassword.current.value,
+					//	newPassword: NewPassword.current.value
+					//})
+				}
+			},
+			auth: auth
+		}
+
+		FetchApi(changeRoomPasswordRequest).then(response => response?.data)
+			.then(data => {
+				if (data.error) {
+					setIsAlertOpen(true)
+					setAlertMessage(data.error)
+				}
+				else {
+					setIsAlertOpen(true)
+					setAlertMessage('password change successfully')
+				}
+				NewPassword.current.value = ''
+				CurrentPassword.current.value = ''
+			})
+	}
+
+	const onGoPublicClick = () => {
+
+		const goPublicRequest = {
+			api: {
+				input: `http://${import.meta.env.VITE_SITE}/api/rooms/${currentRoom.id}/goPublic`,
+				option: {
+					method: 'PATCH'
+				}
+			},
+			auth: auth
+		}
+		FetchApi(goPublicRequest).then(() => setIsPublic(true))
+		setCurrent({...currentRoom, isPublic: true})
+		NewPassword.current.value = ''
+		CurrentPassword.current.value = ''
+
+	}
+
+	const onAddPasswordClick = () => {
+
+		if (!NewPassword.current)
+			return
+
+		const addRoomPasswordRequest = {
+			api: {
+				input: `http://${import.meta.env.VITE_SITE}/api/rooms/${currentRoom.id}/addPassword/${NewPassword.current.value}`,
+				option: {
+					method: "PATCH"
+				}
+			},
+			auth: auth
+		}
+		FetchApi(addRoomPasswordRequest).then(() => setIsPublic(false))
+		NewPassword.current.value = ''
+	}
+
+	return (
+		isPublic ?
+			<Grid sx={{ display: 'flex', flexDirection: 'column', p: '1rem', m: '1rem' }}>
+				<TextField inputRef={NewPassword} label='enter a password'></TextField>
+				<Button onClick={onAddPasswordClick}>add password</Button>
+			</Grid>
+			:
+			<Grid sx={{ display: 'flex', flexDirection: 'column', p: '1rem', m: '1rem' }}>
+				<TextField inputRef={CurrentPassword} label='current password'></TextField>
+				<TextField inputRef={NewPassword} label='new password'></TextField>
+				<Button onClick={onChangePasswordClick}>change password</Button>
+				<Button onClick={onGoPublicClick}>go public</Button>
+				<Snackbar
+					open={isAlertOpen}
+					autoHideDuration={4000}
+					onClose={() => { setIsAlertOpen(false), setAlertMessage('') }}
+					message={alertMessage}
+				/>
+			</Grid>
+	)
+}

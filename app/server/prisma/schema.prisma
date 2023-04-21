@@ -77,19 +77,20 @@ model Room {
 }
 
 model Admin {
-  Room        Room @relation(fields: [RoomId], references: [room_id])
+  Room        Room @relation(fields: [RoomId], references: [room_id], onDelete: Cascade, onUpdate: Cascade)
   RoomId      Int
-  AdminUser   User @relation("AdminUser", fields: [AdminUserId], references: [id])
+  AdminUser   User @relation("AdminUser", fields: [AdminUserId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   AdminUserId Int
 
   @@unique([AdminUserId, RoomId])
 }
 
 model Mute {
-  Room        Room     @relation(fields: [RoomId], references: [room_id])
+  id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
+  Room        Room     @relation(fields: [RoomId], references: [room_id], onDelete: Cascade, onUpdate: Cascade)
   RoomId      Int
-  MutedUser   User     @relation("MutedUser", fields: [MutedUserId], references: [id])
+  MutedUser   User     @relation("MutedUser", fields: [MutedUserId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   MutedUserId Int
   reason      String?
 
@@ -98,9 +99,9 @@ model Mute {
 
 model Ban {
   id           Int     @id @default(autoincrement())
-  Room         Room    @relation(fields: [RoomId], references: [room_id])
+  Room         Room    @relation(fields: [RoomId], references: [room_id], onDelete: Cascade, onUpdate: Cascade)
   RoomId       Int
-  bannedUser   User    @relation("BannedUser", fields: [bannedUserId], references: [id])
+  bannedUser   User    @relation("BannedUser", fields: [bannedUserId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   bannedUserId Int
   reason       String?
 
