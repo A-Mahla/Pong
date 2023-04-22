@@ -9,8 +9,8 @@ import { Radio, FormControlLabel, FormGroup } from '@mui/material';
 
 type CreateMatchProps = {
 	player2: string,
-	openMatchmaking: boolean,
-	setOpenMatchmaking: React.Dispatch<React.SetStateAction<boolean>>,
+	openDialog: boolean,
+	setOpenDialog: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
 type PlayerPayload = {
@@ -25,7 +25,7 @@ type PlayerPayload = {
 	}
 }
 
-function JoinQueuButton({player2, openMatchmaking, setOpenMatchmaking}: CreateMatchProps) {
+function JoinQueuButton({player2, openDialog, setOpenDialog}: CreateMatchProps) {
 
 	const {user, id} = useAuth();
 	const [playerPayload, setPlayerPayload] = useState<PlayerPayload>({
@@ -120,7 +120,7 @@ function JoinQueuButton({player2, openMatchmaking, setOpenMatchmaking}: CreateMa
 	};
 
   const handleClose = () => {
-    setOpenMatchmaking(false);
+    setOpenDialog(false);
   }
 
   const handleJoinClick = () => {
@@ -130,7 +130,7 @@ function JoinQueuButton({player2, openMatchmaking, setOpenMatchmaking}: CreateMa
 	return (
 		<>
 			<Dialog
-				open={openMatchmaking}
+				open={openDialog}
 				onClose={handleClose}
 				fullWidth
 				maxWidth="md"
