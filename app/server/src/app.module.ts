@@ -18,6 +18,7 @@ import { ChatService } from './chat/chat.service';
 import { TwofaModule } from './twofa/twofa.module';
 import { GameAlgo } from './game/game.algo';
 import { FriendsService } from './chat/friends/friends.service';
+import { MuteService } from './chat/rooms/mute.service';
 
 @Module({
   imports: [

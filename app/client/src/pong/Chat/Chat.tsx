@@ -7,6 +7,8 @@ import { RoomBar } from './RoomBar'
 import { socket, UpdatesContext } from './Socket'
 import { MessagesBox } from './MessagesBox'
 import { FriendBar } from './FriendBar'
+import { borderLeft } from '@mui/system'
+import { styled } from '@mui/system'
 
 type ChatContextType = {
 	rooms: Room[];
@@ -20,8 +22,10 @@ type ChatContextType = {
 	current: {
 		name: string;
 		id: number;
+		ownerId: number;
+		isPublic: boolean;
 	};
-	setCurrent: React.Dispatch<React.SetStateAction<{ name: string; id: number }>>;
+	setCurrent: React.Dispatch<React.SetStateAction<{ name: string; id: number; ownerId: number; isPublic: boolean}>>;
 	target: User;
 	setTarget: React.Dispatch<React.SetStateAction<User>>;
 	isJoining: boolean;
@@ -46,6 +50,8 @@ const initialChatContext: ChatContextType = {
 	current: {
 		name: '',
 		id: 0,
+		ownerId: 0,
+		isPublic: true,
 	},
 	setCurrent: () => null,
 	target: {
@@ -92,7 +98,7 @@ export function Chat() {
 
 	const [friends, setFriends] = useState<User[]>([])
 
-	const [current, setCurrent] = useState<{ name: string, id: number }>({ name: '', id: 0 })
+	const [current, setCurrent] = useState<{ name: string, id: number, ownerId: number, isPublic: boolean }>({ name: '', id: 0, ownerId: 0, isPublic: true })
 
 	const [target, setTarget] = useState<User>({ login: '', id: 0, avatar: '' })
 
@@ -228,6 +234,8 @@ export function Chat() {
 		}
 		if (newRoom !== undefined) {
 			setRooms([...rooms, newRoom])
+			setCurrent({name: newRoom.name, id: newRoom.room_id, ownerId: newRoom.ownerId, isPublic: newRoom.isPublic})
+			setTarget({login: '', id: 0, avatar: ''})
 			setNewRoom(undefined)
 		}
 		if (leavedRoom !== undefined) {
@@ -237,6 +245,8 @@ export function Chat() {
 					return rooms
 				}
 			}))
+			if (current.id === leavedRoom)
+				setCurrent({name: '', id: 0, ownerId: 0, isPublic: true})
 			setLeavedRoom(undefined)
 		}
 		if (newFriendRequest !== undefined) {
@@ -247,6 +257,8 @@ export function Chat() {
 		if (newFriend !== undefined) {
 			console.log(`newFriend: `, newFriend)
 			setFriends([...friends, newFriend])
+			setCurrent({name: '', id: 0, ownerId: 0, isPublic: true})
+			setTarget(newFriend)
 			setNewFriend(undefined)
 		}
 		if (declineFriendRequestId !== undefined) {
@@ -260,29 +272,15 @@ export function Chat() {
 
 	return (
 		<ChatContext.Provider value={chatContext}>
-			{
-
-				/* 			<Box
-								sx={{display: 'flex', borderRadius:2, p:0,m:2,border: 1,maxHeight:500, overflow:'auto'}}
-								>
-								<RoomBar />
-								<DirectMessageBar />
-								<MessagesBox />
-				
-							</Box> */
-			}
-			<Grid container
-				sx={{ border: 1 }}
-			>
-				<Grid item xs={6} md={2}>
+			<Grid container >
+				<Grid item xs={6} md={2} sx={{p: '2px'}}>
 					<RoomBar />
 				</Grid>
-				<Grid item xs={6} md={2}>
+				<Grid item xs={6} md={2} sx={{p: '2px'}}>
 					<FriendBar />
-					{/* <DirectMessageBar />} */}
 				</Grid>
 
-				<Grid item xs={12} md={8}>
+				<Grid item xs={12} md={8} sx={{p: '2px'}}>
 					<MessagesBox />
 				</Grid>
 			</Grid>

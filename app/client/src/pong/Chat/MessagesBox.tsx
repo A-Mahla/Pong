@@ -1,20 +1,30 @@
 import React, { useState, useRef, useEffect, useContext, useCallback, HtmlHTMLAttributes } from 'react';
-import { Avatar, Box, Paper, TextField, List, ListItem, ListItemText, Typography } from '@mui/material';
+import { Avatar, Box, Paper, TextField, List, ListItem, ListItemText, Typography, Snackbar } from '@mui/material';
 import { styled } from '@mui/system';
 import { ChatContext } from './Chat';
 import useAuth from '../context/useAuth';
 import { socket } from './Socket';
 import { MessageData } from './Chat.types';
 import FetchAvatar from '../component/FetchAvatar';
+import { SettingsButtton } from './ControlButton';
+import { Message } from './MessageBoxUtils';
 
 
-const ChatInputField = styled(TextField)(({ theme }) => ({
+const ChatInputField = styled(TextField)({
 	width: '100%',
-}));
+	'& .MuiInputLabel-root.Mui-focused': {
+		opacity: 0.3,
+	},
+	'& .MuiFilledInput-underline:after': {
+		border: 'none',
+	},
+});
 
 function ChatInput() {
 
 	const [inputValue, setInputValue] = useState('');
+	const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false)
+	const [alertMessage, setAlertMessage] = useState<string>('')
 
 	const { id } = useAuth()
 
@@ -53,48 +63,67 @@ function ChatInput() {
 
 			setInputValue('')
 
-			socket.emit('roomMessage', messageData)
+			socket.emit('roomMessage', messageData, (data: any) => {
+				if (data.error !== undefined) {
+					setIsAlertOpen(true)
+					setAlertMessage(data.error)
+				}
+			})
 		}
 	}, [socket, target, current, inputValue])
 
 	//multiline #I delete it from ChatInputField because when my imput is too long the behavior is horrible
 	return (
-		<ChatInputField
-			fullWidth
-			placeholder="Type your message here..."
-			value={inputValue}
-			onChange={handleInputChange}
-			onKeyDown={(e) => {
-				//console.log(e)
-				if (e.key === 'Enter'/*  && onSubmit */) {
-					handleSubmit(e);
-					setInputValue('');
-					e.preventDefault();
-				}
-			}}
-
-			InputProps={{
-				autoComplete: 'off',
-				autoCorrect: 'off',
-			}}
-		/>
+		<>
+			<ChatInputField
+				fullWidth
+				variant='filled'
+				label="Type your message here..."
+				value={inputValue}
+				onChange={handleInputChange}
+				onKeyDown={(e) => {
+					//console.log(e)
+					if (e.key === 'Enter'/*  && onSubmit */) {
+						handleSubmit(e);
+						setInputValue('');
+						e.preventDefault();
+					}
+				}}
+				InputProps={{
+					autoComplete: 'off',
+					autoCorrect: 'off',
+					style: {
+						fontFamily: '"system-ui", sans-serif'
+					}
+				}}
+			/>
+			<Snackbar
+				open={isAlertOpen}
+				autoHideDuration={4000}
+				onClose={() => { setIsAlertOpen(false), setAlertMessage('') }}
+				message={alertMessage}
+			/>
+		</>
 	);
 }
 
-const ChatBox = styled(Paper)(({ theme }) => ({
+const ChatBox = styled(Paper)({
 	display: 'flex',
 	flexDirection: 'column',
-	borderRadius: 0,
+	borderRadius: '20px',
 	overflow: 'hidden',
 	boxShadow: 'none',
-	border: `1px solid ${theme.palette.grey[300]}`,
+	border: `1px solid lightgray`,
 	position: 'relative', /* add position relative */
 	height: '600px',
 	width: '100%',
-	maxWidth: '100%'
-}));
+	maxWidth: '100%',
+	margingBottom: 0
+});
 
 const ChatHeader = styled(Box)(({ theme }) => ({
+	width: '100%',
+	justifyContent: 'space-between',
 	display: 'flex',
 	alignItems: 'center',
 	height: 32,
@@ -115,7 +144,7 @@ const ChatBody = styled(Box)({
 const ChatFooter = styled(Box)(({ theme }) => ({
 	display: 'flex',
 	alignItems: 'center',
-	height: 64,
+	//height: 64,
 	backgroundColor: theme.palette.background.paper,
 	position: 'absolute', /* add position absolute */
 	bottom: 0, /* position it at the bottom */
@@ -142,9 +171,16 @@ export const MessagesBox = () => {
 			setMessageList(directMessages.map((message, index) => {
 				if (message.sender_id === id || message.recipient_id === id) {
 
-					return (<Box key={index} style={{ display: 'flex', justifyContent: message.sender_id === id ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
-						<Box style={{ maxWidth: '80%', backgroundColor: message.sender_id === id ? '#DCF8C6' : 'lightgrey', padding: '8px 12px', borderRadius: '12px', wordWrap: 'break-word' }}>{message.content}</Box>
-					</Box>)
+					return <Message
+						key={message.id}
+						message={{
+							id: message.id,
+							sender: {
+								id: message.sender_id,
+								login: message.sender.login
+							},
+							content: message.content
+						}} id={id} />
 				}
 				return null
 			}))
@@ -159,14 +195,25 @@ export const MessagesBox = () => {
 				setMessageList([])
 			}
 			else {
+				console.log('room', room)
+				console.log('rooms', rooms)
+				console.log('messageList: ', messageList)
 				setMessageList(room.messages.map((message, index) => {
-					return (
-						<Box key={index} style={{ display: 'flex', justifyContent: message.sender_id === id ? 'flex-end' : 'flex-start', marginBottom: '8px' }}>
-							<Box style={{ maxWidth: '80%', backgroundColor: message.sender_id === id ? '#DCF8C6' : '#fff', padding: '8px 12px', borderRadius: '12px', wordWrap: 'break-word' }}>{message.content}</Box>
-						</Box>
-					)
+					return <Message
+						key={message.id}
+						message={{
+							id: message.id,
+							sender: {
+								id: message.sender_id,
+								login: message.sender.login
+							},
+							content: message.content
+						}} id={id} />
 				}))
 			}
+		}
+		else if (current.id === 0 && target.id === 0) {
+			setMessageList([])
 		}
 	}, [target, current, directMessages, rooms])
 
@@ -182,7 +229,8 @@ export const MessagesBox = () => {
 				target.id !== 0 ?
 					<ChatHeader>
 						<FetchAvatar avatar={target.id !== 0 ? target.avatar : ''} sx={null} />
-						<Typography sx={{p:'2rem'}}>{target.login}</Typography>
+						<Typography sx={{ p: '2rem' }}>{target.login}</Typography>
+						<SettingsButtton />
 					</ChatHeader>
 					:
 					current.id !== 0 ?
@@ -191,7 +239,8 @@ export const MessagesBox = () => {
 							<Avatar >
 								{current.name.charAt(0)}
 							</Avatar>
-							<Typography sx={{p:'2rem'}}>{current.name}</Typography>
+							<Typography sx={{ p: '2rem' }}>{current.name}</Typography>
+							<SettingsButtton />
 						</ChatHeader>
 						:
 						null

@@ -21,6 +21,8 @@ interface UpdatesContextProps {
 	setNewFriend: React.Dispatch<React.SetStateAction<User | undefined>>;
 	declineFriendRequestId: number | undefined;
 	setDeclineFriendRequestId: React.Dispatch<React.SetStateAction<number | undefined>>;
+	// newBan: any | undefined
+	// setNewBan: React.Dispatch<React.SetStateAction<any | undefined>>;
 }
 
 const initialUpdatesContext: UpdatesContextProps = {
@@ -38,6 +40,9 @@ const initialUpdatesContext: UpdatesContextProps = {
 	setNewFriend: () => { },
 	declineFriendRequestId: undefined,// eslint-disable-next-line @typescript-eslint/no-empty-function
 	setDeclineFriendRequestId: () => { },
+	// newBan: undefined,// eslint-disable-next-line @typescript-eslint/no-empty-function
+	// setNewBan: () => { }
+
 }
 
 export const UpdatesContext = createContext<UpdatesContextProps>(initialUpdatesContext)
@@ -60,6 +65,8 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 
 	const [declineFriendRequestId, setDeclineFriendRequestId] = useState<number | undefined>(undefined)
 
+	// const [newBan, setNewBan] = useState(undefined)
+
 	const updatesContext = {
 		newDirectMessage: newDirectMessage,
 		setNewDirectMessage: setNewDirectMessage,
@@ -74,7 +81,9 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 		newFriend: newFriend,
 		setNewFriend: setNewFriend,
 		declineFriendRequestId: declineFriendRequestId,
-		setDeclineFriendRequestId: setDeclineFriendRequestId
+		setDeclineFriendRequestId: setDeclineFriendRequestId,
+		// newBan,
+		// setNewBan,
 	}
 
 	useEffect(() => {		//---ROOMS & MESSAGES--//
@@ -94,9 +103,9 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 
 		socket.on('roomJoined', onRoomJoinedEvent)
 
-		function onRoomLeavedEvent(payload: Room) {
-			console.log(`leaving room ${payload.room_id}`)
-			setLeavedRoom(payload.room_id)
+		function onRoomLeavedEvent(id: number) {
+			console.log(`leaving room ${id}`)
+			setLeavedRoom(id)
 		}
 
 		socket.on('roomLeaved', onRoomLeavedEvent)
@@ -135,6 +144,12 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 
 		socket.on('declineFriend', onDeclineFriendRequest)
 
+		//function onNewBanEvent(newBan: any) {
+		//	setNewBan(newBan)
+		//}
+
+		//socket.on('newBan', onNewBanEvent)
+
 		return () => {
 			socket.off('roomCreated', onRoomCreatedEvent)
 			socket.off('roomJoined', onRoomJoinedEvent)
@@ -143,6 +158,7 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 			socket.off('friendRequest', onFriendRequestEvent)
 			socket.off('newFriend', onNewFriendEvent)
 			socket.off('declineFriend', onDeclineFriendRequest)
+			//socket.off('newBan', onNewBanEvent)
 		}
 
 	}, [socket])

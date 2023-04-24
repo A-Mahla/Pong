@@ -3,7 +3,7 @@ import { Room, User } from "@prisma/client";
 import { ServerStreamFileResponseOptions } from "http2";
 import { Server, Socket } from "socket.io";
 import { UsersService } from "src/users/users.service";
-import { CreateRoomData, MessageData, LeaveRoomData, JoinRoomData, AddFriendData, FriendRequestData } from "./Chat.types";
+import { CreateRoomData, MessageData, LeaveRoomData, JoinRoomData, AddFriendData, FriendRequestData, BanMemberData, UpgradeMemberData, KickMemberData, MuteMemberData } from "./Chat.types";
 import { MessageService } from "./messages/messages.service";
 import { RoomsService } from "./rooms/rooms.service";
 import { FriendsService } from "./friends/friends.service";
@@ -22,7 +22,7 @@ export class ChatService {
 
 		client.join((newRoom as Room).room_id.toString() + payload.name)
 
-		server.to(client.id).emit('roomCreated', { name: payload.name, room_id: newRoom?.room_id, messages: [] })
+		server.to(client.id).emit('roomCreated', { name: payload.name, room_id: newRoom?.room_id, messages: [], ownerId: payload.owner_id, isPublic: newRoom?.isPublic })
 
 		return newRoom
 	}
@@ -44,7 +44,14 @@ export class ChatService {
 		console.log("payload:\n\n", payload);
 
 
+
 		if (payload.room !== undefined) {
+
+			if (await this.roomService.isMuted(payload.sender_id, payload.room.id)) {
+				return {
+					error: 'you are muted in this channel'
+				}
+			}
 			console.log('client rooms in handle MESSAGE', client.rooms)
 			const newMessage = await this.messageService.createMessage(payload.sender_id, payload.room.id, payload.content)
 			server.to(payload.room.id.toString() + payload.room.name).emit('roomMessage', newMessage)
@@ -73,7 +80,7 @@ export class ChatService {
 		const newMessage = await this.messageService.createMessage(payload.user_id, payload.room_id, `${payload.user_login} leaved the room`)
 
 		//server.to(payload.room_id.toString() + payload.room_name).emit('message', newMessage)
-		server.to(client.id).emit('roomLeaved', { room_id: payload.room_id, room_name: payload.room_name })
+		server.to(client.id).emit('roomLeaved', payload.room_id)
 
 		return this.roomService.deleteRelation(payload.user_id, payload.room_id)
 	}
@@ -97,20 +104,34 @@ export class ChatService {
 
 	async joinRoom(server: Server, client: Socket, payload: JoinRoomData) {
 
-		client.join(payload.room_id.toString() + payload.room_name)
+		if (await this.roomService.isBanned(payload.user_id, payload.room_id)) {
+			return {
+				error: 'You are banned from this channel'
+			}
+		}
 
 		const room = await this.roomService.getRoomById(payload.room_id)
 
 		console.log('room in JOIN: ', room)
 
+		if (payload.password) {
+			if ((await this.roomService.checkRoomPassword(payload.room_id, payload.password)) === false)
+				return {
+					error: 'Invalid password'
+				}
+		}
+
+		client.join(payload.room_id.toString() + payload.room_name)
+
 		server.to(client.id).emit('roomJoined', room)
 
 		return await this.userService.joinRoom(payload.user_id, payload.room_id)
+
 	}
 
 	async sendFriendRequest(server: Server, client: Socket, payload: FriendRequestData) {
 
-		const existingRequest = await this.friendService.isExisting({user1_id: payload.user2_id, user2_id: payload.user1_id})
+		const existingRequest = await this.friendService.isExisting({ user1_id: payload.user2_id, user2_id: payload.user1_id })
 
 		if (existingRequest === true)
 			return 'the receiver already send you a friend request'
@@ -125,23 +146,81 @@ export class ChatService {
 	}
 
 	async acceptFriendRequest(server: Server, client: Socket,
-			friendRequestId: number) {
-		
+		friendRequestId: number) {
+
 		const friendAcceptedRelation = await this.friendService.acceptFriendRequest(friendRequestId)
 		if (friendAcceptedRelation === null)
 			return
 
 		console.log('friendAcceptedRelation: ', friendAcceptedRelation)
-	
+
 		server.to(friendAcceptedRelation.user1.id.toString()).emit('newFriend', friendAcceptedRelation.user2)
 		server.to(friendAcceptedRelation.user2.id.toString()).emit('newFriend', friendAcceptedRelation.user1)
 
 		return friendAcceptedRelation
 	}
 
-	async declineFriendRequest(server: Server, client: Socket, payload: {senderId: number, friendRequestId: number}) {
+	async declineFriendRequest(server: Server, client: Socket, payload: { senderId: number, friendRequestId: number }) {
 		await this.friendService.declineFriendRequest(payload.friendRequestId)
 		server.to(payload.senderId.toString()).emit('declineFriend', payload.friendRequestId)
+	}
+
+	async banMember(server: Server, client: Socket, payload: BanMemberData) {
+		if (!(await this.roomService.isAdmin(payload.sender_id, payload.room_id)) && !(await this.roomService.isRoomOwner(payload.sender_id, payload.room_id))) {
+			return {
+				error: 'Admin access required.'
+			}
+		}
+
+		server.to(payload.user_id.toString()).emit('roomLeaved', payload.room_id)
+		return await this.roomService.banMember(payload.room_id, payload.user_id)
+	}
+
+	async unbanUser(server: Server, client: Socket, payload: BanMemberData) {
+		if (!(await this.roomService.isAdmin(payload.sender_id, payload.room_id)) && !(await this.roomService.isRoomOwner(payload.sender_id, payload.room_id))) {
+			return {
+				error: 'Admin role required.'
+			}
+		}
+		return await this.roomService.unbanUser(payload.room_id, payload.user_id)
+	}
+
+	async upgradeMember(server: Server, payload: UpgradeMemberData) {
+		if (!(await this.roomService.isRoomOwner(payload.sender_id, payload.room_id))) {
+			return {
+				error: 'Room owner role required.'
+			}
+		}
+		return await this.roomService.upgradeUser(payload.room_id, payload.user_id)
+	}
+
+	async downgradeMember(server: Server, payload: UpgradeMemberData) {
+		if (!(await this.roomService.isRoomOwner(payload.sender_id, payload.room_id))) {
+			return {
+				error: 'Room owner role required.'
+			}
+		}
+		return await this.roomService.downgradeUser(payload.room_id, payload.user_id)
+	}
+
+	async kickMember(server: Server, payload: KickMemberData) {
+		if (!(await this.roomService.isAdmin(payload.sender_id, payload.room_id)) && !(await this.roomService.isRoomOwner(payload.sender_id, payload.room_id))) {
+			return {
+				error: 'Admin role required.'
+			}
+		}
+		server.to(payload.user_id.toString()).emit('roomLeaved', payload.room_id)
+
+		return await this.roomService.deleteRelation(payload.user_id, payload.room_id)
+	}
+
+	async muteMember(server: Server, payload: MuteMemberData) {
+		if (!(await this.roomService.isAdmin(payload.sender_id, payload.room_id)) && !(await this.roomService.isRoomOwner(payload.sender_id, payload.room_id))) {
+			return {
+				error: 'Admin role required.'
+			}
+		}
+		return await this.roomService.muteUser(payload.user_id, payload.room_id)
 	}
 
 }

@@ -11,6 +11,8 @@ import FetchAvatar from '../component/FetchAvatar'
 import { FriendRequest, User } from './Chat.types';
 
 export const FriendListWrapper = styled('div')({
+	borderRadius: '20px',
+	border: `1px solid lightgray`,
 	display: 'flex',
 	flexDirection: 'column',
 	width: '100%',
