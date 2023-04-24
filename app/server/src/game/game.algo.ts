@@ -214,12 +214,12 @@ export class GameAlgo {
 		})
 
 		this.player1.playerSocket.on('paddlePos', (y: number, socket: Socket) => { // player moving the paddle
-			this.gameDataUpdate.p1y = y;
+			// this.gameDataUpdate.p1y = y;
+			this.gameDataUpdate.p1y = (2 * (this.gameModel.canvasHeight / 2) - y);
 			this.gameModel.p1timeout = Date.now();
 		})
 
 		this.player1.playerSocket.on('imReady', () => {
-			console.log('++++++++++++++++++++++++++++++ 1');
 			this.player1!.isReady = true;
 		})
 
@@ -269,13 +269,13 @@ export class GameAlgo {
 		})
 
 		this.player2.playerSocket.on('paddlePos', (y: number, socket: Socket) => { // player moving the paddle
-			this.gameDataUpdate.p2y = y;
+			// this.gameDataUpdate.p2y = y;
+			this.gameDataUpdate.p2y = (2 * (this.gameModel.canvasHeight / 2) - y);
 			this.gameModel.p2timeout = Date.now();
 		})
 		// ------------------------------
 
 		this.player2.playerSocket.on('imReady', () => {
-			console.log('++++++++++++++++++++++++++++++ 2');
 			this.player2!.isReady = true;
 		})
 		this.server.to(this.player2.socketID).emit('lockAndLoaded');
