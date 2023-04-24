@@ -245,6 +245,12 @@ export const UserListItem = ({ user, friends, blockedUserIds ,onClick, friendReq
 	};
 
 	const handleUnblockUser = () => {
+		const UnblockUserData = {
+			sender_id: id,
+			user_id: user.id
+		}
+
+		socket.emit('unblockUser', UnblockUserData)
 		console.log(`unblock: ${user.login}`)
 	}
 
