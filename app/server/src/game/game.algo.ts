@@ -360,7 +360,11 @@ export class GameAlgo {
 
 	public async addWatcherSocketID(newWatcherSocket: Socket) {
 		this.watchers.push(newWatcherSocket);
-		this.server.to(newWatcherSocket.id).emit('initSetup', this.initGameDataSetUp( this.gameModel));
+
+		newWatcherSocket.on('imReady', () => {
+			this.server.to(newWatcherSocket.id).emit('initSetup', this.initGameDataSetUp( this.gameModel));
+		})
+
 		newWatcherSocket.on('quitGame', () => {
 			this.watchers.forEach((value, index) => {
 				if (value === newWatcherSocket) {

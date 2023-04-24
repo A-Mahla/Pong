@@ -82,3 +82,13 @@ export type InviteGameData = {
 	paddleSize: string,
 	duration: string
 }
+
+export type InviteGameDataPaylaod = {
+	sender_id: number,
+	sender_login: string,
+	receiver_id: number,
+	receiver_login: string,
+	ballSpeed: string,
+	paddleSize: string,
+	duration: string
+}

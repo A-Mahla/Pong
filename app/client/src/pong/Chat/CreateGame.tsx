@@ -6,9 +6,11 @@ import './game.css'
 import { useState } from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { Radio, FormControlLabel, FormGroup } from '@mui/material';
+import { InviteGameDataPaylaod } from '../component/gameType'
 
 type CreateMatchProps = {
 	player2: string,
+	player2Id: number,
 	openDialog: boolean,
 	setOpenDialog: React.Dispatch<React.SetStateAction<boolean>>,
 }
@@ -25,42 +27,39 @@ type PlayerPayload = {
 	}
 }
 
-function JoinQueuButton({player2, openDialog, setOpenDialog}: CreateMatchProps) {
+function JoinQueuButton({player2, player2Id, openDialog, setOpenDialog}: CreateMatchProps) {
 
+	/**
+	 * Sur le Onclick du bouton JOIN, il faut faire un POST de playerPayload sur la route:
+	 * 			'/api/game/newInvite'
+	 */
 	const {user, id} = useAuth();
-	const [playerPayload, setPlayerPayload] = useState<PlayerPayload>({
-		id: id,
-		player1: user,
-		player2: player2,
-		config: {
-			ballSpeed: '7',
-			paddleSize: '100',
-			duration:'3750'
-		}
+	const [playerPayload, setPlayerPayload] = useState<InviteGameDataPaylaod>({
+		sender_id: id,
+		sender_login: user,
+		receiver_id: player2Id,
+		receiver_login: player2,
+		ballSpeed: '7',
+		paddleSize: '100',
+		duration: '3750'
 	})
 
   const handlePaddleSizeLevel = (event: any) => {
-	if (playerPayload.config) {
+	if (playerPayload) {
 		if (event.target.value === "easy"){
 			setPlayerPayload({...playerPayload,
-				config: {
-					...playerPayload.config,
 					paddleSize: '50'
-				}})
+			})
 		}
 		else if (event.target.value === 'medium'){
 			setPlayerPayload({...playerPayload,
-				config: {
-					...playerPayload.config,
-					paddleSize: '70'
-				}})
+				paddleSize: '70'
+			})
 		}
 		else if (event.target.value === 'hard'){
 			setPlayerPayload({...playerPayload,
-				config: {
-					...playerPayload.config,
-					paddleSize: '50'
-				}})
+				paddleSize: '50'
+			})
 		}
 	}
   };
@@ -68,53 +67,41 @@ function JoinQueuButton({player2, openDialog, setOpenDialog}: CreateMatchProps) 
 
 	const handleBallSpeedLevel = (event: any) => {
 
-		if (playerPayload.config) {
+		if (playerPayload) {
 			if (event.target.value === "easy"){
 				setPlayerPayload({...playerPayload,
-					config: {
-						...playerPayload.config,
-						ballSpeed: '7'
-					}})
+					ballSpeed: '7'
+				})
 			}
 			else if (event.target.value === 'medium'){
 				setPlayerPayload({...playerPayload,
-					config: {
-						...playerPayload.config,
-						ballSpeed: '10'
-					}})
+					ballSpeed: '10'
+				})
 			}
 			else if (event.target.value === 'hard'){
 				setPlayerPayload({...playerPayload,
-					config: {
-						...playerPayload.config,
-						ballSpeed: '12'
-					}})
+					ballSpeed: '12'
+				})
 			}
 		}
 	};
 
 	const handleDuration = (event: any) => {
-		if (playerPayload.config) {
+		if (playerPayload) {
 			if (event.target.value === "easy"){
 				setPlayerPayload({...playerPayload,
-					config: {
-						...playerPayload.config,
-						duration: '1875'
-					}})
+					duration: '1875'
+				})
 			}
 			else if (event.target.value === 'medium'){
 				setPlayerPayload({...playerPayload,
-					config: {
-						...playerPayload.config,
-						duration: '3750'
-					}})
+					duration: '3750'
+				})
 			}
 			else if (event.target.value === 'hard'){
 				setPlayerPayload({...playerPayload,
-					config: {
-						...playerPayload.config,
-						duration: '7500'
-					}})
+					duration: '7500'
+				})
 			}
 		}
 	};
@@ -208,7 +195,7 @@ function JoinQueuButton({player2, openDialog, setOpenDialog}: CreateMatchProps) 
 								<FormControlLabel
 									control={
 										<Radio
-											checked={playerPayload.config?.ballSpeed === '7'}
+											checked={playerPayload.ballSpeed === '7'}
 											onClick={handleBallSpeedLevel}
 											value="easy"
 										/>
@@ -219,7 +206,7 @@ function JoinQueuButton({player2, openDialog, setOpenDialog}: CreateMatchProps) 
 								<FormControlLabel
 								control={
 										<Radio
-											checked={playerPayload.config?.ballSpeed === '10'}
+											checked={playerPayload.ballSpeed === '10'}
 											onClick={handleBallSpeedLevel}
 											value="medium"
 										/>
@@ -230,7 +217,7 @@ function JoinQueuButton({player2, openDialog, setOpenDialog}: CreateMatchProps) 
 								<FormControlLabel
 									control={
 										<Radio
-											checked={playerPayload.config?.ballSpeed === '12'}
+											checked={playerPayload.ballSpeed === '12'}
 											onClick={handleBallSpeedLevel}
 											value="hard"
 										/>
@@ -247,7 +234,7 @@ function JoinQueuButton({player2, openDialog, setOpenDialog}: CreateMatchProps) 
 								<FormControlLabel
 									control={
 										<Radio
-											checked={playerPayload.config?.paddleSize === '100'}
+											checked={playerPayload.paddleSize === '100'}
 											onClick={handlePaddleSizeLevel}
 											value="easy"
 										/>
@@ -258,7 +245,7 @@ function JoinQueuButton({player2, openDialog, setOpenDialog}: CreateMatchProps) 
 								<FormControlLabel
 									control={
 										<Radio
-											checked={playerPayload.config?.paddleSize === '70'}
+											checked={playerPayload.paddleSize === '70'}
 											onClick={handlePaddleSizeLevel}
 											value="medium"
 										/>
@@ -269,7 +256,7 @@ function JoinQueuButton({player2, openDialog, setOpenDialog}: CreateMatchProps) 
 								<FormControlLabel
 									control={
 										<Radio
-											checked={playerPayload.config?.paddleSize === '50'}
+											checked={playerPayload.paddleSize === '50'}
 											onClick={handlePaddleSizeLevel}
 											value="hard"
 										/>
@@ -286,7 +273,7 @@ function JoinQueuButton({player2, openDialog, setOpenDialog}: CreateMatchProps) 
 								<FormControlLabel
 									control={
 										<Radio
-											checked={playerPayload.config?.duration === '1875'}
+											checked={playerPayload.duration === '1875'}
 											onClick={handleDuration}
 											value="easy"
 										/>
@@ -297,7 +284,7 @@ function JoinQueuButton({player2, openDialog, setOpenDialog}: CreateMatchProps) 
 								<FormControlLabel
 									control={
 										<Radio
-											checked={playerPayload.config?.duration === '3750'}
+											checked={playerPayload.duration === '3750'}
 											onClick={handleDuration}
 											value="medium"
 										/>
@@ -308,7 +295,7 @@ function JoinQueuButton({player2, openDialog, setOpenDialog}: CreateMatchProps) 
 								<FormControlLabel
 									control={
 										<Radio
-											checked={playerPayload.config?.duration === '7500'}
+											checked={playerPayload.duration === '7500'}
 											onClick={handleDuration}
 											value="hard"
 										/>
