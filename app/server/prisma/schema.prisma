@@ -45,6 +45,8 @@ model Blocked {
   blockedUserId Int
   blockedUser   User     @relation("BlockedUser", fields: [blockedUserId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdAt     DateTime @default(now())
+
+  @@unique([userId, blockedUserId])
 }
 
 model Friend {

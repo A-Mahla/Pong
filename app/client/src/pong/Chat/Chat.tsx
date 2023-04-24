@@ -25,7 +25,7 @@ type ChatContextType = {
 		ownerId: number;
 		isPublic: boolean;
 	};
-	setCurrent: React.Dispatch<React.SetStateAction<{ name: string; id: number; ownerId: number; isPublic: boolean}>>;
+	setCurrent: React.Dispatch<React.SetStateAction<{ name: string; id: number; ownerId: number; isPublic: boolean }>>;
 	target: User;
 	setTarget: React.Dispatch<React.SetStateAction<User>>;
 	isJoining: boolean;
@@ -36,6 +36,8 @@ type ChatContextType = {
 	setIsInDirect: React.Dispatch<React.SetStateAction<boolean>>;
 	isSearching: boolean;
 	setIsSearching: React.Dispatch<React.SetStateAction<boolean>>;
+	blockedUserIds: number[];
+	setBlockedUserIds: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
 const initialChatContext: ChatContextType = {
@@ -68,6 +70,8 @@ const initialChatContext: ChatContextType = {
 	setIsInDirect: () => null,
 	isSearching: false,
 	setIsSearching: () => null,
+	blockedUserIds: [],
+	setBlockedUserIds: () => null,
 };
 
 export const ChatContext = createContext<ChatContextType>(initialChatContext);
@@ -87,7 +91,11 @@ export function Chat() {
 		newFriend,
 		setNewFriend,
 		declineFriendRequestId,
-		setDeclineFriendRequestId
+		setDeclineFriendRequestId,
+		newBlockedUserId,
+		setNewBlockedUserId,
+		removedFriendId,
+		setRemovedFriendId
 	} = useContext(UpdatesContext)
 
 	const [directMessages, setDirectMessages] = useState<DirectMessage[]>([])
@@ -110,6 +118,8 @@ export function Chat() {
 
 	const [isInDirect, setIsInDirect] = useState<boolean>(false)
 
+	const [blockedUserIds, setBlockedUserIds] = useState<number[]>([])
+
 	const chatContext = {
 		rooms: rooms,
 		setRooms: setRooms,
@@ -130,7 +140,9 @@ export function Chat() {
 		isInDirect: isInDirect,
 		setIsInDirect: setIsInDirect,
 		isSearching: isSearching,
-		setIsSearching: setIsSearching
+		setIsSearching: setIsSearching,
+		blockedUserIds: blockedUserIds,
+		setBlockedUserIds: setBlockedUserIds,
 	}
 
 	const auth = useFetchAuth()
@@ -184,6 +196,25 @@ export function Chat() {
 		auth: auth,
 	}
 
+	const getBlockedUsersRequest: Api = {
+		api: {
+			input: `http://${import.meta.env.VITE_SITE}/api/users/blocked`,
+			option: {
+			},
+		},
+		auth: auth,
+	}
+
+	useEffect(() => {
+		async function getBlockedUsers() {
+			const response = await FetchApi(getBlockedUsersRequest)
+			console.log('blocked users data: ', response?.data)
+			return response?.data
+		}
+
+		getBlockedUsers().then(data => setBlockedUserIds(data))
+	}, [])
+
 	useEffect(() => {
 		async function getMessages() {
 			const response = await FetchApi(getMessagesRequest)
@@ -234,8 +265,8 @@ export function Chat() {
 		}
 		if (newRoom !== undefined) {
 			setRooms([...rooms, newRoom])
-			setCurrent({name: newRoom.name, id: newRoom.room_id, ownerId: newRoom.ownerId, isPublic: newRoom.isPublic})
-			setTarget({login: '', id: 0, avatar: ''})
+			setCurrent({ name: newRoom.name, id: newRoom.room_id, ownerId: newRoom.ownerId, isPublic: newRoom.isPublic })
+			setTarget({ login: '', id: 0, avatar: '' })
 			setNewRoom(undefined)
 		}
 		if (leavedRoom !== undefined) {
@@ -246,7 +277,7 @@ export function Chat() {
 				}
 			}))
 			if (current.id === leavedRoom)
-				setCurrent({name: '', id: 0, ownerId: 0, isPublic: true})
+				setCurrent({ name: '', id: 0, ownerId: 0, isPublic: true })
 			setLeavedRoom(undefined)
 		}
 		if (newFriendRequest !== undefined) {
@@ -257,7 +288,7 @@ export function Chat() {
 		if (newFriend !== undefined) {
 			console.log(`newFriend: `, newFriend)
 			setFriends([...friends, newFriend])
-			setCurrent({name: '', id: 0, ownerId: 0, isPublic: true})
+			setCurrent({ name: '', id: 0, ownerId: 0, isPublic: true })
 			setTarget(newFriend)
 			setNewFriend(undefined)
 		}
@@ -267,20 +298,37 @@ export function Chat() {
 			setFriendRequests(friendRequests.filter((friendRequest) => (friendRequest.id !== declineFriendRequestId)))
 			setDeclineFriendRequestId(undefined)
 		}
+		if (newBlockedUserId !== undefined) {
+			console.log(`newBlockedUserId: ${newBlockedUserId}`)
+			console.log(`friends: ${friends}`)
+			setFriends(friends.filter(friend =>  friend.id !== newBlockedUserId))
+			setBlockedUserIds([...blockedUserIds, newBlockedUserId])
+			setNewBlockedUserId(undefined)
+		}
+		if (removedFriendId !== undefined) {
+			console.log('removed friend id: ', removedFriendId)
+			setFriends(friends.filter(friend =>  friend.id !== removedFriendId))
+			console.log('friendRequest: ', friendRequests)
+			setFriendRequests(friendRequests.filter(friendRequests => friendRequests.user1Id !== removedFriendId && friendRequests.user2Id !== removedFriendId))
+			if (target.id === removedFriendId) {
+				setTarget({id: 0, login: '', avatar: ''})
+			}
+			setRemovedFriendId(undefined)
+		}
 
-	}, [newRoomMessage, newDirectMessage, newRoom, leavedRoom, newFriendRequest, newFriend, declineFriendRequestId])
+	}, [newRoomMessage, newDirectMessage, newRoom, leavedRoom, newFriendRequest, newFriend, declineFriendRequestId, newBlockedUserId, removedFriendId, target])
 
 	return (
 		<ChatContext.Provider value={chatContext}>
 			<Grid container >
-				<Grid item xs={6} md={2} sx={{p: '2px'}}>
+				<Grid item xs={6} md={2} sx={{ p: '2px' }}>
 					<RoomBar />
 				</Grid>
-				<Grid item xs={6} md={2} sx={{p: '2px'}}>
+				<Grid item xs={6} md={2} sx={{ p: '2px' }}>
 					<FriendBar />
 				</Grid>
 
-				<Grid item xs={12} md={8} sx={{p: '2px'}}>
+				<Grid item xs={12} md={8} sx={{ p: '2px' }}>
 					<MessagesBox />
 				</Grid>
 			</Grid>

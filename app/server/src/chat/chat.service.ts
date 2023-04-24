@@ -3,7 +3,7 @@ import { Room, User } from "@prisma/client";
 import { ServerStreamFileResponseOptions } from "http2";
 import { Server, Socket } from "socket.io";
 import { UsersService } from "src/users/users.service";
-import { CreateRoomData, MessageData, LeaveRoomData, JoinRoomData, AddFriendData, FriendRequestData, BanMemberData, UpgradeMemberData, KickMemberData, MuteMemberData } from "./Chat.types";
+import { CreateRoomData, MessageData, LeaveRoomData, JoinRoomData, AddFriendData, FriendRequestData, BanMemberData, UpgradeMemberData, KickMemberData, MuteMemberData, BlockUserData } from "./Chat.types";
 import { MessageService } from "./messages/messages.service";
 import { RoomsService } from "./rooms/rooms.service";
 import { FriendsService } from "./friends/friends.service";
@@ -131,6 +131,12 @@ export class ChatService {
 
 	async sendFriendRequest(server: Server, client: Socket, payload: FriendRequestData) {
 
+		if (await this.userService.isBlocked(payload.user1_id, payload.user2_id)) {
+			return {
+				error: 'invalid permissions'
+			}
+		}
+
 		const existingRequest = await this.friendService.isExisting({ user1_id: payload.user2_id, user2_id: payload.user1_id })
 
 		if (existingRequest === true)
@@ -221,6 +227,17 @@ export class ChatService {
 			}
 		}
 		return await this.roomService.muteUser(payload.user_id, payload.room_id)
+	}
+
+	async blockUser(server: Server, payload: BlockUserData) {
+		const blockRelation = await this.userService.blockUser(payload.sender_id, payload.user_id)
+
+		if (blockRelation) {
+			server.to(payload.sender_id.toString()).emit('newBlockedUser', payload.user_id)
+			server.to(payload.user_id.toString()).emit('removeFriend', payload.sender_id)
+		}
+
+		return blockRelation
 	}
 
 }

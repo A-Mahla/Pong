@@ -8,6 +8,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { PrismaModule } from '../prisma/prisma.module'
 import { JwtStrategy } from 'src/auth/jwt.strategy'
 import { TwoFATokenStrategy } from 'src/auth/2fa-jwt.strategy'
+import { FriendsService } from 'src/chat/friends/friends.service';
 
 @Module({
 	imports: [PrismaModule, forwardRef(() => AuthModule)],
@@ -19,6 +20,7 @@ import { TwoFATokenStrategy } from 'src/auth/2fa-jwt.strategy'
 		GameService,
 		TwoFATokenStrategy,
 		JwtStrategy,
+		FriendsService
 	]
 })
 export class TwofaModule {}

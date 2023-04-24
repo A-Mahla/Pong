@@ -2,6 +2,7 @@ import { List, ListItem, ListItemText, ListItemAvatar, Avatar, IconButton } from
 import AddIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import PropTypes from 'prop-types';
 import { styled } from '@mui/system'
 import React, { useContext } from 'react';
@@ -228,10 +229,12 @@ const UserListItemText = styled('div')({
 	flexGrow: 1,
 });
 
-export const UserListItem = ({ user, friends, onClick, friendRequests, id }: { user: User, friends: User[], onClick: (id: number) => void, friendRequests: FriendRequest[], id: number }) => {
+export const UserListItem = ({ user, friends, blockedUserIds ,onClick, friendRequests, id }: { user: User, friends: User[], blockedUserIds: number[], onClick: (id: number) => void, friendRequests: FriendRequest[], id: number }) => {
 
 	if (id === user.id)
 		return null
+	
+	console.log('blockedUserIds: ', blockedUserIds)
 
 	const [isSendingRequest, setIsSendingRequest] = React.useState(false);
 
@@ -240,6 +243,10 @@ export const UserListItem = ({ user, friends, onClick, friendRequests, id }: { u
 		await onClick(user.id);
 		setIsSendingRequest(false);
 	};
+
+	const handleUnblockUser = () => {
+		console.log(`unblock: ${user.login}`)
+	}
 
 	return (
 		<UserListItemWrapper>
@@ -252,6 +259,11 @@ export const UserListItem = ({ user, friends, onClick, friendRequests, id }: { u
 				:
 				friendRequests.find((request) => request.user1Id === user.id || request.user2Id === user.id) ?
 					<MoreHorizIcon />
+					:
+					blockedUserIds.find(id => user.id === id) ?
+					<IconButton onClick={handleUnblockUser}>
+						<LockOpenIcon/>
+					</IconButton>
 					:
 					<IconButton onClick={handleAddFriendClick} disabled={isSendingRequest}>
 						<AddIcon />
@@ -274,6 +286,7 @@ UserListItem.propTypes = {
 			login: PropTypes.string.isRequired,
 		}),
 	).isRequired,
+	blockedUserIds: PropTypes.arrayOf(PropTypes.number),
 	onClick: PropTypes.func.isRequired,
 	friendRequests: PropTypes.arrayOf(
 		PropTypes.shape({

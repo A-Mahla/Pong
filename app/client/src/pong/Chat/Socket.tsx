@@ -21,8 +21,10 @@ interface UpdatesContextProps {
 	setNewFriend: React.Dispatch<React.SetStateAction<User | undefined>>;
 	declineFriendRequestId: number | undefined;
 	setDeclineFriendRequestId: React.Dispatch<React.SetStateAction<number | undefined>>;
-	// newBan: any | undefined
-	// setNewBan: React.Dispatch<React.SetStateAction<any | undefined>>;
+	newBlockedUserId: number | undefined
+	setNewBlockedUserId: React.Dispatch<React.SetStateAction<number | undefined>>;
+	removedFriendId: number | undefined
+	setRemovedFriendId: React.Dispatch<React.SetStateAction<number | undefined>>;
 }
 
 const initialUpdatesContext: UpdatesContextProps = {
@@ -40,8 +42,10 @@ const initialUpdatesContext: UpdatesContextProps = {
 	setNewFriend: () => { },
 	declineFriendRequestId: undefined,// eslint-disable-next-line @typescript-eslint/no-empty-function
 	setDeclineFriendRequestId: () => { },
-	// newBan: undefined,// eslint-disable-next-line @typescript-eslint/no-empty-function
-	// setNewBan: () => { }
+	newBlockedUserId: undefined,// eslint-disable-next-line @typescript-eslint/no-empty-function
+	setNewBlockedUserId: () => { },
+	removedFriendId: undefined,// eslint-disable-next-line @typescript-eslint/no-empty-function
+	setRemovedFriendId: () => { },
 
 }
 
@@ -65,7 +69,9 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 
 	const [declineFriendRequestId, setDeclineFriendRequestId] = useState<number | undefined>(undefined)
 
-	// const [newBan, setNewBan] = useState(undefined)
+	const [newBlockedUserId, setNewBlockedUserId] = useState<number | undefined>(undefined)
+
+	const [removedFriendId, setRemovedFriendId] = useState<number | undefined>(undefined)
 
 	const updatesContext = {
 		newDirectMessage: newDirectMessage,
@@ -82,8 +88,10 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 		setNewFriend: setNewFriend,
 		declineFriendRequestId: declineFriendRequestId,
 		setDeclineFriendRequestId: setDeclineFriendRequestId,
-		// newBan,
-		// setNewBan,
+		newBlockedUserId,
+		setNewBlockedUserId,
+		removedFriendId: removedFriendId,
+		setRemovedFriendId: setRemovedFriendId
 	}
 
 	useEffect(() => {		//---ROOMS & MESSAGES--//
@@ -144,11 +152,19 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 
 		socket.on('declineFriend', onDeclineFriendRequest)
 
-		//function onNewBanEvent(newBan: any) {
-		//	setNewBan(newBan)
-		//}
+		function onNewBlockedUserEvent(blockedUserId: number) {
+			console.log(`new blockedUserId : ${blockedUserId}`)
+			setNewBlockedUserId(blockedUserId)
+		}
 
-		//socket.on('newBan', onNewBanEvent)
+		socket.on('newBlockedUser', onNewBlockedUserEvent)
+
+
+		function onRemoveFriendEvent(removeFriendId: number) {
+			setRemovedFriendId(removeFriendId)
+		}
+
+		socket.on('removeFriend', onRemoveFriendEvent)
 
 		return () => {
 			socket.off('roomCreated', onRoomCreatedEvent)
@@ -158,7 +174,8 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 			socket.off('friendRequest', onFriendRequestEvent)
 			socket.off('newFriend', onNewFriendEvent)
 			socket.off('declineFriend', onDeclineFriendRequest)
-			//socket.off('newBan', onNewBanEvent)
+			socket.off('newBlockedUser', onNewBlockedUserEvent)
+			socket.off('removeFriend', onRemoveFriendEvent)
 		}
 
 	}, [socket])

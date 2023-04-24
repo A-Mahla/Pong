@@ -5,7 +5,7 @@ import { Server, Socket } from 'socket.io';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { UsersService } from 'src/users/users.service';
 import { RoomsService } from './rooms/rooms.service';
-import { AddFriendData, BanMemberData, CreateRoomData, DowngradeMemberData, FriendRequestData, JoinRoomData, KickMemberData, MessageData, MuteMemberData, UpgradeMemberData } from './Chat.types';
+import { AddFriendData, BanMemberData, BlockUserData, CreateRoomData, DowngradeMemberData, FriendRequestData, JoinRoomData, KickMemberData, MessageData, MuteMemberData, UpgradeMemberData } from './Chat.types';
 import { WsGuard } from './ws.guard';
 import { MessageService } from './messages/messages.service';
 import { ChatService } from './chat.service';
@@ -101,6 +101,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   async handleMuteMember(client: Socket, payload: MuteMemberData) {
     console.log('inMuteMember: ', payload)
     return this.chatService.muteMember(this.server, payload)
+  }
+
+  @SubscribeMessage('blockUser')
+  async handleBlockUser(client: Socket, payload: BlockUserData) {
+    return this.chatService.blockUser(this.server, payload)
   }
 
   afterInit(server: Server): any {

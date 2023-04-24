@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { styled } from '@mui/system';
-import { IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Avatar, ListItem, ListItemAvatar, ListItemText, Divider } from '@mui/material';
+import { IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Avatar, ListItem, ListItemAvatar, ListItemText, Divider, Snackbar } from '@mui/material';
 import PropTypes from 'prop-types';
 import PeopleIcon from '@mui/icons-material/People';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -16,19 +16,22 @@ export const FriendBar = () => {
 
   const { friends, friendRequests,
     target, setTarget,
-    current, setCurrent
+    current, setCurrent,
+    blockedUserIds
   } = useContext(ChatContext)
   const [activeFriendId, setActiveFriendId] = React.useState(0);
   const [addFriendDialogOpen, setAddFriendDialogOpen] = React.useState(false);
   const [friendRequestsDialogOpen, setFriendRequestsDialogOpen] = React.useState(false);
   const [matchingUsers, setMatchingUsers] = React.useState<User[]>([])
+	const [isAlertOpen, setIsAlertOpen] = React.useState<boolean>(false)
+	const [alertMessage, setAlertMessage] = React.useState<string>('')
   const useContextAuth = useFetchAuth()
   const { id } = useAuth()
 
   const handleFriendClick = (friend: User) => {
     console.log('friendId: ', friend)
     setTarget(friend)
-    setCurrent({ name: '', id: 0, ownerId: 0, isPublic: true})
+    setCurrent({ name: '', id: 0, ownerId: 0, isPublic: true })
     setActiveFriendId(friend.id);
   };
 
@@ -65,7 +68,12 @@ export const FriendBar = () => {
       user2_id: userId
     }
 
-    socket.emit('friendRequest', payload)
+    socket.emit('friendRequest', payload, (response: any) => {
+      if (response.error) {
+        setAlertMessage(response.error)
+        setIsAlertOpen(true)
+      }
+    })
   }
 
   let delayDebounce: NodeJS.Timeout
@@ -131,11 +139,11 @@ export const FriendBar = () => {
         <UserListWrapper>
           {matchingUsers.map((user) => (
             <UserListItem
-              key={user.id} friends={friends} onClick={handleSendFriendRequestClick} user={user} friendRequests={friendRequests} id={id} />
+              key={user.id} friends={friends} onClick={handleSendFriendRequestClick} user={user} friendRequests={friendRequests} id={id} blockedUserIds={blockedUserIds} />
           ))}
         </UserListWrapper>
         <DialogActions>
-          <Button onClick={handleAddFriendDialogClose} sx={{borderRadius: '20px'}}>Cancel</Button>
+          <Button onClick={handleAddFriendDialogClose} sx={{ borderRadius: '20px' }}>Cancel</Button>
         </DialogActions>
       </Dialog>
       <Dialog open={friendRequestsDialogOpen} onClose={handleFriendRequestsDialogClose}
@@ -154,9 +162,15 @@ export const FriendBar = () => {
           </FriendRequestWrapper>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleFriendRequestsDialogClose} sx={{borderRadius: '20px'}}>Cancel</Button>
+          <Button onClick={handleFriendRequestsDialogClose} sx={{ borderRadius: '20px' }}>Cancel</Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={isAlertOpen}
+        autoHideDuration={4000}
+        onClose={() => { setIsAlertOpen(false), setAlertMessage('') }}
+        message={alertMessage}
+      />
     </FriendListWrapper>
   );
 }

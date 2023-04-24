@@ -8,12 +8,14 @@ import { ok } from 'assert';
 import * as bcrypt from 'bcrypt';
 import { AddFriendData } from 'src/chat/Chat.types';
 import e from 'express';
+import { FriendsService } from 'src/chat/friends/friends.service';
 
 @Injectable()
 export class UsersService {
 
 	constructor(private prisma: PrismaService,
-		private readonly gameService: GameService) { }
+		private readonly gameService: GameService,
+		private readonly friendService: FriendsService) { }
 
 	async findUsers(): Promise<User[]> {
 		return this.prisma.user.findMany()
@@ -38,7 +40,10 @@ export class UsersService {
 				updatedAt: false,
 				createdAt: false,
 			}
+		}).catch((e) => {
+			throw new BadRequestException(); // maybe we will have to specifie the error later
 		})
+
 	}
 
 	async findIfExistUser(login: string): Promise<number> {
@@ -264,6 +269,53 @@ export class UsersService {
 		})
 
 	}
+
+	async blockUser(senderId: number, userId: number) {
+
+		await this.friendService.removeFromFriend(senderId, userId)
+
+		return await this.prisma.blocked.create({
+			data: {
+				userId: senderId,
+				blockedUserId: userId
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+	}
+
+	async getBlockedUsers(userId: number) {
+		return (await this.prisma.blocked.findMany({
+			where: {
+				userId: userId
+			},
+			select: {
+				blockedUserId: true
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})).map(blockedUser => blockedUser.blockedUserId)
+
+	}
+
+	async isBlocked(subjectId: number, userId: number) {
+		const relation = await this.prisma.blocked.findUnique({
+			where: {
+				userId_blockedUserId: {
+					userId: userId,
+					blockedUserId: subjectId
+				}
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+		if (relation) 
+			return true
+		return false
+	}
 }
+
 /* ============================ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ========================*/
 

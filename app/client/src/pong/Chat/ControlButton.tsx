@@ -10,7 +10,7 @@ import { socket } from './Socket';
 
 export function SettingsButtton() {
 
-	const { current } = useContext(ChatContext)
+	const { current, target, setTarget } = useContext(ChatContext)
 	const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false)
 	const [members, setMembers] = useState<User[]>([])
 	const [bannedUsers, setBannedUsers] = useState<User[]>([])
@@ -134,6 +134,28 @@ export function SettingsButtton() {
 		socket.emit('leaveRoom', leaveRoomData)
 	}
 
+	const handleRemoveFromFriend = () => {
+		const RemoveFriendData = {
+			sender_id: id,
+			user_id: target.id,
+		}
+
+		console.log(`remove ${target.login} from friends`)
+	}
+
+	const handleBlockUser = () => {
+
+		const BlockUserData = {
+			sender_id: id,
+			user_id: target.id,
+		}
+
+		socket.emit('blockUser', BlockUserData, (response: any) => (console.log('blockUser Response: ', response)))
+
+		console.log(`you blocked ${target.login}`)
+		setTarget({id: 0, login: '', avatar: ''})
+	}
+
 	return (
 		<div>
 			<SettingsButtonWrapper onClick={handleSettingsButtonClick} >
@@ -150,48 +172,70 @@ export function SettingsButtton() {
 					}
 				}}
 			>
-				<DialogTitle sx={{ display: 'flex', justifyContent: 'space-between' }}>
-					settings
-					<Button sx={{ borderRadius: '20px' }} onClick={handleLeaveRoom}>Leave Room</Button>
-				</DialogTitle>
-				<Box width="100%" display="flex">
-					<Button sx={{ backgroundColor: (displayList === UserListType.MEMBERS) ? '#f2f2f2' : 'transparent', flex: '1' }} onClick={() => setDisplayList(UserListType.MEMBERS)}>Members</Button>
-					{
-						id === current.ownerId || adminMembers.find(admin => admin.id === id) ?
+				{
+					current.id !== 0 ?
+						<div>
+							<DialogTitle sx={{ display: 'flex', justifyContent: 'space-between' }}>
+								settings
+								<Button sx={{ borderRadius: '20px' }} onClick={handleLeaveRoom}>Leave Room</Button>
+							</DialogTitle>
+							<Box width="100%" display="flex">
+								<Button sx={{ backgroundColor: (displayList === UserListType.MEMBERS) ? '#f2f2f2' : 'transparent', flex: '1' }} onClick={() => setDisplayList(UserListType.MEMBERS)}>Members</Button>
+								{
+									id === current.ownerId || adminMembers.find(admin => admin.id === id) ?
 
-							<Button sx={{ backgroundColor: (displayList === UserListType.BANNED) ? '#f2f2f2' : 'transparent', flex: '1' }} onClick={() => setDisplayList(UserListType.BANNED)}>Banned</Button>
+										<Button sx={{ backgroundColor: (displayList === UserListType.BANNED) ? '#f2f2f2' : 'transparent', flex: '1' }} onClick={() => setDisplayList(UserListType.BANNED)}>Banned</Button>
+										:
+										null
+
+								}
+								{
+									id === current.ownerId ?
+										<Button sx={{ backgroundColor: (displayList === UserListType.CONTROL) ? '#f2f2f2' : 'transparent', flex: '1' }} onClick={() => setDisplayList(UserListType.CONTROL)}>CONTROL</Button>
+										:
+										null
+								}
+							</Box>
+							<DialogContent sx={{ p: 0 }}>
+								<UserListWrapper>
+									{
+										displayList === UserListType.MEMBERS ?
+											members.map((member) => {
+												return (<UserListItem key={member.id} user={member} id={id} currentRoom={current}
+													setMembers={setMembers} setBannedUsers={setBannedUsers} setAdminMembers={setAdminMembers}
+													members={members} bannedUsers={bannedUsers} adminMembers={adminMembers}
+													setMutedMembers={setMutedMembers} mutedMembers={mutedMembers} />)
+											})
+											: displayList === UserListType.BANNED ?
+												bannedUsers.map((member) => {
+													return (<BannedUserListItem key={member.id} user={member} id={id} currentRoom={current} onClick={handleUnbanMember} />)
+												})
+												:
+												<RoomPasswordControl currentRoom={current} />
+									}
+								</UserListWrapper>
+							</DialogContent>
+						</div>
+						:
+						target.id !== 0 ?
+							<div>
+								<DialogTitle sx={{ display: 'flex', justifyContent: 'space-between' }}>
+									settings
+								</DialogTitle>
+								<DialogContent>
+									<Box sx={{height: '10rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+										<Button sx={{ borderRadius: '20px', backgroundColor: '#f2f2f9', margin: '0.5rem', p: '0.5rem'}} onClick={handleRemoveFromFriend}>remove from friends</Button>
+										<Button sx={{ borderRadius: '20px', backgroundColor: '#f2f2f9', margin: '0.5rem', p: '0.5rem'}} onClick={handleBlockUser}>block</Button>
+									</Box>
+								</DialogContent>
+							</div>
 							:
 							null
 
-					}
-					{
-						id === current.ownerId ?
-							<Button sx={{ backgroundColor: (displayList === UserListType.CONTROL) ? '#f2f2f2' : 'transparent', flex: '1' }} onClick={() => setDisplayList(UserListType.CONTROL)}>CONTROL</Button>
-							:
-							null
-					}
-				</Box>
-				<DialogContent sx={{ p: 0 }}>
-					<UserListWrapper>
-						{
-							displayList === UserListType.MEMBERS ?
-								members.map((member) => {
-									return (<UserListItem key={member.id} user={member} id={id} currentRoom={current}
-									setMembers={setMembers} setBannedUsers={setBannedUsers} setAdminMembers={setAdminMembers}
-									members={members} bannedUsers={bannedUsers} adminMembers={adminMembers}
-									setMutedMembers={setMutedMembers} mutedMembers={mutedMembers}/>)
-								})
-								: displayList === UserListType.BANNED ?
-									bannedUsers.map((member) => {
-										return (<BannedUserListItem key={member.id} user={member} id={id} currentRoom={current} onClick={handleUnbanMember} />)
-									})
-									:
-									<RoomPasswordControl currentRoom={current}/>
-						}
-					</UserListWrapper>
 
 
-				</DialogContent>
+
+				}
 				<DialogActions>
 					<Button onClick={handleSettingsButtonClose} sx={{ borderRadius: '20px' }}>Cancel</Button>
 				</DialogActions>

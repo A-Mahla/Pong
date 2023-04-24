@@ -291,4 +291,26 @@ export class FriendsService {
 			return true
 		return false
 	}
+
+	async removeFromFriend(userId: number, friendId: number) {
+		return await this.prisma.friend.deleteMany({
+			where: {
+				OR: [
+
+					{
+						user1Id: userId,
+						user2Id: friendId
+					},
+					{
+						user1Id: friendId,
+						user2Id: userId
+					}
+				],
+
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+	}
 }
