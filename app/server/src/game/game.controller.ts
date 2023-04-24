@@ -96,7 +96,7 @@ export class GameController {
 		if (!req.user.sub)
 			throw BadRequestException;
 		const test = await this.gameService.getGamesInvites(req.user.sub);
-		console.log(test);
+		// console.log(test);
 		return test;
 	}
 
