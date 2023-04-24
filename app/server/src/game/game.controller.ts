@@ -84,7 +84,6 @@ export class GameController {
 	@Post('newInvite')
 	async registerNewGameInvite(@Body() inviteGameData: InviteGameData) {
 		const test = await this.gameService.registerNewGameInvite(inviteGameData);
-		console.log( '+++++++++++++++++++++++++++++' + test.sender_login);
 		return test;
 	}
 

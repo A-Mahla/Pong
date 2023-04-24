@@ -109,6 +109,7 @@ export type GameParams = {
 	paddleSize: '100' | '70' | '50',
 	duration: '1875' | '3750' | '7500'
 }
+
 export type ClientPayload = {
 	id: string,
 	login: string,

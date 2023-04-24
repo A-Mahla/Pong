@@ -225,14 +225,61 @@ export class GameService {
 
 	async getGamesInvites(user_id: number){
 		return this.prisma.gamesInvites.findMany({
-		  where: {
-			OR: [
-			  { sender_id: user_id },
-			  { receiver_id: user_id },
-			],
-		  },
+			where: {
+				OR: [
+					{ sender_id: user_id },
+					{ receiver_id: user_id },
+				],
+			},
 		});
-	  }
+	}
+
+	async eraseGameInvites(inviteID: number) {
+		return (
+			await this.prisma.gamesInvites.delete({
+			where: {
+				id: inviteID
+			}
+		})
+		);
+	}
+
+	convertBallSpeed(ballSpeedString: string): '7' | '10' | '12' {
+		switch (ballSpeedString) {
+		  case '7':
+		  case '10':
+		  case '12':
+			return ballSpeedString;
+		  default:
+			return '7';
+		}
+	}
+
+	convertPaddleSize(size: string): '100' | '70' | '50' {
+		switch (size) {
+		  case '100':
+			return '100';
+		  case '70':
+			return '70';
+		  case '50':
+			return '50';
+		  default:
+			return '100'
+		}
+	}
+
+	convertDuration(duration: string): '1875' | '3750' | '7500' {
+		switch (duration) {
+		  case '1875':
+			return '1875';
+		  case '3750':
+			return '3750';
+		  case '7500':
+			return '7500';
+		  default:
+			return '3750'
+		}
+	}
 }
 
 //	================ ^^^^^^^^^^^^^^^^^^ ===========

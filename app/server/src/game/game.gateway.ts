@@ -12,6 +12,8 @@ import { Injectable, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { jwtConstants } from "src/auth/constants";
 import * as jwt from 'jsonwebtoken';
+import { resolve } from "path";
+import { rejects } from "assert";
 
 @Injectable()
 @WebSocketGateway({ namespace: 'gameTransaction' })
@@ -102,15 +104,33 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	}
 
 	@SubscribeMessage('friendMatchMaking')
-	async friendMatchMaker(client: Socket, {p1Id, p2Id, id, user}: {p1Id: number, p2Id: number, id: number, user: string}) {
-		let test = false;
-		this.gameMap.forEach(async (game) => {
-			if (game.getStatus() === Status.LOCKED) {
-				if (parseInt(game.getPlayerID(1)) === p1Id || parseInt(game.getPlayerID(1)) === p2Id)
-				{
-					console.log(user);
-					test = false;
-					game.initPlayer2({
+	async friendMatchMaker(client: Socket,  {inviteId, p1Id, p2Id, id, user, ballSpeed, paddleSize, duration}:
+											{inviteId: number, p1Id: number, p2Id: number, id: number, user: string, ballSpeed: string, paddleSize: string, duration: string}) {
+		return new Promise<GameAlgo>((resolve, rejects) => {
+			for (const [key, gameItem] of this.gameMap) {
+				if (gameItem.getStatus() === Status.LOCKED) {
+					if (parseInt(gameItem.getPlayerID(1)) === p1Id || parseInt(gameItem.getPlayerID(1)) === p2Id)
+						resolve(gameItem);
+				}
+			}
+			rejects(undefined);
+		}).then(async gameItem => {
+			gameItem.initPlayer2({
+				id: id ,
+				login: user,
+				avatar: (await this.gameService.getAvatarPath(id)).avatar,
+				socketID: client.id,
+				playerRole: "p1",
+				playerSocket: client,
+				isReady: false
+			})
+		}).catch(async onRejected => {
+			const newGameDB = await this.gameService.registerNewGame('WAIT');
+			if (newGameDB) {
+				var newGameAlgo = new GameAlgo(this.gameService, this.server, newGameDB.game_id.toString(), Status.LOCKED);
+				this.gameMap.set( newGameDB.game_id.toString(), newGameAlgo); // we set it in the gameMap so the player2 will be able to find it.
+					console.log('created a new game --> ' + newGameDB.game_id.toString());
+					newGameAlgo.initPlayer1({
 						id: id ,
 						login: user,
 						avatar: (await this.gameService.getAvatarPath(id)).avatar,
@@ -118,18 +138,77 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 						playerRole: "p1",
 						playerSocket: client,
 						isReady: false
+					}, {
+						ballSpeed: this.gameService.convertBallSpeed(ballSpeed),
+						paddleSize: this.gameService.convertPaddleSize(paddleSize),
+						duration: this.gameService.convertDuration(duration)
 					});
-					return ;
+
+
+					// then we launch the promise that will wait for all players to be properly set and settle
+					await newGameAlgo.launchGame().then( value => {
+						newGameAlgo.shutDownInternalEvents();
+						this.gameMap.delete(newGameAlgo.roomID);
+						this.gameService.eraseGameInvites(inviteId);
+					}).catch(onrejected => {
+						if (onrejected === '1') {
+							console.log(" --- p1 left --- ");
+							this.server.to(newGameAlgo.getPlayerSocketID(2)).emit('disconnection', `DISCONNECTED: ${newGameAlgo.getPlayerLogin(1)} quit the game :(`);
+						}
+						else if (onrejected === '2') {
+							console.log(" --- p2 left --- ");
+							this.server.to(newGameAlgo.getPlayerSocketID(1)).emit('disconnection', `DISCONNECTED: ${newGameAlgo.getPlayerLogin(2)} quit the game :(`);
+						}
+						if (onrejected === 'TIME') {
+							console.log(" --- timeOut --- " + newGameAlgo.roomID);
+							this.server.to(client.id).emit('disconnection', 'DISCONNECTED: timeout, try later');
+						}
+						if (onrejected === 'BLOCKED') {
+							console.log(" --- bloked --- ");
+							this.server.to(client.id).emit('disconnection', 'DISCONNECTED: stop breaking my stuff');
+						}
+						newGameAlgo.watchers.forEach((watchersID) => {
+							if (watchersID)
+								this.server.to(watchersID.id).emit('disconnection', 'DISCONNECTED: one of the players got disconnected');
+						})
+						newGameAlgo.shutDownInternalEvents();
+						this.gameService.deleteGame(newGameAlgo.roomID); // deleteting from the DB
+						this.gameService.eraseGameInvites(inviteId);
+						this.gameMap.delete(newGameAlgo.roomID); // deleteting from the running games
+					})
+			}
+		})
+/*
+		const findLockedGame = async (game: Map<string, GameAlgo>): Promise<boolean> => {
+			for (const [key, gameItem] of game) {
+				if (gameItem.getStatus() === Status.LOCKED) {
+					if (parseInt(gameItem.getPlayerID(1)) === p1Id || parseInt(gameItem.getPlayerID(1)) === p2Id)
+					{
+						gameItem.initPlayer2({
+							id: id ,
+							login: user,
+							avatar: (await this.gameService.getAvatarPath(id)).avatar,
+							socketID: client.id,
+							playerRole: "p1",
+							playerSocket: client,
+							isReady: false
+						});
+						console.log('adding player 2 --> ' + key);
+						return (false);
+					}
 				}
 			}
-			test = false
-		});
-		if (test) // NO LOCKED GAME FOUND (LOCKED MEANS LOCKED FOR A SPECIFIC USER)
+			return true;
+		}
+	*/
+		/*
+		if (await findLockedGame(this.gameMap)) // NO LOCKED GAME FOUND (LOCKED MEANS LOCKED FOR A SPECIFIC USER)
 		{
 			const newGameDB = await this.gameService.registerNewGame('WAIT');
 			if (newGameDB) {
 				var newGameAlgo = new GameAlgo(this.gameService, this.server, newGameDB.game_id.toString(), Status.LOCKED);
-				console.log(user);
+				this.gameMap.set( newGameDB.game_id.toString(), newGameAlgo); // we set it in the gameMap so the player2 will be able to find it.
+					console.log('created a new game --> ' + newGameDB.game_id.toString());
 					newGameAlgo.initPlayer1({
 						id: id ,
 						login: user,
@@ -139,8 +218,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 						playerSocket: client,
 						isReady: false
 					}, undefined);
-					
-					this.gameMap.set( newGameDB.game_id.toString(), newGameAlgo); // we set it in the gameMap so the player2 will be able to find it.
 
 					// then we launch the promise that will wait for all players to be properly set and settle
 					await newGameAlgo.launchGame().then( value => {
@@ -156,7 +233,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 							this.server.to(newGameAlgo.getPlayerSocketID(1)).emit('disconnection', `DISCONNECTED: ${newGameAlgo.getPlayerLogin(2)} quit the game :(`);
 						}
 						if (onrejected === 'TIME') {
-							console.log(" --- timeOut --- ");
+							console.log(" --- timeOut --- " + newGameAlgo.roomID);
 							this.server.to(client.id).emit('disconnection', 'DISCONNECTED: timeout, try later');
 						}
 						if (onrejected === 'BLOCKED') {
@@ -173,6 +250,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 					})
 			}
 		}
+		*/
 	}
 
 	@SubscribeMessage('getRuningGames')

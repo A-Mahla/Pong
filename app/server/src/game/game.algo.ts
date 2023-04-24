@@ -137,7 +137,7 @@ export class GameAlgo {
 			let bornSupP1 = (this.gameDataUpdate.p1y + this.gameModel.playerHeight / 2)
 
 			if (this.gameDataUpdate.by > bornInfP1 && this.gameDataUpdate.by < bornSupP1) {
-				this.gameModel.ballSpeedX *= -1,2;
+				this.gameModel.ballSpeedX *= -1,7;
 			} else {
 				this.gameDataUpdate.p2score += 1;
 				this.gameDataUpdate.bx = this.gameModel.canvasWidth / 2;
@@ -152,7 +152,7 @@ export class GameAlgo {
 			let bornSupP2 = (this.gameDataUpdate.p2y + (Math.floor(this.gameModel.playerHeight / 2)))
 
 			if (this.gameDataUpdate.by > bornInfP2 && this.gameDataUpdate.by < bornSupP2) {
-				this.gameModel.ballSpeedX *= -1,2;
+				this.gameModel.ballSpeedX *= -1,7;
 			} else {
 				this.gameDataUpdate.p1score += 1;
 				this.gameDataUpdate.bx = this.gameModel.canvasWidth / 2;
@@ -195,15 +195,16 @@ export class GameAlgo {
 	}
 
 	public initPlayer1(player: Player, gameConfig: GameParams | undefined) {
+		console.log('initPLayer1 function');
 		this.player1 = player;
 
-		// this.gameModel.p1Login  = this.player1.login;
 		if (this.status != Status.LOCKED) // to not change it if in gameInvite process
+		{
 			this.status = Status.ONE_PLAYER;
+		}
 
 		// registering player1 y listeners
 		this.player1.playerSocket.on('quitGame', (socket: Socket) => { // player quiting the game
-			console.log('player1 quit the game');
 			this.internalEvents.emit('stop', '1');
 		})
 
@@ -213,8 +214,10 @@ export class GameAlgo {
 		})
 
 		this.player1.playerSocket.on('imReady', () => {
+			console.log('++++++++++++++++++++++++++++++ 1');
 			this.player1!.isReady = true;
 		})
+
 		// -------------------------------
 
 		/* player1 configure the game with parameter ballspeed, paddlSize and game duration */
@@ -251,13 +254,12 @@ export class GameAlgo {
 	}
 
 	public initPlayer2(player: Player) {
+		console.log('initPLayer2 function');
 		this.player2 = player;
-		// this.gameModel.p2Login = this.player2.login;
 		this.status = Status.TWO_PLAYER;
 
 		// registering player2 y listeners
 		this.player2.playerSocket.on('quitGame', (socket: Socket) => { // player quiting the game
-			console.log("player2 quit the game");
 			this.internalEvents.emit('stop', '2');
 		})
 
@@ -266,12 +268,13 @@ export class GameAlgo {
 			this.gameModel.p2timeout = Date.now();
 		})
 		// ------------------------------
+
 		this.player2.playerSocket.on('imReady', () => {
+			console.log('++++++++++++++++++++++++++++++ 2');
 			this.player2!.isReady = true;
 		})
 		this.server.to(this.player2.socketID).emit('lockAndLoaded');
 	}
-
 
 	public getStatus() : Status {
 		return (this.status);
@@ -323,7 +326,6 @@ export class GameAlgo {
 			this.player1!.playerSocket = playerSocket
 			this.player1!.socketID = socketID;
 			this.player1!.playerSocket.on('quitGame', (socket: Socket) => { // player quiting the game
-				console.log('player1 quit the game');
 				this.internalEvents.emit('stop', '1');
 			})
 			this.player1!.playerSocket.on('paddlePos', (y: number, socket: Socket) => { // player moving the paddle
@@ -341,7 +343,6 @@ export class GameAlgo {
 			this.player2!.playerSocket = playerSocket
 			this.player2!.socketID = socketID;
 			this.player2!.playerSocket.on('quitGame', (socket: Socket) => { // player quiting the game
-				console.log("player2 quit the game");
 				this.internalEvents.emit('stop', '2');
 			})
 			this.player2!.playerSocket.on('paddlePos', (y: number, socket: Socket) => { // player moving the paddle

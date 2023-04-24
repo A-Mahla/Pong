@@ -101,23 +101,27 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 
 	// useEffect rendered only once to register the initSetup (wich tell the start)
 	React.useEffect(() => {
+		const timeTest = setTimeout(() => {
+			socket.emit('imReady'); // the back-end wait for both player to be ready to be sure that one of the player didnt miss the init set-up
+			socket.on("initSetup", (gameData: GameData) => {
+				// if ((gameData.player1.avatar) != undefined) // il faudra que tu check car il peut etre undefined au cas ou jai pas trouve d'avatar
+				// player1 login and avatar
+				console.log("login: " + gameData.player1.login + " avatar: " + gameData.player1.avatar);
+				// player2 login and avatar
+				console.log("login: " + gameData.player2.login + " avatar: " + gameData.player2.avatar);
 
-		socket.emit('imReady'); // the back-end wait for both player to be ready to be sure that one of the player didnt miss the init set-up
+				setFetched(true); // we know here that we receive the initSetup from back so we are sure there is a match
 
-		socket.on("initSetup", (gameData: GameData) => {
-			// if ((gameData.player1.avatar) != undefined) // il faudra que tu check car il peut etre undefined au cas ou jai pas trouve d'avatar
-			// player1 login and avatar
-			console.log("login: " + gameData.player1.login + " avatar: " + gameData.player1.avatar);
-			// player2 login and avatar
-			console.log("login: " + gameData.player2.login + " avatar: " + gameData.player2.avatar);
+				setGameData(gameData); // we set here the const of the game like the players logins and paddle size
+			})
+			socket.on('disconnection', (errorMessage: string) => {
+				handleThereIsError(errorMessage);
+			})
 
-			setFetched(true); // we know here that we receive the initSetup from back so we are sure there is a match
-
-			setGameData(gameData); // we set here the const of the game like the players logins and paddle size
-		})
-
+		}, 100);
 		window.addEventListener("resize", canvaResize);
 		return (() => {
+			clearTimeout(timeTest);
 			window.removeEventListener("resize", canvaResize);
 		})
 
@@ -142,7 +146,6 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 				ballYratio: (canvas.current.height) / CANVAS_HEIGHT,
 				// ***tu as commente les avatars pour le moment***
 			})
-			console.log("---> playerYratio : " + Math.floor((canvas.current.height) / CANVAS_HEIGHT) + " canvas.current.height " + canvas.current.height + " CANVAS_HEIGHT " + CANVAS_HEIGHT)
 
 		}
 		if (gameData && gameContext && game) {
@@ -160,11 +163,6 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 			}, gameContext );
 
 			// registering the other event listener
-			socket.on('disconnection', (errorMessage: string) => {
-				// setFetched(false);
-				handleThereIsError(errorMessage);
-			})
-
 			socket.on("updateClient", (gameData: updateData) => {
 				if (gameContext) {
 					draw(canvas.current, gameData, gameContext);
