@@ -102,17 +102,17 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	}
 
 	@SubscribeMessage('friendMatchMaking')
-	async friendMatchMaker(client: Socket, {p1Id, p2Id, id, login}: {p1Id: number, p2Id: number, id: number, login: string}) {
+	async friendMatchMaker(client: Socket, {p1Id, p2Id, id, user}: {p1Id: number, p2Id: number, id: number, user: string}) {
 		let test = false;
 		this.gameMap.forEach(async (game) => {
 			if (game.getStatus() === Status.LOCKED) {
 				if (parseInt(game.getPlayerID(1)) === p1Id || parseInt(game.getPlayerID(1)) === p2Id)
 				{
-					console.log(game.roomID);
-					test = true;
+					console.log(user);
+					test = false;
 					game.initPlayer2({
 						id: id ,
-						login: login,
+						login: user,
 						avatar: (await this.gameService.getAvatarPath(id)).avatar,
 						socketID: client.id,
 						playerRole: "p1",
@@ -122,23 +122,55 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 					return ;
 				}
 			}
+			test = false
 		});
-		if (!test) // the game still need to be created
+		if (test) // NO LOCKED GAME FOUND (LOCKED MEANS LOCKED FOR A SPECIFIC USER)
 		{
 			const newGameDB = await this.gameService.registerNewGame('WAIT');
 			if (newGameDB) {
 				var newGameAlgo = new GameAlgo(this.gameService, this.server, newGameDB.game_id.toString(), Status.LOCKED);
-				console.log(newGameAlgo.roomID);
+				console.log(user);
 					newGameAlgo.initPlayer1({
 						id: id ,
-						login: login,
+						login: user,
 						avatar: (await this.gameService.getAvatarPath(id)).avatar,
 						socketID: client.id,
 						playerRole: "p1",
 						playerSocket: client,
 						isReady: false
 					}, undefined);
-					this.gameMap.set( newGameDB.game_id.toString(), newGameAlgo);
+					
+					this.gameMap.set( newGameDB.game_id.toString(), newGameAlgo); // we set it in the gameMap so the player2 will be able to find it.
+
+					// then we launch the promise that will wait for all players to be properly set and settle
+					await newGameAlgo.launchGame().then( value => {
+						newGameAlgo.shutDownInternalEvents();
+						this.gameMap.delete(newGameAlgo.roomID);
+					}).catch(onrejected => {
+						if (onrejected === '1') {
+							console.log(" --- p1 left --- ");
+							this.server.to(newGameAlgo.getPlayerSocketID(2)).emit('disconnection', `DISCONNECTED: ${newGameAlgo.getPlayerLogin(1)} quit the game :(`);
+						}
+						else if (onrejected === '2') {
+							console.log(" --- p2 left --- ");
+							this.server.to(newGameAlgo.getPlayerSocketID(1)).emit('disconnection', `DISCONNECTED: ${newGameAlgo.getPlayerLogin(2)} quit the game :(`);
+						}
+						if (onrejected === 'TIME') {
+							console.log(" --- timeOut --- ");
+							this.server.to(client.id).emit('disconnection', 'DISCONNECTED: timeout, try later');
+						}
+						if (onrejected === 'BLOCKED') {
+							console.log(" --- bloked --- ");
+							this.server.to(client.id).emit('disconnection', 'DISCONNECTED: stop breaking my stuff');
+						}
+						newGameAlgo.watchers.forEach((watchersID) => {
+							if (watchersID)
+								this.server.to(watchersID.id).emit('disconnection', 'DISCONNECTED: one of the players got disconnected');
+						})
+						newGameAlgo.shutDownInternalEvents();
+						this.gameService.deleteGame(newGameAlgo.roomID); // deleteting from the DB
+						this.gameMap.delete(newGameAlgo.roomID); // deleteting from the running games
+					})
 			}
 		}
 	}

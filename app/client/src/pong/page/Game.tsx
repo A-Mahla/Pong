@@ -66,10 +66,6 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 		}
   })
 
-//   const [paddle, setPaddle] = useState<string>('easy');
-//   const [duration, setDuration] = useState<string>('medium');
-//   const [speed, setSpeed] = useState<string>('medium');
-
 const handlePaddleSizeLevel = (event: any) => {
 	if (playerPayload.config) {
 		if (event.target.value === "easy"){
@@ -502,7 +498,7 @@ export const Game = ({ height, width }: any) => {
 			id: 1,
 		},
 		{
-			name: 'game friends',
+			name: 'Game invites',
 			id: 2,
 		},
 	]
@@ -517,7 +513,6 @@ export const Game = ({ height, width }: any) => {
 	}, [])
 
 	useEffect(() => {
-		console.log('test')
 		if (selectedRow && selectedRow.id === 0)
 			setOpenMatchmaking(true)
 		else if (selectedRow && selectedRow.id === 1)
