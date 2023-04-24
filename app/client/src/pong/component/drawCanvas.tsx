@@ -23,7 +23,7 @@ const CANVAS_HEIGHT = 640;
 
 const SCORE_FONT = 75;
 const TIMER_FONT = 70;
-const ENDGAMEFONT = 180;
+const ENDGAMEFONT = 130;
 
 
 const drawCountDown = (canvas: any, countdown: number) => {
@@ -63,18 +63,10 @@ export function drawEndGame(canvas: any, p1score: number, p2score: number) {
 	context.textAlign = "center";
 	context.fillStyle = '#2f8ca3';
 
-	// Determine the text to display based on the outcome of the game
-	let text = undefined;
-	if (p1score > p2score) {
-	  text = "YOU WIN !";
-	} else if (p1score < p2score) {
-	  text = "YOU SUCK !";
-	} else if (p1score === p2score) {
-		text = "EQUALITY"
-	}
-
 	// Draw the text in the center of the canvas
-	context.fillText(text, canvas.width / 2, canvas.height / 2);
+	context.fillText('Game Over', Math.floor(canvas.width / 2), Math.floor(canvas.height / 4));
+	context.fillText(p1score.toString(), Math.floor(canvas.width / 4), Math.floor(canvas.height / 2) + 30)
+	context.fillText(p2score.toString(), Math.floor((canvas.width - (canvas.width / 4))), Math.floor(canvas.height / 2) + 30)
 }
 
 function drawEndGameWatchers(canvas: any, gameData: GameData) {

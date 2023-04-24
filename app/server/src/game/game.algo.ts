@@ -165,9 +165,14 @@ export class GameAlgo {
 			this.server.to(this.player1!.socketID).volatile.emit('gameOver', this.gameDataUpdate);
 			this.server.to(this.player2!.socketID).volatile.emit('gameOver', this.rotateGameDataUpdate(this.gameDataUpdate));
 			this.status = Status.OVER;
+			this.watchers.forEach((socket: Socket) => {
+				if (socket)
+					this.server.to(socket.id).volatile.emit('gameOver', this.gameDataUpdate);
+			})
 			this.internalEvents.emit('stop', '0');
 			return ;
 		}
+
 		this.server.to(this.player1!.socketID).volatile.emit('updateClient', this.gameDataUpdate);
 		this.server.to(this.player2!.socketID).volatile.emit('updateClient', this.rotateGameDataUpdate(this.gameDataUpdate));
 		this.watchers.forEach((socket: Socket) => {
