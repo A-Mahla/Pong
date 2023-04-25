@@ -8,7 +8,7 @@ import { FetchApi } from '../component/FetchApi';
 import useAuth, { useFetchAuth } from '../context/useAuth';
 import { User } from './Chat.types';
 import { socket } from './Socket';
-import { JoinQueuButton } from './CreateGame';
+import { JoinQueuButtonChat } from './CreateGame';
 
 export function SettingsButtton() {
 
