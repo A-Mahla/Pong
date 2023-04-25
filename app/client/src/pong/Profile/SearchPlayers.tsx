@@ -1,4 +1,4 @@
-import { 
+import {
 	Box,
 	Grid,
 	Dialog,
@@ -9,24 +9,28 @@ import {
 	TextField,
 	Divider,
 	InputAdornment,
+	Button,
 } from '@mui/material'
 import { styled } from '@mui/system';
-import { useFetchAuth } from '../context/useAuth'
+import useAuth, { useFetchAuth } from '../context/useAuth'
 import { FetchApi, Api } from '../component/FetchApi'
 import GppGoodIcon from '@mui/icons-material/GppGood'
 import GppBadIcon from '@mui/icons-material/GppBad';
 import { useState, useEffect } from 'react'
 import SearchIcon from '@mui/icons-material/Search';
 import CircularProgress from '@mui/material/CircularProgress';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
+import BlockIcon from '@mui/icons-material/Block';
 import * as React from 'react';
-import {Level, BorderLinearProgress} from '../Profile/GameInfo';
-import {findLevel} from '../Profile/Profile'
+import { Level, BorderLinearProgress } from '../Profile/GameInfo';
+import { findLevel } from '../Profile/Profile'
 import useMediaQuery from "../hooks/useMediaQuery"
 import FetchAvatar from '../component/FetchAvatar'
+import { socket } from '../Chat/Socket';
 
 
 function timeout(delay: number) {
-	return new Promise( res => setTimeout(res, delay) );
+	return new Promise(res => setTimeout(res, delay));
 }
 
 function isNumberOrString(str: string) {
@@ -39,8 +43,15 @@ type Players = {
 	avatar: string,
 }
 
-const GridProfile = (props: {player: Players}) => {
+type OnClicks = {
+	handleBlockUser: () => void,
+	handleRemoveFromFriend: () => void,
 
+}
+
+export const GridProfile = (props: { player: Players, isChat: boolean, onClicks?: OnClicks }) => {
+
+	const { id } = useAuth()
 	const auth = useFetchAuth()
 	const isQuery550 = useMediaQuery('(max-width: 550px)')
 	const [win, setWin] = useState<number>(0)
@@ -48,6 +59,7 @@ const GridProfile = (props: {player: Players}) => {
 	const [fetched, setFetched] = useState(false)
 	const [avatarFetched, setAvatarFetched] = useState(false)
 	const [level, setLevel] = useState<Level>({} as Level)
+
 
 	useEffect(() => {
 		async function fetching() {
@@ -68,28 +80,71 @@ const GridProfile = (props: {player: Players}) => {
 	}, [props.player])
 
 	return <>
-		{ fetched ?
-			<Grid sx={{width: '100%', height: '21rem', minheight: '20rem'}}>
-				<Grid sx={{width: '100%', height: '50%'}}>
+		{fetched ?
+			<Grid sx={{ width: '100%', height: '21rem', minheight: '20rem' }}>
+				<Grid sx={{ width: '100%', height: '50%' }}>
 					<Grid item xs={12}
 						display="flex"
 						sx={{
 							height: '100%',
-							justifyContent:"center",
-							alignItems:"center"
+							justifyContent: "center",
+							alignItems: "center"
 						}}
 					>
-						<FetchAvatar
-							avatar={props.player.avatar}
+						<Grid item xs={3}
+							display="flex"
+							sx={props.isChat ? {
+								height: '100%',
+								justifyContent: "center",
+								alignItems: "center"
+							}
+								:
+								{
+									display: 'none'
+								}
+							}
+						>
+							<Button sx={{ borderRadius: '20px', margin: '0.5rem', p: '0.5rem' }} onClick={props.onClicks?.handleBlockUser}>
+								<BlockIcon />
+							</Button>
+						</Grid>
+						<Grid item xs={6}
+							display="flex"
 							sx={{
-								height: '9rem',
-								width: '9rem',
-								boxShadow: 15,
+								height: '100%',
+								justifyContent: "center",
+								alignItems: "center"
 							}}
-						/>
+						>
+							<FetchAvatar
+								avatar={props.player.avatar}
+								sx={{
+									height: '9rem',
+									width: '9rem',
+									boxShadow: 15,
+								}}
+							/>
+						</Grid>
+						<Grid item xs={3}
+							display="flex"
+							sx={props.isChat ? {
+								height: '100%',
+								justifyContent: "center",
+								alignItems: "center"
+							}
+								:
+								{
+									display: 'none'
+								}
+							}
+						>
+							<Button sx={{ borderRadius: '20px', margin: '0.5rem', p: '0.5rem' }} onClick={props.onClicks?.handleRemoveFromFriend}>
+								<PersonRemoveIcon />
+							</Button>
+						</Grid>
 					</Grid>
 				</Grid>
-				<Grid sx={{width: '100%', height: '10%'}}>
+				<Grid sx={{ width: '100%', height: '10%' }}>
 					<Grid display='flex' item xs={12} sx={{
 						height: '100%',
 						justifyContent: 'center',
@@ -101,8 +156,8 @@ const GridProfile = (props: {player: Players}) => {
 						</Typography>
 					</Grid>
 				</Grid>
-				<Grid display="flex" sx={{width: '100%', height: '40%'}}>
-					<Grid item xs={4} sx={{height: '100%'}}>
+				<Grid display="flex" sx={{ width: '100%', height: '40%' }}>
+					<Grid item xs={4} sx={{ height: '100%' }}>
 
 						<Grid item xs={12}
 							display="flex"
@@ -112,7 +167,7 @@ const GridProfile = (props: {player: Players}) => {
 								height: '70%'
 							}}
 						>
-							<GppGoodIcon style={{color: '#293241'}} sx={{height: '5rem', width: '5rem'}}/>
+							<GppGoodIcon style={{ color: '#293241' }} sx={{ height: '5rem', width: '5rem' }} />
 						</Grid>
 
 						<Grid item xs={12}
@@ -126,31 +181,31 @@ const GridProfile = (props: {player: Players}) => {
 								{win}
 							</Typography>
 						</Grid>
-			
+
 					</Grid>
-					<Grid item xs={4} sx={{height: '100%'}}>
+					<Grid item xs={4} sx={{ height: '100%' }}>
 
 						<Grid item display="flex"
 							justifyContent="center"
 							alignItems="center"
 							xs={12}
-							sx={{height: "80%"}}
+							sx={{ height: "80%" }}
 						>
-							
+
 							<Typography align="center"
 								variant='h4'
-								style={{color: '#213547'}}
+								style={{ color: '#213547' }}
 							>
 								{isQuery550 ? level.level : `lvl ${level.level}`}
 							</Typography>
 						</Grid>
 
-						<Grid item xs={12} sx={{mx: 1}}>
+						<Grid item xs={12} sx={{ mx: 1 }}>
 							<BorderLinearProgress variant="determinate" value={level.xp} />
 						</Grid>
 
 					</Grid>
-					<Grid item xs={4} sx={{height: '100%'}}>
+					<Grid item xs={4} sx={{ height: '100%' }}>
 
 						<Grid item xs={12}
 							display="flex"
@@ -160,7 +215,7 @@ const GridProfile = (props: {player: Players}) => {
 								height: '70%'
 							}}
 						>
-							<GppBadIcon style={{color: '#cd384a'}} sx={{height: '5rem', width: '5rem'}}/>
+							<GppBadIcon style={{ color: '#cd384a' }} sx={{ height: '5rem', width: '5rem' }} />
 						</Grid>
 
 						<Grid item xs={12}
@@ -174,7 +229,7 @@ const GridProfile = (props: {player: Players}) => {
 								{loss}
 							</Typography>
 						</Grid>
-			
+
 					</Grid>
 				</Grid>
 			</Grid>
@@ -188,7 +243,7 @@ const GridProfile = (props: {player: Players}) => {
 					alignItems: 'center'
 				}}
 			>
-				<CircularProgress sx={{mt: 3, color:"#aab7b8"}}/>
+				<CircularProgress sx={{ mt: 3, color: "#aab7b8" }} />
 			</Grid>
 		}
 
@@ -276,13 +331,13 @@ const GridPlayers = () => {
 
 	return (
 		<>
-			<Divider variant="middle"/>
+			<Divider variant="middle" />
 			<Grid
 				display="flex"
 				sx={{ height: '21rem' }}
 			>
-				<Grid item xs={5} sx={{mt: 1.5, mr: 1}}>
-					
+				<Grid item xs={5} sx={{ mt: 1.5, mr: 1 }}>
+
 					<FormControl>
 						<TextField
 							type='text'
@@ -300,28 +355,28 @@ const GridPlayers = () => {
 					</FormControl>
 					{rows.length ?
 						<PlayersListWrapper>
-						  {rows.map((row) => (
-							<PlayersListItem
-							  key={row.id}
-							  isActive={row.id === selectedRowId}
-							  onClick={() => setSelectedRow(row)}
-							>
-							  <PlayersListItemAvatar>
-								<FetchAvatar avatar={row.avatar} sx={{height: '100%', width: '100%'}}/>
-							  </PlayersListItemAvatar>
-							  <PlayersListItemText>{row.login}</PlayersListItemText>
-							</PlayersListItem>
-						  ))}
+							{rows.map((row) => (
+								<PlayersListItem
+									key={row.id}
+									isActive={row.id === selectedRowId}
+									onClick={() => setSelectedRow(row)}
+								>
+									<PlayersListItemAvatar>
+										<FetchAvatar avatar={row.avatar} sx={{ height: '100%', width: '100%' }} />
+									</PlayersListItemAvatar>
+									<PlayersListItemText>{row.login}</PlayersListItemText>
+								</PlayersListItem>
+							))}
 						</PlayersListWrapper>
 						:
-						<Box sx={{height: "80%"}}
+						<Box sx={{ height: "80%" }}
 							display="flex"
 							justifyContent="center"
 							alignItems="center"
 						>
 							<Typography
 								align="center"
-								style={{color: '#aab7b8'}}
+								style={{ color: '#aab7b8' }}
 							>
 								no player listed
 							</Typography>
@@ -339,11 +394,11 @@ const GridPlayers = () => {
 					alignItems="center"
 				>
 					{selectedRow ?
-						<GridProfile player={selectedRow}/>
+						<GridProfile player={selectedRow} isChat={false} />
 						:
 						<Typography
 							align="center"
-							style={{color: '#aab7b8'}}
+							style={{ color: '#aab7b8' }}
 						>
 							no profile selected
 						</Typography>
@@ -389,13 +444,13 @@ const SearchPlayers = (props: MatchInfoProps) => {
 						display="flex"
 						justifyContent="center"
 						alignItems="center"
-						sx={{mt: 4, mb: 1}}
+						sx={{ mt: 4, mb: 1 }}
 					>
 						<Typography
 							component={'span'}
 							variant='h6'
 							align="center"
-							style={{color: '#213547'}}
+							style={{ color: '#213547' }}
 						>
 							Search Players
 						</Typography>

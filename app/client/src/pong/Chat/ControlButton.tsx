@@ -3,12 +3,14 @@ import { BannedUserListItem, RoomPasswordControl, SettingsButtonWrapper, UserLis
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Grid } from '@mui/material'
 import SettingsIcon from '@mui/icons-material/Settings';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import { ChatContext } from './Chat';
 import { FetchApi } from '../component/FetchApi';
 import useAuth, { useFetchAuth } from '../context/useAuth';
 import { User } from './Chat.types';
 import { socket } from './Socket';
-import { JoinQueuButton } from './CreateGame';
+import { JoinQueuButtonChat } from './CreateGame';
+import { GridProfile } from '../Profile/SearchPlayers'
 
 export function SettingsButtton() {
 
@@ -54,7 +56,6 @@ export function SettingsButtton() {
 			return
 
 		const getMembers = async () => {
-
 			const getMembersRequest = {
 
 				api: {
@@ -103,7 +104,6 @@ export function SettingsButtton() {
 				},
 				auth: auth
 			}
-
 			const response = await FetchApi(getMutedMembersRequest)
 
 			console.log('mutedUsers: ', response?.data)
@@ -161,6 +161,7 @@ export function SettingsButtton() {
 		setTarget({ id: 0, login: '', avatar: '' })
 	}
 
+
 	const handleInviteGameButtonClick = () => {
 		setIsInviteGameOpen(true)
 	}
@@ -178,7 +179,15 @@ export function SettingsButtton() {
 
 				}
 				<SettingsButtonWrapper onClick={handleSettingsButtonClick} >
-					<SettingsIcon />
+					{
+						target.id !== 0 ?
+							<ManageAccountsIcon />
+							:
+							current.id !== 0 ?
+								<SettingsIcon />
+								:
+								null
+					}
 				</SettingsButtonWrapper>
 
 			</Box>
@@ -240,13 +249,9 @@ export function SettingsButtton() {
 						:
 						target.id !== 0 ?
 							<div>
-								<DialogTitle sx={{ display: 'flex', justifyContent: 'space-between' }}>
-									settings
-								</DialogTitle>
 								<DialogContent>
-									<Box sx={{ height: '10rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-										<Button sx={{ borderRadius: '20px', backgroundColor: '#f2f2f9', margin: '0.5rem', p: '0.5rem' }} onClick={handleRemoveFromFriend}>remove from friends</Button>
-										<Button sx={{ borderRadius: '20px', backgroundColor: '#f2f2f9', margin: '0.5rem', p: '0.5rem' }} onClick={handleBlockUser}>block</Button>
+									<Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+										<GridProfile player={target} isChat={true} onClicks={{ handleBlockUser, handleRemoveFromFriend }} />
 									</Box>
 								</DialogContent>
 							</div>
@@ -257,11 +262,18 @@ export function SettingsButtton() {
 
 
 				}
-				<DialogActions>
-					<Button onClick={handleSettingsButtonClose} sx={{ borderRadius: '20px' }}>Cancel</Button>
-				</DialogActions>
+				{
+					current.id !== 0 ?
+
+						<DialogActions>
+							<Button onClick={handleSettingsButtonClose} sx={{ borderRadius: '20px' }}>Cancel</Button>
+						</DialogActions>
+						:
+						null
+
+				}
 			</Dialog>
-			<JoinQueuButton player2={target.login} player2Id={target.id} openDialog={isInviteGameOpen} setOpenDialog={setIsInviteGameOpen}/>
+			<JoinQueuButtonChat player2={target.login} player2Id={target.id} openDialog={isInviteGameOpen} setOpenDialog={setIsInviteGameOpen} />
 		</div>
 	)
 }
