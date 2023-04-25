@@ -137,7 +137,9 @@ export class GameAlgo {
 			let bornSupP1 = (this.gameDataUpdate.p1y + this.gameModel.playerHeight / 2)
 
 			if (this.gameDataUpdate.by > bornInfP1 && this.gameDataUpdate.by < bornSupP1) {
-				this.gameModel.ballSpeedX *= -1,7;
+				this.gameModel.ballSpeedX *= -1.1;
+				this.gameModel.ballSpeedY *= 1.05;
+
 			} else {
 				this.gameDataUpdate.p2score += 1;
 				this.gameDataUpdate.bx = this.gameModel.canvasWidth / 2;
@@ -152,7 +154,8 @@ export class GameAlgo {
 			let bornSupP2 = (this.gameDataUpdate.p2y + (Math.floor(this.gameModel.playerHeight / 2)))
 
 			if (this.gameDataUpdate.by > bornInfP2 && this.gameDataUpdate.by < bornSupP2) {
-				this.gameModel.ballSpeedX *= -1,7;
+				this.gameModel.ballSpeedX *= -1.1;
+				this.gameModel.ballSpeedY *= 1.05;
 			} else {
 				this.gameDataUpdate.p1score += 1;
 				this.gameDataUpdate.bx = this.gameModel.canvasWidth / 2;
@@ -161,7 +164,7 @@ export class GameAlgo {
 			}
 		}
 		// game is finish by timeout || player lack of activity has been detected
-		if ( ++this.gameDataUpdate.timer == this.gameModel.duration /*|| this.playersTimeout()*/ ) {
+		if ( ++this.gameDataUpdate.timer == this.gameModel.duration || this.playersTimeout() ) {
 			this.server.to(this.player1!.socketID).volatile.emit('gameOver', this.gameDataUpdate);
 			this.server.to(this.player2!.socketID).volatile.emit('gameOver', this.rotateGameDataUpdate(this.gameDataUpdate));
 			this.status = Status.OVER;
@@ -203,8 +206,7 @@ export class GameAlgo {
 		console.log('initPLayer1 function');
 		this.player1 = player;
 
-		if (this.status != Status.LOCKED) // to not change it if in gameInvite process
-		{
+		if (this.status != Status.LOCKED) { // to not change it if in gameInvite process
 			this.status = Status.ONE_PLAYER;
 		}
 
@@ -214,8 +216,10 @@ export class GameAlgo {
 		})
 
 		this.player1.playerSocket.on('paddlePos', (y: number, socket: Socket) => { // player moving the paddle
-			// this.gameDataUpdate.p1y = y;
-			this.gameDataUpdate.p1y = (2 * (this.gameModel.canvasHeight / 2) - y);
+			if (gameConfig && gameConfig.funnyPong)
+				this.gameDataUpdate.p1y = (2 * (this.gameModel.canvasHeight / 2) - y);
+			else
+				this.gameDataUpdate.p1y = y;
 			this.gameModel.p1timeout = Date.now();
 		})
 
@@ -249,6 +253,7 @@ export class GameAlgo {
 			else if (gameConfig.paddleSize === '70')
 				this.gameModel = {...this.gameModel, playerHeight: 70};
 
+			this.gameModel = { ...this.gameModel, funnyPong: gameConfig.funnyPong }
 			this.gameConfig = gameConfig;
 		}
 		else
@@ -269,8 +274,10 @@ export class GameAlgo {
 		})
 
 		this.player2.playerSocket.on('paddlePos', (y: number, socket: Socket) => { // player moving the paddle
-			// this.gameDataUpdate.p2y = y;
-			this.gameDataUpdate.p2y = (2 * (this.gameModel.canvasHeight / 2) - y);
+			if (this.gameModel.funnyPong)
+				this.gameDataUpdate.p2y = (2 * (this.gameModel.canvasHeight / 2) - y);
+			else
+				this.gameDataUpdate.p2y = y;
 			this.gameModel.p2timeout = Date.now();
 		})
 		// ------------------------------

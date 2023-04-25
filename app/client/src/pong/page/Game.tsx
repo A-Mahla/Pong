@@ -33,7 +33,8 @@ type PlayerPayload = {
 	config?:{
 		ballSpeed: '7' | '10' | '12',
 		paddleSize: '100' | '70' | '50',
-		duration: '1875' | '3750' | '7500'
+		duration: '1875' | '3750' | '7500',
+		funnyPong: boolean
 
 	}
 }
@@ -62,9 +63,10 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 		config: {
 			ballSpeed: '7',
 			paddleSize: '100',
-			duration:'3750'
+			duration:'3750',
+			funnyPong: false
 		}
-  })
+	})
 
 const handlePaddleSizeLevel = (event: any) => {
 	if (playerPayload.config) {
@@ -146,6 +148,15 @@ const handlePaddleSizeLevel = (event: any) => {
 		}
 	};
 
+	const handleFunnyPong = (event: any) => {
+		if (playerPayload.config) {
+			setPlayerPayload({...playerPayload,
+			config: {
+				...playerPayload.config,
+				funnyPong: (event.target.value === 'true')
+			}})
+		}
+	}
 
 
   const matchMaking = () => {
@@ -235,6 +246,13 @@ const handlePaddleSizeLevel = (event: any) => {
 						>
 							<Typography fontSize="1.3rem">duration</Typography>
 						</Grid>
+						<Grid
+							sx={{height: '33%'}}
+							display="flex"
+							alignItems="center"
+						>
+							<Typography fontSize="1.3rem">funnyPOng</Typography>
+						</Grid>
 					</Grid>
 
 					<Grid item xs={7} sx={{height: '100%'}}>
@@ -317,6 +335,7 @@ const handlePaddleSizeLevel = (event: any) => {
 									label="Hard"
 								/>
 							</Grid>
+
 							<Grid
 								sx={{height: '33%'}}
 								display="flex"
@@ -355,6 +374,36 @@ const handlePaddleSizeLevel = (event: any) => {
 									}
 									label="2:00m"
 								/>
+							</Grid>
+							<Grid
+								sx={{height: '33%'}}
+								display="flex"
+								alignItems="center"
+								justifyContent="center"
+							>
+
+							<FormControlLabel
+									control={
+										<Radio
+											checked={playerPayload.config?.funnyPong === true}
+											onClick={handleFunnyPong}
+											value={true}
+										/>
+									}
+									label="true"
+										style={{ marginRight: '16px' }}
+							/>
+							<FormControlLabel
+								control={
+										<Radio
+											checked={playerPayload.config?.funnyPong === false}
+											onClick={handleFunnyPong}
+											value={false}
+										/>
+									}
+									label="false"
+									style={{ marginRight: '16px' }}
+							/>
 							</Grid>
 						</FormGroup>
 					</Grid>

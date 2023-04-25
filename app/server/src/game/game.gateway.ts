@@ -141,7 +141,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 					}, {
 						ballSpeed: this.gameService.convertBallSpeed(ballSpeed),
 						paddleSize: this.gameService.convertPaddleSize(paddleSize),
-						duration: this.gameService.convertDuration(duration)
+						duration: this.gameService.convertDuration(duration),
+						funnyPong: false
 					});
 
 

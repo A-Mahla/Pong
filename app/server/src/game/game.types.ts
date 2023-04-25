@@ -18,7 +18,8 @@ export interface GamePatron {
 	playerHeight: 50 | 70 | 100,
 	ballSpeedX: 7 | 10 | 12,
 	ballSpeedY: 7 | 10 | 12,
-	duration: 1875 | 3750 | 7500
+	duration: 1875 | 3750 | 7500,
+	funnyPong: boolean
 }
 
 
@@ -33,6 +34,7 @@ export const gamePatron: GamePatron = {
 	ballSpeedX: 7,
 	ballSpeedY: 7,
 	duration: 3750,
+	funnyPong: false,
 	p2timeout: 0,
 	p1timeout: 0
 }
@@ -107,7 +109,8 @@ export enum Status {	// game lifecycle status
 export type GameParams = {
 	ballSpeed: '7' | '10' | '12',
 	paddleSize: '100' | '70' | '50',
-	duration: '1875' | '3750' | '7500'
+	duration: '1875' | '3750' | '7500',
+	funnyPong: boolean
 }
 
 export type ClientPayload = {
