@@ -17,8 +17,8 @@ import { useState } from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { Checkbox, Radio, FormControlLabel, FormGroup } from '@mui/material';
 import { styled } from '@mui/system';
-import {useEffect} from 'react'
-
+import { useEffect } from 'react'
+import { JoinQueuButtonChat } from '../Chat/CreateGame'
 const pongTitle = {
 	fontSize: '2vw;',
 }
@@ -160,7 +160,6 @@ const handlePaddleSizeLevel = (event: any) => {
 
 
   const matchMaking = () => {
-	console.log(playerPayload);
     socket.emit("automatikMatchMaking", playerPayload);
   }
 
@@ -226,28 +225,28 @@ const handlePaddleSizeLevel = (event: any) => {
 
 					<Grid item xs={4} sx={{height: '100%'}}>
 						<Grid
-							sx={{height: '33%'}}
+							sx={{height: '25%'}}
 							display="flex"
 							alignItems="center"
 						>
 							<Typography fontSize="1.3rem">ball speed</Typography>
 						</Grid>
 						<Grid
-							sx={{height: '33%'}}
+							sx={{height: '25%'}}
 							display="flex"
 							alignItems="center"
 						>
 							<Typography fontSize="1.3rem">paddle size</Typography>
 						</Grid>
 						<Grid
-							sx={{height: '33%'}}
+							sx={{height: '25%'}}
 							display="flex"
 							alignItems="center"
 						>
 							<Typography fontSize="1.3rem">duration</Typography>
 						</Grid>
 						<Grid
-							sx={{height: '33%'}}
+							sx={{height: '25%'}}
 							display="flex"
 							alignItems="center"
 						>
@@ -258,7 +257,7 @@ const handlePaddleSizeLevel = (event: any) => {
 					<Grid item xs={7} sx={{height: '100%'}}>
 						<FormGroup style={{ display: 'flex', height: '100%'}}>
 							<Grid
-								sx={{height: '33%'}}
+								sx={{height: '25%'}}
 								display="flex"
 								alignItems="center"
 								justifyContent="center"
@@ -297,7 +296,7 @@ const handlePaddleSizeLevel = (event: any) => {
 								/>
 							</Grid>
 							<Grid
-								sx={{height: '33%'}}
+								sx={{height: '25%'}}
 								display="flex"
 								alignItems="center"
 								justifyContent="center"
@@ -337,7 +336,7 @@ const handlePaddleSizeLevel = (event: any) => {
 							</Grid>
 
 							<Grid
-								sx={{height: '33%'}}
+								sx={{height: '25%'}}
 								display="flex"
 								alignItems="center"
 								justifyContent="center"
@@ -376,7 +375,7 @@ const handlePaddleSizeLevel = (event: any) => {
 								/>
 							</Grid>
 							<Grid
-								sx={{height: '33%'}}
+								sx={{height: '25%'}}
 								display="flex"
 								alignItems="center"
 								justifyContent="center"
@@ -666,6 +665,13 @@ export const Game = ({ height, width }: any) => {
 					thereIsMatch={thereIsMatch}
 					handleThereIsMatch={handleMatchClick}
 				/>
+				{/* <JoinQueuButtonChat
+					player2="random"
+					player2Id={4}
+					openDialog={openMatchmaking}
+					setOpenDialog={setOpenMatchmaking}
+				/> */}
+
 			</>)
 		}</>)
 	};

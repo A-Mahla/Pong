@@ -24,7 +24,7 @@ const FetchAvatar = (props: PropsAvatar) => {
 
 			try {
 
-				if(props.avatar && props.avatar !== "undefined") {
+				if(props.avatar) {
 
 					const result = await axios.get(
 

@@ -2,10 +2,13 @@ import * as React from 'react'
 import { Typography, Box, Divider } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import useAuth from '../context/useAuth'
+// import './game.css'
 import { useState } from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { Radio, FormControlLabel, FormGroup } from '@mui/material';
 import { InviteGameDataPaylaod } from '../component/gameType'
+import { useFetchAuth } from '../context/useAuth'
+import { FetchApi, Api, responseApi } from '../component/FetchApi'
 
 type CreateMatchProps = {
 	player2: string,
@@ -14,20 +17,8 @@ type CreateMatchProps = {
 	setOpenDialog: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
-type PlayerPayload = {
-	id: number,
-	player1: string,
-	player2: string,
-	config?:{
-		ballSpeed: '7' | '10' | '12',
-		paddleSize: '100' | '70' | '50',
-		duration: '1875' | '3750' | '7500'
-
-	}
-}
-
-export function JoinQueuButton({player2, player2Id, openDialog, setOpenDialog}: CreateMatchProps) {
-
+export function JoinQueuButtonChat({player2, player2Id, openDialog, setOpenDialog}: CreateMatchProps) {
+	const auth = useFetchAuth();
 	/**
 	 * Sur le Onclick du bouton JOIN, il faut faire un POST de playerPayload sur la route:
 	 * 			'/api/game/newInvite'
@@ -105,13 +96,33 @@ export function JoinQueuButton({player2, player2Id, openDialog, setOpenDialog}: 
 		}
 	};
 
-  const handleClose = () => {
-    setOpenDialog(false);
-  }
+	const handleClose = () => {
+		setOpenDialog(false);
+	}
 
-  const handleJoinClick = () => {
-    handleClose();
-  }
+	const handleJoinClick = () => {
+		handlePostData();
+		handleClose();
+	}
+
+	function handlePostData() {
+		// Implémentez cette fonction selon ce que vous voulez faire lorsque l'utilisateur clique sur un bouton.
+			FetchApi({
+				api: {
+						input: `http://${import.meta.env.VITE_SITE}/api/game/newInvite`,
+						option: {
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify(playerPayload),
+						},
+				 },
+					auth: auth,
+			})
+	}
+
+
 
 	return (
 		<>

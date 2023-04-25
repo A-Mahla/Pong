@@ -129,7 +129,6 @@ export class GameService {
 			parsedData.push(temp);
 
 		})
-//		console.log(parsedData)
 		return {
 			history: parsedData
 		}
@@ -189,7 +188,7 @@ export class GameService {
 				avatar: user.avatar,
 			};
 		return {
-			avatar: "undefined",
+			avatar:'',
 		};
 	}
 
