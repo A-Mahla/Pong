@@ -156,6 +156,7 @@ export const MessagesBox = () => {
 	const chatBodyRef = useRef<HTMLDivElement>(null)
 
 	const { id } = useAuth()
+	const { blockedUserIds } = useContext(ChatContext)
 
 	const {
 		rooms, directMessages,
@@ -170,7 +171,6 @@ export const MessagesBox = () => {
 			console.log('directMessages: ', directMessages)
 			setMessageList(directMessages.map((message, index) => {
 				if (message.sender_id === id || message.recipient_id === id) {
-
 					return <Message
 						key={message.id}
 						message={{
@@ -207,7 +207,7 @@ export const MessagesBox = () => {
 								id: message.sender_id,
 								login: message.sender.login
 							},
-							content: message.content
+							content: (blockedUserIds.find(id => id === message.sender_id) ? 'message sender blocked' : message.content)
 						}} id={id} />
 				}))
 			}

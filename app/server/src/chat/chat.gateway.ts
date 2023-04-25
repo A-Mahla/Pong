@@ -67,6 +67,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     return this.chatService.declineFriendRequest(this.server, client, payload)
   }
 
+  @SubscribeMessage('removeFriend')
+  async handleRemoveFriend(client: Socket, paylaod: {sender_id: number, user_id: number}) {
+    return this.chatService.removeFriend(this.server, paylaod) 
+  }
+
   @SubscribeMessage('friendRequest')
   async handleFriendRequest(client: Socket, payload: FriendRequestData) {
     return this.chatService.sendFriendRequest(this.server, client, payload);
@@ -106,6 +111,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('blockUser')
   async handleBlockUser(client: Socket, payload: BlockUserData) {
     return this.chatService.blockUser(this.server, payload)
+  }
+
+  @SubscribeMessage('unblockUser')
+  async handleUnblockUser(client: Socket, payload: BlockUserData) {
+    return this.chatService.unblockUser(this.server, payload)
   }
 
   afterInit(server: Server): any {

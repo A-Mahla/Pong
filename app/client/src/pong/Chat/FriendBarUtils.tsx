@@ -229,7 +229,7 @@ const UserListItemText = styled('div')({
 	flexGrow: 1,
 });
 
-export const UserListItem = ({ user, friends, blockedUserIds ,onClick, friendRequests, id }: { user: User, friends: User[], blockedUserIds: number[], onClick: (id: number) => void, friendRequests: FriendRequest[], id: number }) => {
+export const UserListItem = ({ user, friends, blockedUserIds, setBlockedUserIds ,onClick, friendRequests, id }: { user: User, friends: User[], blockedUserIds: number[], setBlockedUserIds: (ids: number[]) => void, onClick: (id: number) => void, friendRequests: FriendRequest[], id: number }) => {
 
 	if (id === user.id)
 		return null
@@ -251,6 +251,12 @@ export const UserListItem = ({ user, friends, blockedUserIds ,onClick, friendReq
 		}
 
 		socket.emit('unblockUser', UnblockUserData)
+
+		setBlockedUserIds(blockedUserIds.filter(id => id !== user.id))
+
+		console.log('blockedUserIds after filter: ', blockedUserIds)
+		console.log('userId: ', user.id)
+
 		console.log(`unblock: ${user.login}`)
 	}
 
@@ -293,6 +299,7 @@ UserListItem.propTypes = {
 		}),
 	).isRequired,
 	blockedUserIds: PropTypes.arrayOf(PropTypes.number),
+	setBlockedUserIds: PropTypes.func.isRequired,
 	onClick: PropTypes.func.isRequired,
 	friendRequests: PropTypes.arrayOf(
 		PropTypes.shape({

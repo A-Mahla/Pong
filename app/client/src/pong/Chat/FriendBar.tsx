@@ -17,7 +17,7 @@ export const FriendBar = () => {
   const { friends, friendRequests,
     target, setTarget,
     current, setCurrent,
-    blockedUserIds
+    blockedUserIds, setBlockedUserIds
   } = useContext(ChatContext)
   const [activeFriendId, setActiveFriendId] = React.useState(0);
   const [addFriendDialogOpen, setAddFriendDialogOpen] = React.useState(false);
@@ -139,7 +139,7 @@ export const FriendBar = () => {
         <UserListWrapper>
           {matchingUsers.map((user) => (
             <UserListItem
-              key={user.id} friends={friends} onClick={handleSendFriendRequestClick} user={user} friendRequests={friendRequests} id={id} blockedUserIds={blockedUserIds} />
+              key={user.id} friends={friends} onClick={handleSendFriendRequestClick} user={user} friendRequests={friendRequests} id={id} blockedUserIds={blockedUserIds} setBlockedUserIds={setBlockedUserIds} />
           ))}
         </UserListWrapper>
         <DialogActions>

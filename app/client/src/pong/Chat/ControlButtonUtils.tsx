@@ -426,21 +426,22 @@ export const RoomPasswordControl = ({ currentRoom }: { currentRoom: { id: number
 			auth: auth
 		}
 		FetchApi(addRoomPasswordRequest).then(() => setIsPublic(false))
+		setCurrent({ ...currentRoom, isPublic: false })
 		NewPassword.current.value = ''
 	}
 
 	return (
 		isPublic ?
 			<Grid sx={{ display: 'flex', flexDirection: 'column', p: '1rem', m: '1rem' }}>
-				<TextField inputRef={NewPassword} label='enter a password'></TextField>
-				<Button onClick={onAddPasswordClick}>add password</Button>
+				<TextField inputRef={NewPassword} sx={{m: '1rem 0'}} label='enter a password'></TextField>
+				<Button onClick={onAddPasswordClick} sx={{ borderRadius: '20px', backgroundColor: 'lightgrey', margin: '0.5rem', p: '0.5rem'}}>add password</Button>
 			</Grid>
 			:
 			<Grid sx={{ display: 'flex', flexDirection: 'column', p: '1rem', m: '1rem' }}>
 				<TextField inputRef={CurrentPassword} label='current password'></TextField>
-				<TextField inputRef={NewPassword} label='new password'></TextField>
-				<Button onClick={onChangePasswordClick}>change password</Button>
-				<Button onClick={onGoPublicClick}>go public</Button>
+				<TextField inputRef={NewPassword} label='new password' sx={{m: '1rem 0'}}></TextField>
+				<Button onClick={onChangePasswordClick} sx={{ borderRadius: '20px', backgroundColor: 'lightgrey', margin: '0.5rem', p: '0.5rem'}}>change password</Button>
+				<Button onClick={onGoPublicClick} sx={{ borderRadius: '20px', backgroundColor: 'lightgrey', margin: '0.5rem', p: '0.5rem'}}>go public</Button>
 				<Snackbar
 					open={isAlertOpen}
 					autoHideDuration={4000}

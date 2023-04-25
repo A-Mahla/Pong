@@ -140,6 +140,8 @@ export function SettingsButtton() {
 			user_id: target.id,
 		}
 
+		socket.emit('removeFriend', RemoveFriendData)
+
 		console.log(`remove ${target.login} from friends`)
 	}
 
@@ -180,18 +182,18 @@ export function SettingsButtton() {
 								<Button sx={{ borderRadius: '20px' }} onClick={handleLeaveRoom}>Leave Room</Button>
 							</DialogTitle>
 							<Box width="100%" display="flex">
-								<Button sx={{ backgroundColor: (displayList === UserListType.MEMBERS) ? '#f2f2f2' : 'transparent', flex: '1' }} onClick={() => setDisplayList(UserListType.MEMBERS)}>Members</Button>
+								<Button sx={{ backgroundColor: (displayList === UserListType.MEMBERS) ? '#f2f2f2' : 'transparent', flex: '1', borderRadius: 0 }} onClick={() => setDisplayList(UserListType.MEMBERS)}>Members</Button>
 								{
 									id === current.ownerId || adminMembers.find(admin => admin.id === id) ?
 
-										<Button sx={{ backgroundColor: (displayList === UserListType.BANNED) ? '#f2f2f2' : 'transparent', flex: '1' }} onClick={() => setDisplayList(UserListType.BANNED)}>Banned</Button>
+										<Button sx={{ backgroundColor: (displayList === UserListType.BANNED) ? '#f2f2f2' : 'transparent', flex: '1', borderRadius: 0  }} onClick={() => setDisplayList(UserListType.BANNED)}>Banned</Button>
 										:
 										null
 
 								}
 								{
 									id === current.ownerId ?
-										<Button sx={{ backgroundColor: (displayList === UserListType.CONTROL) ? '#f2f2f2' : 'transparent', flex: '1' }} onClick={() => setDisplayList(UserListType.CONTROL)}>CONTROL</Button>
+										<Button sx={{ backgroundColor: (displayList === UserListType.CONTROL) ? '#f2f2f2' : 'transparent', flex: '1', borderRadius: 0  }} onClick={() => setDisplayList(UserListType.CONTROL)}>CONTROL</Button>
 										:
 										null
 								}

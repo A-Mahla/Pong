@@ -240,4 +240,21 @@ export class ChatService {
 		return blockRelation
 	}
 
+	async unblockUser(server: Server, payload: BlockUserData) {
+		const deleteRelation = await this.userService.unblockUser(payload.sender_id, payload.user_id)
+
+		return deleteRelation
+	}
+
+	async removeFriend(server: Server, payload: {sender_id: number, user_id: number}) {
+		const deleteRelation = await this.userService.removeFriend(payload.sender_id, payload.user_id)
+
+		if (deleteRelation) {
+			server.to(payload.sender_id.toString()).emit('removeFriend', payload.user_id)
+			server.to(payload.user_id.toString()).emit('removeFriend', payload.sender_id)
+		}
+
+		return deleteRelation
+	}
+
 }

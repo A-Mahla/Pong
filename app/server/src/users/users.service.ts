@@ -285,6 +285,20 @@ export class UsersService {
 
 	}
 
+	async unblockUser(senderId: number, userId: number) {
+		return await this.prisma.blocked.delete({
+			where: {
+				userId_blockedUserId: {
+					userId: senderId,
+					blockedUserId: userId
+				}
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+	}
+
 	async getBlockedUsers(userId: number) {
 		return (await this.prisma.blocked.findMany({
 			where: {
@@ -311,9 +325,29 @@ export class UsersService {
 			throw new BadRequestException(e);
 		})
 
-		if (relation) 
+		if (relation)
 			return true
 		return false
+	}
+
+	async removeFriend(senderId: number, userId: number) {
+		return this.prisma.friend.deleteMany({
+			where: {
+				OR: [
+					{
+						user1Id: senderId,
+						user2Id: userId,
+					},
+					{
+						user1Id: userId,
+						user2Id: senderId,
+					},
+				]
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
 	}
 }
 
