@@ -644,13 +644,13 @@ export const Game = ({ height, width }: any) => {
 						</Box>
 					</Popover>
 					</Grid>
-				{/* <MatchMaker
+				<MatchMaker
 					socket={socket}
 					openMatchmaking={openMatchmaking}
 					setOpenMatchmaking={setOpenMatchmaking}
 					thereIsMatch={thereIsMatch}
 					launchCanvas={handleMatchClick}
-				/> */}
+				/>
 				<Spectator
 					socket={socket}
 					openWatch={openWatch}
@@ -665,13 +665,6 @@ export const Game = ({ height, width }: any) => {
 					thereIsMatch={thereIsMatch}
 					handleThereIsMatch={handleMatchClick}
 				/>
-				<JoinQueuButtonChat
-					player2="random"
-					player2Id={4}
-					openDialog={openMatchmaking}
-					setOpenDialog={setOpenMatchmaking}
-				/>
-
 			</>)
 		}</>)
 	};
