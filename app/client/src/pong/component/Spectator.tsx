@@ -14,7 +14,6 @@ import useAuth from '../context/useAuth'
 import io, {Socket} from "socket.io-client";
 import { render } from 'react-dom'
 import Canvas from '../component/gameCanva'
-import { draw } from '../component/gameCanva'
 import { GameSocketProvider, UserContext } from '../services/GameSocketProvider'
 import { styled } from '@mui/system';
 import {
@@ -96,7 +95,7 @@ type WatchProps = {
 }
 
 export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, setOpenWatch}: WatchProps) => {
-	const [gameList, setGameList] = React.useState<{game_id: string, p1:string, p2: string}[]>([]);
+	const [gameList, setGameList] = React.useState<{game_id: string, p1:string, p1avatar:string, p2: string, p2avatar:string}[]>([]);
 	const [selectedRowId, setSelectedRowId] = useState<number | null>(null)
 
 	function handleJoinGame(gameId: string) {
@@ -106,8 +105,11 @@ export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, 
 			handleThereIsMatch()
 	}
 
+	socket.on('newGameRunning', () => {
+		socket.emit("getRuningGames");
+	})
+
 	socket.on('updateRuningGames', (runningGameList: any) => {
-		console.log('jai du passer par la' + runningGameList);
 		setGameList(runningGameList);
 	})
 
@@ -188,7 +190,7 @@ export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, 
 												>
 													<PlayersListItemAvatarLeft>
 														<FetchAvatar
-															avatar=""
+															avatar={gameId.p1avatar}
 															sx={{
 																height: '100%',
 																width: '100%'
@@ -226,7 +228,7 @@ export const Spectator = ({socket, thereIsMatch, handleThereIsMatch, openWatch, 
 													</PlayersListItemText>
 													<PlayersListItemAvatarRight>
 														<FetchAvatar
-															avatar=""
+															avatar={gameId.p2avatar}
 															sx={{
 																height: '100%',
 																width: '100%'

@@ -21,15 +21,15 @@ const FetchAvatar = (props: PropsAvatar) => {
 	useEffect(() => {
 
 		async function fetching() {
-		
+
 			try {
 
-				if(props.avatar) {
+				if(props.avatar && props.avatar !== "undefined") {
 
 					const result = await axios.get(
 
 						`http://${import.meta.env.VITE_SITE}/api/users/profile/avatar/download/${props.avatar}`,
-						{ 
+						{
 							withCredentials: true,
 							responseType: 'blob',
 							headers: {
@@ -53,13 +53,13 @@ const FetchAvatar = (props: PropsAvatar) => {
 						auth.navigate('/login');
 						return
 					}
-					
+
 					auth.setToken(refresh.data['aT']);
 
 					const result2 = await axios.get(
 
 						`http://${import.meta.env.VITE_SITE}/api/users/profile/avatar/download/${props.avatar}`,
-						{ 
+						{
 							withCredentials: true,
 							responseType: 'blob',
 							headers: {

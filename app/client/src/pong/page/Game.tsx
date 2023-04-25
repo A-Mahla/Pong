@@ -2,14 +2,13 @@ import * as React from 'react'
 import { Typography, Box, Paper, Divider } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Tabs from '@mui/material/Tabs'
-import Tab from '@mui/material/Tab'
 import PropTypes from 'prop-types';
+import Tab from '@mui/material/Tab'
 import useAuth from '../context/useAuth'
 import io, {Socket} from "socket.io-client";
 import './game.css'
 import { render } from 'react-dom'
 import Canvas from '../component/gameCanva'
-import { draw } from '../component/gameCanva'
 import { GameSocketProvider, UserContext } from '../services/GameSocketProvider'
 import { Spectator } from '../component/Spectator'
 import { GameFriends } from '../component/GameFriends'
@@ -34,7 +33,8 @@ type PlayerPayload = {
 	config?:{
 		ballSpeed: '7' | '10' | '12',
 		paddleSize: '100' | '70' | '50',
-		duration: '1875' | '3750' | '7500'
+		duration: '1875' | '3750' | '7500',
+		funnyPong: boolean
 
 	}
 }
@@ -63,15 +63,12 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 		config: {
 			ballSpeed: '7',
 			paddleSize: '100',
-			duration:'3750'
+			duration:'3750',
+			funnyPong: false
 		}
-  })
+	})
 
-//   const [paddle, setPaddle] = useState<string>('easy');
-//   const [duration, setDuration] = useState<string>('medium');
-//   const [speed, setSpeed] = useState<string>('medium');
-
-  const handlePaddleSizeLevel = (event: any) => {
+const handlePaddleSizeLevel = (event: any) => {
 	if (playerPayload.config) {
 		if (event.target.value === "easy"){
 			setPlayerPayload({...playerPayload,
@@ -95,7 +92,7 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 				}})
 		}
 	}
-  };
+};
 
 
 	const handleBallSpeedLevel = (event: any) => {
@@ -151,6 +148,15 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 		}
 	};
 
+	const handleFunnyPong = (event: any) => {
+		if (playerPayload.config) {
+			setPlayerPayload({...playerPayload,
+			config: {
+				...playerPayload.config,
+				funnyPong: (event.target.value === 'true')
+			}})
+		}
+	}
 
 
   const matchMaking = () => {
@@ -240,6 +246,13 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 						>
 							<Typography fontSize="1.3rem">duration</Typography>
 						</Grid>
+						<Grid
+							sx={{height: '33%'}}
+							display="flex"
+							alignItems="center"
+						>
+							<Typography fontSize="1.3rem">funnyPOng</Typography>
+						</Grid>
 					</Grid>
 
 					<Grid item xs={7} sx={{height: '100%'}}>
@@ -322,6 +335,7 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 									label="Hard"
 								/>
 							</Grid>
+
 							<Grid
 								sx={{height: '33%'}}
 								display="flex"
@@ -360,6 +374,36 @@ function JoinQueuButton({socket, joinQueu, openMatchmaking, setOpenMatchmaking, 
 									}
 									label="2:00m"
 								/>
+							</Grid>
+							<Grid
+								sx={{height: '33%'}}
+								display="flex"
+								alignItems="center"
+								justifyContent="center"
+							>
+
+							<FormControlLabel
+									control={
+										<Radio
+											checked={playerPayload.config?.funnyPong === true}
+											onClick={handleFunnyPong}
+											value={true}
+										/>
+									}
+									label="true"
+										style={{ marginRight: '16px' }}
+							/>
+							<FormControlLabel
+								control={
+										<Radio
+											checked={playerPayload.config?.funnyPong === false}
+											onClick={handleFunnyPong}
+											value={false}
+										/>
+									}
+									label="false"
+									style={{ marginRight: '16px' }}
+							/>
 							</Grid>
 						</FormGroup>
 					</Grid>
@@ -503,7 +547,7 @@ export const Game = ({ height, width }: any) => {
 			id: 1,
 		},
 		{
-			name: 'game friends',
+			name: 'Game invites',
 			id: 2,
 		},
 	]
@@ -518,7 +562,6 @@ export const Game = ({ height, width }: any) => {
 	}, [])
 
 	useEffect(() => {
-		console.log('test')
 		if (selectedRow && selectedRow.id === 0)
 			setOpenMatchmaking(true)
 		else if (selectedRow && selectedRow.id === 1)

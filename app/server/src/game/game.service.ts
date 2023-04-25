@@ -1,6 +1,6 @@
 import { BadGatewayException, BadRequestException, Injectable, UseInterceptors, UploadedFile, Param } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { GameDataType, GameParams, gamePatron, GamePatron, Player, matchHistoryPayload } from './game.types'
+import { GameDataType, GameParams, UpdateGameDataType, Player, matchHistoryPayload, InviteGameData } from './game.types'
 
 @Injectable()
 export class GameService {
@@ -8,9 +8,9 @@ export class GameService {
 
 /* ============================ POST game related information ========================*/
 
-	async endGameDBwrites(gameID: string, player1: Player, player2: Player, gameData: GameDataType) {
-		this.registerNewPlayer(parseInt(gameID), player1.id, gameData.player1.score);
-		this.registerNewPlayer(parseInt(gameID), player2.id, gameData.player2.score);
+	async endGameDBwrites(gameID: string, player1: Player, player2: Player, data: UpdateGameDataType) {
+		this.registerNewPlayer(parseInt(gameID), player1.id, data.p1score);
+		this.registerNewPlayer(parseInt(gameID), player2.id, data.p2score);
 	}
 
 	async registerNewGame(status: string) {
@@ -175,6 +175,23 @@ export class GameService {
 		return nbGames;
 	}
 
+	async getAvatarPath(user_id: number): Promise<{avatar: string}> {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id: user_id
+			},
+			select: {
+				avatar: true
+			}
+		})
+		if (user != null && user.avatar != null)
+			return {
+				avatar: user.avatar,
+			};
+		return {
+			avatar: "undefined",
+		};
+	}
 
 	//	================ UPDATE GAME STATUS ===========
 	async updateGamestatus(game_id: number, status: string) {
@@ -200,6 +217,69 @@ export class GameService {
 		return (true);
 	}
 
+	async registerNewGameInvite(inviteGameData: InviteGameData) {
+		return this.prisma.gamesInvites.create({
+			data: inviteGameData
+		})
+	}
+
+	async getGamesInvites(user_id: number){
+		return this.prisma.gamesInvites.findMany({
+			where: {
+				OR: [
+					{ sender_id: user_id },
+					{ receiver_id: user_id },
+				],
+			},
+		});
+	}
+
+	async eraseGameInvites(inviteID: number) {
+		return (
+			await this.prisma.gamesInvites.delete({
+			where: {
+				id: inviteID
+			}
+		})
+		);
+	}
+
+	convertBallSpeed(ballSpeedString: string): '7' | '10' | '12' {
+		switch (ballSpeedString) {
+		  case '7':
+		  case '10':
+		  case '12':
+			return ballSpeedString;
+		  default:
+			return '7';
+		}
+	}
+
+	convertPaddleSize(size: string): '100' | '70' | '50' {
+		switch (size) {
+		  case '100':
+			return '100';
+		  case '70':
+			return '70';
+		  case '50':
+			return '50';
+		  default:
+			return '100'
+		}
+	}
+
+	convertDuration(duration: string): '1875' | '3750' | '7500' {
+		switch (duration) {
+		  case '1875':
+			return '1875';
+		  case '3750':
+			return '3750';
+		  case '7500':
+			return '7500';
+		  default:
+			return '3750'
+		}
+	}
 }
 
 //	================ ^^^^^^^^^^^^^^^^^^ ===========
