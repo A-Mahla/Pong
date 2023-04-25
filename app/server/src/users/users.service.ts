@@ -394,6 +394,25 @@ export class UsersService {
 			throw new BadRequestException(e);
 		})
 	}
+
+	async getStatus(userId: number) {
+	
+		const user = await this.prisma.user.findUnique({
+			 where: {
+				id: userId
+			 },
+			 select: {
+				status: true
+			 }
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+		console.log('user: ', user)
+
+		//return user?.status
+		return user
+	}
 }
 
 /* ============================ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ========================*/

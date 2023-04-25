@@ -251,6 +251,14 @@ export class UsersController {
 		return this.userService.getBlockedUsers(req.user.sub)
 	}
 
+	@UseGuards(JwtAuthGuard)
+	@Get('status')
+	async getStatus(
+		@Request() req: any,
+	) {
+		return this.userService.getStatus(req.user.sub)
+	}
+
 	//@UseGuards(JwtAuthGuard)
 	//@Patch('/:login/:roomId')
 	//async addRoom(

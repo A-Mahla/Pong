@@ -1,22 +1,52 @@
 import Avatar from '@mui/material/Avatar';
-import useAuth from '../context/useAuth';
-import { refreshRequest } from '../component/FetchApi'
-import  { createRef, useState, useEffect } from "react";
-import { SxProps } from '@mui/system';
+import useAuth, { useFetchAuth } from '../context/useAuth';
+import { FetchApi, refreshRequest } from '../component/FetchApi'
+import { createRef, useState, useEffect } from "react";
+import { Badge } from '@mui/material'
+import { SxProps, styled } from '@mui/system';
 import axios from 'axios';
 
 type PropsAvatar = {
 	avatar?: string,
+	displayStatus?: boolean,
 	sx: SxProps
 }
 
+const StyledBadge = styled(Badge)(({ theme}) => ({
+	'& .MuiBadge-badge': {
+		//backgroundColor: 'white',
+		//color: dotColor,
+		boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+		'&::after': {
+			position: 'absolute',
+			top: 0,
+			left: 0,
+			width: '100%',
+			height: '100%',
+			borderRadius: '50%',
+			content: '""',
+		},
+	},
+	'@keyframes ripple': {
+		'0%': {
+			transform: 'scale(.8)',
+			opacity: 1,
+		},
+		'100%': {
+			transform: 'scale(2.4)',
+			opacity: 0,
+		},
+	},
+}));
 
 const FetchAvatar = (props: PropsAvatar) => {
 
 	const [fetched, setFetched] = useState<boolean>(false)
+	const [status, setStatus] = useState<string>('offline')
 	const inputFileRef = createRef<HTMLInputElement>();
 	const [image, setImage] = useState<string>('')
 	const auth = useAuth()
+	const fetchAuth = useFetchAuth()
 
 	useEffect(() => {
 
@@ -24,7 +54,21 @@ const FetchAvatar = (props: PropsAvatar) => {
 
 			try {
 
-				if(props.avatar) {
+				if (props.displayStatus) {
+
+					const getStatusRequest = {
+						api: {
+							input: `http://${import.meta.env.VITE_SITE}/api/users/status`,
+						},
+						auth: fetchAuth
+					}
+
+					const response = await FetchApi(getStatusRequest)
+					console.log('status: ', response?.data.status)
+					setStatus(response?.data.status)
+				}
+
+				if (props.avatar) {
 
 					const result = await axios.get(
 
@@ -40,7 +84,7 @@ const FetchAvatar = (props: PropsAvatar) => {
 
 					await setImage(await URL.createObjectURL(result.data))
 				}
-			} catch(err) {
+			} catch (err) {
 				try {
 
 					const refresh = await refreshRequest()
@@ -69,7 +113,7 @@ const FetchAvatar = (props: PropsAvatar) => {
 					)
 
 					await setImage(await URL.createObjectURL(result2.data))
-				} catch(err) {
+				} catch (err) {
 					console.log(err)
 				}
 			} finally {
@@ -81,12 +125,38 @@ const FetchAvatar = (props: PropsAvatar) => {
 	}, [props.avatar])
 
 	return <>
-		{!fetched ? null :
-			<Avatar
-				alt="other_avatar"
-				src={image}
-				sx={props.sx}
-			/>
+		{!fetched ?
+			null
+			:
+			props.displayStatus ?
+
+				<StyledBadge
+					overlap="circular"
+					anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+					sx={{
+						...props.sx, /* color: status === 'online' ?
+							'#44b700'
+							: status === 'inGame' ?
+								'red'
+								:
+								'lightgrey' */
+								color: '#44b700'
+
+					}}
+					variant='dot'
+				>
+					<Avatar
+						alt="other_avatar"
+						src={image}
+					/>
+				</StyledBadge>
+				:
+				<Avatar
+					alt="other_avatar"
+					src={image}
+					sx={props.sx}
+				/>
+
 		}
 	</>
 
