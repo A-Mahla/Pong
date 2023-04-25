@@ -665,13 +665,6 @@ export const Game = ({ height, width }: any) => {
 					thereIsMatch={thereIsMatch}
 					handleThereIsMatch={handleMatchClick}
 				/>
-				{/* <JoinQueuButtonChat
-					player2="random"
-					player2Id={4}
-					openDialog={openMatchmaking}
-					setOpenDialog={setOpenMatchmaking}
-				/> */}
-
 			</>)
 		}</>)
 	};

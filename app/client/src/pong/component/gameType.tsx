@@ -80,7 +80,8 @@ export type InviteGameData = {
 	receiver_login: string,
 	ballSpeed: string,
 	paddleSize: string,
-	duration: string
+	duration: string,
+	funnyPong: boolean
 }
 
 export type InviteGameDataPaylaod = {
@@ -90,5 +91,6 @@ export type InviteGameDataPaylaod = {
 	receiver_login: string,
 	ballSpeed: string,
 	paddleSize: string,
-	duration: string
+	duration: string,
+	funnyPong: boolean
 }

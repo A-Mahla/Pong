@@ -161,7 +161,7 @@ export class GameAlgo {
 			}
 		}
 		// game is finish by timeout || player lack of activity has been detected
-		if ( ++this.gameDataUpdate.timer == this.gameModel.duration || this.playersTimeout() ) {
+		if ( ++this.gameDataUpdate.timer == this.gameModel.duration /*|| this.playersTimeout() */) {
 			this.server.to(this.player1!.socketID).volatile.emit('gameOver', this.gameDataUpdate);
 			this.server.to(this.player2!.socketID).volatile.emit('gameOver', this.rotateGameDataUpdate(this.gameDataUpdate));
 			this.status = Status.OVER;
@@ -330,7 +330,7 @@ export class GameAlgo {
 
 	public async playerChangeSocket(playerSocket: Socket, socketID: string, player1ou2: number) {
 		if (player1ou2 === 1) {
-			this.player1!.playerSocket.disconnect(true)
+			// this.player1!.playerSocket.disconnect(true)
 			this.player1!.playerSocket = playerSocket
 			this.player1!.socketID = socketID;
 			this.player1!.playerSocket.on('quitGame', (socket: Socket) => { // player quiting the game
@@ -354,7 +354,7 @@ export class GameAlgo {
 
 		}
 		else if (player1ou2 === 2){
-			this.player2!.playerSocket.disconnect(true);
+			// this.player2!.playerSocket.disconnect(true);
 			this.player2!.playerSocket = playerSocket
 			this.player2!.socketID = socketID;
 			this.player2!.playerSocket.on('quitGame', (socket: Socket) => { // player quiting the game
@@ -365,6 +365,7 @@ export class GameAlgo {
 				this.gameModel.p2timeout = Date.now();
 			})
 			this.player2!.playerSocket.once('imReady', () => {
+				console.log('+++++++++++++++++++++++++');
 				this.server.to(this.player2!.socketID).emit('initSetup', this.rotateInitSetup( this.initGameDataSetUp(this.gameModel)));
 				this.player2!.isReady = true;
 			})
