@@ -170,4 +170,5 @@ model gamesInvites {
   ballSpeed String
   paddleSize String
   duration String
+  funnyPong Boolean
 }

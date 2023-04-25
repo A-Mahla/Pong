@@ -99,8 +99,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	}
 
 	@SubscribeMessage('friendMatchMaking')
-	async friendMatchMaker(client: Socket,  {inviteId, p1Id, p2Id, id, user, ballSpeed, paddleSize, duration}:
-											{inviteId: number, p1Id: number, p2Id: number, id: number, user: string, ballSpeed: string, paddleSize: string, duration: string}) {
+	async friendMatchMaker(client: Socket,  {inviteId, p1Id, p2Id, id, user, ballSpeed, paddleSize, duration, funnyPong}:
+											{inviteId: number, p1Id: number, p2Id: number, id: number, user: string, ballSpeed: string, paddleSize: string, duration: string, funnyPong: boolean}) {
 		return new Promise<GameAlgo>((resolve, rejects) => {
 			for (const [key, gameItem] of this.gameMap) {
 				if (gameItem.getStatus() === Status.LOCKED) {
@@ -136,7 +136,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 						ballSpeed: this.gameService.convertBallSpeed(ballSpeed),
 						paddleSize: this.gameService.convertPaddleSize(paddleSize),
 						duration: this.gameService.convertDuration(duration),
-						funnyPong: false
+						funnyPong: funnyPong
 					});
 
 
@@ -238,6 +238,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				value.shutDownInternalEvents();
 				this.gameService.deleteGame(value.roomID);
 				this.gameMap.delete(value.roomID);
+				client.disconnect(true);
 			}
 		}
 	}

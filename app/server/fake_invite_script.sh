@@ -5,5 +5,6 @@ curl -i -X POST http://localhost:3500/api/game/newInvite -H "Content-Type: appli
 	"receiver_login": "amir",
 	"ballSpeed": "7",
 	"paddleSize": "100",
-	"duration": "3750"
+	"duration": "3750",
+	"funnyPong": true
 }'

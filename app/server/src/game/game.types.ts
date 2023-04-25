@@ -138,5 +138,6 @@ export type InviteGameData = {
 	receiver_login: string,
 	ballSpeed: string,
 	paddleSize: string,
-	duration: string
+	duration: string,
+	funnyPong: boolean
 }

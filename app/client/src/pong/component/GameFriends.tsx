@@ -104,19 +104,7 @@ export const GameFriends = ({socket, thereIsMatch, handleThereIsMatch, openFrien
 
 	const auth = useFetchAuth();
 	const {id, user} = useAuth();
-/*
-export type InviteGameData = {
-	id: number,
-	createdAt: Date,
-	sender_id: number,
-	sender_login: string,
-	receiver_id: number,
-	receiver_login: string,
-	ballSpeed: string,
-	paddleSize: string,
-	duration: string
-}
-*/
+
 	function handleJoinGame(gameId: number, game: InviteGameData) {
 		// Implémentez cette fonction selon ce que vous voulez faire lorsque l'utilisateur clique sur un bouton.
 		const p1Id = game.sender_id;
@@ -125,19 +113,12 @@ export type InviteGameData = {
 		const ballSpeed = game.ballSpeed;
 		const paddleSize = game.paddleSize;
 		const duration = game.duration;
-		socket.emit('friendMatchMaking', {inviteId, p1Id, p2Id, id, user, ballSpeed, paddleSize, duration})
+		const funnyPong = game.funnyPong
+		socket.emit('friendMatchMaking', { inviteId, p1Id, p2Id, id, user, ballSpeed, paddleSize, duration, funnyPong })
 		if (!thereIsMatch)
 			handleThereIsMatch()
 	}
 
-	//	SET NEW FRIEND SOCKET EVENT
-	/*
-	socket.on('friendGameRequest', (newfriendGameList: {game_id: string, playerWhoCreateAGame: string}) => {
-		console.log('jai du passer par la' + newfriendGameList);
-		friendList.push(newfriendGameList);
-		setFriendList(friendList);
-	})
-*/
 	const handleClose = () => {
 		setOpenFriends(false)
 	}
