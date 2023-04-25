@@ -137,9 +137,7 @@ export class GameAlgo {
 			let bornSupP1 = (this.gameDataUpdate.p1y + this.gameModel.playerHeight / 2)
 
 			if (this.gameDataUpdate.by > bornInfP1 && this.gameDataUpdate.by < bornSupP1) {
-				this.gameModel.ballSpeedX *= -1.1;
-				this.gameModel.ballSpeedY *= 1.05;
-
+				this.gameModel.ballSpeedX *= -1;
 			} else {
 				this.gameDataUpdate.p2score += 1;
 				this.gameDataUpdate.bx = this.gameModel.canvasWidth / 2;
@@ -154,8 +152,7 @@ export class GameAlgo {
 			let bornSupP2 = (this.gameDataUpdate.p2y + (Math.floor(this.gameModel.playerHeight / 2)))
 
 			if (this.gameDataUpdate.by > bornInfP2 && this.gameDataUpdate.by < bornSupP2) {
-				this.gameModel.ballSpeedX *= -1.1;
-				this.gameModel.ballSpeedY *= 1.05;
+				this.gameModel.ballSpeedX *= -1;
 			} else {
 				this.gameDataUpdate.p1score += 1;
 				this.gameDataUpdate.bx = this.gameModel.canvasWidth / 2;
@@ -203,7 +200,6 @@ export class GameAlgo {
 	}
 
 	public initPlayer1(player: Player, gameConfig: GameParams | undefined) {
-		console.log('initPLayer1 function');
 		this.player1 = player;
 
 		if (this.status != Status.LOCKED) { // to not change it if in gameInvite process
@@ -223,7 +219,7 @@ export class GameAlgo {
 			this.gameModel.p1timeout = Date.now();
 		})
 
-		this.player1.playerSocket.on('imReady', () => {
+		this.player1.playerSocket.once('imReady', () => {
 			this.player1!.isReady = true;
 		})
 
@@ -264,7 +260,6 @@ export class GameAlgo {
 	}
 
 	public initPlayer2(player: Player) {
-		console.log('initPLayer2 function');
 		this.player2 = player;
 		this.status = Status.TWO_PLAYER;
 
@@ -282,7 +277,7 @@ export class GameAlgo {
 		})
 		// ------------------------------
 
-		this.player2.playerSocket.on('imReady', () => {
+		this.player2.playerSocket.once('imReady', () => {
 			this.player2!.isReady = true;
 		})
 		this.server.to(this.player2.socketID).emit('lockAndLoaded');
@@ -335,6 +330,7 @@ export class GameAlgo {
 
 	public async playerChangeSocket(playerSocket: Socket, socketID: string, player1ou2: number) {
 		if (player1ou2 === 1) {
+			this.player1!.playerSocket.disconnect(true)
 			this.player1!.playerSocket = playerSocket
 			this.player1!.socketID = socketID;
 			this.player1!.playerSocket.on('quitGame', (socket: Socket) => { // player quiting the game
@@ -344,14 +340,21 @@ export class GameAlgo {
 				this.gameDataUpdate.p1y = y;
 				this.gameModel.p1timeout = Date.now();
 			})
-			console.log('in playerChangeSocket: player1')
-			const testTime = setTimeout(()=>{
-				this.server.to(socketID).emit('initSetup', this.initGameDataSetUp(this.gameModel));
-				clearInterval(testTime)
-			}, 100);
+			this.player1!.playerSocket.once('imReady', () => {
+				console.log('C CA LE PROBLEM');
+				this.server.to(this.player1!.socketID).emit('initSetup', this.initGameDataSetUp(this.gameModel));
+				this.player1!.isReady = true;
+			})
+
+
+			// const testTime = setTimeout(()=>{
+				// this.server.to(socketID).emit('initSetup', this.initGameDataSetUp(this.gameModel));
+				// clearInterval(testTime)
+			// }, 100);
 
 		}
 		else if (player1ou2 === 2){
+			this.player2!.playerSocket.disconnect(true);
 			this.player2!.playerSocket = playerSocket
 			this.player2!.socketID = socketID;
 			this.player2!.playerSocket.on('quitGame', (socket: Socket) => { // player quiting the game
@@ -361,11 +364,15 @@ export class GameAlgo {
 				this.gameDataUpdate.p2y = y;
 				this.gameModel.p2timeout = Date.now();
 			})
-			console.log('in playerChangeSocket: player2');
-			const testTime = setTimeout(()=>{
-				this.server.to(socketID).emit('initSetup', this.rotateInitSetup(this.initGameDataSetUp(this.gameModel)));
-				clearInterval(testTime)
-			}, 100);
+			this.player2!.playerSocket.once('imReady', () => {
+				this.server.to(this.player2!.socketID).emit('initSetup', this.rotateInitSetup( this.initGameDataSetUp(this.gameModel)));
+				this.player2!.isReady = true;
+			})
+
+			// const testTime = setTimeout(()=>{
+				// this.server.to(socketID).emit('initSetup', this.rotateInitSetup(this.initGameDataSetUp(this.gameModel)));
+				// clearInterval(testTime)
+			// }, 100);
 		}
 
 	}
@@ -373,7 +380,7 @@ export class GameAlgo {
 	public async addWatcherSocketID(newWatcherSocket: Socket) {
 		this.watchers.push(newWatcherSocket);
 
-		newWatcherSocket.on('imReady', () => {
+		newWatcherSocket.once('imReady', () => {
 			this.server.to(newWatcherSocket.id).emit('initSetup', this.initGameDataSetUp( this.gameModel));
 		})
 

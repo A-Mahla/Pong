@@ -49,7 +49,6 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 
 	const gameCanvas = React.useCallback((node: null | HTMLCanvasElement) => {
 		if (node !== null) {
-			console.log('----> ici le useCallback (la ref sur le canvas)');
 			canvas.current = node;
 			setGame(true);
 		}
@@ -74,7 +73,6 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 	const handleMouseMove = React.useMemo(() => {
 		const canvasElement = canvas.current
 
-			console.log('----> ici mon react,useMemo (mon handle mouse move)');
 			if (gameContext && game && canvasElement) {
 			const sendPos = (y: number) => {
 				socket.volatile.emit("paddlePos", y);
@@ -103,15 +101,9 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 	React.useEffect(() => {
 		const timeTest = setTimeout(() => {
 			socket.emit('imReady'); // the back-end wait for both player to be ready to be sure that one of the player didnt miss the init set-up
+
 			socket.on("initSetup", (gameData: GameData) => {
-				// if ((gameData.player1.avatar) != undefined) // il faudra que tu check car il peut etre undefined au cas ou jai pas trouve d'avatar
-				// player1 login and avatar
-				console.log("login: " + gameData.player1.login + " avatar: " + gameData.player1.avatar);
-				// player2 login and avatar
-				console.log("login: " + gameData.player2.login + " avatar: " + gameData.player2.avatar);
-
 				setFetched(true); // we know here that we receive the initSetup from back so we are sure there is a match
-
 				setGameData(gameData); // we set here the const of the game like the players logins and paddle size
 			})
 			socket.on('disconnection', (errorMessage: string) => {
@@ -171,23 +163,14 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 
 			socket.on("pause", (gameData: updateData) => {
 				setFetched(true)
-				console.log("---------------------> ON gameOver");
 				drawEndGame(canvas.current, gameData.p1score, gameData.p2score);
 			})
 
 			socket.on("gameOver", (gameData: updateData) => {
 				setFetched(true)
-				console.log("---------------------> ON gameOver");
 				drawEndGame(canvas.current, gameData.p1score, gameData.p2score);
 			})
 
-			/*
-			socket.on("gameOverWatcher", (gameData: GameData) => {
-				console.log("---------------------> ON gameOverWatchers");
-				setFetched(true)
-				drawEndGameWatchers(canvas.current, gameData);
-			})
-			*/
 		}
 
 	}, [gameData, gameContext, game])

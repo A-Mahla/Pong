@@ -203,7 +203,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 							`http://${import.meta.env.VITE_SITE}/api/users/profile/avatar/upload`,
 							file,
-							{ 
+							{
 								withCredentials: true,
 								headers: {
 									Authorization: `Bearer ${data['aT']}`,
@@ -274,7 +274,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 							`http://${import.meta.env.VITE_SITE}/api/users/profile/avatar/upload`,
 							file,
-							{ 
+							{
 								withCredentials: true,
 								headers: {
 									Authorization: `Bearer ${data['aT']}`,

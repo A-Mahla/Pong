@@ -30,7 +30,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	@SubscribeMessage('automatikMatchMaking')
 	async matchMaker(client: Socket, clientPayload: ClientPayload) {
-		console.log(clientPayload)
 		let gameToJoin: GameAlgo | undefined;
 		let notPlayingWithYourself = true
 
@@ -76,19 +75,15 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 							this.gameMap.delete(newGameAlgo.roomID);
 						}).catch(onrejected => {
 							if (onrejected === '1') {
-								console.log(" --- p1 left --- ");
 								this.server.to(newGameAlgo.getPlayerSocketID(2)).emit('disconnection', `DISCONNECTED: ${newGameAlgo.getPlayerLogin(1)} quit the game :(`);
 							}
 							else if (onrejected === '2') {
-								console.log(" --- p2 left --- ");
 								this.server.to(newGameAlgo.getPlayerSocketID(1)).emit('disconnection', `DISCONNECTED: ${newGameAlgo.getPlayerLogin(2)} quit the game :(`);
 							}
 							if (onrejected === 'TIME') {
-								console.log(" --- timeOut --- ");
 								this.server.to(client.id).emit('disconnection', 'DISCONNECTED: timeout, try later');
 							}
 							if (onrejected === 'BLOCKED') {
-								console.log(" --- bloked --- ");
 								this.server.to(client.id).emit('disconnection', 'DISCONNECTED: stop breaking my stuff');
 							}
 							newGameAlgo.watchers.forEach((watchersID) => {
@@ -129,7 +124,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			if (newGameDB) {
 				var newGameAlgo = new GameAlgo(this.gameService, this.server, newGameDB.game_id.toString(), Status.LOCKED);
 				this.gameMap.set( newGameDB.game_id.toString(), newGameAlgo); // we set it in the gameMap so the player2 will be able to find it.
-					console.log('created a new game --> ' + newGameDB.game_id.toString());
 					newGameAlgo.initPlayer1({
 						id: id ,
 						login: user,
@@ -153,19 +147,15 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 						this.gameService.eraseGameInvites(inviteId);
 					}).catch(onrejected => {
 						if (onrejected === '1') {
-							console.log(" --- p1 left --- ");
 							this.server.to(newGameAlgo.getPlayerSocketID(2)).emit('disconnection', `DISCONNECTED: ${newGameAlgo.getPlayerLogin(1)} quit the game :(`);
 						}
 						else if (onrejected === '2') {
-							console.log(" --- p2 left --- ");
 							this.server.to(newGameAlgo.getPlayerSocketID(1)).emit('disconnection', `DISCONNECTED: ${newGameAlgo.getPlayerLogin(2)} quit the game :(`);
 						}
 						if (onrejected === 'TIME') {
-							console.log(" --- timeOut --- " + newGameAlgo.roomID);
 							this.server.to(client.id).emit('disconnection', 'DISCONNECTED: timeout, try later');
 						}
 						if (onrejected === 'BLOCKED') {
-							console.log(" --- bloked --- ");
 							this.server.to(client.id).emit('disconnection', 'DISCONNECTED: stop breaking my stuff');
 						}
 						newGameAlgo.watchers.forEach((watchersID) => {
@@ -179,79 +169,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 					})
 			}
 		})
-/*
-		const findLockedGame = async (game: Map<string, GameAlgo>): Promise<boolean> => {
-			for (const [key, gameItem] of game) {
-				if (gameItem.getStatus() === Status.LOCKED) {
-					if (parseInt(gameItem.getPlayerID(1)) === p1Id || parseInt(gameItem.getPlayerID(1)) === p2Id)
-					{
-						gameItem.initPlayer2({
-							id: id ,
-							login: user,
-							avatar: (await this.gameService.getAvatarPath(id)).avatar,
-							socketID: client.id,
-							playerRole: "p1",
-							playerSocket: client,
-							isReady: false
-						});
-						console.log('adding player 2 --> ' + key);
-						return (false);
-					}
-				}
-			}
-			return true;
-		}
-	*/
-		/*
-		if (await findLockedGame(this.gameMap)) // NO LOCKED GAME FOUND (LOCKED MEANS LOCKED FOR A SPECIFIC USER)
-		{
-			const newGameDB = await this.gameService.registerNewGame('WAIT');
-			if (newGameDB) {
-				var newGameAlgo = new GameAlgo(this.gameService, this.server, newGameDB.game_id.toString(), Status.LOCKED);
-				this.gameMap.set( newGameDB.game_id.toString(), newGameAlgo); // we set it in the gameMap so the player2 will be able to find it.
-					console.log('created a new game --> ' + newGameDB.game_id.toString());
-					newGameAlgo.initPlayer1({
-						id: id ,
-						login: user,
-						avatar: (await this.gameService.getAvatarPath(id)).avatar,
-						socketID: client.id,
-						playerRole: "p1",
-						playerSocket: client,
-						isReady: false
-					}, undefined);
-
-					// then we launch the promise that will wait for all players to be properly set and settle
-					await newGameAlgo.launchGame().then( value => {
-						newGameAlgo.shutDownInternalEvents();
-						this.gameMap.delete(newGameAlgo.roomID);
-					}).catch(onrejected => {
-						if (onrejected === '1') {
-							console.log(" --- p1 left --- ");
-							this.server.to(newGameAlgo.getPlayerSocketID(2)).emit('disconnection', `DISCONNECTED: ${newGameAlgo.getPlayerLogin(1)} quit the game :(`);
-						}
-						else if (onrejected === '2') {
-							console.log(" --- p2 left --- ");
-							this.server.to(newGameAlgo.getPlayerSocketID(1)).emit('disconnection', `DISCONNECTED: ${newGameAlgo.getPlayerLogin(2)} quit the game :(`);
-						}
-						if (onrejected === 'TIME') {
-							console.log(" --- timeOut --- " + newGameAlgo.roomID);
-							this.server.to(client.id).emit('disconnection', 'DISCONNECTED: timeout, try later');
-						}
-						if (onrejected === 'BLOCKED') {
-							console.log(" --- bloked --- ");
-							this.server.to(client.id).emit('disconnection', 'DISCONNECTED: stop breaking my stuff');
-						}
-						newGameAlgo.watchers.forEach((watchersID) => {
-							if (watchersID)
-								this.server.to(watchersID.id).emit('disconnection', 'DISCONNECTED: one of the players got disconnected');
-						})
-						newGameAlgo.shutDownInternalEvents();
-						this.gameService.deleteGame(newGameAlgo.roomID); // deleteting from the DB
-						this.gameMap.delete(newGameAlgo.roomID); // deleteting from the running games
-					})
-			}
-		}
-		*/
 	}
 
 	@SubscribeMessage('getRuningGames')
@@ -307,22 +224,17 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 							game.playerChangeSocket(client, client.id, 2);
 						}
 						return;
-						// console.log(`---> ICI: ${Status.RUNNING} = ${game.getStatus()} | ${clientPayload.sub} === ${game.getPlayerID(0)} | ${clientPayload.sub} === ${game.getPlayerID(1)}`);
 					}
 				})
 			} catch (err) {
-				console.error("IN HANDLE CONNECTION: token is broke ->" + err);
-				console.log(`Client connected, token is : ${client.handshake.auth.token}`);
 				client.disconnect(true);
 			}
 		}
 	}
 
 	handleDisconnect(client: Socket) {
-		console.log(`Client disconnected: ${client.id}`);
 		for (let [key, value] of this.gameMap) {
 			if (value.getPlayerSocketID(1) === client.id && value.getStatus() === Status.ONE_PLAYER ){
-				console.log('disconecte form the stuff');
 				value.shutDownInternalEvents();
 				this.gameService.deleteGame(value.roomID);
 				this.gameMap.delete(value.roomID);
