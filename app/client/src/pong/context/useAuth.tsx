@@ -1,14 +1,15 @@
 import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
+	createContext,
+	ReactNode,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
 } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { originalRequest, refreshRequest, responseApi } from "../component/FetchApi"
 import axios from 'axios'
+import { io, Socket } from "socket.io-client";
 
 interface AuthContextType {
 	user: string;
@@ -41,7 +42,7 @@ const AuthContext = createContext<AuthContextType>(
 	{} as AuthContextType
 );
 
-export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
+export function AuthProvider({ children }: { children: ReactNode }): JSX.Element {
 
 	const [user, setUser] = useState<string>('');
 	const [id, setId] = useState<number>(0);
@@ -59,18 +60,18 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			setError(null);
 	}, [location.pathname]);
 
-	useEffect( () => {
+	useEffect(() => {
 
 		async function auth() {
 
 			try {
 
 
-				if ( (location.pathname === '/redirect' && location.search)
+				if ((location.pathname === '/redirect' && location.search)
 					|| location.pathname === '/aboutus'
-					|| location.pathname === '/contact' ) {
+					|| location.pathname === '/contact') {
 					navigate(location)
-					return ;
+					return;
 				}
 
 				const url = `http://${import.meta.env.VITE_SITE}/api/users/profile/auth`;
@@ -92,14 +93,14 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 						setId(0);
 						setToken('');
 						setIntraLogin('')
-						if ( location.pathname === '/login'
-							|| location.pathname === '/pong' )
+						if (location.pathname === '/login'
+							|| location.pathname === '/pong')
 							navigate('/login')
 						else if (location.pathname === '/signup')
 							navigate('/signup')
 						else
 							navigate('/');
-						return ;
+						return;
 					}
 					else {
 
@@ -116,8 +117,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 						setUser(response2.data['login']);
 						setId(response2.data['id'])
 
-						if ( location.pathname !== '/pong'
-							&& location.pathname !== '/chat'
+						if (location.pathname !== '/pong'
 							&& location.pathname !== '/')
 							navigate('/');
 
@@ -125,8 +125,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				} else {
 					setUser(response1.data['login']);
 					setId(response1.data['id'])
-					if ( location.pathname !== '/pong'
-						&& location.pathname !== '/chat'
+					if (location.pathname !== '/pong'
 						&& location.pathname !== '/')
 						navigate('/');
 				}
@@ -165,7 +164,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			} else {
 				navigate('/login')
 			}
-		} catch(err) {
+		} catch (err) {
 			console.log(err);
 		}
 		return ''
@@ -177,7 +176,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 		const requestOptions = {
 			method: "POST",
 			headers: {
-      			"Content-Type": "application/json",
+				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
 				intraLogin: intraLogin,
@@ -187,7 +186,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 		try {
 			const response = await fetch(url, requestOptions)
 			const data = await response.json()
-			if ( response.status === 201) {
+			if (response.status === 201) {
 				setUser(data['login'])
 				setId(data['id'])
 				setToken(data['aT']);
@@ -212,7 +211,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 							}
 						)
 
-					} catch(err) {
+					} catch (err) {
 						console.log(err)
 					}
 				}
@@ -220,7 +219,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				navigate('/pong')
 				return ''
 
-			} else if ( data['message'] === 'login unavailable') {
+			} else if (data['message'] === 'login unavailable') {
 				return data['message']
 			} else {
 
@@ -232,7 +231,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 			}
 
-		} catch(err) {
+		} catch (err) {
 			console.log(err);
 		} finally {
 			setLoading(true);
@@ -245,7 +244,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			method: "POST",
 			headers: {
 				'Content-Type': 'application/json',
-			 },
+			},
 			body: JSON.stringify({
 				login: login,
 				password: password,
@@ -254,11 +253,11 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 		try {
 
-			const {response, data} = await originalRequest({
+			const { response, data } = await originalRequest({
 				input: `http://${import.meta.env.VITE_SITE}/api/auth/signup`,
 				option: requestOptions,
 			});
-			if ( response.status === 201) {
+			if (response.status === 201) {
 				setUser(login);
 				setId(data['id'])
 				setToken(data['aT']);
@@ -283,7 +282,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 							}
 						)
 
-					} catch(err) {
+					} catch (err) {
 						console.log(err)
 					}
 				}
@@ -307,7 +306,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			method: "POST",
 			headers: {
 				'Content-Type': 'application/json',
-			 },
+			},
 			body: JSON.stringify({
 				login: login,
 				password: password,
@@ -316,11 +315,11 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 
 		try {
-			const {response, data} = await originalRequest({
+			const { response, data } = await originalRequest({
 				input: `http://${import.meta.env.VITE_SITE}/api/auth/signin`,
 				option: requestOptions,
 			});
-			if ( response.status === 201) {
+			if (response.status === 201) {
 				if (data['aT'] === '2faActivate') {
 					setUser(login);
 					setId(data['id']);
@@ -356,13 +355,13 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 				}
 			);
 
-			if ( response.status === 201) {
+			if (response.status === 201) {
 				setUser('');
 				setToken('');
 				setId(0);
 				setIntraLogin('')
 				navigate('/')
-				return ;
+				return;
 			}
 
 		} catch (err) {
@@ -373,7 +372,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 	async function twoFA(url: string) {
 
 		try {
-			const response = await fetch( url, { method: 'POST'} )
+			const response = await fetch(url, { method: 'POST' })
 			const data = await response.json()
 			if (response.status == 200) {
 				setToken(data['aT']);
@@ -385,6 +384,7 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 			console.log(err)
 		}
 	}
+
 
 	const memoValue = useMemo(
 		() => ({
@@ -412,14 +412,14 @@ export function AuthProvider({children}: {children: ReactNode}): JSX.Element {
 
 	return (
 		<AuthContext.Provider value={memoValue}>
-		  {!loadingInitial && children}
+			{!loadingInitial && children}
 		</AuthContext.Provider>
-  );
+	);
 }
 
 export function useFetchAuth() {
-	const {token, setToken, setId, setUser, setIntraLogin, navigate } = useContext(AuthContext);
-	return {token, setToken, setId, setUser, setIntraLogin, navigate};
+	const { token, setToken, setId, setUser, setIntraLogin, navigate } = useContext(AuthContext);
+	return { token, setToken, setId, setUser, setIntraLogin, navigate };
 }
 
 export default function useAuth() {

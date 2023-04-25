@@ -19,6 +19,8 @@ import { TwofaModule } from './twofa/twofa.module';
 import { GameAlgo } from './game/game.algo';
 import { FriendsService } from './chat/friends/friends.service';
 import { MuteService } from './chat/rooms/mute.service';
+import { StatusGateway } from './status/status.gateway';
+import { StatusService } from './status/status.service';
 
 @Module({
   imports: [
@@ -42,6 +44,8 @@ import { MuteService } from './chat/rooms/mute.service';
 	  GameGateway,
 	  GameAlgo,
 	  FriendsService,
+	  StatusService,
+	  StatusGateway
   ],
 })
 export class AppModule {}

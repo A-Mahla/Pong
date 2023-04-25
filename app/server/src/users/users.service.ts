@@ -349,6 +349,51 @@ export class UsersService {
 		})
 
 	}
+
+	async connect(userId: number) {
+
+		return await this.prisma.user.update({
+			where: {
+				id: userId
+			},
+			data: {
+				status: 'online'
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+	}
+
+	async disconnect(userId: number) {
+
+
+		return await this.prisma.user.update({
+			where: {
+				id: userId
+			},
+			data: {
+				status: 'offline'
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+	}
+
+	async inGame(userId: number) {
+
+		return await this.prisma.user.update({
+			where: {
+				id: userId
+			},
+			data: {
+				status: 'inGame'
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+	}
 }
 
 /* ============================ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ========================*/

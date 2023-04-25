@@ -1,6 +1,6 @@
 import { ThemeProvider, createTheme } from '@mui/material';
 import { Redirect } from './component/Oauth2';
-import  MainPage  from './page/MainPage';
+import MainPage from './page/MainPage';
 import LeadPage from './page/LeadPage';
 import AboutUs from './page/AboutUs';
 import Contact from './page/Contact';
@@ -39,22 +39,21 @@ export const Pong = () => {
 
 	return (
 		<>
-		<ThemeProvider theme={theme}>
-			<BrowserRouter>
-				<AuthProvider>
-					<Routes>
-						<Route path='/' element={<MainPage/>} />
-						<Route path='/aboutus' element={<AboutUs/>} />
-						<Route path='/contact' element={<Contact/>} />
-						<Route path='/chat' element={<ChatSocketProvider/>} />
-						<Route path='/login' element={<Login/>}/>
-						<Route path='/signup' element={<SignUp/>}/>
-						<Route path='/pong' element={<LeadPage/>} />
-						<Route path="/redirect" element={<Redirect/>} />
-					</Routes>
-				</AuthProvider>
-			</BrowserRouter>
-		</ThemeProvider>
+			<ThemeProvider theme={theme}>
+				<BrowserRouter>
+					<AuthProvider>
+						<Routes>
+							<Route path='/' element={<MainPage />} />
+							<Route path='/aboutus' element={<AboutUs />} />
+							<Route path='/contact' element={<Contact />} />
+							{/*  */}<Route path='/login' element={<Login />} />
+							<Route path='/signup' element={<SignUp />} />
+							<Route path='/pong' element={<LeadPage />} />
+							<Route path="/redirect" element={<Redirect />} />
+						</Routes>
+					</AuthProvider>
+				</BrowserRouter>
+			</ThemeProvider>
 		</>
 	)
 }

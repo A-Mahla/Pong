@@ -22,6 +22,7 @@ model User {
   refreshToken          String?
   twoFA                 String?
   isTwoFA               Boolean          @default(false)
+  status                String           @default("offline")
   games                 User_Game[]
   ownedRooms            Room[]           @relation("RoomOwner")
   member                User_Room[]      @relation("RoomMember")
