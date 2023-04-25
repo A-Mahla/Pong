@@ -321,6 +321,7 @@ export const BannedUserListItem = ({ user, id, currentRoom, onClick }: { user: U
 		setIsSendingRequest(true);
 
 		const banData = {
+			sender_id: id,
 			room_id: currentRoom.id,
 			room_name: currentRoom.name,
 			user_id: user.id
