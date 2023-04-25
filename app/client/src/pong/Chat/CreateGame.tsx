@@ -31,7 +31,8 @@ export function JoinQueuButtonChat({player2, player2Id, openDialog, setOpenDialo
 		receiver_login: player2,
 		ballSpeed: '7',
 		paddleSize: '100',
-		duration: '3750'
+		duration: '3750',
+		funnyPong: false
 	})
 
   const handlePaddleSizeLevel = (event: any) => {
@@ -95,6 +96,14 @@ export function JoinQueuButtonChat({player2, player2Id, openDialog, setOpenDialo
 			}
 		}
 	};
+
+	const handleFunnyPong = (event: any) => {
+		if (playerPayload) {
+			setPlayerPayload({...playerPayload,
+				funnyPong: (event.target.value === 'true')
+			})
+		}
+	}
 
 	const handleClose = () => {
 		setOpenDialog(false);
@@ -172,32 +181,39 @@ export function JoinQueuButtonChat({player2, player2Id, openDialog, setOpenDialo
 
 					<Grid item xs={4} sx={{height: '100%'}}>
 						<Grid
-							sx={{height: '33%'}}
+							sx={{height: '25%'}}
 							display="flex"
 							alignItems="center"
 						>
 							<Typography fontSize="1.3rem">ball speed</Typography>
 						</Grid>
 						<Grid
-							sx={{height: '33%'}}
+							sx={{height: '25%'}}
 							display="flex"
 							alignItems="center"
 						>
 							<Typography fontSize="1.3rem">paddle size</Typography>
 						</Grid>
 						<Grid
-							sx={{height: '33%'}}
+							sx={{height: '25%'}}
 							display="flex"
 							alignItems="center"
 						>
 							<Typography fontSize="1.3rem">duration</Typography>
+						</Grid>
+						<Grid
+							sx={{height: '25%'}}
+							display="flex"
+							alignItems="center"
+						>
+							<Typography fontSize="1.3rem">funnyPOng</Typography>
 						</Grid>
 					</Grid>
 
 					<Grid item xs={7} sx={{height: '100%'}}>
 						<FormGroup style={{ display: 'flex', height: '100%'}}>
 							<Grid
-								sx={{height: '33%'}}
+								sx={{height: '25%'}}
 								display="flex"
 								alignItems="center"
 								justifyContent="center"
@@ -236,7 +252,7 @@ export function JoinQueuButtonChat({player2, player2Id, openDialog, setOpenDialo
 								/>
 							</Grid>
 							<Grid
-								sx={{height: '33%'}}
+								sx={{height: '25%'}}
 								display="flex"
 								alignItems="center"
 								justifyContent="center"
@@ -275,7 +291,7 @@ export function JoinQueuButtonChat({player2, player2Id, openDialog, setOpenDialo
 								/>
 							</Grid>
 							<Grid
-								sx={{height: '33%'}}
+								sx={{height: '25%'}}
 								display="flex"
 								alignItems="center"
 								justifyContent="center"
@@ -312,6 +328,36 @@ export function JoinQueuButtonChat({player2, player2Id, openDialog, setOpenDialo
 									}
 									label="2:00m"
 								/>
+							</Grid>
+							<Grid
+								sx={{height: '25%'}}
+								display="flex"
+								alignItems="center"
+								justifyContent="center"
+							>
+
+							<FormControlLabel
+									control={
+										<Radio
+											checked={playerPayload.funnyPong === true}
+											onClick={handleFunnyPong}
+											value={true}
+										/>
+									}
+									label="true"
+										style={{ marginRight: '16px' }}
+							/>
+							<FormControlLabel
+								control={
+										<Radio
+											checked={playerPayload.funnyPong === false}
+											onClick={handleFunnyPong}
+											value={false}
+										/>
+									}
+									label="false"
+									style={{ marginRight: '16px' }}
+							/>
 							</Grid>
 						</FormGroup>
 					</Grid>
