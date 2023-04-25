@@ -2,16 +2,19 @@ import React, { useContext, useEffect, useState } from 'react'
 import { BannedUserListItem, RoomPasswordControl, SettingsButtonWrapper, UserListItem, UserListType, UserListWrapper } from './ControlButtonUtils'
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Grid } from '@mui/material'
 import SettingsIcon from '@mui/icons-material/Settings';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import { ChatContext } from './Chat';
 import { FetchApi } from '../component/FetchApi';
 import useAuth, { useFetchAuth } from '../context/useAuth';
 import { User } from './Chat.types';
 import { socket } from './Socket';
+import { JoinQueuButton } from './CreateGame';
 
 export function SettingsButtton() {
 
 	const { current, target, setTarget } = useContext(ChatContext)
 	const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false)
+	const [isInviteGameOpen, setIsInviteGameOpen] = useState<boolean>(false)
 	const [members, setMembers] = useState<User[]>([])
 	const [bannedUsers, setBannedUsers] = useState<User[]>([])
 	const [adminMembers, setAdminMembers] = useState<User[]>([])
@@ -155,14 +158,30 @@ export function SettingsButtton() {
 		socket.emit('blockUser', BlockUserData, (response: any) => (console.log('blockUser Response: ', response)))
 
 		console.log(`you blocked ${target.login}`)
-		setTarget({id: 0, login: '', avatar: ''})
+		setTarget({ id: 0, login: '', avatar: '' })
+	}
+
+	const handleInviteGameButtonClick = () => {
+		setIsInviteGameOpen(true)
 	}
 
 	return (
 		<div>
-			<SettingsButtonWrapper onClick={handleSettingsButtonClick} >
-				<SettingsIcon />
-			</SettingsButtonWrapper>
+			<Box sx={{ display: 'flex' }}>
+				{
+					target.id !== 0 ?
+						<SettingsButtonWrapper onClick={handleInviteGameButtonClick} >
+							<SportsEsportsIcon />
+						</SettingsButtonWrapper>
+						:
+						null
+
+				}
+				<SettingsButtonWrapper onClick={handleSettingsButtonClick} >
+					<SettingsIcon />
+				</SettingsButtonWrapper>
+
+			</Box>
 			<Dialog open={isSettingsOpen} onClose={handleSettingsButtonClose}
 				fullWidth
 				maxWidth="xs"
@@ -186,14 +205,14 @@ export function SettingsButtton() {
 								{
 									id === current.ownerId || adminMembers.find(admin => admin.id === id) ?
 
-										<Button sx={{ backgroundColor: (displayList === UserListType.BANNED) ? '#f2f2f2' : 'transparent', flex: '1', borderRadius: 0  }} onClick={() => setDisplayList(UserListType.BANNED)}>Banned</Button>
+										<Button sx={{ backgroundColor: (displayList === UserListType.BANNED) ? '#f2f2f2' : 'transparent', flex: '1', borderRadius: 0 }} onClick={() => setDisplayList(UserListType.BANNED)}>Banned</Button>
 										:
 										null
 
 								}
 								{
 									id === current.ownerId ?
-										<Button sx={{ backgroundColor: (displayList === UserListType.CONTROL) ? '#f2f2f2' : 'transparent', flex: '1', borderRadius: 0  }} onClick={() => setDisplayList(UserListType.CONTROL)}>CONTROL</Button>
+										<Button sx={{ backgroundColor: (displayList === UserListType.CONTROL) ? '#f2f2f2' : 'transparent', flex: '1', borderRadius: 0 }} onClick={() => setDisplayList(UserListType.CONTROL)}>CONTROL</Button>
 										:
 										null
 								}
@@ -225,9 +244,9 @@ export function SettingsButtton() {
 									settings
 								</DialogTitle>
 								<DialogContent>
-									<Box sx={{height: '10rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-										<Button sx={{ borderRadius: '20px', backgroundColor: '#f2f2f9', margin: '0.5rem', p: '0.5rem'}} onClick={handleRemoveFromFriend}>remove from friends</Button>
-										<Button sx={{ borderRadius: '20px', backgroundColor: '#f2f2f9', margin: '0.5rem', p: '0.5rem'}} onClick={handleBlockUser}>block</Button>
+									<Box sx={{ height: '10rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+										<Button sx={{ borderRadius: '20px', backgroundColor: '#f2f2f9', margin: '0.5rem', p: '0.5rem' }} onClick={handleRemoveFromFriend}>remove from friends</Button>
+										<Button sx={{ borderRadius: '20px', backgroundColor: '#f2f2f9', margin: '0.5rem', p: '0.5rem' }} onClick={handleBlockUser}>block</Button>
 									</Box>
 								</DialogContent>
 							</div>
@@ -242,6 +261,7 @@ export function SettingsButtton() {
 					<Button onClick={handleSettingsButtonClose} sx={{ borderRadius: '20px' }}>Cancel</Button>
 				</DialogActions>
 			</Dialog>
+			<JoinQueuButton player2={target.login} player2Id={target.id} openDialog={isInviteGameOpen} setOpenDialog={setIsInviteGameOpen}/>
 		</div>
 	)
 }

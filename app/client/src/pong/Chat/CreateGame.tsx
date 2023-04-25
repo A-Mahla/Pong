@@ -2,7 +2,6 @@ import * as React from 'react'
 import { Typography, Box, Divider } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import useAuth from '../context/useAuth'
-import './game.css'
 import { useState } from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { Radio, FormControlLabel, FormGroup } from '@mui/material';
@@ -27,7 +26,7 @@ type PlayerPayload = {
 	}
 }
 
-function JoinQueuButton({player2, player2Id, openDialog, setOpenDialog}: CreateMatchProps) {
+export function JoinQueuButton({player2, player2Id, openDialog, setOpenDialog}: CreateMatchProps) {
 
 	/**
 	 * Sur le Onclick du bouton JOIN, il faut faire un POST de playerPayload sur la route:
