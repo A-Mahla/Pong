@@ -114,6 +114,7 @@ export const GameFriends = ({socket, thereIsMatch, handleThereIsMatch, openFrien
 		const paddleSize = game.paddleSize;
 		const duration = game.duration;
 		const funnyPong = game.funnyPong
+		console.log('++++++++++   ' + game.receiver_avatar + " ---- " + game.sender_avatar)
 		socket.emit('friendMatchMaking', { inviteId, p1Id, p2Id, id, user, ballSpeed, paddleSize, duration, funnyPong })
 		if (!thereIsMatch)
 			handleThereIsMatch()
@@ -135,7 +136,6 @@ export const GameFriends = ({socket, thereIsMatch, handleThereIsMatch, openFrien
 					auth: auth,
 			})
 			setFriendList(response!.data)
-
 		}
 		if (openFriends) {
 			fetching();

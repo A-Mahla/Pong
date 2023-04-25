@@ -131,8 +131,6 @@ export function JoinQueuButtonChat({player2, player2Id, openDialog, setOpenDialo
 			})
 	}
 
-
-
 	return (
 		<>
 			<Dialog

@@ -134,8 +134,10 @@ export type matchHistoryPayload = {
 export type InviteGameData = {
 	sender_id: number,
 	sender_login: string,
+	sender_avatar?:string,
 	receiver_id: number,
 	receiver_login: string,
+	receiver_avatar?:string,
 	ballSpeed: string,
 	paddleSize: string,
 	duration: string,

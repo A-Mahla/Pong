@@ -223,7 +223,8 @@ export class GameService {
 	}
 
 	async getGamesInvites(user_id: number){
-		return this.prisma.gamesInvites.findMany({
+
+		const inviteList: InviteGameData[] = await this.prisma.gamesInvites.findMany({
 			where: {
 				OR: [
 					{ sender_id: user_id },
@@ -231,6 +232,7 @@ export class GameService {
 				],
 			},
 		});
+		return inviteList
 	}
 
 	async eraseGameInvites(inviteID: number) {
@@ -239,6 +241,8 @@ export class GameService {
 			where: {
 				id: inviteID
 			}
+		}).catch((e: any) => {
+			throw new BadRequestException(); // maybe we will have to specifie the error later
 		})
 		);
 	}

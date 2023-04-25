@@ -95,13 +95,23 @@ export class GameController {
 		if (!req.user.sub)
 			throw BadRequestException;
 		const test = await this.gameService.getGamesInvites(req.user.sub);
-		// console.log(test);
-		return test;
+		const cradoFunction = async (): Promise<InviteGameData[]> => {
+			for (let i: number = 0;i < test.length;i++)
+			{
+				test[i] = {...test[i],
+							sender_avatar: (await this.gameService.getAvatarPath(test[i].sender_id)).avatar,
+							receiver_avatar: (await this.gameService.getAvatarPath(test[i].receiver_id)).avatar
+				}
+			}
+			return test;
+		}
+		const test2 = await cradoFunction()
+		return test2;
 	}
 
 //	======================== Getting raw stats about a player game ================
 
-	//@UseGuards(JwtAuthGuard)
+//@UseGuards(JwtAuthGuard)
 	@Get('stats/nbGames/:id')
 	async getnbGames(@Param('id') user_id: number) {
 		return (this.gameService.getNbGames(user_id));
