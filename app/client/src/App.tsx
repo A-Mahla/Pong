@@ -7,7 +7,7 @@ import { useEffect } from 'react'
 function App() {
 
 	useEffect(() => {
-		const particles = Particles.init({
+		/*const particles =*/ Particles.init({
 			selector: '.background',
 			maxParticles: 150,
 //			color: '#aeb6bf',

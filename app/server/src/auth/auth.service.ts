@@ -153,15 +153,6 @@ export class AuthService {
 		const code = client_code;
 		const redirect_uri = `http://localhost:8080/redirect`;
 
-	/*	console.log('code: ', code)
-		console.log('https://api.intra.42.fr/v2/oauth/token?' +
-		`grant_type=${grant_type}&` +
-		`client_id=${client_id}&` +
-		`client_secret=${client_secret}&` +
-		`code=${code}&` +
-		`redirect_uri=${redirect_uri}`);
-		*/
-
 		const response = await fetch('https://api.intra.42.fr/v2/oauth/token?' +
 		`grant_type=${grant_type}&` +
 		`client_id=${client_id}&` +

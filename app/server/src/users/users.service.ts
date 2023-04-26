@@ -98,7 +98,6 @@ export class UsersService {
 			where: { login: login },
 			data: { refreshToken: refreshToken }
 		}).catch((e) => {
-			console.log(e);
 			throw new BadRequestException(); // maybe we will have to specifie the error later
 		});
 	}
@@ -133,7 +132,6 @@ export class UsersService {
 		}).catch((e) => {
 			if (e instanceof Prisma.PrismaClientKnownRequestError) {
 				if (e.code === 'P2002') {
-					console.log('unique constraint violation')
 					throw new BadRequestException('login unavailable');
 				}
 			}
@@ -396,7 +394,7 @@ export class UsersService {
 	}
 
 	async getStatus(userId: number) {
-	
+
 		const user = await this.prisma.user.findUnique({
 			 where: {
 				id: userId
@@ -407,8 +405,6 @@ export class UsersService {
 		}).catch((e) => {
 			throw new BadRequestException(e);
 		})
-
-		console.log('user: ', user)
 
 		//return user?.status
 		return user
