@@ -45,6 +45,11 @@ import { RoomsService } from 'src/chat/rooms/rooms.service';
 import { User } from '@prisma/client';
 import * as fs from 'fs';
 import { FriendsService } from 'src/chat/friends/friends.service';
+import {
+	PasswordValidationPipe,
+	LoginValidationPipe,
+	LoginPasswordValidationPipe
+} from './users.pipes'
 
 
 @Controller('users')
@@ -53,11 +58,6 @@ export class UsersController {
 	constructor(private userService: UsersService,
 		private roomService : RoomsService,
 		private readonly friendService: FriendsService) {}
-
-/*	@Get()
-	async getUsers() { // return all users
-		return await this.userService.findUsers();
-	}*/
 
 	@UseGuards(LocalAuthGuard)
 	@Get('login')
@@ -75,15 +75,6 @@ export class UsersController {
 	async handleSearchLogin(@Param('login') login: string) {
 		return await this.userService.searchManyUsers(login)
 	}
-
-
-	/*@UseGuards(JwtAuthGuard)
-	@Get(':login')
-	async getUsersbyId(
-		@Param('login') login: string
-	) {
-		return await this.userService.findOneUser(login);
-	}*/
 
 //	====================== POST AND GET AVATAR ===================
 
@@ -175,7 +166,7 @@ export class UsersController {
 	@Post('profile/pass')
 	async changePassword(
 		@Request() req: any,
-		@Body() updateUserPass: UpdateUserDtoPass
+		@Body(PasswordValidationPipe) updateUserPass: UpdateUserDtoPass
 	) {
 		return this.userService.updatePass(req.user.login, updateUserPass);
 	}
@@ -208,7 +199,7 @@ export class UsersController {
 	@Put(':login')
 	async updateUserById(
 		@Param('login') login: string,
-		@Body() updateUserDto: UpdateUserDto
+		@Body(LoginValidationPipe) updateUserDto: UpdateUserDto
 	) {
 		await this.userService.updateUser(login, updateUserDto);
 	}
@@ -218,7 +209,7 @@ export class UsersController {
 	@Patch(':login')
 	async updatePatchUserById(
 		@Param('login') login: string,
-		@Body() updateUserDto: UpdateUserDto
+		@Body(LoginValidationPipe) updateUserDto: UpdateUserDto
 	) {
 		await this.userService.updateUser(login, updateUserDto);
 	}
@@ -251,20 +242,4 @@ export class UsersController {
 		return this.userService.getBlockedUsers(req.user.sub)
 	}
 
-	//@UseGuards(JwtAuthGuard)
-	//@Patch('/:login/:roomId')
-	//async addRoom(
-	//	@Param('login') login : string,
-	//	@Param('roomId') roomId : number
-	//	)
-	//{
-	//	const user = await this.userService.findOneUser(login)
-
-	//	const room = await this.roomService.getRoomById(roomId)
-
-	//	console.log('user: ', user);
-	//	console.log('room: ', room);
-
-	//	return this.userService.joinRoom(user?.id as number, room?.room_id as number)
-	//}
 }
