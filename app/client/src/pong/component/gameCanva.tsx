@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 import { useFetchAuth } from '../context/useAuth'
 import { FetchApi, Api, responseApi } from '../component/FetchApi'
 import useAuth from '../context/useAuth'
-import io, {Socket} from "socket.io-client";
+import io, { Socket } from "socket.io-client";
 // import '../page/game.css'
 import { StatusContext } from '../page/LeadPage'
 import { render } from 'react-dom'
@@ -34,10 +34,10 @@ const ENDGAMEFONT = 180;
 
 
 
-const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Socket, handleThereIsMatch: () => void, handleThereIsError: (errorstr: string) => void}) => {
+const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: { socket: Socket, handleThereIsMatch: () => void, handleThereIsError: (errorstr: string) => void }) => {
 	// ref to the html5 canvas on wich we will draw
 	const canvas = React.useRef<HTMLCanvasElement | null>(null); // reference/pointer on html5 canvas element, so you can draw on it
-	const socketStatus = React.useContext(StatusContext);
+	const { socketStatus } = React.useContext(StatusContext);
 	const [game, setGame] = React.useState<boolean>(false);
 	const [fetched, setFetched] = React.useState<boolean>(false);
 	const [gameContext, setGameContext] = React.useState<constants>();
@@ -46,7 +46,8 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 
 	const quitGame = async () => {
 		socket.emit('quitGame');
-		socketStatus.emit('outGame', id);
+		if (socketStatus)
+			socketStatus.emit('outGame', id);
 		handleThereIsMatch()
 	}
 
@@ -60,10 +61,10 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 	const canvaResize = async () => {
 		const testTimeout = setTimeout(() => {
 			if (canvas.current) {
-	//			canvas.current.width = document.documentElement.clientWidth * 0.70;
+				//			canvas.current.width = document.documentElement.clientWidth * 0.70;
 				canvas.current.width = document.documentElement.clientWidth < 1300 ?
-							Math.floor((document.documentElement.clientWidth * 0.70))
-							: 1300 * 0.70
+					Math.floor((document.documentElement.clientWidth * 0.70))
+					: 1300 * 0.70
 				canvas.current.height = canvas.current.width * 0.533;
 			}
 			setGameContext(undefined);
@@ -76,7 +77,7 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 	const handleMouseMove = React.useMemo(() => {
 		const canvasElement = canvas.current
 
-			if (gameContext && game && canvasElement) {
+		if (gameContext && game && canvasElement) {
 			const sendPos = (y: number) => {
 				socket.volatile.emit("paddlePos", y);
 			}
@@ -108,10 +109,12 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 			socket.on("initSetup", (gameData: GameData) => {
 				setFetched(true); // we know here that we receive the initSetup from back so we are sure there is a match
 				setGameData(gameData); // we set here the const of the game like the players logins and paddle size
-				socketStatus.emit('inGame', id);
+				if (socketStatus)
+					socketStatus.emit('inGame', id);
 			})
 			socket.on('disconnection', (errorMessage: string) => {
-				socketStatus.emit('outGame', id);
+				if (socketStatus)
+					socketStatus.emit('outGame', id);
 				handleThereIsError(errorMessage);
 			})
 
@@ -126,8 +129,7 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 
 	//set the game constants (gameContext) and draw the the initial set up and register the other listenner that will be send during the game
 	React.useEffect(() => {
-		if (gameData && game && canvas.current && !gameContext)
-		{
+		if (gameData && game && canvas.current && !gameContext) {
 			setGameContext({
 				gameDuration: gameData.roomInfo.duration,
 				margin: Math.floor((canvas.current.width * 5) / CANVAS_WIDTH),
@@ -148,7 +150,7 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 		if (gameData && gameContext && game) {
 
 			// drawing the init setUp
-			draw( canvas.current, {
+			draw(canvas.current, {
 				timer: gameData.roomInfo.timer,
 				countDown: gameData.roomInfo.countDown,
 				p1y: gameData.player1.y,
@@ -157,7 +159,7 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 				p2score: gameData.player2.score,
 				bx: gameData.ball.x,
 				by: gameData.ball.y,
-			}, gameContext );
+			}, gameContext);
 
 			// registering the other event listener
 			socket.on("updateClient", (gameData: updateData) => {
@@ -182,140 +184,140 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 
 	return (
 		<>
-		{!fetched ?
-			(<>
-				<Grid container
-					direction="column"
-					justifyContent="center"
-					alignItems="center"
-					sx={{height: "95%"}}
-				>
-					<Grid  sx={{height: "20%"}}>
-					<Typography variant="h3"
-						style={{color: '#919090'}}
-					>
-						Game Matching...
-					</Typography>
-					</Grid>
-					<Grid sx={{height: '10%', width: '75%', color: "#919090" }}>
-						 <LinearProgress color="inherit" />
-					</Grid>
-
-				</Grid>
-				</>) : (<>
-				<Grid container
-					direction="column"
-					justifyContent="center"
-					sx={{maxWidth: '1200px'}}
-				>
+			{!fetched ?
+				(<>
 					<Grid container
-						direction="row"
-						sx={{height: '5rem', mb: 4}}
-					>
-						<Grid item
-							display="flex"
-							xs={5}
-							sx={{height: '100%'}}
-						>
-							<Grid item xs={6}
-								display="flex"
-								alignItems="center"
-								justifyContent="center"
-								sx={{height: '100%'}}
-							>
-								<FetchAvatar
-									avatar={gameData?.player1.avatar}
-									sx={{height: '5rem', width: '5rem'}}
-								/>
-							</Grid>
-							<Grid item xs={6}
-								alignItems="center"
-								display="flex"
-								justifyContent="center"
-								sx={{
-									height: '100%',
-								}}
-							>
-								<Typography
-									sx={{
-										'@media (max-width: 550px)': {
-											display: "none"
-										}
-									}}
-								>
-									{gameData?.player1.login}
-								</Typography>
-							</Grid>
-						</Grid>
-						<Grid item xs={2}
-							display="flex"
-							alignItems="center"
-							justifyContent="center"
-							sx={{height: '100%'}}
-						>
-							<Typography variant='h6'>VS</Typography>
-						</Grid>
-						<Grid item
-							display="flex"
-							xs={5}
-							sx={{height: '100%'}}
-						>
-							<Grid item xs={6}
-								display="flex"
-								alignItems="center"
-								justifyContent="center"
-								sx={{
-									height: '100%',
-								}}
-							>
-								<Typography
-									sx={{
-										'@media (max-width: 550px)': {
-											display: "none"
-										}
-									}}
-								>
-									{gameData?.player2.login}
-								</Typography>
-							</Grid>
-							<Grid item xs={6}
-								display="flex"
-								alignItems="center"
-								justifyContent="center"
-								sx={{height: '100%'}}
-							>
-								<FetchAvatar
-									avatar={gameData?.player2.avatar}
-									sx={{height: '5rem', width: '5rem'}}
-								/>
-							</Grid>
-						</Grid>
-					</Grid>
-					<Grid item xs={12}
-						display="flex"
+						direction="column"
 						justifyContent="center"
 						alignItems="center"
-						sx={{width: '100%', height:"32rem", mb: 4}}
+						sx={{ height: "95%" }}
 					>
-						<canvas
-							onMouseMove={handleMouseMove}
-							ref={gameCanvas}
-							height={ document.documentElement.clientWidth < 1300 ?
-								Math.floor((document.documentElement.clientWidth * 0.70) * 0.533)
-								: (1250 * 0.70) * 0.533
-							}
-							width={ document.documentElement.clientWidth < 1300 ?
-								Math.floor((document.documentElement.clientWidth * 0.70))
-								: 1250 * 0.70
-							}
-						/>
+						<Grid sx={{ height: "20%" }}>
+							<Typography variant="h3"
+								style={{ color: '#919090' }}
+							>
+								Game Matching...
+							</Typography>
+						</Grid>
+						<Grid sx={{ height: '10%', width: '75%', color: "#919090" }}>
+							<LinearProgress color="inherit" />
+						</Grid>
+
 					</Grid>
+				</>) : (<>
 					<Grid container
-						display="flex"
-						alignItems="center"
-						justifyContent="flex-end"
-						sx={{height:"3rem"}}
+						direction="column"
+						justifyContent="center"
+						sx={{ maxWidth: '1200px' }}
 					>
+						<Grid container
+							direction="row"
+							sx={{ height: '5rem', mb: 4 }}
+						>
+							<Grid item
+								display="flex"
+								xs={5}
+								sx={{ height: '100%' }}
+							>
+								<Grid item xs={6}
+									display="flex"
+									alignItems="center"
+									justifyContent="center"
+									sx={{ height: '100%' }}
+								>
+									<FetchAvatar
+										avatar={gameData?.player1.avatar}
+										sx={{ height: '5rem', width: '5rem' }}
+									/>
+								</Grid>
+								<Grid item xs={6}
+									alignItems="center"
+									display="flex"
+									justifyContent="center"
+									sx={{
+										height: '100%',
+									}}
+								>
+									<Typography
+										sx={{
+											'@media (max-width: 550px)': {
+												display: "none"
+											}
+										}}
+									>
+										{gameData?.player1.login}
+									</Typography>
+								</Grid>
+							</Grid>
+							<Grid item xs={2}
+								display="flex"
+								alignItems="center"
+								justifyContent="center"
+								sx={{ height: '100%' }}
+							>
+								<Typography variant='h6'>VS</Typography>
+							</Grid>
+							<Grid item
+								display="flex"
+								xs={5}
+								sx={{ height: '100%' }}
+							>
+								<Grid item xs={6}
+									display="flex"
+									alignItems="center"
+									justifyContent="center"
+									sx={{
+										height: '100%',
+									}}
+								>
+									<Typography
+										sx={{
+											'@media (max-width: 550px)': {
+												display: "none"
+											}
+										}}
+									>
+										{gameData?.player2.login}
+									</Typography>
+								</Grid>
+								<Grid item xs={6}
+									display="flex"
+									alignItems="center"
+									justifyContent="center"
+									sx={{ height: '100%' }}
+								>
+									<FetchAvatar
+										avatar={gameData?.player2.avatar}
+										sx={{ height: '5rem', width: '5rem' }}
+									/>
+								</Grid>
+							</Grid>
+						</Grid>
+						<Grid item xs={12}
+							display="flex"
+							justifyContent="center"
+							alignItems="center"
+							sx={{ width: '100%', height: "32rem", mb: 4 }}
+						>
+							<canvas
+								onMouseMove={handleMouseMove}
+								ref={gameCanvas}
+								height={document.documentElement.clientWidth < 1300 ?
+									Math.floor((document.documentElement.clientWidth * 0.70) * 0.533)
+									: (1250 * 0.70) * 0.533
+								}
+								width={document.documentElement.clientWidth < 1300 ?
+									Math.floor((document.documentElement.clientWidth * 0.70))
+									: 1250 * 0.70
+								}
+							/>
+						</Grid>
+						<Grid container
+							display="flex"
+							alignItems="center"
+							justifyContent="flex-end"
+							sx={{ height: "3rem" }}
+						>
 							<Button
 								variant="outlined"
 								onClick={quitGame}
@@ -325,13 +327,13 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 									}
 								}}
 							>
-									QUIT GAME
+								QUIT GAME
 							</Button>
-					</Grid>
+						</Grid>
 
-				</Grid>
-			</>)
-		}
+					</Grid>
+				</>)
+			}
 		</>
 	);
 };

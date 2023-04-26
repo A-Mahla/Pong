@@ -1,21 +1,47 @@
 import { Injectable } from '@nestjs/common'
+import { FriendsService } from 'src/chat/friends/friends.service';
 import { UsersService } from 'src/users/users.service';
+import { Server } from 'socket.io'
 
 @Injectable()
 export class StatusService {
 	constructor(
-		private readonly userService: UsersService
-	) {}
+		private readonly userService: UsersService,
+		private readonly friendService: FriendsService
+	) { }
 
-	async connectUser(userId: number) {
-		return await this.userService.connect(userId)
+	async connectUser(server: Server, userId: number) {
+		const friendsIds = await this.friendService.getFriendsIds(userId)
+
+		await this.userService.connect(userId)
+
+
+		if (friendsIds.length) {
+			console.log('friendsIds: ', friendsIds)
+			//for (let id of friendsIds) {
+			//	server.to(id).emit('friendOnline', userId)
+			//}
+			server.to(friendsIds).emit('friendOnline', userId)
+
+		}
+
 	}
 
-	async disconnectUser(userId: number) {
-		return await this.userService.disconnect(userId)
+	async disconnectUser(server: Server, userId: number) {
+		const friendsIds = await this.friendService.getFriendsIds(userId)
+
+		await this.userService.disconnect(userId)
+
+		if (friendsIds.length)
+			server.to(friendsIds).emit('friendOffline', userId)
 	}
 
-	async inGame(userId: number) {
-		return await this.userService.inGame(userId)
+	async inGame(server: Server, userId: number) {
+		const friendsIds = await this.friendService.getFriendsIds(userId)
+
+		await this.userService.inGame(userId)
+
+		if (friendsIds.length)
+			server.to(friendsIds).emit('friendInGame', userId)
 	}
 }

@@ -313,4 +313,85 @@ export class FriendsService {
 		})
 
 	}
+
+	async getFriendsStatus(userId: number) {
+		const friends = await this.prisma.user.findUnique({
+			where: {
+				id: userId,
+			},
+			select: {
+				user1Friends: {
+					select: {
+						user2: {
+							select: {
+								id: true,
+								status: true
+							}
+						}
+					}
+				},
+
+				user2Friends: {
+					select: {
+						user1: {
+							select: {
+								id: true,
+								status: true
+							}
+						}
+					}
+				},
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+		if (friends) {
+
+			const tmp1 = friends.user1Friends.map(friend => friend.user2)
+			const tmp2 = friends.user2Friends.map(friend => friend.user1)
+			return tmp1.concat(tmp2)
+		}
+		return []
+	}
+
+	async getFriendsIds(userId: number) {
+		const friends = await this.prisma.user.findUnique({
+			where: {
+				id: userId,
+			},
+			select: {
+				user1Friends: {
+					select: {
+						user2: {
+							select: {
+								id: true,
+							}
+						}
+					}
+				},
+
+				user2Friends: {
+					select: {
+						user1: {
+							select: {
+								id: true,
+							}
+						}
+					}
+				},
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+		if (friends) {
+
+			const tmp1 = friends.user1Friends.map(friend => friend.user2.id.toString() + 'chat')
+			const tmp2 = friends.user2Friends.map(friend => friend.user1.id.toString() + 'chat')
+			return tmp1.concat(tmp2)
+		}
+		return []
+
+	}
 }

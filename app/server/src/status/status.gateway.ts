@@ -20,12 +20,12 @@ export class StatusGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 	@SubscribeMessage('inGame')
 	handleInGame(client: Socket, userId: number) {
-		this.statusService.inGame(userId)
+		this.statusService.inGame(this.server, userId)
 	}
 
 	@SubscribeMessage('outGame')
 	handleOutGame(client: Socket, userId: number) {
-		this.statusService.connectUser(userId)
+		this.statusService.connectUser(this.server, userId)
 	}
 
 	handleConnection(client: Socket, ...args: any[]): any {
@@ -37,8 +37,12 @@ export class StatusGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				console.log(`Client connected on Status Socket: \n\n\n\n\n\n${client.id}`);
 				this.server.to(client.id).emit('connected')
 
-				if (clientPayload && clientPayload.sub)
-					this.statusService.connectUser(+(clientPayload.sub))
+				if (clientPayload && clientPayload.sub) {
+					this.statusService.connectUser(this.server, +(clientPayload.sub))
+					console.log('private room name: ', clientPayload.sub.toString())
+					client.join(clientPayload.sub.toString() + 'chat')
+				}
+
 
 			} catch (err) {
 				client.disconnect(true);
@@ -51,7 +55,8 @@ export class StatusGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			const clientPayload = jwt.verify(client.handshake.auth.token, jwtConstants.jwt_secret);
 			if (clientPayload && clientPayload.sub) {
 
-				this.statusService.disconnectUser(+(clientPayload.sub))
+				this.statusService.disconnectUser(this.server, +(clientPayload.sub))
+				client.leave(clientPayload.sub.toString() + 'chat')
 			}
 			console.log(`Client disconnected from Status Socket: ${client.id}`);
 

@@ -36,5 +36,12 @@ export class FriendsController {
 		return await this.friendService.getMatchingFriends(req.user.sub, prefix)
 	}
 
+	@Get('status')
+	async getFriendsStatus(
+		@Request() req: any
+	) {
+		return await this.friendService.getFriendsStatus(req.user.sub) 
+	}
+
 
 }

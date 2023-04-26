@@ -413,6 +413,10 @@ export class UsersService {
 		//return user?.status
 		return user
 	}
+
+	//async getFriendsStatus(userId: number) {
+	//	const friendsStatus = await this.prisma.friend
+	//}
 }
 
 /* ============================ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ========================*/

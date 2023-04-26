@@ -249,7 +249,15 @@ export class UsersController {
 	) {
 		return this.userService.getStatus(req.user.sub)
 	}
-
+//
+//	@UseGuards(JwtAuthGuard)
+//	@Get('friendsStatus')
+//	async getFriendsStatus(
+//		@Request() req: any,
+//	) {
+//		return this.userService.getFriendsStatus(req.user.sub)
+//	}
+//
 	//@UseGuards(JwtAuthGuard)
 	//@Patch('/:login/:roomId')
 	//async addRoom(
