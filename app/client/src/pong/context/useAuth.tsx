@@ -9,7 +9,6 @@ import React, {
 import { useNavigate, useLocation } from "react-router-dom";
 import { originalRequest, refreshRequest, responseApi } from "../component/FetchApi"
 import axios from 'axios'
-import { io, Socket } from "socket.io-client";
 
 interface AuthContextType {
 	user: string;

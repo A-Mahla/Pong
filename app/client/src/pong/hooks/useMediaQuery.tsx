@@ -1,15 +1,5 @@
 import { useState, useEffect } from "react";
 
-//const isQuery950 = useMediaQuery('(max-width: 950px)')
-//const isQuery950 = useMediaQuery('(min-width: 950px)')
-// sx={ isQuery ? {
-//		height: '10rem'
-//	} : 
-//	{
-//		height: '5rem'
-//	}
-// }
-
 const useMediaQuery = (query: string) => {
   const [matches, setMatches] = useState(false);
 

@@ -13,7 +13,7 @@ import {
 } from '@mui/material'
 import { styled } from '@mui/system';
 import useAuth, { useFetchAuth } from '../context/useAuth'
-import { FetchApi, Api } from '../component/FetchApi'
+import { FetchApi } from '../component/FetchApi'
 import GppGoodIcon from '@mui/icons-material/GppGood'
 import GppBadIcon from '@mui/icons-material/GppBad';
 import { useState, useEffect } from 'react'
@@ -26,7 +26,6 @@ import { Level, BorderLinearProgress } from '../Profile/GameInfo';
 import { findLevel } from '../Profile/Profile'
 import useMediaQuery from "../hooks/useMediaQuery"
 import FetchAvatar from '../component/FetchAvatar'
-import { socket } from '../Chat/Socket';
 
 
 function timeout(delay: number) {

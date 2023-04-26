@@ -1,11 +1,10 @@
-import { Grid} from '@mui/material'
+import { Grid } from '@mui/material'
 import { useEffect, useState } from 'react'
 import '../page/LeadPage.css'
-//import { ThemeProvider, createTheme } from '@mui/material/styles';
 import AvatarGrid from '../Profile/Avatar'
 import UserPanelGrid from '../Profile/UserPanel'
-import useAuth, { useFetchAuth } from '../context/useAuth' 
-import { FetchApi, Api } from '../component/FetchApi' 
+import useAuth, { useFetchAuth } from '../context/useAuth'
+import { FetchApi, Api } from '../component/FetchApi'
 import {
 	ThemeProvider,
 	createTheme,
@@ -50,9 +49,9 @@ export function findLevel(xpMax: number) {
 		xp = 0;
 	} else {
 		level--;
-		xp = ((xpMax - xp) / level) + 100 
+		xp = ((xpMax - xp) / level) + 100
 	}
-	
+
 	return {
 		level: level,
 		xp: xp,
@@ -81,7 +80,7 @@ const Profile = () => {
 		auth: useFetchAuth(),
 	}
 
-	
+
 
 
 	useEffect(() => {
@@ -97,7 +96,7 @@ const Profile = () => {
 						const result = await axios.get(
 
 							`http://${import.meta.env.VITE_SITE}/api/users/profile/avatar`,
-								{ 
+								{
 								withCredentials: true,
 								responseType: 'blob',
 								headers: {
@@ -111,9 +110,9 @@ const Profile = () => {
 						}
 					}
 
-					
 
-				
+
+
 					setLevel(findLevel(response.data['nbWin'] * 100 + response.data['nbLoss'] * 25))
 					setVictory(response.data['nbWin'])
 					setDefeat(response.data['nbLoss'])
@@ -135,7 +134,7 @@ const Profile = () => {
 
 
 	return <>
-	{ !fetched ? <CircularProgress/> : 
+	{ !fetched ? <CircularProgress/> :
 		<ThemeProvider theme={theme}>
 			<Grid item sm={5} xs={12}
 				sx={{

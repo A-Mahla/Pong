@@ -163,7 +163,7 @@ export class GameAlgo {
 			}
 		}
 		// game is finish by timeout || player lack of activity has been detected
-		if ( ++this.gameDataUpdate.timer == this.gameModel.duration /*|| this.playersTimeout() */) {
+		if ( ++this.gameDataUpdate.timer == this.gameModel.duration || this.playersTimeout() ) {
 			this.server.to(this.player1!.socketID).volatile.emit('gameOver', this.gameDataUpdate);
 			this.server.to(this.player2!.socketID).volatile.emit('gameOver', this.rotateGameDataUpdate(this.gameDataUpdate));
 			this.status = Status.OVER;

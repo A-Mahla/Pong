@@ -1,17 +1,15 @@
-import { 
+import {
 	Box,
 	Grid,
 	Dialog,
 	DialogTitle,
 	DialogContent,
 	Typography,
-	Paper,
 	Divider,
 	Stack,
-	CircularProgress,
 } from '@mui/material'
 import useAuth, { useFetchAuth } from '../context/useAuth'
-import { FetchApi, Api } from '../component/FetchApi'
+import { FetchApi } from '../component/FetchApi'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -77,7 +75,7 @@ const TableHistory = ({rows}: {rows: matchHistoryPayload[]}) => {
 									<Stack direction="row" alignItems="center" gap={1}>
 										{row.s1 === row.s2 ? <GppMaybeIcon style={{color: '#95bc4b'}}/> :
 											(<>
-												{row.s1 > row.s2 ? 
+												{row.s1 > row.s2 ?
 													<GppGoodIcon style={{color: '#293241'}}/> :
 													<GppBadIcon style={{color: '#cd384a'}}/>
 												}
@@ -97,7 +95,7 @@ const TableHistory = ({rows}: {rows: matchHistoryPayload[]}) => {
 										<Typography variant="body1">{row.l1}</Typography>
 									</Stack>
 								</TableCell>
-								
+
 								<TableCell align="center">
 									{row.s1}
 								</TableCell>

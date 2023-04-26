@@ -1,7 +1,7 @@
 import Avatar from '@mui/material/Avatar';
 import { Typography, Grid, IconButton } from '@mui/material';
 import useAuth, {useFetchAuth} from '../context/useAuth';
-import { FetchApi, Api, refreshRequest } from '../component/FetchApi'
+import { FetchApi, refreshRequest } from '../component/FetchApi'
 import React, { createRef} from "react";
 import axios from 'axios';
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -48,7 +48,7 @@ const ProfileAvatar = (props: AvatarProps) => {
 
 					`http://${import.meta.env.VITE_SITE}/api/users/profile/avatar/upload`,
 					file,
-					{ 
+					{
 						withCredentials: true,
 						headers: {
 							Authorization: `Bearer ${token}`,
@@ -73,14 +73,14 @@ const ProfileAvatar = (props: AvatarProps) => {
 						authFetching.navigate('/login');
 						return
 					}
-					
+
 					authFetching.setToken(refresh.data['aT']);
 
 					const result2 = await axios.post(
 
 						`http://${import.meta.env.VITE_SITE}/api/users/profile/avatar/upload`,
 						file,
-						{ 
+						{
 							withCredentials: true,
 							headers: {
 								Authorization: `Bearer ${refresh.data['aT']}`,
@@ -174,7 +174,7 @@ const NameAvatar = () => {
 	const {user} = useAuth()
 
 	return (
-		<Typography noWrap 
+		<Typography noWrap
 			fontSize={{
 				xl: '2rem',
 				lg: '1.5rem',
