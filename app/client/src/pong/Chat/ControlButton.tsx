@@ -122,6 +122,7 @@ export function SettingsButtton() {
 	}
 
 	const handleUnbanMember = (bannedUserId: number) => {
+
 		setBannedUsers(bannedUsers.filter(user => user.id !== bannedUserId))
 	}
 

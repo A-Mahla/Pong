@@ -7,11 +7,44 @@ import Tab from '@mui/material/Tab'
 import Swipeable from '../component/Swipeable'
 import Profile from '../Profile/Profile'
 import './LeadPage.css'
-import useAuth, {useFetchAuth} from '../context/useAuth'
-import { FetchApi} from '../component/FetchApi'
-import  GamePage  from './Game';
+import useAuth, { useFetchAuth } from '../context/useAuth'
+import { FetchApi } from '../component/FetchApi'
+import GamePage from './Game';
 import '../../App.css';
 import { ChatSocketProvider } from '../Chat/Socket'
+import { ReactNode } from "react"
+//import { FetchApi, Api, responseApi } from '../component/FetchApi'
+import io, { Socket } from "socket.io-client";
+
+
+export const StatusContext = React.createContext<Socket>({} as Socket);
+
+
+export const StatusSocketProvider = ({ children }: { children: ReactNode }) => {
+
+	/* --- connecting to the socket.IO status server --- */
+
+	const { token } = useFetchAuth();
+
+	const socket = io(`http://${import.meta.env.VITE_SITE}/status`, {
+		auth: {
+			token: token
+		}
+	})
+
+	socket.on("connect", () => {
+		console.log("connected to status server");
+	})
+
+	return (
+		<>
+			<StatusContext.Provider value={socket}>
+				{children}
+			</StatusContext.Provider>
+		</>
+	)
+}
+
 
 const header = {
 	height: '4vw;',
@@ -54,14 +87,14 @@ type TabPanelProps = {
 function TabPanel(props: TabPanelProps) {
 
 
-  return <>
+	return <>
 		{props.value === props.index &&
 			(<Paper elevation={24}
-				style={{background: "rgb(240,240,240, 0.80)"}}
+				style={{ background: "rgb(240,240,240, 0.80)" }}
 				sx={
 					props.index === 0 ?
-					centralProfileBoxReduce550 :
-					centralBoxStyle
+						centralProfileBoxReduce550 :
+						centralBoxStyle
 				}
 			>
 				<Grid container
@@ -74,7 +107,7 @@ function TabPanel(props: TabPanelProps) {
 							mt: '1rem',
 							mb: '1rem',
 							height: '43rem',
-							widht:  '30rem',
+							widht: '30rem',
 							display: 'flex',
 							flexDirection: 'row',
 							flexWrap: 'wrap',
@@ -91,7 +124,7 @@ function TabPanel(props: TabPanelProps) {
 							mt: '1rem',
 							mb: '1rem',
 							height: '43rem',
-							widht:  '30rem',
+							widht: '30rem',
 							display: 'flex',
 							flexDirection: 'row',
 							flexWrap: 'wrap',
@@ -106,10 +139,10 @@ function TabPanel(props: TabPanelProps) {
 	</>;
 }
 
-const LeadPage = () => {
+const LeadPageChild = () => {
 
 	const [value, setValue] = React.useState(1);
-	const {user, id, navigate} = useAuth();
+	const { user, id, navigate } = useAuth();
 	const auth = useFetchAuth()
 
 	useEffect(() => {
@@ -133,31 +166,31 @@ const LeadPage = () => {
 	};
 
 	return <>
-	<Box sx={{height: '7rem'}}>
+		<Box sx={{ height: '7rem' }}>
 			<Grid container display='flex' sx={header} columns={17}>
-				<Grid item xs={4} sx={{my: 'auto'}}>
+				<Grid item xs={4} sx={{ my: 'auto' }}>
 					<Grid item md={7} xs={8}>
-					<Typography
-						variant='h1'
-						sx={pongTitle}
-						onClick={handleHome}
-						className="homeButton"
-					>
-						Pong
-					</Typography>
+						<Typography
+							variant='h1'
+							sx={pongTitle}
+							onClick={handleHome}
+							className="homeButton"
+						>
+							Pong
+						</Typography>
 					</Grid>
 				</Grid>
-				<Grid item xs={9} sx={{my: 'auto'}}>
-				<Tabs
-					value={value}
-					onChange={handleChange}
-					aria-label="nav tabs example"
-					variant='fullWidth'
-				>
-					<Tab label="Profile" sx={tabStyle} />
-					<Tab label="Play" sx={tabStyle} />
-					<Tab label="Chat" sx={tabStyle} />
-				</Tabs>
+				<Grid item xs={9} sx={{ my: 'auto' }}>
+					<Tabs
+						value={value}
+						onChange={handleChange}
+						aria-label="nav tabs example"
+						variant='fullWidth'
+					>
+						<Tab label="Profile" sx={tabStyle} />
+						<Tab label="Play" sx={tabStyle} />
+						<Tab label="Chat" sx={tabStyle} />
+					</Tabs>
 				</Grid>
 				<Grid item xs={3}>
 					<Swipeable
@@ -172,22 +205,29 @@ const LeadPage = () => {
 		</Box>
 		<Box>
 			<TabPanel value={value} index={0}>
-				<Profile/>
+				<Profile />
 			</TabPanel>
 			<TabPanel value={value} index={1}>
 				{/* <Typography variant='h1'>{user}</Typography>
 				<br/>
 				<Typography variant='h1'>{id}</Typography> */}
-						<GamePage />
+				<GamePage />
 			</TabPanel>
 			<TabPanel value={value} index={2}>
 				{
 
 				}
-				<ChatSocketProvider/>
+				<ChatSocketProvider />
 			</TabPanel>
 		</Box>
 	</>
 }
+
+const LeadPage = () => {
+
+	return <StatusSocketProvider>
+		<LeadPageChild />
+	</StatusSocketProvider>
+}
+
 export default LeadPage;
-//	<Divider variant="middle" />

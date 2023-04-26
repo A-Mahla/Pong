@@ -183,6 +183,7 @@ export class ChatService {
 	}
 
 	async unbanUser(server: Server, client: Socket, payload: BanMemberData) {
+		console.log('unbanData: ', payload)
 		if (!(await this.roomService.isAdmin(payload.sender_id, payload.room_id)) && !(await this.roomService.isRoomOwner(payload.sender_id, payload.room_id))) {
 			return {
 				error: 'Admin role required.'
