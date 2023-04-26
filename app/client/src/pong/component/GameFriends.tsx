@@ -212,7 +212,7 @@ export const GameFriends = ({socket, thereIsMatch, handleThereIsMatch, openFrien
 												>
 													<PlayersListItemAvatarLeft>
 														<FetchAvatar
-															avatar=""
+															avatar={gameId.sender_avatar}
 															sx={{
 																height: '100%',
 																width: '100%'
@@ -220,7 +220,7 @@ export const GameFriends = ({socket, thereIsMatch, handleThereIsMatch, openFrien
 														/>
 													</PlayersListItemAvatarLeft>
 													<PlayersListItemText>
-														{gameId.sender_login}
+														{gameId.sender_login === user ? "you" : gameId.sender_login}
 													</PlayersListItemText>
 												</Grid>
 												<Grid item xs={5}
@@ -236,7 +236,7 @@ export const GameFriends = ({socket, thereIsMatch, handleThereIsMatch, openFrien
 															top: 8,
 														}}
 													>
-														invited you
+														{gameId.sender_id === id ? 'created a game' : 'invited you'}
 													</Typography>
 												</Grid>
 												<Grid item display="flex" xs={3}

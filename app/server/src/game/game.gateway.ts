@@ -165,7 +165,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 						})
 						newGameAlgo.shutDownInternalEvents();
 						this.gameService.deleteGame(newGameAlgo.roomID); // deleteting from the DB
-						this.gameService.eraseGameInvites(inviteId);
+						this.gameService.eraseGameInvites(inviteId).catch((e) => {
+							console.log(e);
+						});
 						this.gameMap.delete(newGameAlgo.roomID); // deleteting from the running games
 					})
 			}
@@ -237,13 +239,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		for (let [key, value] of this.gameMap) {
 			if (value.getPlayerSocketID(1) === client.id && (value.getStatus() === Status.ONE_PLAYER || value.getStatus() === Status.LOCKED) ){
 				value.shutDownInternalEvents();
-				this.gameService.deleteGame(value.roomID);
+				// this.gameService.deleteGame(value.roomID);
 				this.gameMap.delete(value.roomID);
 				client.disconnect(true);
 				if (value.getStatus() === Status.LOCKED)
 					if (value.isInvites)
 						this.gameService.eraseGameInvites(value.isInvites)
-				}
+			}
 		}
 	}
 }
