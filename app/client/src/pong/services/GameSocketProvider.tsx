@@ -21,7 +21,6 @@ export const GameSocketProvider = ({children}: {children: ReactNode}) => {
 	})
 
 	socket.on("connect", () => {
-		console.log("connected to server");
 	})
 
 	return (

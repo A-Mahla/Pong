@@ -64,7 +64,6 @@ const FetchAvatar = (props: PropsAvatar) => {
 					}
 
 					const response = await FetchApi(getStatusRequest)
-					console.log('status: ', response?.data.status)
 					setStatus(response?.data.status)
 				}
 

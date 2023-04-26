@@ -372,7 +372,6 @@ export class GameAlgo {
 			})
 
 			this.player2!.playerSocket.once('imReady', () => {
-				console.log('+++++++++++++++++++++++++');
 				this.server.to(this.player2!.socketID).emit('initSetup', this.rotateInitSetup( this.initGameDataSetUp(this.gameModel)));
 				this.player2!.isReady = true;
 			})
