@@ -43,7 +43,7 @@ const Contact = () => {
 
 	const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault()
-		
+
 		if (!form.current)
 			return
 
@@ -67,9 +67,6 @@ const Contact = () => {
 				(result) => {
 					setValidate(true)
 				},
-				/*(error) => {
-					console.log(error.text);
-				}*/
 			);
 			form.current.email.value = null;
 			form.current.subject.value = null;
@@ -185,7 +182,7 @@ const Contact = () => {
 				<Button sx={{color: 'primary.main'}} onClick={handleSubmit}>
 					submit
 				</Button>
-				
+
 				{validate ?
 					<Typography variant='caption' align="center" style={{color:"#229954"}}
 						sx={{
@@ -199,7 +196,7 @@ const Contact = () => {
 				}
 			</FormControl>
 			</form>
-		</Grid>	
+		</Grid>
 	</>
 
 }
