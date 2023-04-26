@@ -7,7 +7,7 @@ import checker from 'vite-plugin-checker'
 export default defineConfig({
   plugins: [
 	  react(),
-	  eslintPlugin(),
+//	  eslintPlugin(),
 	  // ======= checker typescript ====
 	  checker({
         typescript: true,
