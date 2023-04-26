@@ -62,6 +62,7 @@ export class GameController {
 
 //	======================== ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ================
 //	======================== Getting Game information ==================
+	@UseGuards(JwtAuthGuard)
 	@Get('gamewatinglist')
 	async getGameWaitingList() {
 		return (
@@ -80,7 +81,7 @@ export class GameController {
 		return this.gameService.parseGameHistory(raw);
 	}
 
-	//@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard)
 	@Post('newInvite')
 	async registerNewGameInvite(@Body() inviteGameData: InviteGameData) {
 		const test = await this.gameService.registerNewGameInvite(inviteGameData);
@@ -109,6 +110,7 @@ export class GameController {
 		return test2;
 	}
 
+	@UseGuards(JwtAuthGuard)
 	@Get('gamesInvites/isavailable/:inviteid')
 	async invitesIsAvailable(@Param('inviteid') inviteid: string) {
 		return this.gameService.checkInvitesIsAvailable(parseInt(inviteid));
@@ -116,19 +118,19 @@ export class GameController {
 
 //	======================== Getting raw stats about a player game ================
 
-//@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard)
 	@Get('stats/nbGames/:id')
 	async getnbGames(@Param('id') user_id: number) {
 		return (this.gameService.getNbGames(user_id));
 	}
 
-	//@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard)
 	@Get('stats/nbVictory/:id')
 	async getnbVictory(@Param('id') user_id: number) {
 		return (this.gameService.getVictoryLossCountForUser(user_id, true));
 	}
 
-	//@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard)
 	@Get('stats/nbLoss/:id')
 	async getnbLoss(@Param('id') user_id: number) {
 		return (this.gameService.getVictoryLossCountForUser(user_id, false));
@@ -137,6 +139,7 @@ export class GameController {
 
 // ======================= tests ==========================================
 
+	@UseGuards(JwtAuthGuard)
 	@Post('test/createFullGame')
 	async createNewGameFull(@Body() players: any){
 		const newGame = await this.gameService.registerNewGame("--");
