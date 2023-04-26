@@ -275,5 +275,3 @@ export const Login = () => {
 
 }
 
-//: <LogoutButton>log out</LogoutButton>
-//		}
