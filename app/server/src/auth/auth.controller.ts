@@ -37,6 +37,12 @@ import { TwoFAJwtAuthGuard } from 'src/auth/2fa-jwt-auth.guard';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RefreshJwtAuthGuard } from 'src/auth/refresh-jwt-auth.guard'
 import { Intra42AuthGuard } from 'src/auth/intra42.guard'
+import {
+	PasswordValidationPipe,
+	LoginValidationPipe,
+	LoginSoloValidationPipe,
+	LoginPasswordValidationPipe
+} from '../users/users.pipes'
 
 @Controller('auth')
 export class AuthController {
@@ -49,7 +55,7 @@ export class AuthController {
 	@Post('signup')
 	//@UsePipes(new ValidationPipe({ transform: true }))
 	async createUser(
-		@Body() createUserDto: CreateUserDto,
+		@Body(LoginPasswordValidationPipe) createUserDto: CreateUserDto,
 		@Res({ passthrough: true }) response: Response
 	) {
 		return this.authService.loginWithId(
@@ -105,7 +111,7 @@ export class AuthController {
 	@Post('profile/login')
 	async changePassword(
 		@Request() req: any,
-		@Body() updateUserParam: any,
+		@Body(LoginValidationPipe) updateUserParam: any,
 		@Res({ passthrough: true }) response: Response
 	) {
 
@@ -189,7 +195,7 @@ export class AuthController {
 
 	@Post('intra42')
 	async createIntraUser(
-		@Query('login') login: string,
+		@Query('login', LoginSoloValidationPipe) login: string,
 		@Query('intraLogin') intraLogin: string,
 		@Body() body: any,
 		@Res({ passthrough: true }) response: Response
