@@ -11,6 +11,7 @@ import { FetchApi, Api, responseApi } from '../component/FetchApi'
 import useAuth from '../context/useAuth'
 import io, {Socket} from "socket.io-client";
 // import '../page/game.css'
+import { StatusContext } from '../page/LeadPage'
 import { render } from 'react-dom'
 import LinearProgress from '@mui/material/LinearProgress';
 import FetchAvatar from '../component/FetchAvatar'
@@ -36,14 +37,16 @@ const ENDGAMEFONT = 180;
 const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Socket, handleThereIsMatch: () => void, handleThereIsError: (errorstr: string) => void}) => {
 	// ref to the html5 canvas on wich we will draw
 	const canvas = React.useRef<HTMLCanvasElement | null>(null); // reference/pointer on html5 canvas element, so you can draw on it
-
+	const socketStatus = React.useContext(StatusContext);
 	const [game, setGame] = React.useState<boolean>(false);
 	const [fetched, setFetched] = React.useState<boolean>(false);
 	const [gameContext, setGameContext] = React.useState<constants>();
 	const [gameData, setGameData] = React.useState<GameData>();
+	const { id } = useAuth();
 
 	const quitGame = async () => {
-		socket.emit('quitGame')
+		socket.emit('quitGame');
+		socketStatus.emit('outGame', id);
 		handleThereIsMatch()
 	}
 
@@ -105,8 +108,10 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: {socket: Soc
 			socket.on("initSetup", (gameData: GameData) => {
 				setFetched(true); // we know here that we receive the initSetup from back so we are sure there is a match
 				setGameData(gameData); // we set here the const of the game like the players logins and paddle size
+				socketStatus.emit('inGame', id);
 			})
 			socket.on('disconnection', (errorMessage: string) => {
+				socketStatus.emit('outGame', id);
 				handleThereIsError(errorMessage);
 			})
 
