@@ -29,6 +29,8 @@ export class GameAlgo {
 
 	//for legacy purpose
 	public gameConfig: GameParams;
+	public isInvites: number | undefined;
+	// ------
 
 	private interval: NodeJS.Timeout | undefined;
 
@@ -330,18 +332,19 @@ export class GameAlgo {
 
 	public async playerChangeSocket(playerSocket: Socket, socketID: string, player1ou2: number) {
 		if (player1ou2 === 1) {
-			// this.player1!.playerSocket.disconnect(true)
 			this.player1!.playerSocket = playerSocket
 			this.player1!.socketID = socketID;
 			this.player1!.playerSocket.on('quitGame', (socket: Socket) => { // player quiting the game
 				this.internalEvents.emit('stop', '1');
 			})
 			this.player1!.playerSocket.on('paddlePos', (y: number, socket: Socket) => { // player moving the paddle
-				this.gameDataUpdate.p1y = y;
-				this.gameModel.p1timeout = Date.now();
+				if (this.gameModel.funnyPong)
+					this.gameDataUpdate.p1y = (2 * (this.gameModel.canvasHeight / 2) - y);
+				else
+					this.gameDataUpdate.p1y = y;
+					this.gameModel.p1timeout = Date.now();
 			})
 			this.player1!.playerSocket.once('imReady', () => {
-				console.log('C CA LE PROBLEM');
 				this.server.to(this.player1!.socketID).emit('initSetup', this.initGameDataSetUp(this.gameModel));
 				this.player1!.isReady = true;
 			})
@@ -354,16 +357,20 @@ export class GameAlgo {
 
 		}
 		else if (player1ou2 === 2){
-			// this.player2!.playerSocket.disconnect(true);
 			this.player2!.playerSocket = playerSocket
 			this.player2!.socketID = socketID;
 			this.player2!.playerSocket.on('quitGame', (socket: Socket) => { // player quiting the game
 				this.internalEvents.emit('stop', '2');
 			})
+
 			this.player2!.playerSocket.on('paddlePos', (y: number, socket: Socket) => { // player moving the paddle
-				this.gameDataUpdate.p2y = y;
-				this.gameModel.p2timeout = Date.now();
+				if (this.gameModel.funnyPong)
+					this.gameDataUpdate.p2y = (2 * (this.gameModel.canvasHeight / 2) - y);
+				else
+					this.gameDataUpdate.p2y = y;
+					this.gameModel.p2timeout = Date.now();
 			})
+
 			this.player2!.playerSocket.once('imReady', () => {
 				console.log('+++++++++++++++++++++++++');
 				this.server.to(this.player2!.socketID).emit('initSetup', this.rotateInitSetup( this.initGameDataSetUp(this.gameModel)));

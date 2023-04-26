@@ -109,6 +109,11 @@ export class GameController {
 		return test2;
 	}
 
+	@Get('gamesInvites/isavailable/:inviteid')
+	async invitesIsAvailable(@Param('inviteid') inviteid: string) {
+		return this.gameService.checkInvitesIsAvailable(parseInt(inviteid));
+	}
+
 //	======================== Getting raw stats about a player game ================
 
 //@UseGuards(JwtAuthGuard)

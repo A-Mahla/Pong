@@ -105,19 +105,33 @@ export const GameFriends = ({socket, thereIsMatch, handleThereIsMatch, openFrien
 	const auth = useFetchAuth();
 	const {id, user} = useAuth();
 
-	function handleJoinGame(gameId: number, game: InviteGameData) {
+	async function handleJoinGame(gameId: number, game: InviteGameData) {
+		const response = await FetchApi({
+			api: {
+					input: `http://${import.meta.env.VITE_SITE}/api/game/gamesInvites/isavailable/${game.id}`,
+					option: {
+						method: "GET",
+					},
+				},
+				auth: auth,
+		})
 		// Implémentez cette fonction selon ce que vous voulez faire lorsque l'utilisateur clique sur un bouton.
-		const p1Id = game.sender_id;
-		const p2Id = game.receiver_id;
-		const inviteId = game.id;
-		const ballSpeed = game.ballSpeed;
-		const paddleSize = game.paddleSize;
-		const duration = game.duration;
-		const funnyPong = game.funnyPong
-		console.log('++++++++++   ' + game.receiver_avatar + " ---- " + game.sender_avatar)
-		socket.emit('friendMatchMaking', { inviteId, p1Id, p2Id, id, user, ballSpeed, paddleSize, duration, funnyPong })
-		if (!thereIsMatch)
-			handleThereIsMatch()
+		if (response?.data)
+		{
+			const p1Id = game.sender_id;
+			const p2Id = game.receiver_id;
+			const inviteId = game.id;
+			const ballSpeed = game.ballSpeed;
+			const paddleSize = game.paddleSize;
+			const duration = game.duration;
+			const funnyPong = game.funnyPong
+			socket.emit('friendMatchMaking', { inviteId, p1Id, p2Id, id, user, ballSpeed, paddleSize, duration, funnyPong })
+			if (!thereIsMatch)
+				handleThereIsMatch()
+		}
+		else {
+			handleClose();
+		}
 	}
 
 	const handleClose = () => {

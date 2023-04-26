@@ -171,4 +171,6 @@ model gamesInvites {
   paddleSize String
   duration String
   funnyPong Boolean
+
+  @@unique([receiver_id, sender_id])
 }

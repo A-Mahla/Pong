@@ -215,10 +215,12 @@ export class GameService {
 			return false;
 		return (true);
 	}
-
+	/* ---------------- GameInvites DB handling ---------------------- */
 	async registerNewGameInvite(inviteGameData: InviteGameData) {
 		return this.prisma.gamesInvites.create({
 			data: inviteGameData
+		}).catch((e: any) => {
+			throw new BadRequestException(); // maybe we will have to specifie the error later
 		})
 	}
 
@@ -246,6 +248,14 @@ export class GameService {
 		})
 		);
 	}
+	async checkInvitesIsAvailable(inviteId: number) {
+		return (
+			this.prisma.gamesInvites.count({
+				where: { id: inviteId }
+			})
+		)
+	}
+	/* -------------------------------------------------------- */
 
 	convertBallSpeed(ballSpeedString: string): '7' | '10' | '12' {
 		switch (ballSpeedString) {

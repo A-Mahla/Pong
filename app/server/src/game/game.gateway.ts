@@ -123,6 +123,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			const newGameDB = await this.gameService.registerNewGame('WAIT');
 			if (newGameDB) {
 				var newGameAlgo = new GameAlgo(this.gameService, this.server, newGameDB.game_id.toString(), Status.LOCKED);
+				newGameAlgo.isInvites = inviteId;
 				this.gameMap.set( newGameDB.game_id.toString(), newGameAlgo); // we set it in the gameMap so the player2 will be able to find it.
 					newGameAlgo.initPlayer1({
 						id: id ,
@@ -234,12 +235,15 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	handleDisconnect(client: Socket) {
 		for (let [key, value] of this.gameMap) {
-			if (value.getPlayerSocketID(1) === client.id && value.getStatus() === Status.ONE_PLAYER ){
+			if (value.getPlayerSocketID(1) === client.id && (value.getStatus() === Status.ONE_PLAYER || value.getStatus() === Status.LOCKED) ){
 				value.shutDownInternalEvents();
 				this.gameService.deleteGame(value.roomID);
 				this.gameMap.delete(value.roomID);
 				client.disconnect(true);
-			}
+				if (value.getStatus() === Status.LOCKED)
+					if (value.isInvites)
+						this.gameService.eraseGameInvites(value.isInvites)
+				}
 		}
 	}
 }
