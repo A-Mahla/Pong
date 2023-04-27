@@ -48,12 +48,16 @@ export class StatusGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 	handleDisconnect(client: Socket): any {
 		if (client.handshake.auth.token && jwtConstants.jwt_secret) {
-			const clientPayload = jwt.verify(client.handshake.auth.token, jwtConstants.jwt_secret);
-			if (clientPayload && clientPayload.sub) {
+			try {
+				const clientPayload = jwt.verify(client.handshake.auth.token, jwtConstants.jwt_secret);
+				if (clientPayload && clientPayload.sub) {
 
-				this.statusService.disconnectUser(+(clientPayload.sub))
+					this.statusService.disconnectUser(+(clientPayload.sub))
+				}
+				console.log(`Client disconnected from Status Socket: ${client.id}`);
+			} catch (err) {
+				client.disconnect(true);
 			}
-			console.log(`Client disconnected from Status Socket: ${client.id}`);
 
 		}
 

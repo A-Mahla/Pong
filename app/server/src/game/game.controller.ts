@@ -151,8 +151,6 @@ export class GameController {
 
 	}
 
-	// the curl commande to use it :
-	// curl -X POST -H "Content-Type: application/json" -d '{"player1": {"id": "3", "score": 10}, "player2": {"id": "1", "score": 15}}' http://10.11.6.6:8080/api/game/test/createFullGame
 }
 
 

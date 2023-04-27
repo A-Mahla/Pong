@@ -166,7 +166,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 						newGameAlgo.shutDownInternalEvents();
 						this.gameService.deleteGame(newGameAlgo.roomID); // deleteting from the DB
 						this.gameService.eraseGameInvites(inviteId).catch((e) => {
-							console.log(e);
+							console.log("--->" + "game already erased");
 						});
 						this.gameMap.delete(newGameAlgo.roomID); // deleteting from the running games
 					})
