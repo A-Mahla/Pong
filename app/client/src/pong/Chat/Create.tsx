@@ -32,8 +32,6 @@ export function CreateRoom({setBoolean} :{setBoolean: (bool: boolean) => void}) 
 			owner_id: id
 		}
 
-		console.log('createRoomData: ', newRoomData)
-
 		socket.emit('createRoom', newRoomData)
 
 		setBoolean(false)

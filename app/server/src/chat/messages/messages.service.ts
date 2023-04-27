@@ -11,8 +11,6 @@ export class MessageService {
 		private roomService: RoomsService) { }
 
 	async createMessage(senderId: number, roomId: number, content: string) {
-		console.log('createMessage datas: ', senderId, roomId, content);
-
 
 		return await this.prisma.message.create({
 			data: {
@@ -50,7 +48,6 @@ export class MessageService {
 	}
 
 	async createDirectMessage(senderId: number, recipientId: number, content: string) {
-		console.log('in create message: ', senderId, recipientId, content)
 
 		const newDirectMessage = await this.prisma.direct_Message.create({
 			data: {
@@ -73,8 +70,6 @@ export class MessageService {
 		}).catch((e) => {
 			throw new BadRequestException(e);
 		})
-
-		console.log('newDirectMessage in the messageService: ', newDirectMessage)
 
 		return newDirectMessage
 
@@ -110,31 +105,4 @@ export class MessageService {
 		})
 
 	}
-
-	//async getUserDirectMessagesLogin(userLogin: string) { //TODO supprimer cette merde pour travailler que avec des ID svp
-
-	//	const recipient = await this.userService.findOneUser(userLogin)
-
-	//	return await this.prisma.direct_Message.findMany({
-	//		where: {
-	//			recipient_id: (recipient as User).id
-	//		},
-	//		select: {
-	//			id: true,
-	//			createdAt: true,
-	//			sender_id: true,
-	//			sender: {
-	//				select: {
-	//					login: true,
-	//				},
-	//			},
-	//			room_id: true,
-	//			content: true,
-	//		},
-	//	}).catch((e) => {
-	//		throw new BadRequestException(e);
-	//	})
-
-	//}
-
 }

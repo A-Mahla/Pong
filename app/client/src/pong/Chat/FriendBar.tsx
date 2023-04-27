@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { styled } from '@mui/system';
-import { IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Avatar, ListItem, ListItemAvatar, ListItemText, Divider, Snackbar } from '@mui/material';
+import { IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Avatar, ListItem, ListItemAvatar, ListItemText, Divider, Snackbar, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
 import PeopleIcon from '@mui/icons-material/People';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -23,13 +23,12 @@ export const FriendBar = () => {
   const [addFriendDialogOpen, setAddFriendDialogOpen] = React.useState(false);
   const [friendRequestsDialogOpen, setFriendRequestsDialogOpen] = React.useState(false);
   const [matchingUsers, setMatchingUsers] = React.useState<User[]>([])
-	const [isAlertOpen, setIsAlertOpen] = React.useState<boolean>(false)
-	const [alertMessage, setAlertMessage] = React.useState<string>('')
+  const [isAlertOpen, setIsAlertOpen] = React.useState<boolean>(false)
+  const [alertMessage, setAlertMessage] = React.useState<string>('')
   const useContextAuth = useFetchAuth()
   const { id } = useAuth()
 
   const handleFriendClick = (friend: User) => {
-    console.log('friendId: ', friend)
     setTarget(friend)
     setCurrent({ name: '', id: 0, ownerId: 0, isPublic: true })
     setActiveFriendId(friend.id);
@@ -44,11 +43,6 @@ export const FriendBar = () => {
     setAddFriendDialogOpen(false);
   };
 
-  const handleAddFriendSubmit = () => {
-    // Add friend request logic here
-    setAddFriendDialogOpen(false);
-  };
-
   const handleFriendRequestCheckClick = () => {
     setFriendRequestsDialogOpen(true);
   };
@@ -56,10 +50,6 @@ export const FriendBar = () => {
   const handleFriendRequestsDialogClose = () => {
     setFriendRequestsDialogOpen(false);
   };
-
-  React.useEffect(() => {
-    console.log('friends requests: ', friendRequests)
-  }, [friendRequests])
 
   const handleSendFriendRequestClick = (userId: number) => {
 
@@ -153,8 +143,10 @@ export const FriendBar = () => {
           }
         }}
       >
-        <DialogTitle>Friend Requests</DialogTitle>
-        <DialogContent>
+        <DialogTitle >
+            Friend Requests
+        </DialogTitle>
+        <DialogContent sx={{p: 0}}>
           <FriendRequestWrapper>
             {friendRequests.map((friendRequest) => (
               <FriendRequestItem key={friendRequest.id} friendRequest={friendRequest} id={id} />

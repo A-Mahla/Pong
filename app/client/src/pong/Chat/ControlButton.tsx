@@ -26,7 +26,6 @@ export function SettingsButtton() {
 	const auth = useFetchAuth()
 
 	useEffect(() => {
-		console.log(displayList)
 
 		if (displayList !== UserListType.BANNED)
 			return
@@ -43,7 +42,6 @@ export function SettingsButtton() {
 
 			const response = await FetchApi(getBannedUsersRequest)
 
-			console.log('bannedUsers: ', response?.data)
 			return response?.data
 		}
 
@@ -106,7 +104,6 @@ export function SettingsButtton() {
 			}
 			const response = await FetchApi(getMutedMembersRequest)
 
-			console.log('mutedUsers: ', response?.data)
 			return response?.data
 		}
 
@@ -146,7 +143,6 @@ export function SettingsButtton() {
 
 		socket.emit('removeFriend', RemoveFriendData)
 
-		console.log(`remove ${target.login} from friends`)
 	}
 
 	const handleBlockUser = () => {
@@ -156,9 +152,8 @@ export function SettingsButtton() {
 			user_id: target.id,
 		}
 
-		socket.emit('blockUser', BlockUserData, (response: any) => (console.log('blockUser Response: ', response)))
+		socket.emit('blockUser', BlockUserData)
 
-		console.log(`you blocked ${target.login}`)
 		setTarget({ id: 0, login: '', avatar: '' })
 	}
 

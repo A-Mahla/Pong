@@ -15,8 +15,6 @@ export class MuteService {
 
 	const cutoff = now - lifetime
 
-	console.log('\n\n\n\ncutoff: ', cutoff)
-
 	/*const numDelete =*/return await this.prisma.mute.deleteMany({
 		where: {
 			createdAt: { lte: new Date(cutoff) }

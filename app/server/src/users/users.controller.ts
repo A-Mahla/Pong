@@ -248,29 +248,12 @@ export class UsersController {
 	) {
 		return this.userService.getStatus(req.user.sub)
 	}
-//
-//	@UseGuards(JwtAuthGuard)
-//	@Get('friendsStatus')
-//	async getFriendsStatus(
-//		@Request() req: any,
-//	) {
-//		return this.userService.getFriendsStatus(req.user.sub)
-//	}
-//
-	//@UseGuards(JwtAuthGuard)
-	//@Patch('/:login/:roomId')
-	//async addRoom(
-	//	@Param('login') login : string,
-	//	@Param('roomId') roomId : number
-	//	)
-	//{
-	//	const user = await this.userService.findOneUser(login)
 
-	//	const room = await this.roomService.getRoomById(roomId)
-
-	//	console.log('user: ', user);
-	//	console.log('room: ', room);
-
-	//	return this.userService.joinRoom(user?.id as number, room?.room_id as number)
-	//}
+	@UseGuards(JwtAuthGuard)
+	@Get('avatarName/:id')
+	async getAvatarName(
+		@Param('id') id: number
+	) {
+		return this.userService.getAvatarName(id)
+	}
 }

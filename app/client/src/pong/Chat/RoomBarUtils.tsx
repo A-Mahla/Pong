@@ -157,7 +157,6 @@ export const MatchingRoomListItem = ({ room, rooms, onClick }: { room: Room, roo
 		setIsSendingRequest(true);
 		await onClick(room, password);
 		if (room.isPublic === false) {
-			console.log(room)
 			setIsPasswordInputVisible(false)
 		}
 		setIsSendingRequest(false);

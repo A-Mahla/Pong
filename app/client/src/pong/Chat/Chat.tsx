@@ -172,7 +172,6 @@ export function Chat() {
 	useEffect(() => {
 		async function getFriends() {
 			const response = await FetchApi(getFriendsRequest)
-			console.log('friends: ', response?.data)
 			return response?.data
 		}
 		getFriends().then(data => setFriends(data))
@@ -208,7 +207,6 @@ export function Chat() {
 	useEffect(() => {
 		async function getBlockedUsers() {
 			const response = await FetchApi(getBlockedUsersRequest)
-			console.log('blocked users data: ', response?.data)
 			return response?.data
 		}
 
@@ -218,7 +216,6 @@ export function Chat() {
 	useEffect(() => {
 		async function getMessages() {
 			const response = await FetchApi(getMessagesRequest)
-			console.log('messages data: ', response?.data)
 			return response?.data
 		}
 
@@ -240,7 +237,6 @@ export function Chat() {
 		}
 
 		getRooms().then(data => {
-			console.log('rooms: ', data)
 			setRooms(data)
 		})
 
@@ -258,8 +254,6 @@ export function Chat() {
 			setNewRoomMessage(undefined)
 		}
 		if (newDirectMessage !== undefined) {
-			console.log('oueee', newDirectMessage)
-			console.log('directMessages: ', directMessages)
 			setDirectMessages([...directMessages, newDirectMessage])
 			setNewDirectMessage(undefined)
 		}
@@ -270,7 +264,6 @@ export function Chat() {
 			setNewRoom(undefined)
 		}
 		if (leavedRoom !== undefined) {
-			console.log('leave a room')
 			setRooms(rooms.filter((room) => {
 				if (room.room_id !== leavedRoom) {
 					return rooms
@@ -281,34 +274,26 @@ export function Chat() {
 			setLeavedRoom(undefined)
 		}
 		if (newFriendRequest !== undefined) {
-			console.log('newFriendRequest: ', newFriendRequest)
 			setFriendRequests([...friendRequests, newFriendRequest])
 			setNewFriendRequest(undefined)
 		}
 		if (newFriend !== undefined) {
-			console.log(`newFriend: `, newFriend)
 			setFriends([...friends, newFriend])
 			setCurrent({ name: '', id: 0, ownerId: 0, isPublic: true })
 			setTarget(newFriend)
 			setNewFriend(undefined)
 		}
 		if (declineFriendRequestId !== undefined) {
-			console.log(declineFriendRequestId)
-			//console.log(friendRequests.filter((friendRequest) => (friendRequest.id !== declineFriendRequestId)))
 			setFriendRequests(friendRequests.filter((friendRequest) => (friendRequest.id !== declineFriendRequestId)))
 			setDeclineFriendRequestId(undefined)
 		}
 		if (newBlockedUserId !== undefined) {
-			console.log(`newBlockedUserId: ${newBlockedUserId}`)
-			console.log(`friends: ${friends}`)
 			setFriends(friends.filter(friend => friend.id !== newBlockedUserId))
 			setBlockedUserIds([...blockedUserIds, newBlockedUserId])
 			setNewBlockedUserId(undefined)
 		}
 		if (removedFriendId !== undefined) {
-			console.log('removed friend id: ', removedFriendId)
 			setFriends(friends.filter(friend => friend.id !== removedFriendId))
-			console.log('friendRequest: ', friendRequests)
 			setFriendRequests(friendRequests.filter(friendRequests => friendRequests.user1Id !== removedFriendId && friendRequests.user2Id !== removedFriendId))
 			if (target.id === removedFriendId) {
 				setTarget({ id: 0, login: '', avatar: '' })
@@ -326,6 +311,7 @@ export function Chat() {
 				<Grid item xs={6} md={2}
 					sx={{
 						p: '2px',
+						height: '100%',
 						'@media (max-width: 950px)': {
 							height: '30%',
 							p: 0
@@ -338,6 +324,7 @@ export function Chat() {
 				<Grid item xs={6} md={2}
 					sx={{
 						p: '2px',
+						height: '100%',
 						'@media (max-width: 950px)': {
 							height: '30%',
 							p: 0
@@ -351,6 +338,7 @@ export function Chat() {
 				<Grid item xs={12} md={8}
 					sx={{
 						p: '2px',
+						height: '100%',
 						'@media (max-width: 950px)': {
 							height: '70%',
 							p: 0

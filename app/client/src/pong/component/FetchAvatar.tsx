@@ -103,26 +103,11 @@ const FetchAvatar = (props: PropsAvatar) => {
 	const auth = useAuth()
 	const fetchAuth = useFetchAuth()
 
-	console.log('props.status: ', props.status, 'avatar: ', props.avatar)
-
 	useEffect(() => {
 
 		async function fetching() {
 
 			try {
-
-				//if (props.status) {
-
-				//	const getStatusRequest = {
-				//		api: {
-				//			input: `http://${import.meta.env.VITE_SITE}/api/users/status`,
-				//		},
-				//		auth: fetchAuth
-				//	}
-				//	const response = await FetchApi(getStatusRequest)
-				//	console.log('status\n\n\n\n\n: ', response?.data.status)
-				//	setStatus(response?.data.status)
-				//}
 
 				if (props.avatar) {
 

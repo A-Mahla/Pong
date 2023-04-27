@@ -413,6 +413,22 @@ export class UsersService {
 	//async getFriendsStatus(userId: number) {
 	//	const friendsStatus = await this.prisma.friend
 	//}
+
+	async getAvatarName(userId: number) {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id: userId
+			},
+			select: {
+				avatar: true
+			}
+		}).catch((e) => {
+			throw new BadRequestException(e);
+		})
+
+		return user
+
+	}
 }
 
 /* ============================ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ========================*/

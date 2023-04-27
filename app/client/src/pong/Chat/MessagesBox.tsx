@@ -40,7 +40,6 @@ function ChatInput() {
 
 	const handleSubmit = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (target.id !== 0) {
-			console.log(inputValue);
 
 			const payload: MessageData = {
 				content: inputValue,
@@ -83,7 +82,6 @@ function ChatInput() {
 				value={inputValue}
 				onChange={handleInputChange}
 				onKeyDown={(e) => {
-					//console.log(e)
 					if (e.key === 'Enter'/*  && onSubmit */) {
 						handleSubmit(e);
 						setInputValue('');
@@ -126,9 +124,9 @@ const ChatBox = styled(Paper)({
 const ChatHeader = styled(Box)(({ theme }) => ({
 	width: '100%',
 	justifyContent: 'space-between',
+	height: '5%',
 	display: 'flex',
 	alignItems: 'center',
-	height: 32,
 	backgroundColor: theme.palette.background.paper,
 	borderBottom: `1px solid ${theme.palette.grey[300]}`,
 	padding: theme.spacing(2),
@@ -139,6 +137,7 @@ const ChatBody = styled(Box)({
 	overflow: 'auto',
 	padding: '16px',
 	paddingBottom: 64,
+	height: '85%',
 	flexDirection: 'column-reverse', /* add this CSS property to reverse the order of child elements */
 
 });
@@ -146,7 +145,7 @@ const ChatBody = styled(Box)({
 const ChatFooter = styled(Box)(({ theme }) => ({
 	display: 'flex',
 	alignItems: 'center',
-	//height: 64,
+	height: 'auto',
 	backgroundColor: theme.palette.background.paper,
 	position: 'absolute', /* add position absolute */
 	bottom: 0, /* position it at the bottom */
@@ -171,7 +170,6 @@ export const MessagesBox = () => {
 
 	useEffect(() => {
 		if (target.id !== 0) {
-			console.log('directMessages: ', directMessages)
 			setMessageList(directMessages.map((message, index) => {
 				if (message.sender_id === id || message.recipient_id === id) {
 					return <Message
@@ -198,9 +196,6 @@ export const MessagesBox = () => {
 				setMessageList([])
 			}
 			else {
-				console.log('room', room)
-				console.log('rooms', rooms)
-				console.log('messageList: ', messageList)
 				setMessageList(room.messages.map((message, index) => {
 					return <Message
 						key={message.id}

@@ -33,9 +33,6 @@ export const Message: React.FC<MessageProps> = ({ message, id }: MessageProps) =
 				}}
 			>
 				<Box style={{ marginRight: '4px' }}>{message.sender.login}</Box>
-				{/*<Box style={{ fontSize: '0.7rem', color: 'lightgray' }}>
-          {new Date().toLocaleTimeString()}
-        </Box>*/}
 			</Box>
 			<Box
 				style={{

@@ -105,42 +105,36 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 		socket.on('roomCreated', onRoomCreatedEvent)
 
 		function onRoomJoinedEvent(payload: Room) {
-			console.log(`room ${payload} joined`)
 			setNewRoom(payload)
 		}
 
 		socket.on('roomJoined', onRoomJoinedEvent)
 
 		function onRoomLeavedEvent(id: number) {
-			console.log(`leaving room ${id}`)
 			setLeavedRoom(id)
 		}
 
 		socket.on('roomLeaved', onRoomLeavedEvent)
 
 		function onRoomMessageEvent(newMessage: Message) {
-			console.log(`receive message: "${newMessage.content}" send by n:${newMessage.sender_id}`)
 			setNewRoomMessage(newMessage)
 		}
 
 		socket.on('roomMessage', onRoomMessageEvent)
 
 		function onDirectMessageEvent(newMessage: DirectMessage) {
-			console.log(`receive message: "${newMessage.content}" send by n:${newMessage.sender_id}`)
 			setNewDirectMessage(newMessage)
 		}
 
 		socket.on('directMessage', onDirectMessageEvent)
 
 		function onFriendRequestEvent(newFriendRequest: FriendRequest) {
-			console.log(`receive friend request: ${JSON.stringify(newFriendRequest)}`)
 			setNewFriendRequest(newFriendRequest)
 		}
 
 		socket.on('friendRequest', onFriendRequestEvent)
 
 		function onNewFriendEvent(newFriend: User) {
-			console.log(`new friend : ${JSON.stringify(newFriend)}`)
 			setNewFriend(newFriend)
 		}
 
@@ -153,7 +147,6 @@ export function ChatSocketProvider() { //the role of this component is to add ev
 		socket.on('declineFriend', onDeclineFriendRequest)
 
 		function onNewBlockedUserEvent(blockedUserId: number) {
-			console.log(`new blockedUserId : ${blockedUserId}`)
 			setNewBlockedUserId(blockedUserId)
 		}
 

@@ -219,7 +219,6 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 			user_id: member.id
 		}
 
-		console.log(`unmute: ${unmuteMemberData}`)
 	}
 
 	return (
@@ -327,9 +326,7 @@ export const BannedUserListItem = ({ user, id, currentRoom, onClick }: { user: U
 			user_id: user.id
 		}
 
-		socket.emit('unbanMember', banData, (response: any) => {
-			console.log('response unban: ', response)
-		})
+		socket.emit('unbanMember', banData)
 
 		onClick(user.id)
 

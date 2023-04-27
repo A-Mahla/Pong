@@ -17,10 +17,6 @@ export class StatusService {
 
 
 		if (friendsIds.length) {
-			console.log('friendsIds: ', friendsIds)
-			//for (let id of friendsIds) {
-			//	server.to(id).emit('friendOnline', userId)
-			//}
 			server.to(friendsIds).emit('friendOnline', userId)
 
 		}
@@ -42,7 +38,6 @@ export class StatusService {
 		await this.userService.inGame(userId)
 
 		if (friendsIds.length) {
-			console.log('sendFriendInGameEvent to friends\n')
 			server.to(friendsIds).emit('friendInGame', userId)
 		}
 	}

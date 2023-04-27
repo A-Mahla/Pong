@@ -16,7 +16,6 @@ export class ChatService {
 		private readonly friendService: FriendsService) { }
 
 	async createRoom(server: Server, client: Socket, payload: CreateRoomData) {
-		console.log('payload in CREATE ROOM: ', payload);
 
 		const newRoom = await this.roomService.createRoom(payload);
 
@@ -30,20 +29,13 @@ export class ChatService {
 	async manageDirectMessage(server: Server, client: Socket, payload: MessageData) {
 
 		if (payload.recipient_id !== undefined) {
-			console.log('payload in create direct message: ', payload)
 			const newDirectMessage = await this.messageService.createDirectMessage(payload.sender_id, payload.recipient_id, payload.content)
 			server.to(payload.recipient_id.toString()).emit('directMessage', newDirectMessage)
 			server.to(client.id).emit('directMessage', newDirectMessage)
-			console.log('payload direct message: ', payload)
-			console.log('newDirectMessage: ', newDirectMessage)
 		}
 	}
 
 	async manageRoomMessage(server: Server, client: Socket, payload: MessageData) {
-
-		console.log("payload:\n\n", payload);
-
-
 
 		if (payload.room !== undefined) {
 
@@ -52,19 +44,14 @@ export class ChatService {
 					error: 'you are muted in this channel'
 				}
 			}
-			console.log('client rooms in handle MESSAGE', client.rooms)
 			const newMessage = await this.messageService.createMessage(payload.sender_id, payload.room.id, payload.content)
 			server.to(payload.room.id.toString() + payload.room.name).emit('roomMessage', newMessage)
-			//client.to(payload.room.id.toString() + payload.room.name).emit('roomMessage', newMessage)
-			console.log('payload in message handler', payload)
 		}
 
 		return payload
 	}
 
 	async leaveRoom(server: Server, client: Socket, payload: LeaveRoomData) {
-
-		//client.leave(payload.room_id.toString() + payload.room_name)
 
 		const message: MessageData = {
 			content: `${payload.user_login} leaved the room`,
@@ -75,11 +62,9 @@ export class ChatService {
 			}
 		}
 
-		console.log('leaveRoom payload: \n\n\n\n', payload, message)
-
 		const newMessage = await this.messageService.createMessage(payload.user_id, payload.room_id, `${payload.user_login} leaved the room`)
 
-		//server.to(payload.room_id.toString() + payload.room_name).emit('message', newMessage)
+		server.to(payload.room_id.toString() + payload.room_name).emit('roomMessage', newMessage)
 		server.to(client.id).emit('roomLeaved', payload.room_id)
 
 		return this.roomService.deleteRelation(payload.user_id, payload.room_id)
@@ -92,13 +77,9 @@ export class ChatService {
 		//join his direct message room
 		client.join(userId.toString())
 
-		console.log('client rooms in handle JOIN', client.rooms)
-
 		for (let room of rooms) {
 			client.join(room.room_id.toString() + room.name)
-			console.log(room.room_id.toString() + room.name)
 		}
-		console.log('rooms: ', rooms)
 
 	}
 
@@ -111,8 +92,6 @@ export class ChatService {
 		}
 
 		const room = await this.roomService.getRoomById(payload.room_id)
-
-		console.log('room in JOIN: ', room)
 
 		if (payload.password) {
 			if ((await this.roomService.checkRoomPassword(payload.room_id, payload.password)) === false)
@@ -144,8 +123,6 @@ export class ChatService {
 
 		const newFriendRequest = await this.friendService.createFriendRequest(payload)
 
-		console.log('dans sendFriendRequest\n\n\n\n\n\n\n\n\n\nn\n\n\n\n\n\n\n')
-
 		server.to(payload.user2_id.toString()).to(client.id).emit('friendRequest', newFriendRequest)
 
 		return newFriendRequest
@@ -157,8 +134,6 @@ export class ChatService {
 		const friendAcceptedRelation = await this.friendService.acceptFriendRequest(friendRequestId)
 		if (friendAcceptedRelation === null)
 			return
-
-		console.log('friendAcceptedRelation: ', friendAcceptedRelation)
 
 		server.to(friendAcceptedRelation.user1.id.toString()).emit('newFriend', friendAcceptedRelation.user2)
 		server.to(friendAcceptedRelation.user2.id.toString()).emit('newFriend', friendAcceptedRelation.user1)
@@ -183,7 +158,6 @@ export class ChatService {
 	}
 
 	async unbanUser(server: Server, client: Socket, payload: BanMemberData) {
-		console.log('unbanData: ', payload)
 		if (!(await this.roomService.isAdmin(payload.sender_id, payload.room_id)) && !(await this.roomService.isRoomOwner(payload.sender_id, payload.room_id))) {
 			return {
 				error: 'Admin role required.'

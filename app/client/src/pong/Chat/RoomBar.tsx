@@ -26,7 +26,6 @@ export function RoomBar() {
 	const { id } = useAuth()
 
 	const handleRoomClick = (room: Room) => {
-		console.log(room)
 		setTarget({ login: '', id: 0, avatar: '' })
 		setCurrent({ name: room.name, id: room.room_id, ownerId: room.ownerId, isPublic: room.isPublic})
 		setActiveRoomId(room.room_id)
@@ -60,8 +59,6 @@ export function RoomBar() {
 				auth: useContextAuth
 			})
 
-			console.log('matching rooms: ', response?.data)
-
 			setMatchingRooms(response?.data.map((value: Room) => (
 				value
 			)))
@@ -71,7 +68,6 @@ export function RoomBar() {
 	}
 
 	const handleJoinRoom = (room: Room, password: string) => {
-		console.log(`joining ${room}`)
 
 		const payload: JoinRoomData = {
 			user_id: id,
@@ -80,11 +76,8 @@ export function RoomBar() {
 		}
 
 		if (room.isPublic === false) {
-			console.log('secured')
 			payload.password = password
 		}
-
-		console.log('joinRoomPayload: ', payload)
 
 		socket.emit('joinRoom', payload, (data: any) => {
 			if (data.error !== undefined) {

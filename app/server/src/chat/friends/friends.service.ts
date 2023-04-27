@@ -120,8 +120,6 @@ export class FriendsService {
 			}
 		})
 
-		console.log(relationFriendTab)
-
 		return relationFriendTab
 	}
 
@@ -195,14 +193,10 @@ export class FriendsService {
 			}
 		});
 
-		console.log(relationFriendTab);
-
 		return relationFriendTab;
 	}
 
 	async getFriendRequests(userId: number) {
-
-		console.log('userId: ', userId)
 
 		const friendRequestsTab = await this.prisma.friend.findMany({
 			where: {
@@ -239,8 +233,6 @@ export class FriendsService {
 				createdAt: elem.createdAt,
 			}
 		})
-
-		console.log('relationFriendRequests: ', relationFriendRequestsTab)
 
 		return relationFriendRequestsTab
 	}
@@ -284,8 +276,6 @@ export class FriendsService {
 				user2Id: friendRequestData.user2_id
 			}
 		})
-
-		console.log('isExistrong : ', friendRequest)
 
 		if (friendRequest.length !== 0)
 			return true

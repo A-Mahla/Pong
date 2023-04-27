@@ -33,13 +33,10 @@ export class StatusGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 			try {
 				const clientPayload = jwt.verify(client.handshake.auth.token, jwtConstants.jwt_secret);
 
-				console.log('clientPayload: ', clientPayload)
-				console.log(`Client connected on Status Socket: \n\n\n\n\n\n${client.id}`);
 				this.server.to(client.id).emit('connected')
 
 				if (clientPayload && clientPayload.sub) {
 					this.statusService.connectUser(this.server, +(clientPayload.sub))
-					console.log('private room name: ', clientPayload.sub.toString())
 					client.join(clientPayload.sub.toString() + 'chat')
 				}
 
@@ -52,13 +49,17 @@ export class StatusGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 	handleDisconnect(client: Socket): any {
 		if (client.handshake.auth.token && jwtConstants.jwt_secret) {
-			const clientPayload = jwt.verify(client.handshake.auth.token, jwtConstants.jwt_secret);
-			if (clientPayload && clientPayload.sub) {
+			try {
+				const clientPayload = jwt.verify(client.handshake.auth.token, jwtConstants.jwt_secret);
+				if (clientPayload && clientPayload.sub) {
 
-				this.statusService.disconnectUser(this.server, +(clientPayload.sub))
-				client.leave(clientPayload.sub.toString() + 'chat')
+					this.statusService.disconnectUser(this.server, +(clientPayload.sub))
+					client.leave(clientPayload.sub.toString() + 'chat')
+				}
+
+			} catch (err) {
+				console.log('socket deconnected')
 			}
-			console.log(`Client disconnected from Status Socket: ${client.id}`);
 
 		}
 

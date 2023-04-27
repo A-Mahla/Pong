@@ -1,16 +1,19 @@
 import { List, ListItem, ListItemText, ListItemAvatar, Avatar, IconButton } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import PropTypes from 'prop-types';
 import { styled } from '@mui/system'
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { socket } from './Socket';
 import { ChatContext } from './Chat';
 import FetchAvatar from '../component/FetchAvatar'
 import { FriendRequest, User } from './Chat.types';
 import { StatusContext } from '../page/LeadPage';
+import { FetchApi } from '../component/FetchApi';
+import { useFetchAuth } from '../context/useAuth';
 
 export const FriendListWrapper = styled('div')({
 	borderRadius: '20px',
@@ -21,7 +24,6 @@ export const FriendListWrapper = styled('div')({
 	backgroundColor: '#f2f2f2',
 	padding: '8px',
 	boxSizing: 'border-box',
-	//height: '600px',
 	height: '100%',
 	overflowY: 'auto',
 });
@@ -100,41 +102,51 @@ export const FriendListItemText = styled('div')({
 
 //------------------------
 
-export const FriendRequestWrapper = styled(List)({
-	//backgroundColor: '#EDEDED',
-	borderRadius: '8px',
+
+export const FriendRequestWrapper = styled('div')({
+	display: 'flex',
+	flexDirection: 'column',
+	width: '100%',
+	backgroundColor: '#f2f2f2',
 	padding: '8px',
-	marginBottom: '8px',
-
-	'&:last-child': {
-		marginBottom: 0,
-	},
+	boxSizing: 'border-box',
+	height: '100%',
+	overflowY: 'auto',
 });
 
-export const FriendRequestItemWrapper = styled(ListItem)({
-	backgroundColor: /* '#EDEDED' */ 'white',
+const FriendRequestItemWrapper = styled('div')({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'space-between',
+	height: '56px',
+	padding: '0 16px',
 	borderRadius: '8px',
-	padding: '8px',
-	marginBottom: '8px',
+	cursor: 'pointer',
 
-	'&:last-child': {
-		marginBottom: 0,
-	},
 });
 
-export const FriendRequestAvatar = styled(ListItemAvatar)({
-	minWidth: '40px',
+export const FriendRequestAvatar = styled('div')({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	height: '40px',
+	width: '40px',
+	borderRadius: '50%',
+	marginRight: '1rem',
+	backgroundColor: '#ffffff',
+	flexShrink: 0
 });
 
-export const FriendRequestListItemText = styled(ListItemText)({
-	marginLeft: '16px',
+export const FriendRequestListItemText = styled('div')({
+	display: 'flex',
+	alignItems: 'center',
+	height: '56px',
+	paddingRight: '1rem',
+	borderRadius: '8px',
 });
 
 export const FriendRequestButtonWrapper = styled('div')({
 	display: 'flex',
-	gap: '8px',
-	marginTop: 'auto',
-
 });
 
 export const FriendRequestButton = styled('div')(() => ({
@@ -150,6 +162,20 @@ export const FriendRequestButton = styled('div')(() => ({
 		backgroundColor: '#EDEDED',
 	},
 }));
+
+
+const ButtonWrapper = styled('div')({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	height: '40px',
+	width: '40px',
+	borderRadius: '50%',
+	margin: '0.5rem',
+	'&:hover': {
+		backgroundColor: '#EDEDED',
+	},
+});
 
 export const FriendRequestItem = ({ friendRequest, id }: { friendRequest: FriendRequest, id: number }) => {
 	const { friendRequests, setFriendRequests } = useContext(ChatContext)
@@ -167,20 +193,42 @@ export const FriendRequestItem = ({ friendRequest, id }: { friendRequest: Friend
 
 	if (id === friendRequest.user1Id)
 		return null
+
+	const auth = useFetchAuth() 
+	const [avatarName, setAvatarName] = useState<string | undefined>(undefined)
+
+	useEffect(() => {
+		const getAvatarNameRequest = {
+			api: {
+				input: `http://${import.meta.env.VITE_SITE}/api/users/avatarName/${friendRequest.user1Id}`
+			},
+			auth: auth
+		}
+
+		const getAvatarName = async () => {
+			const response = await FetchApi(getAvatarNameRequest)
+
+			return response?.data
+		} 
+
+		getAvatarName().then(data => data.avatar ? setAvatarName(data.avatar) : setAvatarName(undefined))
+	})
+
 	return (
 		<FriendRequestItemWrapper>
 			<FriendRequestAvatar>
-				<Avatar>{friendRequest.user1Login.charAt(0)}</Avatar>
+				<FetchAvatar avatar={avatarName} sx={{ height: '100%', width: '100%' }} />
 			</FriendRequestAvatar>
-			<FriendRequestListItemText primary={friendRequest.user1Login} />
-			<FriendRequestButtonWrapper>
-				<FriendRequestButton className="accept" onClick={() => handleAcceptFriendRequest(friendRequest.id)}>
-					Accept
-				</FriendRequestButton>
-				<FriendRequestButton className="decline" onClick={() => handleDeclineFriendRequest(friendRequest)}>
-					Decline
-				</FriendRequestButton>
-			</FriendRequestButtonWrapper>
+			<FriendRequestListItemText>
+				{friendRequest.user1Login}
+			</FriendRequestListItemText>
+			<ButtonWrapper onClick={() => handleAcceptFriendRequest(friendRequest.id)}>
+				<CheckIcon />
+			</ButtonWrapper>
+
+			<ButtonWrapper onClick={() => handleDeclineFriendRequest(friendRequest)}>
+				<CloseIcon />
+			</ButtonWrapper>
 		</FriendRequestItemWrapper>
 	);
 };
@@ -243,8 +291,6 @@ export const UserListItem = ({ user, friends, blockedUserIds, setBlockedUserIds,
 	if (id === user.id)
 		return null
 
-	console.log('blockedUserIds: ', blockedUserIds)
-
 	const [isSendingRequest, setIsSendingRequest] = React.useState(false);
 
 	const handleAddFriendClick = async () => {
@@ -263,10 +309,6 @@ export const UserListItem = ({ user, friends, blockedUserIds, setBlockedUserIds,
 
 		setBlockedUserIds(blockedUserIds.filter(id => id !== user.id))
 
-		console.log('blockedUserIds after filter: ', blockedUserIds)
-		console.log('userId: ', user.id)
-
-		console.log(`unblock: ${user.login}`)
 	}
 
 	return (

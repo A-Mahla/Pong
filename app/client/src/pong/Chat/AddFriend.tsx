@@ -34,8 +34,6 @@ export function AddFriend() {
 				auth: useContextAuth
 			})
 
-			console.log('data: ', response?.data)
-
 			setMatchingUsers(response?.data.map((value: User) => ({
 				id: value.id,
 				login: value.login,

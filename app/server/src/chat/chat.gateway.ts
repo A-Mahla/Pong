@@ -25,13 +25,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   @SubscribeMessage('directMessage')
   async handleDirectMessage(client: any, payload: MessageData)/* : MessageData */ {
-    console.log('payload: ', payload)
     return await this.chatService.manageDirectMessage(this.server, client, payload)
   }
 
   @SubscribeMessage('roomMessage')
   async handleRoomMessage(client: any, payload: MessageData)/* : MessageData */ {
-    console.log('payload: ', payload)
     return await this.chatService.manageRoomMessage(this.server, client, payload)
   }
 
@@ -57,8 +55,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   @SubscribeMessage('acceptFriend') // TODO changer par accept request
   async handleAddFriend(client: Socket, friendRequestId: number) {
-
-    console.log('friendRequestId: ', friendRequestId)
     return this.chatService.acceptFriendRequest(this.server, client, friendRequestId)
   }
 
@@ -104,7 +100,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   @SubscribeMessage('muteMember')
   async handleMuteMember(client: Socket, payload: MuteMemberData) {
-    console.log('inMuteMember: ', payload)
     return this.chatService.muteMember(this.server, payload)
   }
 

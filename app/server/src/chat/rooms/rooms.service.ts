@@ -24,7 +24,6 @@ export class RoomsService {
 			newRoomData.password = await bcrypt.hash(roomDetails.password, 12)
 		}
 
-		console.log('newRoomData: ', newRoomData)
 		const newRoom = await this.prisma.room.create({
 			data: { ...newRoomData }
 		}).catch((e: any) => { throw e });
@@ -87,7 +86,7 @@ export class RoomsService {
 
 	async getRoomOwner(roomId: number) {
 		const room = await this.getRoomById(roomId)
-		console.log(room)
+
 		if (room === null)
 			throw new BadRequestException('Invalid content', { cause: new Error(), description: 'invalid room id' })
 		if (room.ownerId === null)
@@ -98,8 +97,6 @@ export class RoomsService {
 				throw new BadRequestException(e);
 			})
 
-		console.log(user)
-		//return (user as User).ownedRooms
 		return user
 	}
 
@@ -132,8 +129,6 @@ export class RoomsService {
 		}).catch((e) => {
 			throw new BadRequestException(e);
 		})
-
-		console.log(rooms)
 
 		return rooms
 	}
@@ -307,8 +302,6 @@ export class RoomsService {
 			throw new BadRequestException(e);
 		})
 
-		console.log('roomOwnerId: ', room?.ownerId, ', userId: ', userId)
-
 		if (room && room.ownerId === userId)
 			return true
 		return false
@@ -326,7 +319,6 @@ export class RoomsService {
 		}).catch((e) => {
 			throw new BadRequestException(e);
 		})
-		console.log('adminRelation: ', adminRelation, ', userId: ', userId)
 
 		if (adminRelation)
 			return true
@@ -361,7 +353,6 @@ export class RoomsService {
 	}
 
 	async muteUser(userId: number, roomId: number) {
-		console.log('muteUser')
 		return await this.prisma.mute.create({
 			data: {
 				RoomId: roomId,
@@ -413,8 +404,6 @@ export class RoomsService {
 		}).catch((e) => {
 			throw new BadRequestException(e);
 		})
-
-		console.log('relatio in isMuted: ', relation)
 
 		if (relation && relation.createdAt > new Date(cutoff))
 			return true
