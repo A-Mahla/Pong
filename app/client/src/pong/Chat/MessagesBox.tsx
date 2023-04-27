@@ -221,12 +221,14 @@ export const MessagesBox = () => {
 		}
 	}, [messageList]);
 
+	const status = friendStatusTab.find(item => item.id === target.id)?.status as string
+
 	return (
 		<ChatBox>
 			{
 				target.id !== 0 ?
 					<ChatHeader>
-						<FetchAvatar avatar={target.id !== 0 ? target.avatar : ''} sx={null} status={friendStatusTab.find(item => item.id === target.id)?.status as string} />
+						<FetchAvatar avatar={target.id !== 0 ? target.avatar : ''} sx={null} status={status !== undefined ? status : 'online'} />
 						<Typography sx={{ p: '2rem' }}>{target.login}</Typography>
 						<SettingsButtton />
 					</ChatHeader>

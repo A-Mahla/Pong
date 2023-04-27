@@ -19,16 +19,18 @@ export class StatusGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	}
 
 	@SubscribeMessage('inGame')
-	handleInGame(client: Socket, userId: number) {
-		this.statusService.inGame(this.server, userId)
+	async handleInGame(client: Socket, userId: number) {
+		console.log('inGame:', userId)
+		await this.statusService.inGame(this.server, userId)
 	}
 
 	@SubscribeMessage('outGame')
-	handleOutGame(client: Socket, userId: number) {
-		this.statusService.connectUser(this.server, userId)
+	async handleOutGame(client: Socket, userId: number) {
+		console.log('outGame: ', userId)
+		await this.statusService.connectUser(this.server, userId)
 	}
 
-	handleConnection(client: Socket, ...args: any[]): any {
+	async handleConnection(client: Socket, ...args: any[]): Promise<any> {
 		if (client.handshake.auth.token && jwtConstants.jwt_secret) {
 			try {
 				const clientPayload = jwt.verify(client.handshake.auth.token, jwtConstants.jwt_secret);
@@ -36,8 +38,9 @@ export class StatusGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 				this.server.to(client.id).emit('connected')
 
 				if (clientPayload && clientPayload.sub) {
-					this.statusService.connectUser(this.server, +(clientPayload.sub))
 					client.join(clientPayload.sub.toString() + 'chat')
+					console.log('Connected to status gateway: ', clientPayload.sub)
+					await this.statusService.connectUser(this.server, +(clientPayload.sub))
 				}
 
 
@@ -47,13 +50,13 @@ export class StatusGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 		}
 	}
 
-	handleDisconnect(client: Socket): any {
+	async handleDisconnect(client: Socket): Promise<any> {
 		if (client.handshake.auth.token && jwtConstants.jwt_secret) {
 			try {
 				const clientPayload = jwt.verify(client.handshake.auth.token, jwtConstants.jwt_secret);
 				if (clientPayload && clientPayload.sub) {
 
-					this.statusService.disconnectUser(this.server, +(clientPayload.sub))
+					await this.statusService.disconnectUser(this.server, +(clientPayload.sub))
 					client.leave(clientPayload.sub.toString() + 'chat')
 				}
 

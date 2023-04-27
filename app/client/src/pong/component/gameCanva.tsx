@@ -46,6 +46,7 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: { socket: So
 
 	const quitGame = async () => {
 		socket.emit('quitGame');
+		console.log('deconnection socketStatus: ', socketStatus)
 		if (socketStatus)
 			socketStatus.emit('outGame', id);
 		handleThereIsMatch()
@@ -109,20 +110,26 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: { socket: So
 			socket.on("initSetup", (gameData: GameData) => {
 				setFetched(true); // we know here that we receive the initSetup from back so we are sure there is a match
 				setGameData(gameData); // we set here the const of the game like the players logins and paddle size
-				if (socketStatus)
-					socketStatus.emit('inGame', id);
+				console.log('connection socketStatus: ', socketStatus)
 			})
 			socket.on('disconnection', (errorMessage: string) => {
-				if (socketStatus)
-					socketStatus.emit('outGame', id);
+				console.log('deconnection socketStatus: ', socketStatus)
+				//if (socketStatus)
+				//	socketStatus.emit('outGame', id);
 				handleThereIsError(errorMessage);
 			})
 
 		}, 100);
 		window.addEventListener("resize", canvaResize);
+		if (socketStatus)
+			socketStatus.emit('inGame', id);
+
 		return (() => {
 			clearTimeout(timeTest);
 			window.removeEventListener("resize", canvaResize);
+		if (socketStatus)
+			socketStatus.emit('outGame', id);
+
 		})
 
 	}, [])
@@ -175,6 +182,9 @@ const Canvas = ({ socket, handleThereIsMatch, handleThereIsError }: { socket: So
 
 			socket.on("gameOver", (gameData: updateData) => {
 				setFetched(true)
+				//console.log('deconnection socketStatus: ', socketStatus)
+				//if (socketStatus)
+				//	socketStatus.emit('outGame', id);
 				drawEndGame(canvas.current, gameData.p1score, gameData.p2score);
 			})
 

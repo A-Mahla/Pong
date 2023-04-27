@@ -35,6 +35,7 @@ export const StatusSocketProvider = ({ children }: { children: ReactNode }) => {
 	const [offlineEvent, setOfflineEvent] = useState<number | undefined>(undefined)
 	const [inGameEvent, setInGameEvent] = useState<number | undefined>(undefined)
 	const [socketStatus, setSocketStatus] = useState<Socket | null>(null)
+	const [fetched, setFetched] = useState<boolean>(false)
 	const auth = useAuth()
 
 
@@ -52,17 +53,26 @@ export const StatusSocketProvider = ({ children }: { children: ReactNode }) => {
 			const response = await FetchApi(getFriendsStatusRequest)
 
 			return response?.data
+
 		}
 
+		setSocketStatus(io(`http://${import.meta.env.VITE_SITE}/status`, {
+			auth: {
+				token: token
+			},
+		}))
+
 		getFriendsStatus().then(data => setFriendStatusTab(data))
+		setFetched(true)
 
 	}, [])
 
 
 	useEffect(() => {
 
-		function handleFriendOnlineEvent(id: number) {
+		async function handleFriendOnlineEvent(id: number) {
 			setOnlineEvent(id)
+
 		}
 
 		function handleFriendOfflineEvent(id: number) {
@@ -73,11 +83,12 @@ export const StatusSocketProvider = ({ children }: { children: ReactNode }) => {
 			setInGameEvent(id)
 		}
 
-		if (socketStatus) {
+		//if (socketStatus) {
+		if (fetched && socketStatus) {
 
-		//	socketStatus.on("connect", () => {
-		//		console.log("connected to status server" + new Date());
-		//	})
+			socketStatus.on("connect", () => {
+				console.log("connected to status server" + new Date());
+			})
 
 			socketStatus.on('friendOnline', handleFriendOnlineEvent)
 
@@ -88,11 +99,11 @@ export const StatusSocketProvider = ({ children }: { children: ReactNode }) => {
 		}
 		else {
 
-			setSocketStatus(io(`http://${import.meta.env.VITE_SITE}/status`, {
-				auth: {
-					token: token
-				},
-			}))
+			/* 			setSocketStatus(io(`http://${import.meta.env.VITE_SITE}/status`, {
+							auth: {
+								token: token
+							},
+						})) */
 		}
 
 
@@ -103,26 +114,48 @@ export const StatusSocketProvider = ({ children }: { children: ReactNode }) => {
 				socketStatus.off('friendOnline', handleFriendOnlineEvent)
 				socketStatus.off('friendOnffline', handleFriendOfflineEvent)
 				socketStatus.off('friendInGame', handleFriendInGameEvent)
+				socketStatus.disconnect()
 
 			}
 		}
 
-	}, [socketStatus])
+	}, [socketStatus, fetched])
 
 	useEffect(() => {
 
+		async function getFriendsStatus() {
+
+			const getFriendsStatusRequest = {
+				api: {
+					input: `http://${import.meta.env.VITE_SITE}/api/friends/status`
+				},
+				auth: auth
+			}
+
+			const response = await FetchApi(getFriendsStatusRequest)
+
+			return response?.data
+
+		}
+
 		if (onlineEvent !== undefined) {
-			setFriendStatusTab(friendStatusTab.map(item => item.id === onlineEvent ? { ...item, status: 'online' } : item))
+			console.log('onlineEvent: ', onlineEvent)
+			//setFriendStatusTab(friendStatusTab.map(item => item.id === onlineEvent ? { ...item, status: 'online' } : item))
+			getFriendsStatus().then(data => setFriendStatusTab(data))
 			setOnlineEvent(undefined)
 		}
 		if (offlineEvent !== undefined) {
-			setFriendStatusTab(friendStatusTab.map(item => item.id === offlineEvent ? { ...item, status: 'offline' } : item))
+			console.log('offlineEvent: ', offlineEvent)
+			//setFriendStatusTab(friendStatusTab.map(item => item.id === offlineEvent ? { ...item, status: 'offline' } : item))
+			getFriendsStatus().then(data => setFriendStatusTab(data))
 			setOfflineEvent(undefined)
 		}
 		if (inGameEvent !== undefined) {
-			setFriendStatusTab(friendStatusTab.map(item => item.id === inGameEvent ? { ...item, status: 'inGame' } : item))
+			console.log('inGameEvent: ', inGameEvent)
+			getFriendsStatus().then(data => setFriendStatusTab(data))
+			//setFriendStatusTab(friendStatusTab.map(item => item.id === inGameEvent ? { ...item, status: 'inGame' } : item))
 			setInGameEvent(undefined)
-		} 
+		}
 
 	}, [onlineEvent, inGameEvent, offlineEvent])
 

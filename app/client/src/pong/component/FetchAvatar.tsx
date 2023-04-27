@@ -97,11 +97,17 @@ const StyledBadgeGreen = styled(Badge)(({ theme }) => ({
 const FetchAvatar = (props: PropsAvatar) => {
 
 	const [fetched, setFetched] = useState<boolean>(false)
-	const [status, setStatus] = useState<string>('offline')
-	const inputFileRef = createRef<HTMLInputElement>();
+	const [status, setStatus] = useState<string | undefined>(undefined)
+	//const inputFileRef = createRef<HTMLInputElement>();
 	const [image, setImage] = useState<string>('')
 	const auth = useAuth()
-	const fetchAuth = useFetchAuth()
+	//const fetchAuth = useFetchAuth()
+
+	useEffect(() => {
+		setStatus(props.status)
+
+	}, [props.status])
+
 
 	useEffect(() => {
 
@@ -169,7 +175,7 @@ const FetchAvatar = (props: PropsAvatar) => {
 		{!fetched ?
 			null
 			:
-			props.status === 'online' ?
+			status === 'online' ?
 
 				<StyledBadgeGreen
 					overlap="circular"
@@ -181,7 +187,7 @@ const FetchAvatar = (props: PropsAvatar) => {
 						src={image}
 					/>
 				</StyledBadgeGreen>
-				: props.status === 'inGame' ?
+				: status === 'inGame' ?
 					<StyledBadgeRed
 						overlap="circular"
 						anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
@@ -192,7 +198,7 @@ const FetchAvatar = (props: PropsAvatar) => {
 							src={image}
 						/>
 					</StyledBadgeRed>
-					: props.status === 'offline' ?
+					: status === 'offline' ?
 						<StyledBadgeGrey
 							overlap="circular"
 							anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}

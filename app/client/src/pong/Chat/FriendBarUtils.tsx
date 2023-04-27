@@ -51,10 +51,10 @@ export const FriendListItemWrapper = styled('div')<FriendListItemWrapperProps>((
 export const FriendListItem = ({ friend, activeFriendId, onClick }: { friend: User, activeFriendId: number, onClick: (friend: User) => void }) => {
 	const { friendStatusTab } = useContext(StatusContext)
 
-	console.log('friendStatusTab in FriendListItem: ', friendStatusTab)
+	//console.log('friendStatusTab in FriendListItem: ', friendStatusTab)
 	const status = friendStatusTab.find(item => item.id === friend.id)?.status as string
 
-	console.log('status in FriendListItem: ', status)
+	//console.log('status in FriendListItem: ', status)
 
 	return (
 		<FriendListItemWrapper
@@ -63,7 +63,7 @@ export const FriendListItem = ({ friend, activeFriendId, onClick }: { friend: Us
 			onClick={() => onClick(friend)}
 		>
 			<FriendListItemAvatar>
-				<FetchAvatar avatar={friend.avatar ? friend.avatar : ''} sx={{ height: '100%', width: '100%' }} status={status !== undefined ? status : 'offline'} />
+				<FetchAvatar avatar={friend.avatar ? friend.avatar : ''} sx={{ height: '100%', width: '100%' }} status={status !== undefined ? status : 'online'} />
 			</FriendListItemAvatar>
 			<FriendListItemText>{friend.login}</FriendListItemText>
 		</FriendListItemWrapper>

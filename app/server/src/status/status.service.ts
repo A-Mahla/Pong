@@ -15,10 +15,8 @@ export class StatusService {
 
 		await this.userService.connect(userId)
 
-
 		if (friendsIds.length) {
 			server.to(friendsIds).emit('friendOnline', userId)
-
 		}
 
 	}
