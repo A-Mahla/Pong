@@ -230,7 +230,6 @@ export class UsersController {
 		@Request() req: any,
 	)
 	{
-		console.log('user in request getRooms: ', req.user)
 		return this.userService.findAllUserRooms(req.user.sub)
 	}
 

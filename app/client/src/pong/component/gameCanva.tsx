@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Typography, Box, Paper, Button } from '@mui/material'
+import { Typography, Button } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
@@ -9,10 +9,10 @@ import PropTypes from 'prop-types';
 import { useFetchAuth } from '../context/useAuth'
 import { FetchApi, Api, responseApi } from '../component/FetchApi'
 import useAuth from '../context/useAuth'
-import io, { Socket } from "socket.io-client";
 // import '../page/game.css'
 import { StatusContext } from '../page/LeadPage'
 import { render } from 'react-dom'
+import {Socket} from "socket.io-client";
 import LinearProgress from '@mui/material/LinearProgress';
 import FetchAvatar from '../component/FetchAvatar'
 import { GameData, constants, updateData } from './gameType'

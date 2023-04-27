@@ -13,7 +13,6 @@ import GamePage from './Game';
 import '../../App.css';
 import { ChatSocketProvider } from '../Chat/Socket'
 import { ReactNode } from "react"
-//import { FetchApi, Api, responseApi } from '../component/FetchApi'
 import io, { Socket } from "socket.io-client";
 
 

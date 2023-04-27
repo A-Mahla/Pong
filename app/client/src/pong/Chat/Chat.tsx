@@ -301,17 +301,17 @@ export function Chat() {
 		if (newBlockedUserId !== undefined) {
 			console.log(`newBlockedUserId: ${newBlockedUserId}`)
 			console.log(`friends: ${friends}`)
-			setFriends(friends.filter(friend =>  friend.id !== newBlockedUserId))
+			setFriends(friends.filter(friend => friend.id !== newBlockedUserId))
 			setBlockedUserIds([...blockedUserIds, newBlockedUserId])
 			setNewBlockedUserId(undefined)
 		}
 		if (removedFriendId !== undefined) {
 			console.log('removed friend id: ', removedFriendId)
-			setFriends(friends.filter(friend =>  friend.id !== removedFriendId))
+			setFriends(friends.filter(friend => friend.id !== removedFriendId))
 			console.log('friendRequest: ', friendRequests)
 			setFriendRequests(friendRequests.filter(friendRequests => friendRequests.user1Id !== removedFriendId && friendRequests.user2Id !== removedFriendId))
 			if (target.id === removedFriendId) {
-				setTarget({id: 0, login: '', avatar: ''})
+				setTarget({ id: 0, login: '', avatar: '' })
 			}
 			setRemovedFriendId(undefined)
 		}
@@ -320,15 +320,44 @@ export function Chat() {
 
 	return (
 		<ChatContext.Provider value={chatContext}>
-			<Grid container >
-				<Grid item xs={6} md={2} sx={{ p: '2px' }}>
+			<Grid container
+				sx={{ height: '100%' }}
+			>
+				<Grid item xs={6} md={2}
+					sx={{
+						p: '2px',
+						'@media (max-width: 950px)': {
+							height: '30%',
+							p: 0
+						}
+
+					}}
+				>
 					<RoomBar />
 				</Grid>
-				<Grid item xs={6} md={2} sx={{ p: '2px' }}>
+				<Grid item xs={6} md={2}
+					sx={{
+						p: '2px',
+						'@media (max-width: 950px)': {
+							height: '30%',
+							p: 0
+						}
+
+					}}
+				>
 					<FriendBar />
 				</Grid>
 
-				<Grid item xs={12} md={8} sx={{ p: '2px' }}>
+				<Grid item xs={12} md={8}
+					sx={{
+						p: '2px',
+						'@media (max-width: 950px)': {
+							height: '70%',
+							p: 0
+						}
+
+					}}
+				>
 					<MessagesBox />
 				</Grid>
 			</Grid>

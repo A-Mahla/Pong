@@ -10,6 +10,7 @@ import {
 	FormControl,
 	CircularProgress,
 } from '@mui/material'
+import Snackbar from '@mui/material/Snackbar';
 import { useLocation } from 'react-router-dom'
 import React, { useCallback, useRef, createRef, useState, useEffect } from 'react'
 import useAuth from '../context/useAuth'
@@ -46,6 +47,7 @@ const IntraSignup = () => {
 
 	const {intraLogin, authSignupIntra, loading} = useAuth()
 	const [error, setError] = useState('')
+	const [isAlertOpen, setIsAlertOpen] = useState(false)
 	const [file, setFile] = useState<any>(null);
 	const [image, setImage] = useState<string>('');
 	const inputFileRef = createRef<HTMLInputElement>();
@@ -103,6 +105,12 @@ const IntraSignup = () => {
 			file
 		))
 	}
+
+	useEffect(() => {
+		if (error !== '')
+			setIsAlertOpen(true)
+	}, [error])
+
 
 
 	return	<>
@@ -164,22 +172,15 @@ const IntraSignup = () => {
 					width: '13rem'
 				}}
 				onChange={handleChangeInputLogin}
-				helperText={error === '' ?
-					null :
-					<Typography
-						sx={{
-							p: 1,
-							fontFamily: '"system-ui", sans-serif',
-							fontSize: [9, '!important']
-						}}
-						align="center"
-						color="tomato"
-					>
-					{error}
-					</Typography> }
 			/>
 			<Button sx={{color: 'primary.main'}} onClick={handleIntraLogin}>signin</Button>
 		</FormControl>
+		<Snackbar
+			open={isAlertOpen}
+			autoHideDuration={4000}
+			onClose={() => { setIsAlertOpen(false), setError('') }}
+			message={error}
+		/>
 		</>
 }
 

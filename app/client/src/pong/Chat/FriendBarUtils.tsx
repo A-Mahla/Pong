@@ -21,7 +21,8 @@ export const FriendListWrapper = styled('div')({
 	backgroundColor: '#f2f2f2',
 	padding: '8px',
 	boxSizing: 'border-box',
-	height: '600px',
+	//height: '600px',
+	height: '100%',
 	overflowY: 'auto',
 });
 

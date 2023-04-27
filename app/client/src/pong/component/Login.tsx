@@ -200,8 +200,8 @@ export const Login = () => {
 			|| !password.current.value
 			|| !(username.current.value.length >= 3 && username.current.value.length <= 20)
 			|| !isNumberOrString(username.current.value)
-//			|| !(password.current.value.length > 8 || password.current.value.length < 72) 
-//			|| !isPassword(password.current.value)
+			|| !(password.current.value.length > 8 || password.current.value.length < 72)
+			|| !isPassword(password.current.value)
 		)
 			await setError('invalid login or password')
 		else
@@ -215,7 +215,6 @@ export const Login = () => {
 	}
 
 	useEffect(() => {
-		console.log('test')
 		if (error === '2FA') {
 			setOpen(true)
 		}
@@ -276,5 +275,3 @@ export const Login = () => {
 
 }
 
-//: <LogoutButton>log out</LogoutButton>
-//		}

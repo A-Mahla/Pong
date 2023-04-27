@@ -2,32 +2,20 @@ import * as React from 'react'
 import {useState} from 'react'
 import { Typography, Box, Paper } from '@mui/material'
 import Grid from '@mui/material/Grid'
-import Tabs from '@mui/material/Tabs'
 import Button from "@mui/material/Button";
-import Tab from '@mui/material/Tab'
-import Swipeable from '../component/Swipeable'
-import Profile from '../Profile/Profile'
-import PropTypes from 'prop-types';
 import { useFetchAuth } from '../context/useAuth'
-import { FetchApi, Api, responseApi } from '../component/FetchApi'
+import { FetchApi } from '../component/FetchApi'
 import useAuth from '../context/useAuth'
-import io, {Socket} from "socket.io-client";
-import { render } from 'react-dom'
-import Canvas from '../component/gameCanva'
-import { GameSocketProvider, UserContext } from '../services/GameSocketProvider'
+import {Socket} from "socket.io-client";
 import { styled } from '@mui/system';
 import {
 	Dialog,
 	DialogTitle,
-	FormControl,
 	DialogContent,
-	TextField,
 	Divider,
-	InputAdornment,
 } from '@mui/material'
 import {
 	PlayersListWrapper,
-	PlayersListItemAvatar,
 } from '../Profile/SearchPlayers'
 import FetchAvatar from './FetchAvatar'
 import { InviteGameData }from './gameType'
@@ -224,7 +212,7 @@ export const GameFriends = ({socket, thereIsMatch, handleThereIsMatch, openFrien
 												>
 													<PlayersListItemAvatarLeft>
 														<FetchAvatar
-															avatar=""
+															avatar={gameId.sender_avatar}
 															sx={{
 																height: '100%',
 																width: '100%'
@@ -232,7 +220,7 @@ export const GameFriends = ({socket, thereIsMatch, handleThereIsMatch, openFrien
 														/>
 													</PlayersListItemAvatarLeft>
 													<PlayersListItemText>
-														{gameId.sender_login}
+														{gameId.sender_login === user ? "you" : gameId.sender_login}
 													</PlayersListItemText>
 												</Grid>
 												<Grid item xs={5}
@@ -248,7 +236,7 @@ export const GameFriends = ({socket, thereIsMatch, handleThereIsMatch, openFrien
 															top: 8,
 														}}
 													>
-														invited you
+														{gameId.sender_id === id ? 'created a game' : 'invited you'}
 													</Typography>
 												</Grid>
 												<Grid item display="flex" xs={3}

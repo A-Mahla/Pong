@@ -1,5 +1,4 @@
 import {
-	Box,
 	Grid,
 	Typography,
 	Button,
@@ -75,7 +74,7 @@ const GameInfo = (props: MatchInfoProps) => {
 					{props.victory}
 				</Typography>
 			</Grid>
-			
+
 		</Grid>
 
 		<Grid item sm={4} xs={12} order={{sm: 2, xs: 1}}
@@ -99,7 +98,7 @@ const GameInfo = (props: MatchInfoProps) => {
 					xs={12}
 					sx={{height: "80%"}}
 				>
-					
+
 					<Typography align="center"
 						variant='h2'
 						style={{color: '#213547'}}
@@ -141,7 +140,7 @@ const GameInfo = (props: MatchInfoProps) => {
 					}}
 				>
 					Match History
-				</Button> 
+				</Button>
 			</Grid>
 
 			<Grid item display="flex"
@@ -171,7 +170,7 @@ const GameInfo = (props: MatchInfoProps) => {
 					}}
 				>
 					Search Players
-				</Button> 
+				</Button>
 			</Grid>
 
 		</Grid>

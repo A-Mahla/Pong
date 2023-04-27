@@ -1,13 +1,9 @@
 import * as React from 'react'
-import { Typography, Box, Paper, Divider } from '@mui/material'
+import { Typography, Box, Divider } from '@mui/material'
 import Grid from '@mui/material/Grid'
-import Tabs from '@mui/material/Tabs'
-import PropTypes from 'prop-types';
-import Tab from '@mui/material/Tab'
 import useAuth from '../context/useAuth'
-import io, {Socket} from "socket.io-client";
+import {Socket} from "socket.io-client";
 import './game.css'
-import { render } from 'react-dom'
 import Canvas from '../component/gameCanva'
 import { GameSocketProvider, UserContext } from '../services/GameSocketProvider'
 import { Spectator } from '../component/Spectator'
@@ -15,13 +11,9 @@ import { GameFriends } from '../component/GameFriends'
 import Popover from '@mui/material/Popover';
 import { useState } from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import { Checkbox, Radio, FormControlLabel, FormGroup } from '@mui/material';
+import { Radio, FormControlLabel, FormGroup } from '@mui/material';
 import { styled } from '@mui/system';
 import { useEffect } from 'react'
-import { JoinQueuButtonChat } from '../Chat/CreateGame'
-const pongTitle = {
-	fontSize: '2vw;',
-}
 
 /* ---------------- ^^^^ ---------------*/
 

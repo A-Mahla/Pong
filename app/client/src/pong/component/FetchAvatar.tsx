@@ -13,10 +13,64 @@ type PropsAvatar = {
 	sx: SxProps
 }
 
-const StyledBadge = styled(Badge)(({ theme }) => ({
+const StyledBadgeGrey = styled(Badge)(({ theme }) => ({
 	'& .MuiBadge-badge': {
-		//backgroundColor: 'white',
-		//color: dotColor,
+		backgroundColor: 'lightgrey',
+		color: 'lightgrey',
+		boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+		'&::after': {
+			position: 'absolute',
+			top: 0,
+			left: 0,
+			width: '100%',
+			height: '100%',
+			borderRadius: '50%',
+			content: '""',
+		},
+	},
+	'@keyframes ripple': {
+		'0%': {
+			transform: 'scale(.8)',
+			opacity: 1,
+		},
+		'100%': {
+			transform: 'scale(2.4)',
+			opacity: 0,
+		},
+	},
+}));
+
+const StyledBadgeRed = styled(Badge)(({ theme }) => ({
+	'& .MuiBadge-badge': {
+		backgroundColor: 'red',
+		color: 'red',
+		boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+		'&::after': {
+			position: 'absolute',
+			top: 0,
+			left: 0,
+			width: '100%',
+			height: '100%',
+			borderRadius: '50%',
+			content: '""',
+		},
+	},
+	'@keyframes ripple': {
+		'0%': {
+			transform: 'scale(.8)',
+			opacity: 1,
+		},
+		'100%': {
+			transform: 'scale(2.4)',
+			opacity: 0,
+		},
+	},
+}));
+
+const StyledBadgeGreen = styled(Badge)(({ theme }) => ({
+	'& .MuiBadge-badge': {
+		backgroundColor: 'green',
+		color: 'green',
 		boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
 		'&::after': {
 			position: 'absolute',
@@ -65,7 +119,6 @@ const FetchAvatar = (props: PropsAvatar) => {
 				//		},
 				//		auth: fetchAuth
 				//	}
-
 				//	const response = await FetchApi(getStatusRequest)
 				//	console.log('status\n\n\n\n\n: ', response?.data.status)
 				//	setStatus(response?.data.status)
@@ -131,36 +184,46 @@ const FetchAvatar = (props: PropsAvatar) => {
 		{!fetched ?
 			null
 			:
-			props.status ?
+			props.status === 'online' ?
 
-				<StyledBadge
+				<StyledBadgeGreen
 					overlap="circular"
 					anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-					sx={{
-						...props.sx, /* color: status === 'online' ?
-							'#44b700'
-							: status === 'inGame' ?
-								'red'
-								:
-								'lightgrey' */
-						color: '#44b700'
-
-					}}
 					variant='dot'
 				>
 					<Avatar
 						alt="other_avatar"
 						src={image}
 					/>
-					{props.status}
-					{/* props.status !== undefined ? props.status : status */}
-				</StyledBadge>
-				:
-				<Avatar
-					alt="other_avatar"
-					src={image}
-					sx={props.sx}
-				/>
+				</StyledBadgeGreen>
+				: props.status === 'inGame' ?
+					<StyledBadgeRed
+						overlap="circular"
+						anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+						variant='dot'
+					>
+						<Avatar
+							alt="other_avatar"
+							src={image}
+						/>
+					</StyledBadgeRed>
+					: props.status === 'offline' ?
+						<StyledBadgeGrey
+							overlap="circular"
+							anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+							variant='dot'
+						>
+							<Avatar
+								alt="other_avatar"
+								src={image}
+							/>
+						</StyledBadgeGrey>
+						:
+						<Avatar
+							alt="other_avatar"
+							src={image}
+							sx={props.sx}
+						/>
 
 		}
 	</>

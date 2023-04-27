@@ -1,4 +1,4 @@
-import { 
+import {
 	Box,
 	List,
 	ListItem,
@@ -7,7 +7,7 @@ import {
 	DialogTitle,
 	DialogContent,
 	Typography,
-	Divider, 
+	Divider,
 	Grid,
 	Switch,
 	Accordion,
@@ -20,7 +20,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import useAuth, { useFetchAuth } from '../context/useAuth'
 import { useState, useEffect } from 'react'
-import { FetchApi, Api, refreshRequest } from '../component/FetchApi'
+import { FetchApi, refreshRequest } from '../component/FetchApi'
 import * as React from 'react';
 import axios from 'axios';
 
@@ -168,7 +168,7 @@ export const QRCodeComponent = (props: QRProps) => {
 
 					`http://${import.meta.env.VITE_SITE}/api/2fa/generate`,
 					{},
-					{ 
+					{
 						withCredentials: true,
 						responseType: 'blob',
 						headers: {
@@ -177,7 +177,7 @@ export const QRCodeComponent = (props: QRProps) => {
 					}
 				)
 				await setQrcode(await URL.createObjectURL(result.data))
-		
+
 			} catch(err) {
 				try {
 					const refresh = await refreshRequest()
@@ -197,7 +197,7 @@ export const QRCodeComponent = (props: QRProps) => {
 
 						`http://${import.meta.env.VITE_SITE}/api/2fa/generate`,
 						{},
-						{ 
+						{
 							withCredentials: true,
 							responseType: 'blob',
 							headers: {
@@ -329,7 +329,7 @@ export const QRCodeComponent = (props: QRProps) => {
 								</Box>
 							</Grid>
 
-							
+
 						</DialogContent>
 					</Dialog>
 				</>
@@ -338,7 +338,7 @@ export const QRCodeComponent = (props: QRProps) => {
 	);
 
 
-	
+
 
 }
 

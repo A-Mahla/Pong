@@ -7,7 +7,6 @@ import Contact from './page/Contact';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Login } from './component/Login';
 import { AuthProvider } from './context/useAuth';
-import { ChatSocketProvider } from './Chat/Socket';
 import SignUp from './component/SignUp';
 import '../index.css';
 
