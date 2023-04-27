@@ -225,7 +225,7 @@ export const UserListItem = ({ user, id, currentRoom, setMembers, members, setBa
 	return (
 		<UserListItemWrapper>
 			<UserListItemAvatar>
-				<FetchAvatar avatar={user.avatar} sx={{ height: '100%', width: '100%' }} />
+				<FetchAvatar avatar={user.avatar ? user.avatar : ''} sx={{ height: '100%', width: '100%' }} />
 				{/*{user.id} {currentRoom.id}*/}
 			</UserListItemAvatar>
 			<UserListItemText>{user.login}</UserListItemText>
@@ -339,7 +339,7 @@ export const BannedUserListItem = ({ user, id, currentRoom, onClick }: { user: U
 	return (
 		<UserListItemWrapper>
 			<UserListItemAvatar>
-				<FetchAvatar avatar={user.avatar} sx={{ height: '100%', width: '100%' }} />
+				<FetchAvatar avatar={user.avatar ? user.avatar : ''} sx={{ height: '100%', width: '100%' }} />
 			</UserListItemAvatar>
 			<UserListItemText>{user.login}</UserListItemText>
 			{

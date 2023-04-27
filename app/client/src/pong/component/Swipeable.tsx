@@ -15,6 +15,7 @@ import Divider from '@mui/material/Divider';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import { StatusContext } from '../page/LeadPage';
 
 type Anchor = 'top' | 'left' | 'bottom' | 'right';
 
@@ -73,6 +74,8 @@ const Swipeable = (props: propsSwip) => {
 
 	const Swip = (props: propsSwip) => {
 
+		const {socketStatus} = React.useContext(StatusContext)
+
 		const {token, authLogout, navigate} = useAuth()
 
 		const handlePlay = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -82,6 +85,7 @@ const Swipeable = (props: propsSwip) => {
 
 		const handleLogout = (e: React.MouseEvent<HTMLDivElement>) => {
 			e.preventDefault()
+			socketStatus?.disconnect()
 			authLogout();
 		}
 

@@ -12,7 +12,7 @@ import useAuth from '../context/useAuth'
 // import '../page/game.css'
 import { StatusContext } from '../page/LeadPage'
 import { render } from 'react-dom'
-import {Socket} from "socket.io-client";
+import { Socket } from "socket.io-client";
 import LinearProgress from '@mui/material/LinearProgress';
 import FetchAvatar from '../component/FetchAvatar'
 import { GameData, constants, updateData } from './gameType'

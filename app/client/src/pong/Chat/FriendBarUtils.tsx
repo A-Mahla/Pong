@@ -61,7 +61,7 @@ export const FriendListItem = ({ friend, activeFriendId, onClick }: { friend: Us
 			onClick={() => onClick(friend)}
 		>
 			<FriendListItemAvatar>
-				<FetchAvatar avatar={friend.avatar} sx={{ height: '100%', width: '100%' }} status={status !== undefined ? status : 'offline'} />
+				<FetchAvatar avatar={friend.avatar ? friend.avatar : ''} sx={{ height: '100%', width: '100%' }} status={status !== undefined ? status : 'offline'} />
 			</FriendListItemAvatar>
 			<FriendListItemText>{friend.login}</FriendListItemText>
 		</FriendListItemWrapper>
@@ -72,7 +72,7 @@ FriendListItem.propTypes = {
 	friend: PropTypes.shape({
 		id: PropTypes.number.isRequired,
 		login: PropTypes.string.isRequired,
-		avatar: PropTypes.string.isRequired,
+		avatar: PropTypes.string,
 	}).isRequired,
 	activeFriendId: PropTypes.number.isRequired,
 	onClick: PropTypes.func.isRequired,
@@ -272,7 +272,7 @@ export const UserListItem = ({ user, friends, blockedUserIds, setBlockedUserIds,
 	return (
 		<UserListItemWrapper>
 			<UserListItemAvatar>
-				<FetchAvatar avatar={user.avatar} sx={{ height: '100%', width: '100%' }} />
+				<FetchAvatar avatar={user.avatar ? user.avatar : ''} sx={{ height: '100%', width: '100%' }} />
 			</UserListItemAvatar>
 			<UserListItemText>{user.login}</UserListItemText>
 			{friends.find((friend) => friend.id === user.id) ?
@@ -299,7 +299,7 @@ UserListItem.propTypes = {
 	user: PropTypes.shape({
 		id: PropTypes.number.isRequired,
 		login: PropTypes.string.isRequired,
-		avatar: PropTypes.string.isRequired,
+		avatar: PropTypes.string,
 	}).isRequired,
 	friends: PropTypes.arrayOf(
 		PropTypes.shape({
