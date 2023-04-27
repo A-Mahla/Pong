@@ -10,6 +10,7 @@ import { socket } from './Socket';
 import { ChatContext } from './Chat';
 import FetchAvatar from '../component/FetchAvatar'
 import { FriendRequest, User } from './Chat.types';
+import { StatusContext } from '../page/LeadPage';
 
 export const FriendListWrapper = styled('div')({
 	borderRadius: '20px',
@@ -45,6 +46,13 @@ export const FriendListItemWrapper = styled('div')<FriendListItemWrapperProps>((
 }));
 
 export const FriendListItem = ({ friend, activeFriendId, onClick }: { friend: User, activeFriendId: number, onClick: (friend: User) => void }) => {
+	const { friendStatusTab } = useContext(StatusContext)
+
+	console.log('friendStatusTab in FriendListItem: ', friendStatusTab)
+	const status = friendStatusTab.find(item => item.id === friend.id)?.status as string
+
+	console.log('status in FriendListItem: ', status)
+
 	return (
 		<FriendListItemWrapper
 			key={friend.id}
@@ -52,7 +60,7 @@ export const FriendListItem = ({ friend, activeFriendId, onClick }: { friend: Us
 			onClick={() => onClick(friend)}
 		>
 			<FriendListItemAvatar>
-				<FetchAvatar avatar={friend.avatar} sx={{ height: '100%', width: '100%' }} />
+				<FetchAvatar avatar={friend.avatar} sx={{ height: '100%', width: '100%' }} status={status !== undefined ? status : 'offline'} />
 			</FriendListItemAvatar>
 			<FriendListItemText>{friend.login}</FriendListItemText>
 		</FriendListItemWrapper>
@@ -229,11 +237,11 @@ const UserListItemText = styled('div')({
 	flexGrow: 1,
 });
 
-export const UserListItem = ({ user, friends, blockedUserIds, setBlockedUserIds ,onClick, friendRequests, id }: { user: User, friends: User[], blockedUserIds: number[], setBlockedUserIds: (ids: number[]) => void, onClick: (id: number) => void, friendRequests: FriendRequest[], id: number }) => {
+export const UserListItem = ({ user, friends, blockedUserIds, setBlockedUserIds, onClick, friendRequests, id }: { user: User, friends: User[], blockedUserIds: number[], setBlockedUserIds: (ids: number[]) => void, onClick: (id: number) => void, friendRequests: FriendRequest[], id: number }) => {
 
 	if (id === user.id)
 		return null
-	
+
 	console.log('blockedUserIds: ', blockedUserIds)
 
 	const [isSendingRequest, setIsSendingRequest] = React.useState(false);
@@ -273,13 +281,13 @@ export const UserListItem = ({ user, friends, blockedUserIds, setBlockedUserIds 
 					<MoreHorizIcon />
 					:
 					blockedUserIds.find(id => user.id === id) ?
-					<IconButton onClick={handleUnblockUser}>
-						<LockOpenIcon/>
-					</IconButton>
-					:
-					<IconButton onClick={handleAddFriendClick} disabled={isSendingRequest}>
-						<AddIcon />
-					</IconButton>
+						<IconButton onClick={handleUnblockUser}>
+							<LockOpenIcon />
+						</IconButton>
+						:
+						<IconButton onClick={handleAddFriendClick} disabled={isSendingRequest}>
+							<AddIcon />
+						</IconButton>
 
 			}
 		</UserListItemWrapper>

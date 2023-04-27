@@ -41,7 +41,9 @@ export class StatusService {
 
 		await this.userService.inGame(userId)
 
-		if (friendsIds.length)
+		if (friendsIds.length) {
+			console.log('sendFriendInGameEvent to friends\n')
 			server.to(friendsIds).emit('friendInGame', userId)
+		}
 	}
 }

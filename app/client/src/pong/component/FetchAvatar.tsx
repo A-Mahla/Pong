@@ -8,11 +8,12 @@ import axios from 'axios';
 
 type PropsAvatar = {
 	avatar?: string,
-	displayStatus?: boolean,
+	//displayStatus?: boolean,
+	status?: string,
 	sx: SxProps
 }
 
-const StyledBadge = styled(Badge)(({ theme}) => ({
+const StyledBadge = styled(Badge)(({ theme }) => ({
 	'& .MuiBadge-badge': {
 		//backgroundColor: 'white',
 		//color: dotColor,
@@ -48,25 +49,27 @@ const FetchAvatar = (props: PropsAvatar) => {
 	const auth = useAuth()
 	const fetchAuth = useFetchAuth()
 
+	console.log('props.status: ', props.status, 'avatar: ', props.avatar)
+
 	useEffect(() => {
 
 		async function fetching() {
 
 			try {
 
-				if (props.displayStatus) {
+				//if (props.status) {
 
-					const getStatusRequest = {
-						api: {
-							input: `http://${import.meta.env.VITE_SITE}/api/users/status`,
-						},
-						auth: fetchAuth
-					}
+				//	const getStatusRequest = {
+				//		api: {
+				//			input: `http://${import.meta.env.VITE_SITE}/api/users/status`,
+				//		},
+				//		auth: fetchAuth
+				//	}
 
-					const response = await FetchApi(getStatusRequest)
-					console.log('status: ', response?.data.status)
-					setStatus(response?.data.status)
-				}
+				//	const response = await FetchApi(getStatusRequest)
+				//	console.log('status\n\n\n\n\n: ', response?.data.status)
+				//	setStatus(response?.data.status)
+				//}
 
 				if (props.avatar) {
 
@@ -128,7 +131,7 @@ const FetchAvatar = (props: PropsAvatar) => {
 		{!fetched ?
 			null
 			:
-			props.displayStatus ?
+			props.status ?
 
 				<StyledBadge
 					overlap="circular"
@@ -140,7 +143,7 @@ const FetchAvatar = (props: PropsAvatar) => {
 								'red'
 								:
 								'lightgrey' */
-								color: '#44b700'
+						color: '#44b700'
 
 					}}
 					variant='dot'
@@ -149,6 +152,8 @@ const FetchAvatar = (props: PropsAvatar) => {
 						alt="other_avatar"
 						src={image}
 					/>
+					{props.status}
+					{/* props.status !== undefined ? props.status : status */}
 				</StyledBadge>
 				:
 				<Avatar

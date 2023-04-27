@@ -33,6 +33,8 @@ export const StatusSocketProvider = ({ children }: { children: ReactNode }) => {
 	const { token } = useFetchAuth();
 	const [friendStatusTab, setFriendStatusTab] = useState<{ id: number, status: string }[]>([])
 	const [onlineEvent, setOnlineEvent] = useState<number | undefined>(undefined)
+	const [offlineEvent, setOfflineEvent] = useState<number | undefined>(undefined)
+	const [inGameEvent, setInGameEvent] = useState<number | undefined>(undefined)
 	const [socketStatus, setSocketStatus] = useState<Socket | null>(null)
 	const auth = useAuth()
 
@@ -61,21 +63,25 @@ export const StatusSocketProvider = ({ children }: { children: ReactNode }) => {
 	useEffect(() => {
 
 		function handleFriendOnlineEvent(id: number) {
-			console.log(`friend n:${id} is online` + new Date)
+			//console.log(`friend n:${id} is online` + new Date)
 			setOnlineEvent(id)
 			//setFriendStatusTab(friendStatusTab.map(item => item.id === id ? { ...item, status: 'online' } : item))
 		}
 
 		function handleFriendOfflineEvent(id: number) {
-			console.log(`friend n:${id} is offline`)
+			//console.log(`friend n:${id} is offline`)
+			setOfflineEvent(id)
 			//setFriendStatusTab(friendStatusTab.map(item => item.id === id ? { ...item, status: 'offline' } : item))
 		}
 
 		function handleFriendInGameEvent(id: number) {
-			console.log(`friend n:${id} is in game`)
+			//console.log(`friend n:${id} is in game`)
+			setInGameEvent(id)
 			//setFriendStatusTab(friendStatusTab.map(item => item.id === id ? { ...item, status: 'inGame' } : item))
 		}
+
 		if (socketStatus) {
+
 			socketStatus.on("connect", () => {
 				console.log("connected to status server" + new Date());
 			})
@@ -98,6 +104,7 @@ export const StatusSocketProvider = ({ children }: { children: ReactNode }) => {
 
 
 		return () => {
+
 			if (socketStatus) {
 
 				socketStatus.off('friendOnline', handleFriendOnlineEvent)
@@ -110,14 +117,25 @@ export const StatusSocketProvider = ({ children }: { children: ReactNode }) => {
 	}, [socketStatus])
 
 	useEffect(() => {
+		console.log('friendStatusTab: ', friendStatusTab)
 
 		if (onlineEvent !== undefined) {
-			console.log('onlineEvent: ', onlineEvent, new Date())
+			// console.log('onlineEvent: ', onlineEvent, new Date())
 			setFriendStatusTab(friendStatusTab.map(item => item.id === onlineEvent ? { ...item, status: 'online' } : item))
 			setOnlineEvent(undefined)
 		}
+		if (offlineEvent !== undefined) {
+			// console.log('offlineEvent: ', offlineEvent, new Date())
+			setFriendStatusTab(friendStatusTab.map(item => item.id === offlineEvent ? { ...item, status: 'offline' } : item))
+			setOfflineEvent(undefined)
+		}
+		if (inGameEvent !== undefined) {
+			// console.log('inGameEvent: ', inGameEvent, new Date())
+			setFriendStatusTab(friendStatusTab.map(item => item.id === inGameEvent ? { ...item, status: 'inGame' } : item))
+			setInGameEvent(undefined)
+		} 
 
-	}, [onlineEvent])
+	}, [onlineEvent, inGameEvent, offlineEvent])
 
 	return (
 		<>

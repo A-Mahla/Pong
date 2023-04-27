@@ -8,6 +8,7 @@ import { MessageData } from './Chat.types';
 import FetchAvatar from '../component/FetchAvatar';
 import { SettingsButtton } from './ControlButton';
 import { Message } from './MessageBoxUtils';
+import { StatusContext } from '../page/LeadPage';
 
 
 const ChatInputField = styled(TextField)({
@@ -157,6 +158,7 @@ export const MessagesBox = () => {
 
 	const { id } = useAuth()
 	const { blockedUserIds } = useContext(ChatContext)
+	const { friendStatusTab } = useContext(StatusContext)
 
 	const {
 		rooms, directMessages,
@@ -228,7 +230,7 @@ export const MessagesBox = () => {
 			{
 				target.id !== 0 ?
 					<ChatHeader>
-						<FetchAvatar avatar={target.id !== 0 ? target.avatar : ''} sx={null} displayStatus={true} />
+						<FetchAvatar avatar={target.id !== 0 ? target.avatar : ''} sx={null} status={friendStatusTab.find(item => item.id === target.id)?.status as string} />
 						<Typography sx={{ p: '2rem' }}>{target.login}</Typography>
 						<SettingsButtton />
 					</ChatHeader>
