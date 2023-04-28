@@ -80,21 +80,21 @@ const AboutUs = () => {
 				<Grid item xs={4} display="flex" justifyContent="center">
 					<Avatar
 						alt="sacha"
-						src="/public/slahlou.JPG"
+					src="./slahlou.JPG"
 						sx={avatarSx}
 					/>
 				</Grid>
 				<Grid item xs={4} display="flex" justifyContent="center">
 					<Avatar
 						alt="augustin"
-						src="/public/alorain.jpeg"
+						src="./alorain.jpeg"
 						sx={avatarSx}
 					/>
 				</Grid>
 				<Grid item xs={4} display="flex" justifyContent="center">
 					<Avatar
 						alt="amir"
-						src="/public/amahla.JPG"
+						src="./amahla.JPG"
 						sx={avatarSx}
 					/>
 				</Grid>
