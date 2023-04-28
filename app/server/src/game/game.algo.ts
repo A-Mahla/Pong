@@ -163,7 +163,7 @@ export class GameAlgo {
 			}
 		}
 		// game is finish by timeout || player lack of activity has been detected
-		if ( ++this.gameDataUpdate.timer == this.gameModel.duration || this.playersTimeout() ) {
+		if ( ++this.gameDataUpdate.timer == this.gameModel.duration /* || this.playersTimeout()  */) {
 			this.server.to(this.player1!.socketID).volatile.emit('gameOver', this.gameDataUpdate);
 			this.server.to(this.player2!.socketID).volatile.emit('gameOver', this.rotateGameDataUpdate(this.gameDataUpdate));
 			this.status = Status.OVER;
@@ -434,13 +434,15 @@ export class GameAlgo {
 	/* ---------------------------------------------- */
 
 	private playersTimeout(): boolean {
-		if ((Date.now() - this.gameModel.p1timeout) > 10000)
+		if ((Date.now() - this.gameModel.p1timeout) > 20000)
 		{
+			console.log("Timestamp: ", Date.now() - this.gameModel.p1timeout)
 			this.gameDataUpdate.p1score = 0;
 			this.gameDataUpdate.p2score += 1;
 			return (true);
 		}
-		else if (((Date.now() - this.gameModel.p2timeout) > 10000 )) {
+		else if (((Date.now() - this.gameModel.p2timeout) > 20000 )) {
+			console.log("Timestamp: ", Date.now() - this.gameModel.p1timeout)
 			this.gameDataUpdate.p1score += 1;
 			this.gameDataUpdate.p2score = 0;
 			return (true);

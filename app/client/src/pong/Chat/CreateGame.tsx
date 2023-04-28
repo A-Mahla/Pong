@@ -23,6 +23,10 @@ export function JoinQueuButtonChat({player2, player2Id, openDialog, setOpenDialo
 	 * Sur le Onclick du bouton JOIN, il faut faire un POST de playerPayload sur la route:
 	 * 			'/api/game/newInvite'
 	 */
+
+	if (player2Id === 0)
+		return null
+
 	const {user, id} = useAuth();
 	const [playerPayload, setPlayerPayload] = useState<InviteGameDataPaylaod>({
 		sender_id: id,
