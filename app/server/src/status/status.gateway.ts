@@ -15,18 +15,18 @@ export class StatusGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 	server: Server;
 
 	afterInit(server: Server): any {
-		console.log('Initialized status')
+		// console.log('Initialized status')
 	}
 
 	@SubscribeMessage('inGame')
 	async handleInGame(client: Socket, userId: number) {
-		console.log('inGame:', userId)
+		// console.log('inGame:', userId)
 		await this.statusService.inGame(this.server, userId)
 	}
 
 	@SubscribeMessage('outGame')
 	async handleOutGame(client: Socket, userId: number) {
-		console.log('outGame: ', userId)
+		// console.log('outGame: ', userId)
 		await this.statusService.connectUser(this.server, userId)
 	}
 
@@ -39,7 +39,7 @@ export class StatusGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
 				if (clientPayload && clientPayload.sub) {
 					client.join(clientPayload.sub.toString() + 'chat')
-					console.log('Connected to status gateway: ', clientPayload.sub)
+					// console.log('Connected to status gateway: ', clientPayload.sub)
 					await this.statusService.connectUser(this.server, +(clientPayload.sub))
 				}
 

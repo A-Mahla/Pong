@@ -186,7 +186,6 @@ export const FriendRequestItem = ({ friendRequest, id }: { friendRequest: Friend
 	}
 
 	const handleDeclineFriendRequest = (friendRequestParam: FriendRequest) => {
-		console.log('friendRequestParam: ', friendRequestParam)
 		socket.emit('declineFriend', { senderId: friendRequestParam.user1Id, friendRequestId: friendRequestParam.id })
 		setFriendRequests(friendRequests.filter((friendRequest) => friendRequest.id !== friendRequestParam.id))
 	}

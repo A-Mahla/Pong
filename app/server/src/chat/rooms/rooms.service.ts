@@ -364,11 +364,18 @@ export class RoomsService {
 	}
 
 	async getRoomMuteds(roomId: number) {
+		const lifetime = 60 * 2 * 1000 //2 minutes en ms
+
+		const now = Date.now()
+
+		const cutoff = now - lifetime
+
 		return (await this.prisma.mute.findMany({
 			where: {
 				RoomId: roomId
 			},
 			select: {
+				createdAt: true,
 				MutedUser: {
 					select: {
 						id: true,
@@ -380,7 +387,8 @@ export class RoomsService {
 		})
 			.catch((e) => {
 				throw new BadRequestException(e);
-			})).map(mutedUser => ({ id: mutedUser.MutedUser.id, login: mutedUser.MutedUser.login, avatar: mutedUser.MutedUser.avatar }))
+			})).filter(mutedUser => mutedUser.createdAt > new Date(cutoff))
+			.map(mutedUser => ({ id: mutedUser.MutedUser.id, login: mutedUser.MutedUser.login, avatar: mutedUser.MutedUser.avatar }))
 
 	}
 

@@ -86,9 +86,9 @@ export const StatusSocketProvider = ({ children }: { children: ReactNode }) => {
 		//if (socketStatus) {
 		if (fetched && socketStatus) {
 
-			socketStatus.on("connect", () => {
-				console.log("connected to status server" + new Date());
-			})
+			//socketStatus.on("connect", () => {
+			//	console.log("connected to status server" + new Date());
+			//})
 
 			socketStatus.on('friendOnline', handleFriendOnlineEvent)
 
@@ -139,19 +139,16 @@ export const StatusSocketProvider = ({ children }: { children: ReactNode }) => {
 		}
 
 		if (onlineEvent !== undefined) {
-			console.log('onlineEvent: ', onlineEvent)
 			//setFriendStatusTab(friendStatusTab.map(item => item.id === onlineEvent ? { ...item, status: 'online' } : item))
 			getFriendsStatus().then(data => setFriendStatusTab(data))
 			setOnlineEvent(undefined)
 		}
 		if (offlineEvent !== undefined) {
-			console.log('offlineEvent: ', offlineEvent)
 			//setFriendStatusTab(friendStatusTab.map(item => item.id === offlineEvent ? { ...item, status: 'offline' } : item))
 			getFriendsStatus().then(data => setFriendStatusTab(data))
 			setOfflineEvent(undefined)
 		}
 		if (inGameEvent !== undefined) {
-			console.log('inGameEvent: ', inGameEvent)
 			getFriendsStatus().then(data => setFriendStatusTab(data))
 			//setFriendStatusTab(friendStatusTab.map(item => item.id === inGameEvent ? { ...item, status: 'inGame' } : item))
 			setInGameEvent(undefined)
