@@ -2,7 +2,7 @@ NAME		:= pong
 
 all			: ${NAME}
 
-${NAME}		: dev
+${NAME}		: prod
 
 prod		:
 			docker compose up --build
@@ -13,7 +13,7 @@ dev			:
 compose		:
 			docker-compose -f docker-compose.dev.yml up --build
 
-clean		: clean-dev
+clean		: clean-prod
 
 clean-prod	:
 			docker compose down
@@ -24,7 +24,7 @@ clean-dev	:
 clean-comp	:
 			docker-compose -f docker-compose.dev.yml down
 
-fclean 		: fclean-dev
+fclean 		: fclean-prod
 
 fclean-prod	: clean-prod
 			docker system prune -af
@@ -50,7 +50,7 @@ fclean-comp	: clean-comp
 			docker volume rm postgres -f
 			rm -rf ./app/server/prisma/migrations
 
-re			: re-dev
+re			: re-prod
 
 re-prod		: fclean-prod
 			make prod
